@@ -58,13 +58,13 @@ class WinControls extends WiseWindow {
         { value: 'green', label: 'Green' },
         { value: 'blue', label: 'Blue' },
       ],
-      { id: 'radioColor', value: 'green' }
+      { id: 'radioColor', value: 'green', onChange: () => { this.dateBirthday.setDisabled(true) } }
     ));
 
     this.addControl(new WiseLabel('Department', { id: 'lblDepartment', style: HEADING_STYLE }));
     this.addControl(new WiseComboBox(
       DEPARTMENTS.map((dept) => ({ value: dept, label: dept })),
-      { id: 'cmbDepartment', value: 'Engineering' }
+      { id: 'cmbDepartment', value: 'Engineering', onChange: () => { console.log("Department changed"); this.dateBirthday.setDisabled(false); } }
     ));
 
     this.addControl(new WiseLabel('Age', { id: 'lblAge', style: HEADING_STYLE }));

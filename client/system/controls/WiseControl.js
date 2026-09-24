@@ -26,6 +26,24 @@
       return this;
     }
 
+    getDisabled() {
+      return this.disabled;
+    }
+
+    setDisabled(value) {
+      this.disabled = !!value;
+      return this;
+    }
+
+    getVisibility() {
+      return this.visible;
+    }
+
+    setVisibility(value) {
+      this.visible = !!value;
+      return this;
+    }
+
     render() {
       return {
         type: this.name,

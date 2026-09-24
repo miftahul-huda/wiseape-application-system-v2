@@ -772,6 +772,26 @@ class WiseDesktop {
           // back into renderControl() via context.desktop. Existing
           // patchElement(winEl, data) overrides just ignore the extra arg.
           ControlClass.patchElement(winEl, control, { appId, windowId, desktop: this });
+          
+          const el = winEl.querySelector(`[data-control-id="${control.id}"]`);
+          if (el) {
+            if (control.visible === false) {
+              el.style.display = 'none';
+            } else {
+              el.style.display = '';
+            }
+            if (control.disabled) {
+              el.disabled = true;
+              el.classList.add('wise-disabled');
+              el.style.pointerEvents = 'none';
+              el.style.opacity = '0.5';
+            } else {
+              el.disabled = false;
+              el.classList.remove('wise-disabled');
+              el.style.pointerEvents = '';
+              el.style.opacity = '';
+            }
+          }
         }
       } else if (body) {
         body.appendChild(this.wrapControl(control, appId, windowId));

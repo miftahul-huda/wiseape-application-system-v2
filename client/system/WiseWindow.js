@@ -57,6 +57,26 @@ class WiseWindow {
     return this;
   }
 
+  // Removes a control (and its registered shorthand this[id]) by id.
+  // Also unregisters any nested child controls for container controls.
+  removeControl(id) {
+    const unregister = (control) => {
+      if (control.id) {
+        delete this[control.id];
+      }
+      if (typeof control.getChildControls === 'function') {
+        control.getChildControls().forEach((child) => unregister(child));
+      }
+    };
+
+    const index = this.controls.findIndex((c) => c.id === id);
+    if (index !== -1) {
+      const [removed] = this.controls.splice(index, 1);
+      unregister(removed);
+    }
+    return this;
+  }
+
   // Registers a control (and, for a container control, every control
   // nested inside it) as this[control.id] -- what makes this.txtName work
   // for a control added directly OR nested inside a WiseTableLayout/
