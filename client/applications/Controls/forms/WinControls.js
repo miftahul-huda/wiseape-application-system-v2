@@ -14,6 +14,7 @@ const WiseButton = require('../../../system/controls/WiseButton');
 const WiseTableLayout = require('../../../system/controls/WiseTableLayout');
 const WiseTabControl = require('../../../system/controls/WiseTabControl');
 const WiseDataTable = require('../../../system/controls/WiseDataTable');
+const WiseCardGroup = require('../../../system/controls/WiseCardGroup');
 const WiseFrame = require('../../../system/controls/WiseFrame');
 const ApiEmployeeRepository = require('../repositories/ApiEmployeeRepository');
 
@@ -165,6 +166,23 @@ class WinControls extends WiseWindow {
     ]);
     this.addControl(new WiseLabel('', { id: 'lblEmployeeResult', style: { fontSize: 12, marginTop: '2px', color: '#374151' } }));
 
+    // -- WiseCardGroup: same paged employeeRepository data as the data
+    // table above, rendered as cards instead of rows -- titleField/
+    // imageField/textField map row fields onto each card, the card-group
+    // equivalent of a WiseDataTable column's dataField.
+    this.addControl(new WiseLabel('Team Directory (Card Group)', { id: 'lblCardsHeading', style: { ...HEADING_STYLE, marginTop: '16px' } }));
+    this.addControl(new WiseCardGroup({
+      id: 'cgEmployees',
+      pageSize: 6,
+      pageSizeOptions: [6, 12],
+      titleField: 'name',
+      imageField: 'avatar',
+      textField: 'department',
+      onDataFilterChanged: this.onEmployeeCardsFilterChanged.bind(this),
+      onRowSelect: this.onEmployeeCardSelect.bind(this),
+    }));
+    this.addControl(new WiseLabel('', { id: 'lblCardResult', style: { fontSize: 12, marginTop: '2px', color: '#374151' } }));
+
     this.addControl(new WiseButton('Show Values', {
       id: 'btnShow',
       onClick: this.onShowValues.bind(this),
@@ -184,6 +202,7 @@ class WinControls extends WiseWindow {
 
   async loadInitialData() {
     await this.applyEmployeesPage(this.dtEmployees.pageSize, this.dtEmployees.currentPage);
+    await this.applyEmployeeCardsPage(this.cgEmployees.pageSize, this.cgEmployees.currentPage);
   }
 
   async applyEmployeesPage(pageSize, page) {
@@ -224,6 +243,25 @@ class WinControls extends WiseWindow {
 
   onEmployeeEditRow(row) {
     this.lblEmployeeResult.text(`Editing: ${JSON.stringify(row)}`);
+  }
+
+  // Same wiseape_employees source and pageSize/currentPage-on-the-control
+  // pattern as applyEmployeesPage above -- WiseCardGroup pages exactly like
+  // WiseDataTable, it just renders each row as a card instead of a row.
+  async applyEmployeeCardsPage(pageSize, page) {
+    const offset = (page - 1) * pageSize;
+    const { rows, totalCount } = await employeeRepository.listEmployees({ limit: pageSize, offset });
+    this.cgEmployees.pageSize = pageSize;
+    this.cgEmployees.currentPage = page;
+    this.cgEmployees.setData(rows.map((row) => ({ ...row, avatar: initialsAvatar(row.name) })), totalCount);
+  }
+
+  async onEmployeeCardsFilterChanged(pageSize, page) {
+    await this.applyEmployeeCardsPage(pageSize, page);
+  }
+
+  onEmployeeCardSelect(row) {
+    this.lblCardResult.text(`Selected: ${row.name} — ${row.department}`);
   }
 
   onAvatarChange() {
