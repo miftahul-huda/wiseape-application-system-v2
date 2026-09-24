@@ -65,6 +65,32 @@ async function start() {
     return res.sendFile(path.join(__dirname, 'system', 'controls', req.params.file));
   });
 
+  // Icons live as files (applications/<App>/assets/icons/icon.svg), not in
+  // the database -- app_icon/menu icon columns are only ever the fallback
+  // glyph shown until a real file is found (see WiseDesktop.upgradeIcon).
+  // appId is only ever used to look up a known app (never concatenated
+  // straight into a path), and the resolved path is double-checked to stay
+  // inside applications/ as a second layer of defense.
+  app.get('/app-assets/:appId/icon.svg', (req, res) => {
+    const appEntry = system.apps.find((candidate) => String(candidate.appID) === String(req.params.appId));
+    if (!appEntry || !appEntry.appStartPoint) {
+      return res.status(404).end();
+    }
+
+    const relativePath = String(appEntry.appStartPoint).split(':')[0];
+    const appsRoot = path.join(__dirname, 'applications') + path.sep;
+    const iconPath = path.join(__dirname, path.dirname(relativePath), 'assets', 'icons', 'icon.svg');
+
+    if (!iconPath.startsWith(appsRoot)) {
+      return res.status(404).end();
+    }
+
+    fs.access(iconPath, fs.constants.R_OK, (err) => {
+      if (err) return res.status(404).end();
+      res.type('image/svg+xml').sendFile(iconPath);
+    });
+  });
+
   app.get('/api/system', (req, res) => {
     res.json(system.getSystemSnapshot());
   });

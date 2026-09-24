@@ -137,10 +137,41 @@ body {
   box-shadow: 0 10px 18px -4px rgba(0,0,0,0.32);
 }
 
+/* macOS-dock-style launch feedback -- see WiseDesktop.launchApp(). Applied
+   to whichever icon element (grid glyph or dock item) was clicked, and
+   removed the instant the app's window actually appears, so it can't drift
+   out of sync with how long the launch really takes. */
+@keyframes wise-icon-bounce {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-14px); }
+  50% { transform: translateY(0); }
+  65% { transform: translateY(-6px); }
+  80% { transform: translateY(0); }
+}
+
+.icon-launching {
+  animation: wise-icon-bounce 0.9s ease-in-out infinite;
+}
+
 .glyph svg {
   width: 28px;
   height: 28px;
   color: white;
+}
+
+/* A real icon file (see WiseDesktop.upgradeIcon) fills its container
+   edge-to-edge -- per docs/DEVELOPMENT_GUIDE.md's icon.svg convention, the
+   file's own artwork already includes its background/rounded corners, so
+   it replaces the glyph's decorative accent-colored box rather than
+   sitting inside it. width/height: 100% (not a fixed px size) means this
+   works whether it lands in a 58px desktop glyph, a 64px Launchpad glyph,
+   or a dock item that's being live-resized by the magnify effect. */
+.wise-app-icon-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
 }
 
 .app-icon .label {

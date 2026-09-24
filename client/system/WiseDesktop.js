@@ -4,11 +4,15 @@ class WiseDesktop {
     this.menus = [];
     this.topBar = {
       left: ['Wiseape'],
-      right: ['Battery 100%', 'Wi‑Fi', 'Tue 9:41'],
+      // The clock isn't a static string here -- it's rendered and kept
+      // live separately (see renderDesktop/startClock), since a fixed
+      // string obviously never changes.
+      right: ['Battery 100%', 'Wi‑Fi'],
     };
     this.theme = 'macos';
     this.windowStack = [];
     this.onIconClick = null;
+    this.clockInterval = null;
   }
 
   // Builds the desktop snapshot and, in the browser (when a DOM `root` is
@@ -58,6 +62,22 @@ class WiseDesktop {
     return result;
   }
 
+  // Calls onIconClick (which kicks off runApplication's fetch round trip)
+  // and, for as long as that's in flight, bounces `glyphEl` -- macOS-dock-
+  // style feedback that a launch is happening even before the window
+  // actually shows up. Since it's tied to the real launch promise rather
+  // than a fixed timer, it can't outlast (or undershoot) how long the
+  // round trip actually takes -- a slow app load just bounces longer.
+  launchApp(node, glyphEl) {
+    if (typeof this.onIconClick !== 'function') return;
+
+    if (glyphEl) glyphEl.classList.add('icon-launching');
+    const result = this.onIconClick(node);
+    if (glyphEl && result && typeof result.finally === 'function') {
+      result.finally(() => glyphEl.classList.remove('icon-launching'));
+    }
+  }
+
   onApplicationIconClick(app) {
     return {
       event: 'onApplicationIconClick',
@@ -91,6 +111,30 @@ class WiseDesktop {
     return icons[key] || `<span>${key}</span>`;
   }
 
+  // Icons are meant to live as files (applications/<App>/assets/icons/
+  // icon.svg, served by /app-assets/:appId/icon.svg -- see app.js), not in
+  // the database: getIconMarkup() above always renders the DB/menu-table
+  // glyph first (so there's never a blank icon), and this probes for a real
+  // file in the background, swapping it in only once it's confirmed to
+  // actually load. `container` is the already-rendered glyph/dock-item
+  // element holding that fallback markup.
+  upgradeIcon(container, entity) {
+    if (!container || !entity) return;
+    const appId = entity.appId || entity.appID;
+    if (!appId) return;
+
+    const probe = new Image();
+    probe.onload = () => {
+      const img = document.createElement('img');
+      img.src = probe.src;
+      img.alt = '';
+      img.className = 'wise-app-icon-img';
+      container.innerHTML = '';
+      container.appendChild(img);
+    };
+    probe.src = `/app-assets/${appId}/icon.svg`;
+  }
+
   applyTheme(theme) {
     if (!theme) return;
 
@@ -112,6 +156,34 @@ class WiseDesktop {
     if (this.root && typeof document !== 'undefined') {
       document.documentElement.style.setProperty('--desktop-image', this.backgroundImage ? `url("${this.backgroundImage}")` : 'none');
     }
+  }
+
+  // Keeps `clockEl` showing the actual current date/time, ticking every
+  // second. Clears any previous interval first so calling renderDesktop()
+  // more than once (a fresh DOM tree each time) can't leak timers updating
+  // an element that's no longer on the page.
+  startClock(clockEl) {
+    if (this.clockInterval) {
+      clearInterval(this.clockInterval);
+    }
+
+    const update = () => {
+      clockEl.textContent = this.formatClock(new Date());
+    };
+
+    update();
+    this.clockInterval = setInterval(update, 1000);
+  }
+
+  formatClock(date) {
+    const weekday = date.toLocaleDateString(undefined, { weekday: 'short' });
+    const day = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const period = hours >= 12 ? 'PM' : 'AM';
+    hours %= 12;
+    if (hours === 0) hours = 12;
+    return `${weekday} ${day} ${hours}:${minutes} ${period}`;
   }
 
   // ---- Browser-only rendering below (requires `root` and `document`) ----
@@ -138,6 +210,11 @@ class WiseDesktop {
     const rightBar = root.querySelector('.topbar .right');
 
     if (rightBar) {
+      const clock = document.createElement('span');
+      clock.className = 'topbar-clock';
+      rightBar.appendChild(clock);
+      this.startClock(clock);
+
       const logout = document.createElement('span');
       logout.className = 'logout-item';
       logout.textContent = 'Logout';
@@ -175,9 +252,7 @@ class WiseDesktop {
           return;
         }
         this.onApplicationIconClick(node);
-        if (typeof this.onIconClick === 'function') {
-          this.onIconClick(node);
-        }
+        this.launchApp(node, icon.querySelector('.glyph'));
       };
 
       const icon = document.createElement('div');
@@ -188,24 +263,28 @@ class WiseDesktop {
       `;
       icon.addEventListener('click', handleClick);
       grid.appendChild(icon);
+      this.upgradeIcon(icon.querySelector('.glyph'), node);
     });
 
     // Dock: every item (leaf) across the whole tree, flattened -- folders
     // don't appear here, matching how a real dock has no concept of them.
+    // data-app-id lets openMenuOverlay's own click handler find the
+    // matching dock icon to bounce, since a Launchpad item disappears
+    // (the overlay closes) the instant it's clicked.
     this.flattenMenuItems(this.menus).forEach((item) => {
       const handleClick = () => {
         this.onApplicationIconClick(item);
-        if (typeof this.onIconClick === 'function') {
-          this.onIconClick(item);
-        }
+        this.launchApp(item, dockItem);
       };
 
       const dockItem = document.createElement('div');
       dockItem.className = 'dock-item';
+      dockItem.dataset.appId = item.appId;
       dockItem.innerHTML = this.getIconMarkup(item);
       dockItem.title = item.label;
       dockItem.addEventListener('click', handleClick);
       dock.appendChild(dockItem);
+      this.upgradeIcon(dockItem, item);
     });
 
     this.attachDockMagnify(dock);
@@ -298,6 +377,7 @@ class WiseDesktop {
         <div class="glyph">${this.getIconMarkup(node)}</div>
         <div class="label">${node.label}</div>
       `;
+      this.upgradeIcon(item.querySelector('.glyph'), node);
       item.addEventListener('click', (event) => {
         event.stopPropagation();
         if (node.type === 'group') {
@@ -305,9 +385,11 @@ class WiseDesktop {
           return;
         }
         this.onApplicationIconClick(node);
-        if (typeof this.onIconClick === 'function') {
-          this.onIconClick(node);
-        }
+        // This overlay item is about to be removed (closeOverlay below), so
+        // bounce the matching dock icon instead -- it's the one thing that
+        // stays on screen for the whole wait.
+        const dockEl = root.querySelector(`.taskbar .dock-item[data-app-id="${node.appId}"]`);
+        this.launchApp(node, dockEl || item.querySelector('.glyph'));
         closeOverlay();
       });
       gridWrap.appendChild(item);
@@ -473,6 +555,7 @@ class WiseDesktop {
         minimizedItem.className = 'dock-item';
         minimizedItem.innerHTML = this.getIconMarkup(application);
         minimizedItem.title = title;
+        this.upgradeIcon(minimizedItem, application);
         minimizedItem.addEventListener('click', () => {
           removeMinimizedItem();
           win.style.display = 'block';
