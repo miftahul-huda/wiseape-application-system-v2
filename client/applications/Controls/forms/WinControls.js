@@ -141,6 +141,14 @@ class WinControls extends WiseWindow {
       style: { marginTop: '4px' },
     }));
 
+    // -- WiseWindow.showInfo() / WiseApplication.showInfo(): a one-shot
+    // modal alert, icon picked from type -- see WiseDesktop.showInfoDialog.
+    this.addControl(new WiseLabel('Show Info Dialog', { id: 'lblInfoHeading', style: { ...HEADING_STYLE, marginTop: '16px' } }));
+    this.addControl(new WiseButton('Information', { id: 'btnInfoInformation', onClick: this.onShowInfoInformation.bind(this) }));
+    this.addControl(new WiseButton('Success', { id: 'btnInfoSuccess', onClick: this.onShowInfoSuccess.bind(this) }));
+    this.addControl(new WiseButton('Warning', { id: 'btnInfoWarning', onClick: this.onShowInfoWarning.bind(this) }));
+    this.addControl(new WiseButton('Error', { id: 'btnInfoError', onClick: this.onShowInfoError.bind(this) }));
+
     return this;
   }
 
@@ -195,8 +203,23 @@ class WinControls extends WiseWindow {
 
   onShowValues() {
     const summary = this.getValues();
-    alert('Current Control Values:\n\n' + JSON.stringify(summary, null, 2));
-    //this.lblResult.text(JSON.stringify(summary, null, 2));
+    this.showInfo('Current Control Values', JSON.stringify(summary, null, 2), 'information');
+  }
+
+  onShowInfoInformation() {
+    this.showInfo('Heads up', 'This is an informational message.', 'information');
+  }
+
+  onShowInfoSuccess() {
+    this.showInfo('Saved', 'Your changes were saved successfully.', 'success');
+  }
+
+  onShowInfoWarning() {
+    this.showInfo('Careful', 'This action might have side effects.', 'warning');
+  }
+
+  onShowInfoError() {
+    this.showInfo('Something went wrong', 'Could not complete the request.', 'error');
   }
 
   show(param = null) {

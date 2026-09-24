@@ -326,6 +326,67 @@ class WiseDesktop {
     gridWrap.style.transform = 'scale(1)';
   }
 
+  // Modal alert (icon + title + message + OK) queued by WiseWindow.showInfo
+  // / WiseApplication.showInfo and delivered once via a window's `info`
+  // field -- either right when the window first appears (renderWindow) or
+  // as the result of a later control event (sendControlEvent). It's a
+  // desktop-wide overlay like openMenuOverlay, not scoped to one window,
+  // since alerts read fine centered on screen regardless of where the
+  // triggering window happens to be.
+  showInfoDialog(info) {
+    const desktop = this.root.querySelector('.desktop');
+    if (!desktop) return;
+
+    const icons = {
+      information: { glyph: '<circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="16"></line><circle cx="12" cy="8" r="0.5" fill="currentColor" stroke="none"></circle>', className: 'info-dialog-icon-information' },
+      success: { glyph: '<circle cx="12" cy="12" r="9"></circle><polyline points="8 12.5 10.5 15 16 9"></polyline>', className: 'info-dialog-icon-success' },
+      warning: { glyph: '<path d="M12 3.5 2.5 20h19L12 3.5z"></path><line x1="12" y1="9.5" x2="12" y2="14"></line><circle cx="12" cy="17" r="0.5" fill="currentColor" stroke="none"></circle>', className: 'info-dialog-icon-warning' },
+      error: { glyph: '<circle cx="12" cy="12" r="9"></circle><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line>', className: 'info-dialog-icon-error' },
+    };
+    const icon = icons[info.type] || icons.information;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'info-dialog-overlay';
+
+    const card = document.createElement('div');
+    card.className = 'info-dialog-card';
+
+    const closeDialog = () => {
+      overlay.style.opacity = '0';
+      card.style.transform = 'scale(0.94)';
+      overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
+      document.removeEventListener('keydown', onKeydown);
+    };
+
+    const onKeydown = (event) => {
+      if (event.key === 'Escape') closeDialog();
+    };
+
+    card.innerHTML = `
+      <div class="info-dialog-icon ${icon.className}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon.glyph}</svg>
+      </div>
+      <div class="info-dialog-title"></div>
+      <div class="info-dialog-message"></div>
+      <button type="button" class="info-dialog-ok">OK</button>
+    `;
+    card.querySelector('.info-dialog-title').textContent = info.title || '';
+    card.querySelector('.info-dialog-message').textContent = info.message || '';
+    card.querySelector('.info-dialog-ok').addEventListener('click', closeDialog);
+
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) closeDialog();
+    });
+
+    overlay.appendChild(card);
+    desktop.appendChild(overlay);
+    document.addEventListener('keydown', onKeydown);
+
+    void overlay.offsetWidth;
+    overlay.style.opacity = '1';
+    card.style.transform = 'scale(1)';
+  }
+
   renderWindow(application, startupResult = null) {
     const desktop = this.root.querySelector('.desktop');
     if (!desktop) return;
@@ -505,6 +566,10 @@ class WiseDesktop {
     void win.offsetWidth;
     win.style.opacity = '1';
     win.style.transform = 'scale(1)';
+
+    if (windowData && windowData.info) {
+      this.showInfoDialog(windowData.info);
+    }
   }
 
   // Each control class owns its own DOM rendering (a static renderElement
@@ -589,6 +654,10 @@ class WiseDesktop {
 
     if (result.backgroundImage !== undefined) {
       this.applyBackgroundImage(result.backgroundImage);
+    }
+
+    if (result.window && result.window.info) {
+      this.showInfoDialog(result.window.info);
     }
   }
 

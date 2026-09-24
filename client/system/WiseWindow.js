@@ -34,6 +34,20 @@ class WiseWindow {
     this.onShow = null;
     this.onShowDialog = null;
     this.system = options.system || null;
+    this.pendingInfo = null;
+  }
+
+  // Queues a one-shot modal alert (icon + title + message + OK button) for
+  // the browser to show the next time this window's JSON reaches it --
+  // either from run()'s startupResult (called during/after createWindow(),
+  // before the app finishes starting) or from a control event handler
+  // (called mid-session). See toJSON(): the queued info is read and
+  // cleared exactly once, so it shows a single time, not on every
+  // subsequent patch. `type` is 'information' (default), 'success',
+  // 'warning', or 'error' -- WiseDesktop picks the icon/color from it.
+  showInfo(title, message, type = 'information') {
+    this.pendingInfo = { title, message, type };
+    return this.pendingInfo;
   }
 
   addControl(control) {
@@ -130,6 +144,9 @@ class WiseWindow {
   }
 
   toJSON() {
+    const info = this.pendingInfo;
+    this.pendingInfo = null;
+
     return {
       windowId: this.windowId,
       title: this.title,
@@ -144,6 +161,7 @@ class WiseWindow {
       minimized: this.minimized,
       maximized: this.maximized,
       params: this.params,
+      info,
       controls: this.controls.map((control) => control.render ? control.render() : control),
     };
   }

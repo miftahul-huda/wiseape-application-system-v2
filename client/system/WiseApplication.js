@@ -46,6 +46,16 @@ class WiseApplication {
     return this.window;
   }
 
+  // Delegates to the main window's showInfo() (see WiseWindow) -- lets an
+  // app queue a modal alert during run(), e.g. right after createWindow(),
+  // before the window has even been shown yet.
+  showInfo(title, message, type = 'information') {
+    if (!this.window) {
+      throw new Error('showInfo() requires a window -- call createWindow() first');
+    }
+    return this.window.showInfo(title, message, type);
+  }
+
   toJSON() {
     return {
       appID: this.appID,
