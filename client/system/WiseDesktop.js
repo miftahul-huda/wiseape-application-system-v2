@@ -2,8 +2,20 @@ class WiseDesktop {
   constructor(root = null) {
     this.root = root;
     this.menus = [];
+
+    let displayName = 'User';
+    try {
+      const userData = localStorage.getItem('was_user');
+      if (userData) {
+        const parsed = JSON.parse(userData);
+        displayName = parsed.name || parsed.username || 'User';
+      }
+    } catch (e) {
+      // fallback
+    }
+
     this.topBar = {
-      left: ['Wiseape'],
+      left: [displayName],
       // The clock isn't a static string here -- it's rendered and kept
       // live separately (see renderDesktop/startClock), since a fixed
       // string obviously never changes.
@@ -235,7 +247,7 @@ class WiseDesktop {
 
     const launchpadTrigger = document.createElement('div');
     launchpadTrigger.className = 'dock-item launchpad-trigger';
-    launchpadTrigger.title = 'Launchpad';
+    launchpadTrigger.dataset.label = 'Launchpad';
     launchpadTrigger.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="5" height="5" rx="1.2"></rect><rect x="9.5" y="3" width="5" height="5" rx="1.2"></rect><rect x="16" y="3" width="5" height="5" rx="1.2"></rect><rect x="3" y="9.5" width="5" height="5" rx="1.2"></rect><rect x="9.5" y="9.5" width="5" height="5" rx="1.2"></rect><rect x="16" y="9.5" width="5" height="5" rx="1.2"></rect><rect x="3" y="16" width="5" height="5" rx="1.2"></rect><rect x="9.5" y="16" width="5" height="5" rx="1.2"></rect><rect x="16" y="16" width="5" height="5" rx="1.2"></rect></svg>';
     launchpadTrigger.addEventListener('click', () => this.openMenuOverlay(root, this.menus, 'Launchpad'));
     dock.appendChild(launchpadTrigger);
@@ -245,26 +257,7 @@ class WiseDesktop {
     dock.appendChild(separator);
 
     // Desktop grid: the top-level menu tree as-is (folders and items mixed).
-    this.menus.forEach((node) => {
-      const handleClick = () => {
-        if (node.type === 'group') {
-          this.openMenuOverlay(root, node.children || [], node.label, { showBack: true });
-          return;
-        }
-        this.onApplicationIconClick(node);
-        this.launchApp(node, icon.querySelector('.glyph'));
-      };
-
-      const icon = document.createElement('div');
-      icon.className = 'app-icon';
-      icon.innerHTML = `
-        <div class="glyph">${this.getIconMarkup(node)}</div>
-        <div class="label">${node.label}</div>
-      `;
-      icon.addEventListener('click', handleClick);
-      grid.appendChild(icon);
-      this.upgradeIcon(icon.querySelector('.glyph'), node);
-    });
+    // Removed per user request to remove shortcut menu on desktop.
 
     // Dock: every item (leaf) across the whole tree, flattened -- folders
     // don't appear here, matching how a real dock has no concept of them.
@@ -281,7 +274,7 @@ class WiseDesktop {
       dockItem.className = 'dock-item';
       dockItem.dataset.appId = item.appId;
       dockItem.innerHTML = this.getIconMarkup(item);
-      dockItem.title = item.label;
+      dockItem.dataset.label = item.label;
       dockItem.addEventListener('click', handleClick);
       dock.appendChild(dockItem);
       this.upgradeIcon(dockItem, item);
@@ -296,8 +289,8 @@ class WiseDesktop {
   // macOS-style dock magnification: icons grow the closer the pointer gets
   // to their center. Growing real width/height (not a transform: scale)
   // makes the flex layout push neighbors apart instead of overlapping them,
-  // and `align-items: flex-end` on .taskbar keeps everything bottom-anchored
-  // so icons rise upward as they grow, exactly like the real macOS dock.
+  // and `align-items: flex-start` on .taskbar keeps everything left-anchored
+  // so icons push outward as they grow, exactly like a vertical macOS dock.
   attachDockMagnify(dock) {
     const BASE_SIZE = 50;
     const MAX_SIZE = 78;
@@ -306,8 +299,8 @@ class WiseDesktop {
     dock.addEventListener('mousemove', (event) => {
       dock.querySelectorAll('.dock-item').forEach((item) => {
         const rect = item.getBoundingClientRect();
-        const center = rect.left + rect.width / 2;
-        const distance = Math.abs(event.clientX - center);
+        const center = rect.top + rect.height / 2;
+        const distance = Math.abs(event.clientY - center);
         const size = distance < RADIUS
           ? BASE_SIZE + (MAX_SIZE - BASE_SIZE) * (1 - distance / RADIUS)
           : BASE_SIZE;

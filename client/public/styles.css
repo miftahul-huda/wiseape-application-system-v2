@@ -183,27 +183,29 @@ body {
 
 .taskbar {
   position: absolute;
-  left: 50%;
-  bottom: 14px;
-  transform: translateX(-50%);
-  width: auto;
-  max-width: min(92vw, 820px);
-  height: 68px;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 68px;
+  height: auto;
+  max-height: min(92vh, 820px);
   border-radius: 18px;
   background: var(--taskbar);
   box-shadow: 0 16px 40px rgba(15,23,42,0.4), inset 0 0 0 1px rgba(255,255,255,0.08);
   backdrop-filter: blur(26px) saturate(1.6);
   -webkit-backdrop-filter: blur(26px) saturate(1.6);
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: flex-start;
   justify-content: center;
   gap: 12px;
-  padding: 8px 14px;
+  padding: 14px 8px;
   z-index: 5;
-  transition: width 0.16s var(--spring);
+  transition: height 0.16s var(--spring);
 }
 
 .dock-item {
+  position: relative;
   width: 50px;
   height: 50px;
   flex: none;
@@ -219,6 +221,35 @@ body {
   transition: width 0.16s var(--spring), height 0.16s var(--spring), background 0.2s ease;
 }
 
+.dock-item::after {
+  content: attr(data-label);
+  position: absolute;
+  left: calc(100% + 16px);
+  top: 50%;
+  transform: translateY(-50%) scale(0.95);
+  background: rgba(15, 17, 23, 0.85);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.15s ease-out;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.1);
+  z-index: 100;
+}
+
+.dock-item:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) scale(1);
+}
+
 .dock-item:hover {
   background: rgba(255,255,255,0.22);
 }
@@ -231,8 +262,8 @@ body {
 }
 
 .dock-separator {
-  width: 1px;
-  height: 36px;
+  width: 36px;
+  height: 1px;
   flex: none;
   align-self: center;
   background: rgba(255,255,255,0.22);
@@ -289,8 +320,8 @@ body {
 
 .launchpad-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, 100px);
-  gap: 30px 24px;
+  grid-template-columns: repeat(auto-fit, 130px);
+  gap: 36px 24px;
   justify-content: center;
   align-content: center;
   max-width: 900px;
@@ -316,8 +347,8 @@ body {
 }
 
 .launchpad-app .glyph {
-  width: 64px;
-  height: 64px;
+  width: 92px;
+  height: 92px;
   border-radius: 22%;
   background: var(--accent);
   box-shadow: 0 6px 14px -4px rgba(0,0,0,0.28);
@@ -328,8 +359,8 @@ body {
 }
 
 .launchpad-app .glyph svg {
-  width: 30px;
-  height: 30px;
+  width: 44px;
+  height: 44px;
   color: white;
 }
 

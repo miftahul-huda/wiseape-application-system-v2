@@ -60,6 +60,7 @@
         layout: this.layout,
         style: this.style,
         visible: this.visible,
+        disabled: this.disabled,
       };
     }
 

@@ -23,6 +23,7 @@
         hasHoverHandler: !!this.onHover,
         style: this.style,
         visible: this.visible,
+        disabled: this.disabled,
       };
     }
 

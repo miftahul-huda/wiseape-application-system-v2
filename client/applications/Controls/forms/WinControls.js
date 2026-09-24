@@ -89,7 +89,7 @@ class WinControls extends WiseWindow {
     ));
 
     this.addControl(new WiseLabel('Birthday', { id: 'lblBirthday', style: HEADING_STYLE }));
-    this.addControl(new WiseDate('', { id: 'dateBirthday' }));
+    this.addControl(new WiseDate('', { id: 'dateBirthday', disabled: true }));
 
     this.addControl(new WiseLabel('Vacation Dates', { id: 'lblVacation', style: HEADING_STYLE }));
     this.addControl(new WiseDateRange({}, { id: 'rangeVacation' }));
@@ -109,7 +109,7 @@ class WinControls extends WiseWindow {
     this.addControl(new WiseLabel('Contact (Table Layout)', { id: 'lblContactHeading', style: { ...HEADING_STYLE, marginTop: '16px' } }));
     const contactTable = new WiseTableLayout({ id: 'tableContact', rows: 2, columns: 2 });
     contactTable.setCell(0, 0, new WiseLabel('Name', { style: { fontWeight: 600 } }));
-    contactTable.setCell(0, 1, new WiseTextBox('', { id: 'txtContactName', dataField: 'contactName' }));
+    contactTable.setCell(0, 1, new WiseTextBox('', { id: 'txtContactName', dataField: 'contactName', disabled: true }));
     contactTable.setCell(1, 0, new WiseLabel('This row spans both columns', {}), { colSpan: 2 });
     this.addControl(contactTable);
 

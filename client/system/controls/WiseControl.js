@@ -10,6 +10,7 @@
       // defaults to id so most controls never need to set it explicitly.
       this.dataField = options.dataField || options.id || null;
       this.visible = options.visible !== undefined ? options.visible : true;
+      this.disabled = options.disabled !== undefined ? options.disabled : false;
     }
 
     // Generic accessors so app code doesn't have to touch `.value` directly
@@ -31,6 +32,7 @@
         id: this.id,
         value: this.value,
         visible: this.visible,
+        disabled: this.disabled,
       };
     }
 
@@ -48,6 +50,17 @@
       });
       if (data.visible === false) {
         el.style.display = 'none';
+      }
+      if (data.disabled) {
+        el.disabled = true;
+        el.classList.add('wise-disabled');
+        el.style.pointerEvents = 'none';
+        el.style.opacity = '0.5';
+      } else {
+        el.disabled = false;
+        el.classList.remove('wise-disabled');
+        el.style.pointerEvents = '';
+        el.style.opacity = '';
       }
 
       // Generic click/hover wiring, shared by every control so a subclass
