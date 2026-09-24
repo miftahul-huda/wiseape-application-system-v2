@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="48" fill="#0f172a"/>
+  <!-- Outer Ears -->
+  <circle cx="16" cy="48" r="15" fill="#b45309"/>
+  <circle cx="16" cy="48" r="9" fill="#fde047"/>
+  <circle cx="84" cy="48" r="15" fill="#b45309"/>
+  <circle cx="84" cy="48" r="9" fill="#fde047"/>
+  <!-- Head Base -->
+  <circle cx="50" cy="50" r="34" fill="#b45309"/>
+  <!-- Tuft Hair -->
+  <path d="M 44 18 C 47 9 53 9 56 18 C 50 13 50 13 44 18 Z" fill="#d97706"/>
+  <!-- Face Muzzle Outline -->
+  <path d="M 33 46 C 33 34 42 30 50 30 C 58 30 67 34 67 46 C 67 62 61 74 50 74 C 39 74 33 62 33 46 Z" fill="#fef08a"/>
+  <!-- Eye Mask Circles -->
+  <circle cx="41" cy="42" r="11" fill="#fef08a"/>
+  <circle cx="59" cy="42" r="11" fill="#fef08a"/>
+  <!-- Cheeks -->
+  <circle cx="32" cy="54" r="4.5" fill="#fb7185" opacity="0.7"/>
+  <circle cx="68" cy="54" r="4.5" fill="#fb7185" opacity="0.7"/>
+  <!-- Eyes -->
+  <circle cx="41" cy="43" r="5" fill="#0f172a"/>
+  <circle cx="43" cy="41" r="1.8" fill="#ffffff"/>
+  <circle cx="59" cy="43" r="5" fill="#0f172a"/>
+  <circle cx="61" cy="41" r="1.8" fill="#ffffff"/>
+  <!-- Nose Nostrils -->
+  <ellipse cx="46.5" cy="53" rx="1.8" ry="1.2" fill="#78350f"/>
+  <ellipse cx="53.5" cy="53" rx="1.8" ry="1.2" fill="#78350f"/>
+  <!-- Smile -->
+  <path d="M 40 59 Q 50 69 60 59" fill="#78350f" stroke="#78350f" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M 42 60 Q 50 67 58 60" fill="#ef4444"/>
+</svg>
