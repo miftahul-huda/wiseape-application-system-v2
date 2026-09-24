@@ -214,6 +214,10 @@
       } else if (col.type === 'checkbox') {
         const input = document.createElement('input');
         input.type = 'checkbox';
+        // Without an explicit size/shape, appearance:none renders at the
+        // browser's tiny intrinsic default -- easy to mistake for a plain
+        // dot rather than a checkbox. Match the size WiseCheckboxGroup uses.
+        input.className = 'h-[18px] w-[18px] rounded cursor-pointer';
         input.dataset.cellInteractive = 'true';
         input.checked = !!cellValue;
         input.addEventListener('click', (event) => event.stopPropagation());
@@ -245,6 +249,7 @@
 
           const input = document.createElement('input');
           input.type = 'radio';
+          input.className = 'h-[16px] w-[16px] cursor-pointer';
           // Scoped per window instance too -- see WiseRadioGroup for why.
           const namePrefix = context.windowId ? `${context.windowId}-` : '';
           input.name = `${namePrefix}${data.id}-${rowIndex}-${col.dataField}`;

@@ -72,11 +72,7 @@ class WinControls extends WiseWindow {
     this.addControl(new WiseLabel('Avatar', { id: 'lblAvatar', style: HEADING_STYLE }));
     this.addControl(new WiseFileUpload('Choose Image...', { id: 'uploadAvatar', onChange: this.onAvatarChange.bind(this) }));
 
-    this.addControl(new WiseButton('Show Values', {
-      id: 'btnShow',
-      onClick: this.onShowValues.bind(this),
-      style: { marginTop: '4px' },
-    }));
+
     this.addControl(new WiseLabel('', { id: 'lblResult', style: { fontSize: 12, marginTop: '2px', color: '#374151' } }));
 
     // -- Layout containers: WiseTableLayout + WiseTabControl --
@@ -119,11 +115,22 @@ class WinControls extends WiseWindow {
         onChange: this.onEmployeeActiveChange.bind(this),
       },
       {
+        dataField: 'level', header: 'Level', width: 150, sortable: false, type: 'radiobutton',
+        items: [{ value: 'junior', label: 'Junior' }, { value: 'senior', label: 'Senior' }],
+        onChange: this.onEmployeeLevelChange.bind(this),
+      },
+      {
         dataField: 'actions', header: '', width: 90, sortable: false, type: 'button',
         label: 'Edit', onClick: this.onEmployeeEditRow.bind(this),
       },
     ]);
     this.addControl(new WiseLabel('', { id: 'lblEmployeeResult', style: { fontSize: 12, marginTop: '2px', color: '#374151' } }));
+
+    this.addControl(new WiseButton('Show Values', {
+      id: 'btnShow',
+      onClick: this.onShowValues.bind(this),
+      style: { marginTop: '4px' },
+    }));
 
     return this;
   }
@@ -161,6 +168,11 @@ class WinControls extends WiseWindow {
   async onEmployeeActiveChange(row, newValue) {
     await this.system.employeeRepository.updateEmployee(row.id, { active: newValue });
     row.active = newValue;
+  }
+
+  async onEmployeeLevelChange(row, newValue) {
+    await this.system.employeeRepository.updateEmployee(row.id, { level: newValue });
+    row.level = newValue;
   }
 
   onEmployeeEditRow(row) {

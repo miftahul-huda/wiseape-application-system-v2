@@ -39,7 +39,6 @@
         input.type = 'checkbox';
         input.value = item.value;
         input.className = 'h-[18px] w-[18px] cursor-pointer rounded';
-        input.style.accentColor = 'var(--accent)';
         input.dataset.controlId = data.id;
         input.dataset.controlType = data.type;
         if (selected.includes(item.value)) input.checked = true;

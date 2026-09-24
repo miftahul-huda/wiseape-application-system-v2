@@ -42,7 +42,6 @@
         input.name = context.windowId ? `${context.windowId}-${data.id}` : data.id;
         input.value = item.value;
         input.className = 'h-[18px] w-[18px] cursor-pointer';
-        input.style.accentColor = 'var(--accent)';
         input.dataset.controlId = data.id;
         input.dataset.controlType = data.type;
         if (item.value === data.value) input.checked = true;
