@@ -2,9 +2,17 @@ const WiseWindow = require('../../../system/WiseWindow');
 const WiseLabel = require('../../../system/controls/WiseLabel');
 const WiseComboBox = require('../../../system/controls/WiseComboBox');
 const WiseFileUpload = require('../../../system/controls/WiseFileUpload');
+const WiseCardGroup = require('../../../system/controls/WiseCardGroup');
 const ApiAuthRepository = require('../../../system/ApiAuthRepository');
+const ApiBackgroundImageRepository = require('../repositories/ApiBackgroundImageRepository');
 
 const authRepository = new ApiAuthRepository();
+const backgroundImageRepository = new ApiBackgroundImageRepository();
+
+function formatUploadedAt(dateString) {
+  if (!dateString) return '';
+  return new Date(dateString).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
 
 class WinSettings extends WiseWindow {
   constructor(options = {}) {
@@ -12,8 +20,8 @@ class WinSettings extends WiseWindow {
     this.title = 'Settings';
     this.appTitle = options.appTitle || 'Settings';
     this.appIcon = options.appIcon || '⚙';
-    this.width = '420';
-    this.height = '360';
+    this.width = '480';
+    this.height = '680';
     this.themes = options.themes || [];
   }
 
@@ -28,26 +36,100 @@ class WinSettings extends WiseWindow {
         onChange: this.onThemeChange.bind(this),
       }
     ));
+
     this.addControl(new WiseLabel('Background Image', { id: 'lblBackgroundHeading', style: { fontSize: 22, color: '#111827', marginTop: '12px' } }));
     this.addControl(new WiseFileUpload('Choose Image...', {
       id: 'uploadBackground',
+      // Seeds the preview thumbnail with whatever's actually active right
+      // now (a theme default or a previously picked custom image), not
+      // always blank -- see applyBackground(), which keeps this in sync
+      // afterward regardless of which path (upload, gallery pick, theme
+      // change) set the background.
+      value: this.system ? this.system.backgroundImage : undefined,
       onChange: this.onBackgroundChange.bind(this),
     }));
+
+    // -- WiseCardGroup: a picker for background images this user has
+    // uploaded before, backed by the wiseape_background_images table via
+    // this app's own backgroundImageRepository (see
+    // client/applications/Settings/repositories/). Data starts empty here
+    // (onWindowInit must stay synchronous) and is filled in by
+    // loadInitialData(), awaited from AppSettings.run() before show().
+    this.addControl(new WiseLabel('Previously Uploaded', { id: 'lblGalleryHeading', style: { fontSize: 13, fontWeight: 700, marginTop: '14px', color: '#374151' } }));
+    this.addControl(new WiseCardGroup({
+      id: 'cgBackgroundGallery',
+      pageSize: 8,
+      pageSizeOptions: [8, 16],
+      imageField: 'url',
+      textField: 'uploadedLabel',
+      onDataFilterChanged: this.onGalleryFilterChanged.bind(this),
+      onRowSelect: this.onGallerySelect.bind(this),
+    }));
+
     return this;
   }
 
   onThemeChange() {
+    if (!this.system) return;
+    // setActiveTheme() already resets this.system's background to the new
+    // theme's own defaultBackground internally -- just keep the preview
+    // and the saved preference in sync with whatever it landed on.
+    const theme = this.system.setActiveTheme(this.cmbTheme.value);
+    this.uploadBackground.value = theme.defaultBackground || '';
+    this.persistPreferences({ themeId: this.cmbTheme.value, backgroundImage: theme.defaultBackground || null });
+  }
+
+  // Shared by a fresh upload, picking one from the gallery, and (indirectly,
+  // via onThemeChange) a theme's own default -- keeps the system background,
+  // the file-upload preview, and the saved preference all in sync no matter
+  // which of those triggered the change.
+  applyBackground(url) {
     if (this.system) {
-      this.system.setActiveTheme(this.cmbTheme.value);
-      this.persistPreferences({ themeId: this.cmbTheme.value });
+      this.system.setBackgroundImage(url);
+    }
+    this.uploadBackground.value = url || '';
+    this.persistPreferences({ backgroundImage: url || null });
+  }
+
+  async onBackgroundChange() {
+    const url = this.uploadBackground.value;
+    this.applyBackground(url);
+
+    const session = this.system && this.system.currentSession;
+    if (!session || !session.token || !url) return;
+
+    try {
+      await backgroundImageRepository.add(session.token, url);
+      // Jump to page 1 so the just-added image (newest first) is visible.
+      await this.applyGalleryPage(this.cgBackgroundGallery.pageSize, 1);
+    } catch (error) {
+      console.warn('[WAS] Failed to record uploaded background:', error.message);
     }
   }
 
-  onBackgroundChange() {
-    if (this.system) {
-      this.system.setBackgroundImage(this.uploadBackground.value);
-      this.persistPreferences({ backgroundImage: this.uploadBackground.value });
+  async applyGalleryPage(pageSize, page) {
+    const session = this.system && this.system.currentSession;
+    if (!session || !session.token) {
+      this.cgBackgroundGallery.setData([], 0);
+      return;
     }
+
+    const offset = (page - 1) * pageSize;
+    const { rows, totalCount } = await backgroundImageRepository.list(session.token, { limit: pageSize, offset });
+    this.cgBackgroundGallery.pageSize = pageSize;
+    this.cgBackgroundGallery.currentPage = page;
+    this.cgBackgroundGallery.setData(
+      rows.map((row) => ({ ...row, uploadedLabel: formatUploadedAt(row.createdAt) })),
+      totalCount
+    );
+  }
+
+  async onGalleryFilterChanged(pageSize, page) {
+    await this.applyGalleryPage(pageSize, page);
+  }
+
+  onGallerySelect(row) {
+    this.applyBackground(row.url);
   }
 
   persistPreferences(prefs) {
@@ -67,6 +149,10 @@ class WinSettings extends WiseWindow {
 
     authRepository.updatePreferences(session.token, prefs)
       .catch((error) => console.warn('[WAS] Failed to save preferences:', error.message));
+  }
+
+  async loadInitialData() {
+    await this.applyGalleryPage(this.cgBackgroundGallery.pageSize, this.cgBackgroundGallery.currentPage);
   }
 
   show(param = null) {

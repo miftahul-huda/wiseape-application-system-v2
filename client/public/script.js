@@ -7,9 +7,14 @@ async function startDesktop(user) {
     await system.run(user);
 
     if (user.themeId && system.themes.some((theme) => theme.id === user.themeId)) {
+      // setActiveTheme() already resets the background to this theme's own
+      // defaultBackground -- only override it below if the user actually
+      // has their own saved background (a truthy value). A merely-unset
+      // preference (null/undefined) should leave the theme's default in
+      // place, not clobber it back to blank.
       system.setActiveTheme(user.themeId);
     }
-    if (user.backgroundImage !== undefined) {
+    if (user.backgroundImage) {
       system.setBackgroundImage(user.backgroundImage);
     }
   } catch (err) {

@@ -11,6 +11,7 @@ class AppSettings extends WiseApplication {
       themes: this.system.themes,
     });
 
+    await settingsWindow.loadInitialData();
     settingsWindow.show(appParameter);
 
     return {

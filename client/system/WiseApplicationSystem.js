@@ -127,6 +127,11 @@ class WiseApplicationSystem {
     return this.themes.find((theme) => theme.id === this.activeThemeId) || this.themes[0] || null;
   }
 
+  // Switching themes also switches the background to that theme's own
+  // defaultBackground -- callers that want to preserve a user's own custom
+  // background across a theme change (e.g. boot, restoring a saved
+  // preference) must re-apply it with setBackgroundImage() afterward; this
+  // method always resets to the new theme's default first.
   setActiveTheme(themeId) {
     const theme = this.themes.find((item) => item.id === themeId);
     if (!theme) {
@@ -137,6 +142,7 @@ class WiseApplicationSystem {
     if (this.desktop) {
       this.desktop.applyTheme(theme);
     }
+    this.setBackgroundImage(theme.defaultBackground || null);
 
     return theme;
   }
