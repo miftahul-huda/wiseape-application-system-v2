@@ -23,6 +23,8 @@
       this.sortDirection = options.sortDirection || 'asc';
       this.onDataFilterChanged = typeof options.onDataFilterChanged === 'function' ? options.onDataFilterChanged : null;
       this.onRowSelect = typeof options.onRowSelect === 'function' ? options.onRowSelect : null;
+      this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
+      this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
       this.style = options.style || {};
 
       // Arrow functions (not prototype methods) so `this` stays the control
@@ -80,6 +82,10 @@
       return this;
     }
 
+    getData() {
+      return this.data;
+    }
+
     render() {
       return {
         type: this.name,
@@ -94,6 +100,8 @@
         sortField: this.sortField,
         sortDirection: this.sortDirection,
         hasRowSelectHandler: !!this.onRowSelect,
+        hasClickHandler: !!this.onClick,
+        hasHoverHandler: !!this.onHover,
         style: this.style,
         visible: this.visible,
       };
@@ -102,7 +110,7 @@
     static renderElement(data, context) {
       const wrapper = document.createElement('div');
       wrapper.className = 'flex flex-col gap-2';
-      WiseControl.applyCommon(wrapper, data);
+      WiseControl.applyCommon(wrapper, data, context);
 
       const fireFilterChange = (patch) => {
         context.desktop.sendControlEvent(context.appId, data.id, wrapper, 'filterchange', {

@@ -13,6 +13,8 @@
       this.name = 'WiseFrame';
       this.title = title;
       this.controls = [];
+      this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
+      this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
       this.style = options.style || {};
     }
 
@@ -32,6 +34,8 @@
         dataField: this.dataField,
         title: this.title,
         controls: this.controls.map((control) => control.render()),
+        hasClickHandler: !!this.onClick,
+        hasHoverHandler: !!this.onHover,
         style: this.style,
         visible: this.visible,
       };
@@ -40,7 +44,7 @@
     static renderElement(data, context) {
       const wrapper = document.createElement('div');
       wrapper.className = 'rounded-lg border border-slate-900/10 bg-white/60 p-4 shadow-sm';
-      WiseControl.applyCommon(wrapper, data);
+      WiseControl.applyCommon(wrapper, data, context);
 
       if (data.title) {
         const heading = document.createElement('div');

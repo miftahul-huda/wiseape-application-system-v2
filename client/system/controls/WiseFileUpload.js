@@ -9,6 +9,8 @@
       this.label = label;
       this.accept = options.accept || 'image/*';
       this.onChange = typeof options.onChange === 'function' ? options.onChange : null;
+      this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
+      this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
       this.style = options.style || {};
     }
 
@@ -21,6 +23,8 @@
         label: this.label,
         accept: this.accept,
         hasHandler: !!this.onChange,
+        hasClickHandler: !!this.onClick,
+        hasHoverHandler: !!this.onHover,
         style: this.style,
         visible: this.visible,
       };
@@ -29,7 +33,7 @@
     static renderElement(data, context) {
       const wrapper = document.createElement('div');
       wrapper.className = 'w-full';
-      WiseControl.applyCommon(wrapper, data);
+      WiseControl.applyCommon(wrapper, data, context);
 
       const inputId = `upload-${data.id || Math.random().toString(36).slice(2)}`;
 

@@ -7,9 +7,34 @@
       super(options.value ?? (items[0] && items[0].value) ?? '', options);
       this.name = 'WiseRadioGroup';
       this.items = items;
-      this.onChange = typeof options.onChange === 'function' ? options.onChange : null;
       this.layout = options.layout === 'vertical' ? 'vertical' : 'horizontal';
+      this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
+      this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
       this.style = options.style || {};
+
+      // See WiseComboBox for why onItemChanged has to capture the previous
+      // item on the way in (by the time any handler runs, this.value has
+      // already been overwritten with the new selection) and why the
+      // wrapper is an arrow function.
+      const publicOnChange = typeof options.onChange === 'function' ? options.onChange : null;
+      this.onItemChanged = typeof options.onItemChanged === 'function' ? options.onItemChanged : null;
+      this._lastItem = this.items.find((item) => item.value === this.value) || null;
+      this.onChange = (publicOnChange || this.onItemChanged) ? () => {
+        const previousItem = this._lastItem;
+        const currentItem = this.items.find((item) => item.value === this.value) || null;
+        this._lastItem = currentItem;
+        if (this.onItemChanged) this.onItemChanged(previousItem, currentItem);
+        if (publicOnChange) return publicOnChange();
+      } : null;
+    }
+
+    getItems() {
+      return this.items;
+    }
+
+    setItems(items) {
+      this.items = items || [];
+      return this;
     }
 
     render() {
@@ -20,6 +45,8 @@
         value: this.value,
         items: this.items,
         hasHandler: !!this.onChange,
+        hasClickHandler: !!this.onClick,
+        hasHoverHandler: !!this.onHover,
         layout: this.layout,
         style: this.style,
         visible: this.visible,
@@ -31,7 +58,7 @@
       wrapper.className = data.layout === 'vertical'
         ? 'flex flex-col gap-0.5'
         : 'flex flex-row flex-wrap items-center gap-x-4 gap-y-1';
-      WiseControl.applyCommon(wrapper, data);
+      WiseControl.applyCommon(wrapper, data, context);
 
       (data.items || []).forEach((item) => {
         const label = document.createElement('label');

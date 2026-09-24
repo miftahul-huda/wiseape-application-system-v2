@@ -7,8 +7,39 @@
       super(options.value ?? (items[0] && items[0].value) ?? '', options);
       this.name = 'WiseComboBox';
       this.items = items;
-      this.onChange = typeof options.onChange === 'function' ? options.onChange : null;
+      this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
+      this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
       this.style = options.style || {};
+
+      // Public onChange keeps its existing no-argument contract (app code
+      // reads back this.value); onItemChanged is an additive, richer
+      // sibling that also needs the item that was selected *before* this
+      // change -- which dispatchControlEvent has already overwritten
+      // this.value with by the time any handler runs, so it has to be
+      // tracked here, on the way in, rather than derived after the fact.
+      // The wrapper is an arrow function (not a prototype method) so `this`
+      // stays the control even though dispatchControlEvent invokes it via
+      // `handler.call(win)` -- same trick WiseDataTable's internal
+      // on<Event> handlers use.
+      const publicOnChange = typeof options.onChange === 'function' ? options.onChange : null;
+      this.onItemChanged = typeof options.onItemChanged === 'function' ? options.onItemChanged : null;
+      this._lastItem = this.items.find((item) => item.value === this.value) || null;
+      this.onChange = (publicOnChange || this.onItemChanged) ? () => {
+        const previousItem = this._lastItem;
+        const currentItem = this.items.find((item) => item.value === this.value) || null;
+        this._lastItem = currentItem;
+        if (this.onItemChanged) this.onItemChanged(previousItem, currentItem);
+        if (publicOnChange) return publicOnChange();
+      } : null;
+    }
+
+    getItems() {
+      return this.items;
+    }
+
+    setItems(items) {
+      this.items = items || [];
+      return this;
     }
 
     render() {
@@ -19,6 +50,8 @@
         value: this.value,
         items: this.items,
         hasHandler: !!this.onChange,
+        hasClickHandler: !!this.onClick,
+        hasHoverHandler: !!this.onHover,
         style: this.style,
         visible: this.visible,
       };
@@ -39,7 +72,7 @@
         }
         el.appendChild(option);
       });
-      WiseControl.applyCommon(el, data);
+      WiseControl.applyCommon(el, data, context);
       if (data.hasHandler) {
         el.addEventListener('change', () => context.desktop.sendControlEvent(context.appId, data.id, el, 'change'));
       }

@@ -7,6 +7,8 @@
       super(value, options);
       this.name = 'WiseHtmlEditor';
       this.onChange = typeof options.onChange === 'function' ? options.onChange : null;
+      this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
+      this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
       this.style = options.style || {};
     }
 
@@ -17,6 +19,8 @@
         dataField: this.dataField,
         value: this.value,
         hasHandler: !!this.onChange,
+        hasClickHandler: !!this.onClick,
+        hasHoverHandler: !!this.onHover,
         style: this.style,
         visible: this.visible,
       };
@@ -54,7 +58,7 @@
       editable.className = 'min-h-[90px] px-4 py-3 text-sm text-slate-800 outline-none';
       editable.contentEditable = 'true';
       editable.innerHTML = data.value || '';
-      WiseControl.applyCommon(editable, data);
+      WiseControl.applyCommon(editable, data, context);
 
       if (data.hasHandler) {
         editable.addEventListener('blur', () => context.desktop.sendControlEvent(context.appId, data.id, wrapper, 'change'));

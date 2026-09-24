@@ -474,14 +474,51 @@ Returns `{ type: this.name, id: this.id, value: this.value, visible: this.visibl
 — note **no `dataField`** at this level; subclasses that include it in
 their own `render()` add it themselves.
 
+### Instance methods (inherited by every control)
+
+- **`getValue()`** — returns `this.value`. Generic accessor so app code
+  doesn't have to touch `.value` directly; works identically regardless of
+  subtype (a checkbox group's value is an array, a tab control's is an
+  index, etc. — this method doesn't normalize any of that, it just returns
+  whatever `this.value` currently holds).
+- **`setValue(value)`** — sets `this.value = value`, returns `this`
+  (chainable). The counterpart accessor. `WiseDataTable` is the one control
+  where these don't fit (it has enough of its own state — rows, paging,
+  sorting — that a single scalar `value` doesn't make sense); it exposes
+  `getData()`/`setData(rows, totalCount)` instead (see its entry below).
+
+### Every control's `onClick`/`onHover` (generic, opt-in)
+
+Every control subclass — not just this base class — now accepts
+`onClick`/`onHover` constructor options, stored as `this.onClick`/
+`this.onHover` and emitted in `render()` as `hasClickHandler`/
+`hasHoverHandler`. Unlike `onChange` (which stays per-control, since what
+DOM event actually means "changed" varies by control), the click/hover
+wiring itself is written **once**, in `WiseControl.applyCommon` (below) —
+a subclass only has to emit the two boolean flags, not write its own
+listener code. `WiseButton` is the one exception worth noting: it already
+had its own `onClick`/`hasHandler` pair predating this feature (unchanged,
+still its own primary click event, wired directly in its own
+`renderElement`, not through `applyCommon`'s generic path) but picked up
+the new generic `onHover`/`hasHoverHandler` like every other control. See
+ARCHITECTURE.md §2 point 7 for the conceptual framing.
+
 ### Static helpers (inherited, rarely overridden)
 
-- **`static applyCommon(el, data)`** — sets `el.dataset.controlId`/
+- **`static applyCommon(el, data, context)`** — sets `el.dataset.controlId`/
   `el.dataset.controlType` if `data.id` is truthy, applies `data.style`
   entries onto `el.style` (numbers → `${value}px`, everything else as-is),
   and sets `el.style.display = 'none'` if `data.visible === false`. Call
   this from every custom `renderElement` on whichever element should carry
-  the control's identity.
+  the control's identity. **`context` is optional but every shipped control
+  now passes it** (`context = { appId, windowId, desktop }`, the same
+  object `renderElement` itself receives): when `context.desktop` and
+  `data.id` are present, this is also where the generic click/hover
+  listeners get wired — `data.hasClickHandler` adds a `click` listener
+  calling `context.desktop.sendControlEvent(context.appId, data.id, el, 'click')`,
+  `data.hasHoverHandler` adds a `mouseenter` listener the same way with
+  `'hover'`. Both are opt-in per control instance, driven by whether that
+  instance's `onClick`/`onHover` option was supplied (see above).
 - **`static renderElement(data)`** *(default)* — renders unhandled data as
   a `<pre>` JSON dump; effectively unused by any real control, since every
   shipped control overrides this.
@@ -502,21 +539,52 @@ knowing.
 
 ### `WiseLabel`
 
-`new WiseLabel(value = '', options)`. Option: `style`. Extra method:
-`.text(value)` — getter if called with no args, setter (returns the new
-value) otherwise; this is the idiomatic way a handler updates a label
-(`this.lblResult.text('...')`). `render()` adds `dataField, style`.
-`renderElement`: a plain `<div>` with `data.value` as `textContent` — no
-`gatherValue`/`patchElement` override (a label has no meaningful value to
-gather; the base `patchElement` writes `data.value` to `.textContent`
-correctly for a plain div).
+`new WiseLabel(value = '', options)`. Options: `style`, `onClick`, `onHover`.
+
+**Methods**
+- **`getValue()`** / **`setValue(value)`** — inherited from `WiseControl`;
+  read/write the label's text (equivalent to `.text()` below, minus the
+  chaining/getter dual behavior).
+- **`text(value)`** — getter if called with no args (returns the current
+  text), setter otherwise (sets it and returns the new value). This is the
+  idiomatic way a handler updates a label on screen, e.g.
+  `this.lblResult.text('Hello!')`.
+
+**Events**
+- **`onClick`** — generic (see `WiseControl.applyCommon` above); fires a
+  `click` server event when the label is clicked. Opt-in — no listener is
+  wired unless supplied.
+- **`onHover`** — generic; fires a `hover` server event on `mouseenter`.
+  Opt-in.
+
+There is no `onChange` — a label isn't user-editable, so nothing ever
+changes it from the browser side. `render()` adds
+`dataField, style, hasClickHandler, hasHoverHandler`. `renderElement`: a
+plain `<div>` with `data.value` as `textContent` — no `gatherValue`/
+`patchElement` override (a label has no meaningful value to gather; the
+base `patchElement` writes `data.value` to `.textContent` correctly for a
+plain div).
 
 ### `WiseTextBox`
 
 `new WiseTextBox(placeholder = '', options)` — the value itself comes from
 `options.value` (default `''`), *not* the first positional argument, which
 is only ever the placeholder. Options: `value`, `minLength`, `maxLength`,
-`style`. `render()` adds `dataField, placeholder, minLength, maxLength, style`.
+`onChange`, `onClick`, `onHover`, `style`.
+
+**Methods**
+- **`getValue()`** / **`setValue(value)`** — inherited; read/write the
+  current text.
+
+**Events**
+- **`onChange`** — fires when the input's native `change` event fires (on
+  blur after editing, or Enter). Newly added — this control previously had
+  no `onChange` at all.
+- **`onClick`** — generic; fires on click.
+- **`onHover`** — generic; fires on `mouseenter`.
+
+`render()` adds
+`dataField, placeholder, minLength, maxLength, hasHandler, hasClickHandler, hasHoverHandler, style`.
 `renderElement`: plain `<input type="text">`; if `data.minLength`/`data.maxLength`
 are set (not `undefined`/`null`), assigns `el.minLength`/`el.maxLength`
 directly — `maxLength` is actively enforced by the browser (typing past it
@@ -526,8 +594,22 @@ once there's a value shorter than it. No custom `gatherValue`/`patchElement`.
 ### `WiseNumericBox`
 
 `new WiseNumericBox(placeholder = '', options)`. Options: `value`, `min`,
-`max`, `step` (default `'any'`), `prefix`, `suffix`, `onChange`, `style`.
-`render()` adds `dataField, placeholder, min, max, step, prefix, suffix, hasHandler, style`.
+`max`, `step` (default `'any'`), `prefix`, `suffix`, `onChange`, `onClick`,
+`onHover`, `style`.
+
+**Methods**
+- **`getValue()`** / **`setValue(value)`** — inherited; read/write the
+  numeric value (a plain JS `number`, or `null` if the field is empty/
+  unparseable — see `parseValue` below).
+
+**Events**
+- **`onChange`** — fires on `blur`, after the typed value has been parsed
+  and clamped to `min`/`max` (if set).
+- **`onClick`** — generic.
+- **`onHover`** — generic.
+
+`render()` adds
+`dataField, placeholder, min, max, step, prefix, suffix, hasHandler, hasClickHandler, hasHoverHandler, style`.
 
 `renderElement` builds an "input group": a wrapper `<div>` (this is the
 element `applyCommon`/`data-control-id` is applied to, *not* the inner
@@ -544,9 +626,7 @@ is restored to "after the same digit" (tracked by counting digits before the
 old cursor position, separately for the integer part — which shifts as
 grouping separators are inserted/removed — and the fraction part, which
 never gets grouping and so is tracked by a stable offset from the decimal
-point instead). On `blur`, the value is parsed, clamped to
-`data.min`/`data.max` if set, and redisplayed with grouping. If
-`data.hasHandler`, a `change` listener fires `sendControlEvent(..., 'change')`.
+point instead).
 
 Static helpers: `toRaw(value, decimal)` (JS number → locale-decimal text, no
 grouping), `parseValue(text, decimal, group)` (raw or grouped text → JS
@@ -561,104 +641,255 @@ freshly grouped display value back.
 ### `WiseTextArea`
 
 `new WiseTextArea(value = '', options)`. Options: `placeholder`, `rows`
-(default `4`), `onChange`, `style`. `render()` adds
-`dataField, placeholder, rows, hasHandler, style`. `renderElement`: plain
-`<textarea>`; `change` listener if `hasHandler`. No custom
-`gatherValue`/`patchElement`.
+(default `4`), `onChange`, `onClick`, `onHover`, `style`.
+
+**Methods**
+- **`getValue()`** / **`setValue(value)`** — inherited; read/write the
+  current text.
+
+**Events**
+- **`onChange`** — fires on the textarea's native `change` event (blur
+  after editing).
+- **`onClick`** — generic.
+- **`onHover`** — generic.
+
+`render()` adds
+`dataField, placeholder, rows, hasHandler, hasClickHandler, hasHoverHandler, style`.
+`renderElement`: plain `<textarea>`. No custom `gatherValue`/`patchElement`.
 
 ### `WiseButton`
 
-`new WiseButton(label = '', options)`. Option: `onClick`, `style`.
-`render()` adds `dataField, hasHandler, style` (the function itself never
-crosses the JSON boundary — only whether one exists). `renderElement`:
-`<button type="button">`; `click` listener if `hasHandler` fires
-`sendControlEvent(..., 'click')`. No `gatherValue`/`patchElement` override
-needed — a `<button>` matches none of the base `gatherValue`'s element-type
-checks, so it naturally contributes no value.
+`new WiseButton(label = '', options)`. Options: `onClick`, `onHover`, `style`.
+
+**Methods**
+- **`getValue()`** / **`setValue(value)`** — inherited; reads/writes the
+  button's label text (`this.value`). Rarely used this way in practice —
+  app code almost always sets the label once, at construction, and cares
+  about `onClick` instead.
+
+**Events**
+- **`onClick`** — the button's primary event; fires when clicked. This
+  predates the generic mechanism and is still wired directly in
+  `WiseButton`'s own `renderElement` (its own `hasHandler` flag), not
+  through `applyCommon`'s shared path — behaviorally identical to an app
+  author either way.
+- **`onHover`** — generic (wired via `applyCommon`, like every other
+  control) — new alongside this feature.
+
+`render()` adds `dataField, hasHandler, hasHoverHandler, style` (the
+functions themselves never cross the JSON boundary — only whether one
+exists). `renderElement`: `<button type="button">`. No `gatherValue`/
+`patchElement` override needed — a `<button>` matches none of the base
+`gatherValue`'s element-type checks, so it naturally contributes no value.
 
 ### `WiseComboBox`
 
 `new WiseComboBox(items = [], options)` — `items: [{value, label}]`. Value
-defaults to `options.value ?? items[0]?.value ?? ''`. Option: `onChange`,
-`style`. `render()` adds `dataField, items, hasHandler, style`.
+defaults to `options.value ?? items[0]?.value ?? ''`. Options: `onChange`,
+`onItemChanged`, `onClick`, `onHover`, `style`.
+
+**Methods**
+- **`getValue()`** / **`setValue(value)`** — inherited; read/write the
+  currently selected item's `value`.
+- **`getItems()`** — returns `this.items`.
+- **`setItems(items)`** — replaces `this.items` (`|| []`); returns `this`
+  (chainable). Use this after the choice list loads from a database, for
+  example.
+
+**Events**
+- **`onChange`** — fires with **no arguments** when the selection changes;
+  read the new value via `this.cmbX.value` (or `this.cmbX.getValue()`)
+  inside the handler. Unchanged, pre-existing behavior.
+- **`onItemChanged(previousItem, currentItem)`** — an additive, richer
+  event on top of the plain `onChange` above (both can be supplied
+  together — the plain one still fires with no arguments). Called with the
+  full `{value, label}` item objects (or `null`), one for the item selected
+  *before* this change and one for the item selected *now*.
+- **`onClick`** — generic.
+- **`onHover`** — generic.
+
+`render()` adds
+`dataField, items, hasHandler, hasClickHandler, hasHoverHandler, style`.
 `renderElement`: a wrapper `<div>` containing a `<select>` (this select is
 what `applyCommon` targets — it carries `data-control-id`) plus a decorative
-chevron SVG positioned over it; `change` listener if `hasHandler`. No
-custom `gatherValue`/`patchElement` (the base default already handles a
-`<select>`).
+chevron SVG positioned over it. No custom `gatherValue`/`patchElement` (the
+base default already handles a `<select>`).
+
+**Implementation note for `onItemChanged`** (same pattern `WiseRadioGroup`
+and `WiseCheckboxGroup` use, and the one `WiseDataTable` already
+established for its own internal events — see ARCHITECTURE.md §2 point 8):
+by the time any handler runs, `dispatchControlEvent` has already
+overwritten `this.value` with the *new* value, so the constructor wraps the
+control's internal `onChange` in an arrow function that reads the item
+matching the value *before* the overwrite from an internally tracked
+`this._lastItem` (updated on every change), computes `currentItem` from the
+post-overwrite `this.value`, calls `onItemChanged(previousItem, currentItem)`
+if supplied, then also calls the plain public `onChange` if *that* was
+supplied. This internal wrapper (and so `hasHandler`) is only installed at
+all if either `onItemChanged` or a plain `onChange` was actually passed in.
 
 ### `WiseRadioGroup`
 
 `new WiseRadioGroup(items = [], options)` — same `items` shape as combo
-box, same value-default logic. Options: `onChange`, `layout`
-(`'vertical'` or `'horizontal'`, default `'horizontal'`), `style`.
-`render()` adds `dataField, items, hasHandler, layout, style`.
+box, same value-default logic. Options: `onChange`, `onItemChanged`,
+`layout` (`'vertical'` or `'horizontal'`, default `'horizontal'`),
+`onClick`, `onHover`, `style`.
+
+**Methods** and **Events**: identical to `WiseComboBox` above —
+`getValue()`/`setValue(value)`, `getItems()`/`setItems(items)`, `onChange`,
+`onItemChanged(previousItem, currentItem)` (same `this._lastItem`-tracking
+mechanism), `onClick`, `onHover`. See that entry for the full explanation.
+
+`render()` adds
+`dataField, items, hasHandler, hasClickHandler, hasHoverHandler, layout, style`.
 
 `renderElement`: wrapper `<div>` (flex row/wrap for horizontal, flex column
 for vertical), one `<label>` per item wrapping an `<input type="radio">`.
-**Important:** each radio's `name` attribute is scoped as
+`applyCommon` is called on the wrapper (so it carries `data-control-id`
+too, purely for the generic click/hover wiring) — but each radio `<input>`
+still gets its own `data-control-id`/`data-control-type` set directly, not
+via `applyCommon`, since `gatherValue`/`patchElement` target the inputs,
+not the wrapper. **Important:** each radio's `name` attribute is scoped as
 `` `${windowId}-${controlId}` `` when `context.windowId` is present (falls
 back to just `controlId` otherwise) — native radio inputs sharing a `name`
 are mutually exclusive across the *entire document*, not just within one
 window, so without this two open windows of the same app would fight over
-each other's selection. Each `<input>` gets `data-control-id`/
-`data-control-type` set directly (not via `applyCommon` on the wrapper).
-`gatherValue(winEl, id)`: the checked input's `value`, or `''` if none.
-`patchElement(winEl, data)`: checks whichever input's `value === data.value`.
+each other's selection. `gatherValue(winEl, id)`: the checked input's
+`value`, or `''` if none. `patchElement(winEl, data)`: checks whichever
+input's `value === data.value`.
 
 ### `WiseCheckboxGroup`
 
 `new WiseCheckboxGroup(items = [], options)` — `value` (constructor arg via
 `options.value`) is coerced to an array (`Array.isArray(options.value) ? options.value : []`).
-Options: `onChange`, `layout` (same as `WiseRadioGroup`), `style`.
-`render()` adds `dataField, items, hasHandler, layout, style`. `renderElement`:
-same wrapper/label structure as `WiseRadioGroup`, but `<input type="checkbox">`
+Options: `onChange`, `onItemChecked`, `layout` (same as `WiseRadioGroup`),
+`onClick`, `onHover`, `style`.
+
+**Methods**
+- **`getValue()`** / **`setValue(value)`** — inherited; read/write the
+  array of currently checked values.
+- **`getItems()`** / **`setItems(items)`** — same as `WiseComboBox`.
+
+**Events**
+- **`onChange`** — fires with no arguments whenever any checkbox toggles;
+  read the new array via `this.checkX.value`. Unchanged, pre-existing
+  behavior.
+- **`onItemChecked(item)`** — called with the single item whose checked
+  state just changed, as `{value, label, checked: true|false}`, or `null`
+  if no diff could be found. Additive on top of `onChange` — both can be
+  supplied together.
+- **`onClick`** — generic.
+- **`onHover`** — generic.
+
+`render()` adds
+`dataField, items, hasHandler, hasClickHandler, hasHoverHandler, layout, style`.
+`renderElement`: same wrapper/label structure as `WiseRadioGroup` (wrapper
+gets `applyCommon` for click/hover wiring), but `<input type="checkbox">`
 per item, each carrying `data-control-id`/`data-control-type` directly.
 `gatherValue(winEl, id)`: array of every checked input's `value`.
 `patchElement(winEl, data)`: checks/unchecks each input based on array
 membership in `data.value`.
 
+**Implementation note for `onItemChecked`**: computed the same way as
+`onItemChanged` elsewhere (see `WiseComboBox` above and ARCHITECTURE.md §2
+point 8) but diffing *arrays* instead of a single previous item: the
+constructor tracks the previous checked-values array in `this._lastValues`;
+on change, the internal `onChange` wrapper compares it against the new
+`this.value` array to find either a newly-present value (`checked: true`)
+or a newly-absent one (`checked: false`), looks up the matching item from
+`this.items`, calls `onItemChecked(...)` if supplied, then also calls the
+plain public `onChange` if that was supplied too. Same opt-in gating as
+`onItemChanged`: the internal wrapper (and so `hasHandler`) is only
+installed if `onItemChecked` or a plain `onChange` was actually passed in.
+
 ### `WiseDate`
 
-`new WiseDate(value = '', options)`. Option: `onChange`, `style`.
-`render()` adds `dataField, hasHandler, style`. `renderElement`: plain
-`<input type="date">`; `change` listener if `hasHandler`. No custom
-`gatherValue`/`patchElement`.
+`new WiseDate(value = '', options)`. Options: `onChange`, `onClick`,
+`onHover`, `style`.
+
+**Methods**
+- **`getValue()`** / **`setValue(value)`** — inherited; read/write the
+  selected date as an `'YYYY-MM-DD'` string.
+
+**Events**
+- **`onChange`** — fires on the native date input's `change` event.
+- **`onClick`** — generic.
+- **`onHover`** — generic.
+
+`render()` adds `dataField, hasHandler, hasClickHandler, hasHoverHandler, style`.
+`renderElement`: plain `<input type="date">`. No custom `gatherValue`/
+`patchElement`.
 
 ### `WiseDateRange`
 
 `new WiseDateRange(value = {}, options)` — normalized in the constructor to
-`{ start: value.start || '', end: value.end || '' }`. Option: `onChange`,
-`style`. `render()` adds `dataField, hasHandler, style`. `renderElement`:
-wrapper `<div>` with two `<input type="date">` (`data-range="start"`/`"end"`)
-separated by a "to" pill. Both `gatherValue`/`patchElement` are overridden
-to read/write both dates as one `{start, end}` object, resolved off the
-wrapper's own `data-control-id`.
+`{ start: value.start || '', end: value.end || '' }`. Options: `onChange`,
+`onClick`, `onHover`, `style`.
+
+**Methods**
+- **`getValue()`** / **`setValue(value)`** — inherited; read/write the
+  range as `{start, end}`.
+
+**Events**
+- **`onChange`** — fires on either date input's native `change` event.
+- **`onClick`** — generic.
+- **`onHover`** — generic.
+
+`render()` adds `dataField, hasHandler, hasClickHandler, hasHoverHandler, style`.
+`renderElement`: wrapper `<div>` with two `<input type="date">`
+(`data-range="start"`/`"end"`) separated by a "to" pill. Both `gatherValue`/
+`patchElement` are overridden to read/write both dates as one `{start, end}`
+object, resolved off the wrapper's own `data-control-id`.
 
 ### `WiseHtmlEditor`
 
-`new WiseHtmlEditor(value = '', options)`. Option: `onChange`, `style`.
-`render()` adds `dataField, hasHandler, style`. `renderElement`: a wrapper
-`<div>` with a toolbar (Bold/Italic/Underline/bullet list, each a button
-that calls `document.execCommand` on `mousedown` with `preventDefault()`)
-above a `contenteditable="true"` `<div>` that holds `data-control-id`
-itself (not the wrapper). Change fires on `blur`, not on every keystroke.
-Because the editable element carries the id directly, the **base class's
-default** `gatherValue`/`patchElement` already handle it correctly
-(contenteditable → `innerHTML`) — no override needed.
+`new WiseHtmlEditor(value = '', options)`. Options: `onChange`, `onClick`,
+`onHover`, `style`.
+
+**Methods**
+- **`getValue()`** / **`setValue(value)`** — inherited; read/write the
+  editor's content as an HTML string.
+
+**Events**
+- **`onChange`** — fires on `blur`, not on every keystroke.
+- **`onClick`** — generic.
+- **`onHover`** — generic.
+
+`render()` adds `dataField, hasHandler, hasClickHandler, hasHoverHandler, style`.
+`renderElement`: a wrapper `<div>` with a toolbar (Bold/Italic/Underline/
+bullet list, each a button that calls `document.execCommand` on `mousedown`
+with `preventDefault()`) above a `contenteditable="true"` `<div>` that holds
+`data-control-id` itself (not the wrapper). Because the editable element
+carries the id directly, the **base class's default** `gatherValue`/
+`patchElement` already handle it correctly (contenteditable → `innerHTML`)
+— no override needed.
 
 ### `WiseFileUpload`
 
 `new WiseFileUpload(label = 'Choose file', options)`. Options: `value`,
-`accept` (default `'image/*'`), `onChange`, `style`. `render()` adds
-`dataField, label, accept, hasHandler, style`. `renderElement`: a wrapper
-`<div>` (carries `data-control-id`) with a hidden `<input type="file">`
-plus a styled `<label>` showing a thumbnail preview (`.wise-upload-preview`,
-background-image driven) and helper text. On file selection: the preview
-updates immediately from a local `URL.createObjectURL(file)`; the raw file
-is then `POST`ed directly to `/api/uploads` (`Content-Type: file.type`, an
-`X-Filename` header carrying the encoded original name); once that
-resolves, `context.desktop.sendControlEvent(appId, id, wrapper, 'change', { [id]: uploadResult.url })`
+`accept` (default `'image/*'`), `onChange`, `onClick`, `onHover`, `style`.
+
+**Methods**
+- **`getValue()`** / **`setValue(value)`** — inherited; read/write the
+  uploaded file's URL.
+
+**Events**
+- **`onChange`** — fires once the async upload to `/api/uploads` completes
+  (see below), delivering the new URL — never fires synchronously off a
+  plain DOM event the way other controls' `onChange` does.
+- **`onClick`** — generic.
+- **`onHover`** — generic.
+
+`render()` adds
+`dataField, label, accept, hasHandler, hasClickHandler, hasHoverHandler, style`.
+`renderElement`: a wrapper `<div>` (carries `data-control-id`) with a hidden
+`<input type="file">` plus a styled `<label>` showing a thumbnail preview
+(`.wise-upload-preview`, background-image driven) and helper text. On file
+selection: the preview updates immediately from a local
+`URL.createObjectURL(file)`; the raw file is then `POST`ed directly to
+`/api/uploads` (`Content-Type: file.type`, an `X-Filename` header carrying
+the encoded original name); once that resolves,
+`context.desktop.sendControlEvent(appId, id, wrapper, 'change', { [id]: uploadResult.url })`
 is called — **note the override value**: since the real value is only
 known after the async upload, `static gatherValue()` intentionally always
 returns `undefined`, and the real value is delivered via `overrideValues`,
@@ -669,8 +900,10 @@ the preview's background image (and hides the placeholder icon) when
 ### `WiseTableLayout` — container
 
 `new WiseTableLayout(options)` — `options.rows` (default `1`),
-`options.columns` (default `1`), `cells = []` internally.
+`options.columns` (default `1`), `options.onClick`/`options.onHover`,
+`cells = []` internally.
 
+**Methods**
 - **`setCell(row, col, control, { colSpan = 1, rowSpan = 1 } = {})`** —
   **pushes** a `{row, col, colSpan, rowSpan, control}` entry onto
   `this.cells`. Calling it twice for the same `(row, col)` does **not**
@@ -685,56 +918,119 @@ the preview's background image (and hides the placeholder icon) when
   container-within-a-container is handled by the *caller* —
   `WiseWindow.registerControl`/`getValues` both recurse by calling
   `getChildControls()` again on whatever comes back, if it's itself a
-  container.)
-- `render()`: `{ type, id, dataField, rows, columns, cells: [{row, col, colSpan, rowSpan, control: control.render()}], style, visible }`.
-- `renderElement`: a `<table>`; walks `rows × columns`, skipping cells
-  already marked "occupied" by an earlier cell's `colSpan`/`rowSpan`,
-  rendering each real cell's control via `context.desktop.renderControl(...)`.
-- `patchElement(winEl, data, context)` — delegates to each cell control's
-  own registered `patchElement` (required for any container control — see
-  ARCHITECTURE.md §2 point 5).
+  container.) Framework-internal — not typically called directly by app
+  code.
+- **`getValue()`** / **`setValue(value)`** — inherited, but not meaningful
+  here; a table layout has no scalar value of its own (its *cells'*
+  controls carry the real values). Listed for completeness only.
+
+**Events**
+- **`onClick`** — generic, wired on the layout's own root `<table>` element.
+- **`onHover`** — generic, same element.
+
+`render()`:
+`{ type, id, dataField, rows, columns, cells: [{row, col, colSpan, rowSpan, control: control.render()}], hasClickHandler, hasHoverHandler, style, visible }`.
+`renderElement`: a `<table>`; walks `rows × columns`, skipping cells
+already marked "occupied" by an earlier cell's `colSpan`/`rowSpan`,
+rendering each real cell's control via `context.desktop.renderControl(...)`.
+`patchElement(winEl, data, context)` — delegates to each cell control's own
+registered `patchElement` (required for any container control — see
+ARCHITECTURE.md §2 point 5).
 
 ### `WiseTabControl` — container
 
-`new WiseTabControl(options)` — `options.style` only; **there is no
-`activeIndex` option** — the first tab (index `0`) is always the initially
-active one, hardcoded in `renderElement`.
+`new WiseTabControl(options)` — `options.activeIndex` (default `0`),
+`options.onTabChanged`, `options.onClick`/`options.onHover`, `options.style`.
 
+**The active tab index is real, server-tracked state**, unlike most other
+containers on this page: it's stored as `this.value` (via the base class'
+`super(options.activeIndex || 0, options)`).
+
+**Methods**
 - **`addTab(label, controls = [])`** — pushes `{label, controls}` onto
   `this.tabs`. Returns `this` (chainable).
 - **`getChildControls()`** — `this.tabs.flatMap(tab => tab.controls)` — the
   immediate controls across every tab, flattened one level (same
-  non-deep-recursive caveat as `WiseTableLayout` above).
-- `render()`: `{ type, id, dataField, tabs: [{label, controls: [control.render()]}], style, visible }`.
-- `renderElement`: Chrome-style tab buttons (active tab overlaps the panel's
-  top border via `-mb-px` + `z-10`) above a bordered panel; each tab's
-  controls render into their own `[data-tab-panel]` div, hidden via
-  `display: none` for every non-active tab. Switching tabs is pure
-  client-side `display` toggling — no server round trip — and hidden tabs'
-  controls remain in the DOM the whole time, so they still gather/patch
-  correctly.
-- `patchElement(winEl, data, context)` — delegates to each tab's controls'
-  own registered `patchElement` (including hidden tabs' controls, which
-  still need to stay in sync with server-driven updates).
+  non-deep-recursive caveat as `WiseTableLayout` above). Framework-internal.
+- **`getValue()`** / **`setValue(value)`** — inherited, and *meaningful*
+  here (unlike other containers): reads/writes the active tab **index**.
+  `setValue()` is how a handler jumps to a specific tab programmatically,
+  from server-side code — see `patchElement` below for how that reaches
+  the browser.
+
+**Events**
+- **`onTabChanged(previousTab, currentTab)`** — opt-in; only when supplied
+  does clicking a tab *also* fire a real `POST .../events` call
+  (`event: 'tabchange'`) so server-side app code can react. Called with the
+  full `{label, controls}` tab objects (`this.tabs[index]`), or `null` if
+  an index is out of range. **Switching tabs itself stays instant/
+  client-only either way** — the visible panel always changes immediately,
+  with or without this handler; apps that don't supply it see zero
+  behavior/performance change from before this feature existed. This is
+  the one place in the control catalog where the bridging pattern (see
+  ARCHITECTURE.md §2 point 8) turns a previously **pure client-side**
+  interaction into an **optional** server round trip, rather than just
+  adding a richer event on top of an existing one.
+- **`onClick`** — generic, on the control's own root wrapper.
+- **`onHover`** — generic, same wrapper.
+
+`render()`:
+`{ type, id, dataField, value, tabs: [{label, controls: [control.render()]}], hasTabChangeHandler, hasClickHandler, hasHoverHandler, style, visible }`
+— `value` is the active tab index; `hasTabChangeHandler` is
+`!!this.onTabChanged`.
+
+`renderElement`: Chrome-style tab buttons (active tab overlaps the panel's
+top border via `-mb-px` + `z-10`) above a bordered panel; each tab's
+controls render into their own `[data-tab-panel]` div, hidden via
+`display: none` for every non-active tab (they remain in the DOM the whole
+time so they still gather/patch correctly). `data.value` (not a hardcoded
+`0`) picks which tab starts active, for both the initial tab-button styling
+and which panel is visible.
+
+**Implementation note for `onTabChanged`**: `dispatchControlEvent` resolves
+the DOM event name `'tabchange'` to a handler named `onTabchange` (only the
+first letter capitalized, per the framework's
+`` `on${Capitalize(eventName)}` `` convention — same as `WiseDataTable`'s
+`onFilterchange`/`onRowselect`/`onCellchange`). `onTabchange` is an internal
+arrow function (so `this` stays the control instance despite
+`dispatchControlEvent`'s `handler.call(win)`) that computes the previous/
+current tab index via an internally tracked `this._lastActiveIndex`, and
+calls the public `onTabChanged(previousTab, currentTab)` if supplied.
+
+`patchElement(winEl, data, context)` — does two things, not just one:
+delegates to each tab's controls' own registered `patchElement` (including
+hidden tabs' controls), **and** re-syncs which tab button/panel is showing
+based on `data.value` — this second part is what makes a handler's
+server-side `setValue()` call (jumping to a specific tab without the user
+clicking it) actually take visible effect in the browser on the next patch.
 
 ### `WiseFrame` — container
 
 `new WiseFrame(title = '', options)` — a titled box grouping child controls
-(the "fieldset with a nicer look" of the catalog).
+(the "fieldset with a nicer look" of the catalog). `options.onClick`/
+`options.onHover` also accepted.
 
+**Methods**
 - **`addControl(control)`** — pushes onto this frame's own `this.controls`
   array (distinct from, and not to be confused with, `WiseWindow.addControl`
   — call this on the frame instance *before* passing the frame itself to
   the window's `addControl`). Returns `this` (chainable).
 - **`getChildControls()`** — returns `this.controls` (this frame's
   immediate children; same non-deep-recursive caveat as the other
-  containers).
-- `render()`: `{ type, id, dataField, title, controls: [control.render()], style, visible }`.
-- `renderElement`: a bordered/padded wrapper `<div>` with an optional
-  uppercase title heading, then a flex-column body rendering each child via
-  `context.desktop.renderControl(...)`.
-- `patchElement(winEl, data, context)` — delegates to each child control's
-  own registered `patchElement`.
+  containers). Framework-internal.
+- **`getValue()`** / **`setValue(value)`** — inherited, but not meaningful
+  here (a frame has no scalar value of its own). Listed for completeness.
+
+**Events**
+- **`onClick`** — generic, on the frame's own root wrapper.
+- **`onHover`** — generic, same wrapper.
+
+`render()`:
+`{ type, id, dataField, title, controls: [control.render()], hasClickHandler, hasHoverHandler, style, visible }`.
+`renderElement`: a bordered/padded wrapper `<div>` with an optional
+uppercase title heading, then a flex-column body rendering each child via
+`context.desktop.renderControl(...)`. `patchElement(winEl, data, context)`
+— delegates to each child control's own registered `patchElement`.
 
 ### `WiseDataTable` — container (partial exception, see below)
 
@@ -749,6 +1045,8 @@ active one, hardcoded in `renderElement`.
 | `sortDirection` | `'asc'` | |
 | `onDataFilterChanged` | `null` | `(pageSize, currentPage) => ...`, invoked whenever paging/sorting/page-size changes |
 | `onRowSelect` | `null` | `(rowData) => ...`, invoked on a row click (only wired up if this is set — see below) |
+| `onClick` | `null` | generic — see the shared note above; wired on this control's own outer wrapper element, distinct from `onRowSelect`/cell-level `onClick` |
+| `onHover` | `null` | generic, same wrapper |
 | `style` | `{}` | |
 
 `columns = []` and `data = []` start empty (set via `setColumns`/`setData`,
@@ -761,19 +1059,58 @@ method on this class at all.** A `WiseDataTable` never gets nested into
 `WiseWindow.registerControl`'s recursive child-registration, and there is
 no toolbar-controls concept.
 
+**Methods**
+- **`setColumns(columns)`** — replaces `this.columns`. Returns `this`. See
+  "Column shape" below for what each entry accepts.
+- **`setData(rows, totalCount)`** — replaces the current page's rows +
+  total count. Call this from your `onDataFilterChanged` handler (or once
+  up front for a static dataset). This control never holds — or expects —
+  the whole dataset at once, only the current page. Returns `this`.
+- **`getData()`** — returns `this.data` (the current page's rows only, same
+  caveat as above). The counterpart read accessor to `setData`. This is
+  the control's version of the generic `getValue()`/`setValue()` pair every
+  other control gets from the base class — `WiseDataTable` doesn't have a
+  single scalar `value` that fits that shape, so it gets
+  `getData()`/`setData()` instead (see `WiseControl`'s "Instance methods"
+  section above).
+
+**Events** (control-level — see "Column-level events" below for the
+separate per-cell handlers)
+- **`onDataFilterChanged(pageSize, currentPage)`** — fires whenever paging,
+  page size, or sorting changes (sort field/direction are read off
+  `this.sortField`/`this.sortDirection` inside the handler, not passed as
+  arguments). Re-fetch the matching page and call `setData()` in response —
+  see `docs/DEVELOPMENT_GUIDE.md` §5 for a worked example.
+- **`onRowSelect(rowData)`** — fires when a row is clicked, with the full
+  row object. Only wired up in the DOM at all if this option is supplied.
+- **`onClick`** — generic; wired on this control's own **outer wrapper**
+  element, distinct from `onRowSelect`/the column-level `onClick` below —
+  fires for a click anywhere in the table that isn't otherwise claimed by
+  a row-select or a cell's own interactive element.
+- **`onHover`** — generic, same wrapper.
+
+Column-level events (per-column functions passed into `setColumns`, not
+control-level options):
+- **`onClick(rowData, rowIndex)`** — for a `'button'`-type column; fires
+  when that row's button is clicked.
+- **`onChange(rowData, newValue, rowIndex)`** — for `'checkbox'`/
+  `'combobox'`/`'radiobutton'`-type columns; fires when that cell's value
+  changes.
+
 The constructor also assigns four handlers as **arrow function properties
 on the instance** (not prototype methods), specifically so `this` stays the
 `WiseDataTable` instance even though `dispatchControlEvent` invokes them via
 `handler.call(win)` — arrow functions ignore `.call()`'s `this` override.
-Their exact (lowercase-only-first-letter-capitalized) names matter, since
+These are internal plumbing, not part of the public options above, but
+their exact (lowercase-only-first-letter-capitalized) names matter, since
 `dispatchControlEvent` looks them up as `` `on${Capitalize(eventName)}` ``:
 
-| Instance property | Dispatched event name | Behavior |
+| Instance property | Dispatched event name | Bridges to |
 |---|---|---|
-| `onFilterchange` | `'filterchange'` | reads `this.value` (`{pageSize?, currentPage?, sortField?, sortDirection?}`), applies whichever fields are present onto the matching instance property, then calls `this.onDataFilterChanged(this.pageSize, this.currentPage)` if set |
-| `onRowselect` | `'rowselect'` | reads `this.value.rowIndex`, looks up `this.data[rowIndex]`, calls `this.onRowSelect(row)` if both exist |
-| `onCellchange` | `'cellchange'` | reads `this.value` (`{rowIndex, dataField, newValue}`), finds the matching column + row, calls `column.onChange(row, newValue, rowIndex)` if defined |
-| `onCellclick` | `'cellclick'` | reads `this.value` (`{rowIndex, dataField}`), finds the matching column + row, calls `column.onClick(row, rowIndex)` if defined |
+| `onFilterchange` | `'filterchange'` | reads `this.value` (`{pageSize?, currentPage?, sortField?, sortDirection?}`), applies whichever fields are present onto the matching instance property, then calls the public `onDataFilterChanged(this.pageSize, this.currentPage)` if set |
+| `onRowselect` | `'rowselect'` | reads `this.value.rowIndex`, looks up `this.data[rowIndex]`, calls the public `onRowSelect(row)` if both exist |
+| `onCellchange` | `'cellchange'` | reads `this.value` (`{rowIndex, dataField, newValue}`), finds the matching column + row, calls that column's own `onChange(row, newValue, rowIndex)` if defined |
+| `onCellclick` | `'cellclick'` | reads `this.value` (`{rowIndex, dataField}`), finds the matching column + row, calls that column's own `onClick(row, rowIndex)` if defined |
 
 Every browser-side interaction (sorting a header, changing the page/page
 size, clicking a row, a cell button/checkbox/combobox/radio change) fires
@@ -783,27 +1120,17 @@ syncs `values[id]` onto `win[id].value` *before* calling the handler, so
 `this.value` inside these arrow functions is always the freshly delivered
 payload, never something read passively off the DOM.
 
-Methods:
-
-- **`setColumns(columns)`** — replaces `this.columns`. Returns `this`.
-- **`setData(rows, totalCount)`** — replaces the current page's rows +
-  total count. Call this from your `onDataFilterChanged` handler (or once
-  up front for a static dataset). This control never holds — or expects —
-  the whole dataset at once, only the current page. Returns `this`.
-
 Column shape (each entry in the array passed to `setColumns`):
 `{ dataField, header, width, sortable (default true, forced off if there's no dataField), type, label, items, onClick, onChange }`.
 `type` is one of `'button'`, `'checkbox'`, `'combobox'`, `'radiobutton'`,
 `'image'`, or omitted/anything else for plain text. For `'combobox'`/
 `'radiobutton'`, `items` entries may be either a plain primitive (used as
-both value and label) or `{value, label}` — both shapes are handled. Cell
-interaction handlers: `onClick(rowData, rowIndex)` for `'button'`;
-`onChange(rowData, newValue, rowIndex)` for `'checkbox'`/`'combobox'`/
-`'radiobutton'`. The `'image'` type is **read-only** — it just renders
-`<img src="{cellValue}">` (or a neutral placeholder icon if the cell is
-empty), there is no built-in edit affordance for it.
+both value and label) or `{value, label}` — both shapes are handled. The
+`'image'` type is **read-only** — it just renders `<img src="{cellValue}">`
+(or a neutral placeholder icon if the cell is empty), there is no built-in
+edit affordance for it.
 
-`render()`: `{ type, id, dataField, columns, data, totalCount, pageSize, currentPage, pageSizeOptions, sortField, sortDirection, hasRowSelectHandler, style, visible }`.
+`render()`: `{ type, id, dataField, columns, data, totalCount, pageSize, currentPage, pageSizeOptions, sortField, sortDirection, hasRowSelectHandler, hasClickHandler, hasHoverHandler, style, visible }`.
 
 `renderElement`: a pager, the table itself, and a second identical pager —
 **both a top and a bottom pager**, wired to the same `fireFilterChange`

@@ -7,6 +7,8 @@
       super({ start: value.start || '', end: value.end || '' }, options);
       this.name = 'WiseDateRange';
       this.onChange = typeof options.onChange === 'function' ? options.onChange : null;
+      this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
+      this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
       this.style = options.style || {};
     }
 
@@ -17,6 +19,8 @@
         dataField: this.dataField,
         value: this.value,
         hasHandler: !!this.onChange,
+        hasClickHandler: !!this.onClick,
+        hasHoverHandler: !!this.onHover,
         style: this.style,
         visible: this.visible,
       };
@@ -25,7 +29,7 @@
     static renderElement(data, context) {
       const wrapper = document.createElement('div');
       wrapper.className = 'w-full flex items-center gap-2.5';
-      WiseControl.applyCommon(wrapper, data);
+      WiseControl.applyCommon(wrapper, data, context);
 
       const dateInputClass = 'min-w-0 flex-1 appearance-none rounded-lg border-0 bg-white px-3 py-1.5 text-sm text-slate-800 shadow-sm ring-1 ring-slate-900/10 outline-none transition focus:shadow-md focus:ring-2 focus:ring-[var(--accent)]';
 

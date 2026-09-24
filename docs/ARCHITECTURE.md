@@ -92,6 +92,42 @@ unusual on purpose.
    instances — see §8 and §9 for exactly how, and the real limitation this
    still leaves.
 
+7. **Every control shares one accessor/event vocabulary.** Every control
+   (via the `WiseControl` base class) exposes `getValue()`/`setValue(value)`
+   regardless of subtype. `onClick`/`onHover` are similarly generic — wired
+   uniformly by `WiseControl.applyCommon(el, data, context)` off two render
+   flags (`hasClickHandler`/`hasHoverHandler`), so a control class doesn't
+   write its own listener just to support them; only `onChange` stays
+   per-control, since what DOM event actually means "changed" genuinely
+   differs (native `change`, `blur`, custom logic). A control whose
+   `options` naturally includes a list of choices (`WiseComboBox`,
+   `WiseRadioGroup`, `WiseCheckboxGroup`) also gets `setItems(items)`/
+   `getItems()`. `WiseDataTable` is the one control with enough of its own
+   state that `getValue()`/`setValue()` don't fit — it has `getData()`/
+   `setData(rows, totalCount)` instead. See `docs/API_REFERENCE.md` for the
+   full per-control option/method tables.
+
+8. **Item-based events bridge a public option onto the control's real
+   handler, not onto a bare `onChange`.** `WiseComboBox`/`WiseRadioGroup`'s
+   `onItemChanged(previousItem, currentItem)` and `WiseCheckboxGroup`'s
+   `onItemChecked(item)` need state `dispatchControlEvent` has already
+   overwritten by the time any handler runs — control code, not framework
+   code, has to remember the *previous* value on the way in. Each of these
+   controls wraps its own internal `onChange` in an arrow function (closing
+   over the control instance, not relying on `dispatchControlEvent`'s
+   `handler.call(win)`) that computes the diff, calls the richer public
+   handler if one was supplied, then still calls the plain `onChange` if
+   that was *also* supplied — the same bridging pattern `WiseDataTable`
+   already established for its own `onFilterchange`/`onRowselect`/
+   `onCellchange` internals vs. its public `onDataFilterChanged`/
+   `onRowSelect`/column-level `onChange` options. `WiseTabControl`'s
+   `onTabChanged(previousTab, currentTab)` follows the same shape, but is
+   also the one place this pattern turns a previously **pure client-side**
+   interaction (switching tabs never touched the server before) into an
+   **optional** server round trip — the visual tab switch itself stays
+   instant/client-only either way; the round trip only fires at all when an
+   app author actually supplies `onTabChanged`.
+
 ## 3. High-level architecture
 
 ```mermaid
@@ -332,7 +368,12 @@ classDiagram
         +id
         +dataField
         +value
+        +onClick
+        +onHover
+        +getValue()
+        +setValue(value)
         +render()
+        +applyCommon(el, data, context)$
         +renderElement(data, context)$
         +gatherValue(winEl, id)$
         +patchElement(winEl, data)$

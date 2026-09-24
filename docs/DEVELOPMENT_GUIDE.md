@@ -162,19 +162,19 @@ properties, e.g. `{ fontSize: 15, marginTop: '8px' }`).
 | Control | Constructor | Key options | `isInput`? |
 |---|---|---|---|
 | `WiseLabel` | `new WiseLabel(text, options)` | — | no |
-| `WiseTextBox` | `new WiseTextBox(placeholder, options)` | `value`, `minLength`, `maxLength` | yes |
+| `WiseTextBox` | `new WiseTextBox(placeholder, options)` | `value`, `minLength`, `maxLength`, `onChange` | yes |
 | `WiseNumericBox` | `new WiseNumericBox(placeholder, options)` | `value`, `min`, `max`, `step`, `prefix`, `suffix` (see note below) | yes |
 | `WiseTextArea` | `new WiseTextArea(value, options)` | `placeholder`, `rows`, `onChange` | yes |
 | `WiseButton` | `new WiseButton(label, options)` | `onClick` | no |
-| `WiseComboBox` | `new WiseComboBox(items, options)` | `items: [{value,label}]`, `value`, `onChange` | yes |
+| `WiseComboBox` | `new WiseComboBox(items, options)` | `items: [{value,label}]`, `value`, `onChange`, `onItemChanged` | yes |
 | `WiseRadioGroup` | `new WiseRadioGroup(items, options)` | same as combo box | yes |
-| `WiseCheckboxGroup` | `new WiseCheckboxGroup(items, options)` | `value: string[]`, `onChange` | yes |
+| `WiseCheckboxGroup` | `new WiseCheckboxGroup(items, options)` | `value: string[]`, `onChange`, `onItemChecked` | yes |
 | `WiseDate` | `new WiseDate(value, options)` | `onChange` | yes |
 | `WiseDateRange` | `new WiseDateRange(value, options)` | `value: {start,end}`, `onChange` | yes |
 | `WiseHtmlEditor` | `new WiseHtmlEditor(html, options)` | `onChange` (fires on blur) | yes |
 | `WiseFileUpload` | `new WiseFileUpload(label, options)` | `accept`, `onChange` | yes |
 | `WiseTableLayout` | `new WiseTableLayout(options)` | `rows`, `columns` | container |
-| `WiseTabControl` | `new WiseTabControl(options)` | — | container |
+| `WiseTabControl` | `new WiseTabControl(options)` | `activeIndex`, `onTabChanged` | container |
 | `WiseFrame` | `new WiseFrame(title, options)` | `title` | container |
 | `WiseDataTable` | `new WiseDataTable(options)` | see §5 | container |
 
@@ -189,7 +189,67 @@ it is not a bare `<input type="number">`. `prefix`/`suffix` (e.g. `'Rp'`,
 `WiseWindow.getValues()` (see §4). `WiseLabel`/`WiseButton` are display/
 action-only and excluded. Container controls (`WiseTableLayout`,
 `WiseTabControl`, `WiseDataTable`) don't have a value of their own — their
-*nested* controls contribute instead.
+*nested* controls contribute instead (`WiseTabControl` is a partial
+exception — see below).
+
+### Every control's built-in accessors and events
+
+Every control, regardless of type, inherits from `WiseControl` and so
+always has:
+
+- **`getValue()`** / **`setValue(value)`** — read/write `this.value`
+  without touching the property directly. (`WiseDataTable` is the one
+  exception — it has `getData()`/`setData(rows, totalCount)` instead,
+  since a page of table rows isn't a single scalar value; see §5.)
+- **`onClick`** / **`onHover`** options — fire a `click`/`hover` server
+  event exactly like `onChange` does elsewhere, wired generically for
+  every control by the base class. Both are opt-in: leave them unset and
+  nothing extra is wired into the DOM. `WiseButton`'s own `onClick`
+  already covers the button case (unchanged); every other control gets
+  `onClick` as an additional, independent handler.
+
+Three controls that manage a list of choices or a list of tabs also get a
+**richer, item-aware event** layered on top of their plain `onChange`
+(both can be supplied together — the plain one still fires with no
+arguments, exactly as before):
+
+```js
+this.addControl(new WiseComboBox(
+  [{ value: 'eng', label: 'Engineering' }, { value: 'sales', label: 'Sales' }],
+  {
+    id: 'cmbDept',
+    onItemChanged: (previousItem, currentItem) => {
+      // both are the full {value, label} item, or null
+    },
+  }
+));
+
+this.addControl(new WiseCheckboxGroup(
+  [{ value: 'a', label: 'Option A' }],
+  {
+    id: 'checkOptions',
+    onItemChecked: (item) => {
+      // { value, label, checked: true|false } for whichever box just toggled
+    },
+  }
+));
+
+const tabs = new WiseTabControl({
+  id: 'tabsDemo',
+  onTabChanged: (previousTab, currentTab) => {
+    // { label, controls } for the tab being left/entered
+  },
+});
+```
+
+`WiseComboBox`/`WiseRadioGroup` also get `setItems(items)`/`getItems()`,
+and `WiseCheckboxGroup` gets the same pair, for changing the choice list
+after construction (e.g. once a database-backed option list loads).
+
+`onTabChanged` is the one case where this adds a real server round trip
+where there wasn't one before — switching tabs itself is still instant and
+purely client-side (the visible panel changes immediately either way); the
+round trip only happens at all if `onTabChanged` is actually supplied.
 
 ### Example: most of the catalog in one window
 

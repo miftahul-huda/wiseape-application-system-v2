@@ -9,6 +9,8 @@
       this.rows = options.rows || 1;
       this.columns = options.columns || 1;
       this.cells = [];
+      this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
+      this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
       this.style = options.style || {};
     }
 
@@ -44,6 +46,8 @@
           rowSpan: cell.rowSpan,
           control: cell.control.render(),
         })),
+        hasClickHandler: !!this.onClick,
+        hasHoverHandler: !!this.onHover,
         style: this.style,
         visible: this.visible,
       };
@@ -52,7 +56,7 @@
     static renderElement(data, context) {
       const table = document.createElement('table');
       table.className = 'w-full border-collapse';
-      WiseControl.applyCommon(table, data);
+      WiseControl.applyCommon(table, data, context);
 
       const cellByPosition = new Map();
       (data.cells || []).forEach((cell) => cellByPosition.set(`${cell.row}:${cell.col}`, cell));

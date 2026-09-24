@@ -12,6 +12,19 @@
       this.visible = options.visible !== undefined ? options.visible : true;
     }
 
+    // Generic accessors so app code doesn't have to touch `.value` directly
+    // -- every control stores its one piece of state there (containers that
+    // don't have a single scalar value, e.g. WiseDataTable, expose their own
+    // getData()/setData() instead; see each subclass).
+    getValue() {
+      return this.value;
+    }
+
+    setValue(value) {
+      this.value = value;
+      return this;
+    }
+
     render() {
       return {
         type: this.name,
@@ -25,7 +38,7 @@
     // renderElement/gatherValue/patchElement; these are the generic
     // fallbacks used when a subclass doesn't need to override them. ----
 
-    static applyCommon(el, data) {
+    static applyCommon(el, data, context) {
       if (data.id) {
         el.dataset.controlId = data.id;
         el.dataset.controlType = data.type;
@@ -35,6 +48,22 @@
       });
       if (data.visible === false) {
         el.style.display = 'none';
+      }
+
+      // Generic click/hover wiring, shared by every control so a subclass
+      // doesn't need its own listener code just to support these two --
+      // opt-in via hasClickHandler/hasHoverHandler (set from
+      // options.onClick/options.onHover), same shape as each control's own
+      // onChange flag. `change` stays per-control (see each subclass) since
+      // what DOM event actually means "changed" varies (native change,
+      // blur, custom logic) in a way click/hover don't.
+      if (context && context.desktop && data.id) {
+        if (data.hasClickHandler) {
+          el.addEventListener('click', () => context.desktop.sendControlEvent(context.appId, data.id, el, 'click'));
+        }
+        if (data.hasHoverHandler) {
+          el.addEventListener('mouseenter', () => context.desktop.sendControlEvent(context.appId, data.id, el, 'hover'));
+        }
       }
     }
 

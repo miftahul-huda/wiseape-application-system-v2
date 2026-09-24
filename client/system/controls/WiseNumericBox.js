@@ -49,6 +49,8 @@
       this.prefix = options.prefix || '';
       this.suffix = options.suffix || '';
       this.onChange = typeof options.onChange === 'function' ? options.onChange : null;
+      this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
+      this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
       this.style = options.style || {};
     }
 
@@ -65,6 +67,8 @@
         prefix: this.prefix,
         suffix: this.suffix,
         hasHandler: !!this.onChange,
+        hasClickHandler: !!this.onClick,
+        hasHoverHandler: !!this.onHover,
         style: this.style,
         visible: this.visible,
       };
@@ -119,7 +123,7 @@
 
       const wrapper = document.createElement('div');
       wrapper.className = 'flex w-full items-center overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-slate-900/10 transition focus-within:shadow-md focus-within:ring-2 focus-within:ring-[var(--accent)]';
-      WiseControl.applyCommon(wrapper, data);
+      WiseControl.applyCommon(wrapper, data, context);
 
       if (data.prefix) {
         const prefixEl = document.createElement('span');

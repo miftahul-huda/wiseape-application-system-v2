@@ -9,6 +9,9 @@
       this.placeholder = placeholder;
       this.minLength = options.minLength;
       this.maxLength = options.maxLength;
+      this.onChange = typeof options.onChange === 'function' ? options.onChange : null;
+      this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
+      this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
       this.style = options.style || {};
     }
 
@@ -21,12 +24,15 @@
         placeholder: this.placeholder,
         minLength: this.minLength,
         maxLength: this.maxLength,
+        hasHandler: !!this.onChange,
+        hasClickHandler: !!this.onClick,
+        hasHoverHandler: !!this.onHover,
         style: this.style,
         visible: this.visible,
       };
     }
 
-    static renderElement(data) {
+    static renderElement(data, context) {
       const el = document.createElement('input');
       el.type = 'text';
       el.placeholder = data.placeholder || '';
@@ -38,7 +44,10 @@
       if (data.minLength !== undefined && data.minLength !== null) el.minLength = data.minLength;
       if (data.maxLength !== undefined && data.maxLength !== null) el.maxLength = data.maxLength;
       el.className = 'w-full appearance-none rounded-lg border-0 bg-white px-3 py-1.5 text-sm text-slate-800 placeholder-slate-400 shadow-sm ring-1 ring-slate-900/10 outline-none transition focus:shadow-md focus:ring-2 focus:ring-[var(--accent)]';
-      WiseControl.applyCommon(el, data);
+      WiseControl.applyCommon(el, data, context);
+      if (data.hasHandler) {
+        el.addEventListener('change', () => context.desktop.sendControlEvent(context.appId, data.id, el, 'change'));
+      }
       return el;
     }
   }
