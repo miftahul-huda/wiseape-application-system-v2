@@ -327,13 +327,16 @@ class WiseDesktop {
   // Fullscreen overlay listing a set of menu nodes -- used both for the
   // Launchpad (the whole top-level tree) and for a folder's contents (opened
   // from the desktop grid or from within another overlay, which stacks a
-  // new overlay on top of the one already showing). Clicking an item
-  // launches its app and closes this overlay; clicking a nested folder
-  // opens another overlay on top. Clicking the backdrop or pressing Escape
-  // closes just the top overlay -- so does the Back button shown for folder
-  // views (`showBack: true`), since closing the top overlay is exactly what
-  // reveals whatever's underneath (the desktop, or the parent folder).
-  openMenuOverlay(root, items, title, { showBack = false } = {}) {
+  // new overlay on top of the one already showing). Clicking a nested
+  // folder opens another overlay on top; clicking the backdrop, pressing
+  // Escape, or the Back button (`showBack: true`) all close just the top
+  // overlay, revealing whatever's underneath (the desktop, or the parent
+  // folder). Clicking an actual app, however, closes the WHOLE stack --
+  // `closers` is the shared array of every currently-open level's own
+  // closeOverlay, threaded through the recursive openMenuOverlay() calls so
+  // a launch from three folders deep still dismisses everything above the
+  // desktop, not just the folder it happened in.
+  openMenuOverlay(root, items, title, { showBack = false, closers = [] } = {}) {
     const overlay = document.createElement('div');
     overlay.className = 'launchpad-overlay';
 
@@ -342,6 +345,13 @@ class WiseDesktop {
       gridWrap.style.transform = 'scale(0.94)';
       overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
       document.removeEventListener('keydown', onKeydown);
+      const index = closers.indexOf(closeOverlay);
+      if (index !== -1) closers.splice(index, 1);
+    };
+    closers.push(closeOverlay);
+
+    const closeAll = () => {
+      [...closers].forEach((close) => close());
     };
 
     const onKeydown = (event) => {
@@ -381,16 +391,16 @@ class WiseDesktop {
       item.addEventListener('click', (event) => {
         event.stopPropagation();
         if (node.type === 'group') {
-          this.openMenuOverlay(root, node.children || [], node.label, { showBack: true });
+          this.openMenuOverlay(root, node.children || [], node.label, { showBack: true, closers });
           return;
         }
         this.onApplicationIconClick(node);
-        // This overlay item is about to be removed (closeOverlay below), so
+        // This overlay item is about to be removed (closeAll below), so
         // bounce the matching dock icon instead -- it's the one thing that
         // stays on screen for the whole wait.
         const dockEl = root.querySelector(`.taskbar .dock-item[data-app-id="${node.appId}"]`);
         this.launchApp(node, dockEl || item.querySelector('.glyph'));
-        closeOverlay();
+        closeAll();
       });
       gridWrap.appendChild(item);
     });

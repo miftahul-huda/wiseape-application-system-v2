@@ -296,8 +296,10 @@ body {
   max-width: 900px;
   max-height: 100%;
   /* Top/side padding gives the hover-grow glyph (translateY + scale) room
-     so it doesn't get clipped by this container's own overflow. */
-  padding: 16px 10px 10px;
+     so it doesn't get clipped by this container's own overflow -- sized
+     generously since the hover growth itself is fairly large (see
+     .launchpad-app:hover .glyph). */
+  padding: 24px 14px 10px;
   overflow-y: auto;
   transform: scale(0.94);
   transition: transform 0.25s var(--spring);
@@ -332,7 +334,7 @@ body {
 }
 
 .launchpad-app:hover .glyph {
-  transform: translateY(-4px) scale(1.06);
+  transform: translateY(-8px) scale(1.22);
 }
 
 .launchpad-app .label {
