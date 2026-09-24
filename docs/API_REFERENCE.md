@@ -124,14 +124,19 @@ Auth is handled entirely by `client/app.js`'s own module-level
   - Resolves `` control[`on${Capitalize(eventName)}`] `` on the target
     control (looked up as `win[controlId]`; throws if the control doesn't
     exist) — note `Capitalize` only uppercases the event name's *first*
-    character, it does not camelCase multi-word names, so a handler for
-    event `'filterchange'` must be named exactly `onFilterchange` (lowercase
-    `c`), not `onFilterChange`.
-  - If the resolved handler is a function, `await handler.call(win)` — `this`
-    inside a plain `.bind(this)`'d app-author handler is the window either
-    way; a handler defined as an arrow function in a control's own
-    constructor (`WiseDataTable`) keeps `this` as that control instance
-    instead, since arrow functions ignore `.call()`'s override.
+    character.
+  - **For `keypress` events**: the key metadata fields (`key`, `code`,
+    `ctrlKey`, `shiftKey`, `altKey`) are excluded from the `values` sync
+    step (so they don't overwrite a control named `key`) and are instead
+    collected into a `keyMeta` object passed as the **first argument** to
+    the handler: `await handler.call(win, keyMeta)`. For all other events,
+    the handler is called with no arguments as before.
+  - If the resolved handler is a function, `await handler.call(win)` (or
+    `handler.call(win, keyMeta)` for keypress) — `this` inside a plain
+    `.bind(this)`'d app-author handler is the window either way; a handler
+    defined as an arrow function in a control's own constructor
+    (`WiseDataTable`) keeps `this` as that control instance instead, since
+    arrow functions ignore `.call()`'s override.
   - Builds the response: `theme` is looked up from `session.user.themeId`
     against `this.themes` if a session with a user is present, else
     `this.getActiveTheme()`; `backgroundImage` is `session.user.backgroundImage`
@@ -165,7 +170,7 @@ matters).
 
 ### Properties
 
-`root`, `menus` (set by `run()`), `topBar` (`{left: ['Wiseape'], right: ['Battery 100%', 'Wi‑Fi']}` — the clock and Logout item are appended live by `renderDesktop()`, not part of this static list), `theme` (defaults `'macos'`, becomes the active theme's `id` after `applyTheme`), `themeColors` (the full theme object, set by `applyTheme`), `backgroundImage` (set by `applyBackgroundImage`), `windowStack` (reset to `[]` by every `run()` call — not actually used to track open windows elsewhere in this file), `onIconClick` (callback wired externally by `WiseApplicationSystem`), `clockInterval`.
+`root`, `menus` (set by `run()`), `topBar` (`{left: [displayName], right: ['Battery 100%', 'Wi‑Fi']}` — `displayName` is read from `localStorage.was_user` at construction time (falling back to `'User'`), the clock and Logout item are appended live by `renderDesktop()`, not part of this static list), `theme` (defaults `'macos'`, becomes the active theme's `id` after `applyTheme`), `themeColors` (the full theme object, set by `applyTheme`), `backgroundImage` (set by `applyBackgroundImage`), `windowStack` (reset to `[]` by every `run()` call — not actually used to track open windows elsewhere in this file), `onIconClick` (callback wired externally by `WiseApplicationSystem`), `clockInterval`.
 
 There is **no `currentUser` property anywhere on this class** and **no
 `escapeHtml` method** — user-controlled text (menu labels, etc.) is set via
@@ -218,22 +223,25 @@ There is **no `currentUser` property anywhere on this class** and **no
 - **`formatClock(date)`** — `"<Weekday> <Mon Day> <h>:<mm> <AM|PM>"` using
   `toLocaleDateString`, 12-hour wraparound.
 - **`renderDesktop()`** *(browser only)* — builds the whole `.desktop` DOM
-  tree: wallpaper layer, top bar (left/right spans, a live clock span, and
-  — unconditionally, there is no `currentUser`-gated check — a Logout span
-  that clears `was_token`/`was_user` from `localStorage`, POSTs
-  `/api/auth/logout` if a token existed, then reloads), the desktop icon
-  grid (one `.app-icon` per top-level **menu** node — a `group` node opens
-  `openMenuOverlay(root, node.children, node.label, {showBack: true})`, an
-  `item` node calls `onApplicationIconClick` then `launchApp`), and the dock
-  (Launchpad trigger that opens `openMenuOverlay(root, this.menus, 'Launchpad')`,
-  a separator, then one `.dock-item` per **flattened** leaf item). Calls
-  `upgradeIcon` for every rendered icon and `attachDockMagnify(dock)` at the
-  end.
+  tree: wallpaper layer, top bar (left/right spans — left shows the logged-in
+  user's display name read from `localStorage.was_user`, a live clock span,
+  and — unconditionally — a Logout span that clears `was_token`/`was_user`
+  from `localStorage`, POSTs `/api/auth/logout` if a token existed, then
+  reloads). Desktop shortcut icons on the grid have been removed — apps are
+  accessed exclusively via the Launchpad or taskbar. The **taskbar is
+  vertical, positioned on the left edge** of the desktop: a Launchpad trigger
+  at the top, a horizontal separator, then one `.dock-item` per flattened
+  leaf item. Each dock item stores its label in `data-label` (not the browser
+  `title` attribute) so a custom CSS tooltip (`::after` pseudo-element) can
+  appear to the right on hover. Calls `upgradeIcon` for every rendered icon
+  and `attachDockMagnify(dock)` at the end.
 - **`attachDockMagnify(dock)`** — macOS-style dock icon magnification:
   on `mousemove`, grows each `.dock-item`'s real `width`/`height` (not
-  `transform: scale`) the closer the pointer is to its horizontal center
+  `transform: scale`) the closer the pointer is to its **vertical** center
   (within a 110px radius, up to 78px from a 50px base), so flex layout
   pushes neighbors apart instead of overlapping; resets on `mouseleave`.
+  The dock is rendered **vertically on the left edge** of the desktop
+  (not at the bottom), so magnification tracks `clientY` instead of `clientX`.
 - **`openMenuOverlay(root, items, title, { showBack = false, closers = [] } = {})`**
   *(browser only)* — fullscreen overlay listing `items`. Used for both the
   Launchpad (`items = this.menus`) and a folder's contents. Clicking a
@@ -394,6 +402,12 @@ mid-session — see ARCHITECTURE.md §5 for what to use instead
   picks the icon/color from it.
 - **`addControl(control)`** — pushes onto `this.controls`, calls
   `this.registerControl(control)`, returns `this` (chainable).
+- **`removeControl(id)`** — removes the control with the given `id` from
+  `this.controls` (by `findIndex`/`splice`) and `delete`s `this[id]`. For
+  container controls (`getChildControls` exists), also recursively
+  unregisters every nested child's `this[childId]` shorthand. Returns
+  `this` (chainable). After calling this, the control no longer renders on
+  the next round trip.
 - **`registerControl(control)`** — if `control.id`, sets
   `this[control.id] = control`; if `control.getChildControls` is a function
   (a container control), also calls `registerControl` on every control it
@@ -467,25 +481,24 @@ subclass — see `WiseWindow.getValues()` above for the actual mechanism.
 - `this.id = options.id || null`
 - `this.dataField = options.dataField || options.id || null`
 - `this.visible = options.visible !== undefined ? options.visible : true`
+- `this.disabled = options.disabled !== undefined ? options.disabled : false`
 
 ### `render()` (base)
 
-Returns `{ type: this.name, id: this.id, value: this.value, visible: this.visible }`
+Returns `{ type: this.name, id: this.id, value: this.value, visible: this.visible, disabled: this.disabled }`
 — note **no `dataField`** at this level; subclasses that include it in
 their own `render()` add it themselves.
 
 ### Instance methods (inherited by every control)
 
-- **`getValue()`** — returns `this.value`. Generic accessor so app code
-  doesn't have to touch `.value` directly; works identically regardless of
-  subtype (a checkbox group's value is an array, a tab control's is an
-  index, etc. — this method doesn't normalize any of that, it just returns
-  whatever `this.value` currently holds).
-- **`setValue(value)`** — sets `this.value = value`, returns `this`
-  (chainable). The counterpart accessor. `WiseDataTable` is the one control
-  where these don't fit (it has enough of its own state — rows, paging,
-  sorting — that a single scalar `value` doesn't make sense); it exposes
-  `getData()`/`setData(rows, totalCount)` instead (see its entry below).
+- **`getValue()`** — returns `this.value`.
+- **`setValue(value)`** — sets `this.value = value`, returns `this` (chainable).
+- **`getDisabled()`** — returns `this.disabled` (`true` or `false`).
+- **`setDisabled(value)`** — sets `this.disabled = !!value`, returns `this` (chainable). When `true`, `applyCommon` also sets `el.disabled = true`, adds class `wise-disabled`, and sets `pointerEvents: none` / `opacity: 0.5` on the DOM element so the control is visually and functionally inert. When `false`, all of those are reversed.
+- **`getVisibility()`** — returns `this.visible` (`true` or `false`).
+- **`setVisibility(value)`** — sets `this.visible = !!value`, returns `this` (chainable). Reflected into the DOM by `applyCommon` (`display: none` when `false`).
+- **`setEvent(eventName, handler)`** — dynamically assigns an event handler by property name (e.g. `'onChange'`, `'onClick'`, `'onKeyPress'`). `handler` must be a function — throws if it isn't. Returns `this` (chainable). Because each control's `render()` reads live handler references (e.g. `hasHandler: !!this.onChange`), this takes effect on the very next round trip with no re-construction needed.
+- **`removeEvent(eventName)`** — sets `this[eventName] = null`, effectively removing the handler. The corresponding `has*Handler` flag in `render()` will be `false` on the next round trip, so no DOM listener is wired for that event. Returns `this` (chainable).
 
 ### Every control's `onClick`/`onHover` (generic, opt-in)
 
@@ -508,14 +521,17 @@ ARCHITECTURE.md §2 point 7 for the conceptual framing.
 - **`static applyCommon(el, data, context)`** — sets `el.dataset.controlId`/
   `el.dataset.controlType` if `data.id` is truthy, applies `data.style`
   entries onto `el.style` (numbers → `${value}px`, everything else as-is),
-  and sets `el.style.display = 'none'` if `data.visible === false`. Call
-  this from every custom `renderElement` on whichever element should carry
-  the control's identity. **`context` is optional but every shipped control
-  now passes it** (`context = { appId, windowId, desktop }`, the same
-  object `renderElement` itself receives): when `context.desktop` and
-  `data.id` are present, this is also where the generic click/hover
-  listeners get wired — `data.hasClickHandler` adds a `click` listener
-  calling `context.desktop.sendControlEvent(context.appId, data.id, el, 'click')`,
+  sets `el.style.display = 'none'` if `data.visible === false`, and applies
+  the disabled state if `data.disabled === true` (`el.disabled = true`,
+  adds class `wise-disabled`, sets `pointerEvents: none` / `opacity: 0.5`);
+  reversed when `data.disabled` is falsy. Call this from every custom
+  `renderElement` on whichever element should carry the control's identity.
+  **`context` is optional but every shipped control now passes it**
+  (`context = { appId, windowId, desktop }`, the same object `renderElement`
+  itself receives): when `context.desktop` and `data.id` are present, this
+  is also where the generic click/hover listeners get wired —
+  `data.hasClickHandler` adds a `click` listener calling
+  `context.desktop.sendControlEvent(context.appId, data.id, el, 'click')`,
   `data.hasHoverHandler` adds a `mouseenter` listener the same way with
   `'hover'`. Both are opt-in per control instance, driven by whether that
   instance's `onClick`/`onHover` option was supplied (see above).
@@ -578,13 +594,15 @@ is only ever the placeholder. Options: `value`, `minLength`, `maxLength`,
 
 **Events**
 - **`onChange`** — fires when the input's native `change` event fires (on
-  blur after editing, or Enter). Newly added — this control previously had
-  no `onChange` at all.
+  blur after editing, or Enter).
 - **`onClick`** — generic; fires on click.
 - **`onHover`** — generic; fires on `mouseenter`.
+- **`onKeyPress({ key, code, ctrlKey, shiftKey, altKey })`** — fires on
+  every `keydown` inside the input. The handler receives a key-metadata
+  object. Opt-in — no listener is wired unless supplied.
 
 `render()` adds
-`dataField, placeholder, minLength, maxLength, hasHandler, hasClickHandler, hasHoverHandler, style`.
+`dataField, placeholder, minLength, maxLength, hasHandler, hasClickHandler, hasHoverHandler, hasKeyPressHandler, style, disabled`.
 `renderElement`: plain `<input type="text">`; if `data.minLength`/`data.maxLength`
 are set (not `undefined`/`null`), assigns `el.minLength`/`el.maxLength`
 directly — `maxLength` is actively enforced by the browser (typing past it
@@ -652,9 +670,11 @@ freshly grouped display value back.
   after editing).
 - **`onClick`** — generic.
 - **`onHover`** — generic.
+- **`onKeyPress({ key, code, ctrlKey, shiftKey, altKey })`** — fires on
+  every `keydown`. Opt-in — no listener is wired unless supplied.
 
 `render()` adds
-`dataField, placeholder, rows, hasHandler, hasClickHandler, hasHoverHandler, style`.
+`dataField, placeholder, rows, hasHandler, hasClickHandler, hasHoverHandler, hasKeyPressHandler, style, disabled`.
 `renderElement`: plain `<textarea>`. No custom `gatherValue`/`patchElement`.
 
 ### `WiseButton`
@@ -854,8 +874,11 @@ object, resolved off the wrapper's own `data-control-id`.
 - **`onChange`** — fires on `blur`, not on every keystroke.
 - **`onClick`** — generic.
 - **`onHover`** — generic.
+- **`onKeyPress({ key, code, ctrlKey, shiftKey, altKey })`** — fires on
+  every `keydown` inside the editable region. Opt-in — no listener is
+  wired unless supplied.
 
-`render()` adds `dataField, hasHandler, hasClickHandler, hasHoverHandler, style`.
+`render()` adds `dataField, hasHandler, hasClickHandler, hasHoverHandler, hasKeyPressHandler, style, disabled`.
 `renderElement`: a wrapper `<div>` with a toolbar (Bold/Italic/Underline/
 bullet list, each a button that calls `document.execCommand` on `mousedown`
 with `preventDefault()`) above a `contenteditable="true"` `<div>` that holds

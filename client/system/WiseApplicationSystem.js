@@ -248,7 +248,11 @@ class WiseApplicationSystem {
 
     const win = instance.window;
 
+    // Keypress metadata fields are not control IDs -- skip them to avoid
+    // clobbering a control named 'key' or polluting win with stray fields.
+    const KEY_META_FIELDS = new Set(['key', 'code', 'ctrlKey', 'shiftKey', 'altKey']);
     Object.entries(values).forEach(([id, value]) => {
+      if (KEY_META_FIELDS.has(id)) return;
       if (win[id]) {
         win[id].value = value;
       }
@@ -262,7 +266,15 @@ class WiseApplicationSystem {
     const handlerName = `on${eventName.charAt(0).toUpperCase()}${eventName.slice(1)}`;
     const handler = control[handlerName];
     if (typeof handler === 'function') {
-      await handler.call(win);
+      // For keypress events, pass the key metadata as the first argument
+      // so the handler can inspect which key was pressed.
+      if (eventName === 'keypress') {
+        const keyMeta = {};
+        KEY_META_FIELDS.forEach((f) => { if (values[f] !== undefined) keyMeta[f] = values[f]; });
+        await handler.call(win, keyMeta);
+      } else {
+        await handler.call(win);
+      }
     }
 
     // Echo the CURRENT USER's own theme/background, not the shared system

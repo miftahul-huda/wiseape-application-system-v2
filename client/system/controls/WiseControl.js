@@ -44,6 +44,24 @@
       return this;
     }
 
+    // Dynamically assign or replace an event handler by name.
+    // eventName is the property name as-is, e.g. 'onChange', 'onClick',
+    // 'onKeyPress'. handler must be a function (or null -- use removeEvent).
+    setEvent(eventName, handler) {
+      if (typeof handler !== 'function') {
+        throw new Error(`setEvent: handler for '${eventName}' must be a function`);
+      }
+      this[eventName] = handler;
+      return this;
+    }
+
+    // Remove a previously assigned event handler by name.
+    // After this call, the control behaves as if the event was never set.
+    removeEvent(eventName) {
+      this[eventName] = null;
+      return this;
+    }
+
     render() {
       return {
         type: this.name,

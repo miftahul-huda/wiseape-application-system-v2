@@ -11,6 +11,7 @@
       this.onChange = typeof options.onChange === 'function' ? options.onChange : null;
       this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
       this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
+      this.onKeyPress = typeof options.onKeyPress === 'function' ? options.onKeyPress : null;
       this.style = options.style || {};
     }
 
@@ -25,6 +26,7 @@
         hasHandler: !!this.onChange,
         hasClickHandler: !!this.onClick,
         hasHoverHandler: !!this.onHover,
+        hasKeyPressHandler: !!this.onKeyPress,
         style: this.style,
         visible: this.visible,
         disabled: this.disabled,
@@ -40,6 +42,9 @@
       WiseControl.applyCommon(el, data, context);
       if (data.hasHandler) {
         el.addEventListener('change', () => context.desktop.sendControlEvent(context.appId, data.id, el, 'change'));
+      }
+      if (data.hasKeyPressHandler) {
+        el.addEventListener('keydown', (e) => context.desktop.sendControlEvent(context.appId, data.id, el, 'keypress', { key: e.key, code: e.code, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, altKey: e.altKey }));
       }
       return el;
     }
