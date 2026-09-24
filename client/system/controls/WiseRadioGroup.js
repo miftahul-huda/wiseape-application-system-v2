@@ -8,6 +8,7 @@
       this.name = 'WiseRadioGroup';
       this.items = items;
       this.onChange = typeof options.onChange === 'function' ? options.onChange : null;
+      this.layout = options.layout === 'vertical' ? 'vertical' : 'horizontal';
       this.style = options.style || {};
     }
 
@@ -19,6 +20,7 @@
         value: this.value,
         items: this.items,
         hasHandler: !!this.onChange,
+        layout: this.layout,
         style: this.style,
         visible: this.visible,
       };
@@ -26,7 +28,9 @@
 
     static renderElement(data, context) {
       const wrapper = document.createElement('div');
-      wrapper.className = 'flex flex-col';
+      wrapper.className = data.layout === 'vertical'
+        ? 'flex flex-col gap-0.5'
+        : 'flex flex-row flex-wrap items-center gap-x-4 gap-y-1';
       WiseControl.applyCommon(wrapper, data);
 
       (data.items || []).forEach((item) => {
