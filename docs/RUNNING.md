@@ -88,18 +88,34 @@ npm start
 You should see:
 
 ```
-Wiseape Application System client running on http://localhost:3000
-Talking to REST API at http://localhost:4000
+Wiseape Application System running on http://localhost:3000
 ```
 
 Open **http://localhost:3000** in a browser, register/log in, and use the desktop as normal.
 
 ## How the two talk to each other
 
-- The client injects `window.WISEAPE_API_BASE_URL` (from `API_BASE_URL`) via `GET /config.js`, loaded as the very first `<script>` in `public/index.html`.
-- Every browser-side `fetch(...)` to `/api/...` or `/app-assets/...` goes through `window.wiseapeApiUrl(path)`, which prefixes that base URL.
-- The server has CORS enabled (`cors()` with defaults) so cross-origin requests from the client's origin are allowed.
-- Login/session/control-event calls send `Authorization: Bearer <token>` — the server re-validates the token on every request (it does not cache who you are between requests).
+The browser **never** talks to the REST API server (port 4000) directly —
+it only ever calls the client's own routes on port 3000. `API_BASE_URL` is
+read purely server-side, inside the *client* Node process
+(`process.env.API_BASE_URL`, consumed by the `Api*Repository` classes in
+`client/system/`), and is never exposed to the browser — there's no
+`/config.js` route or `window.*` global carrying it.
+
+- The browser fetches its own data (`/api/apps`, `/api/menus`, `/api/themes`,
+  `/api/auth/*`, `/api/applications/run`, `/api/applications/:appId/events`,
+  `/app-assets/:appId/icon.svg`) from `client/app.js` on **port 3000**.
+- `client/app.js` — server-side, in the client process — then forwards
+  whatever it needs to the REST API on port 4000, via the `Api*Repository`
+  classes, using `API_BASE_URL` to know where to send it.
+- The REST API has `cors()` enabled with default (wide-open) settings, but
+  since nothing in the browser calls it directly, this mainly just makes it
+  convenient to hit the REST API from `curl`/Postman/etc. during development.
+- Login/session/control-event calls from the browser send
+  `Authorization: Bearer <token>` to the **client**, which re-validates it
+  against the REST API's `/session` endpoint on every single request (it
+  does not cache who you are between requests) — see
+  `client/app.js#resolveSession`.
 
 ## Running both on one machine, quickly
 
@@ -116,5 +132,16 @@ cd client && npm run dev
 - **"Could not reach the server" on the login screen** — the server isn't running, or `API_BASE_URL` in `client/.env` doesn't match the port/host the server is actually listening on. Restart the client after changing `.env` (env vars are only read at process start).
 - **Port already in use** — another `node --env-file=.env app.js` from a previous session is still running. Find and stop it: `pkill -f "node --env-file=.env app.js"`, or change `PORT` in the relevant `.env`.
 - **CORS error in the browser console** — confirm you're hitting the server's real port in `API_BASE_URL`; the server allows all origins by default, so this usually means the URL itself is wrong (typo, wrong port, `http` vs `https`).
-- **Desktop loads but every app icon 404s / "Application X not found"** — that app isn't implemented in `server/applications/WiseapeApplicationSystem/src/services/apps/registry.js`. Only `helloWorld`, `controls`, and `settings` are wired up; other rows in the `wiseape_apps` table are just data and don't automatically work.
+- **"Application X not found" on launch** — there's no row for that `appId`
+  in the `wiseape_apps` table (or it wasn't returned by `/api/apps`). There
+  is no separate app registry file to update — any row whose
+  `app_start_point` (e.g. `applications/Notes/AppNotes.js:AppNotes`) points
+  at a real, `require()`-able file/class in `client/applications/` works
+  automatically; `client/system/WiseApplicationSystem.js#resolveApplicationClass`
+  loads it directly from that column at launch time.
+- **App icon shows the fallback glyph instead of the real icon** — the file
+  isn't at `client/applications/<AppName>/assets/icons/icon.svg` (checked via
+  `GET /app-assets/:appId/icon.svg`), or the folder doesn't match the app's
+  `app_start_point`. This is expected/harmless — the fallback glyph from the
+  database is deliberately what shows until the real file is confirmed to load.
 - **Database connection errors on server start** — double check `DB_HOST`/`DB_NAME`/`DB_USER`/`DB_PASSWORD`/`DB_PORT` in `server/applications/WiseapeApplicationSystem/.env`; the server needs direct network access to that Postgres instance.

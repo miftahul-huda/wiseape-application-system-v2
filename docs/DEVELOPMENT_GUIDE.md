@@ -8,23 +8,36 @@
 
 ## 0. Running the dev server
 
+WAS is two separate processes — the REST API (owns Postgres) and the client
+(the desktop UI, where application code you write actually runs). Building
+a new *application* only ever requires touching the **client** process:
+
 ```bash
-node --watch --env-file=.env app.js
+cd client
+npm run dev     # node --watch --env-file=.env app.js
 ```
 
-`--watch` restarts the process whenever a server-side file changes.
+The REST API also needs to be running (`cd server/applications/WiseapeApplicationSystem
+&& npm run dev`) for apps/menus/themes/auth to resolve — see
+`docs/RUNNING.md` for the full two-process setup, env vars, and
+troubleshooting. All paths in this guide (`applications/...`,
+`system/...`) are relative to the **`client/` directory**, since that's
+where `node app.js` actually runs from.
+
+`--watch` restarts the client process whenever a server-side file changes.
 Anything served straight to the browser (`system/**/*.js`, `public/**`) is
 re-read from disk on every request, so a browser refresh alone is enough
 for pure front-end-rendering changes — but if you touched anything that
-runs *inside* the Node process (an application's `App*.js`/`Win*.js`, a
-repository, `WiseApplicationSystem.js`, `app.js` itself), the process needs
-to restart, which `--watch` does automatically. `.env` holds DB credentials
-(gitignored; copy `.env.example`).
+runs *inside* the Node process (an application's `App*.js`/`Win*.js`, an
+`Api*Repository`, `WiseApplicationSystem.js`, `app.js` itself), the process
+needs to restart, which `--watch` does automatically. `client/.env` holds
+`PORT` and `API_BASE_URL` (gitignored; copy `client/.env.example`) — it
+does **not** hold database credentials; the client never touches Postgres.
 
 ## 1. Anatomy of an application
 
 ```
-applications/
+client/applications/
   MyApp/
     AppMyApp.js              <- extends WiseApplication; entry point
     forms/
@@ -43,9 +56,11 @@ An application is **two classes**:
   controls, layout, event handlers.
 
 Nothing needs to be registered in code to "install" the app — it's data in
-the database (see §7). `WiseApplicationSystem.resolveApplicationClass`
+the REST API's database (see §7). `WiseApplicationSystem.resolveApplicationClass`
 `require()`s whatever file the `wiseape_apps.app_start_point` column points
-to (e.g. `applications/MyApp/AppMyApp.js:AppMyApp`).
+to (e.g. `applications/MyApp/AppMyApp.js:AppMyApp`, resolved relative to the
+client process's working directory — so this path is written exactly as it
+appears under `client/`, without a `client/` prefix).
 
 ## 2. The smallest possible app
 
@@ -147,8 +162,8 @@ properties, e.g. `{ fontSize: 15, marginTop: '8px' }`).
 | Control | Constructor | Key options | `isInput`? |
 |---|---|---|---|
 | `WiseLabel` | `new WiseLabel(text, options)` | — | no |
-| `WiseTextBox` | `new WiseTextBox(placeholder, options)` | `value` | yes |
-| `WiseNumericBox` | `new WiseNumericBox(placeholder, options)` | `value`, `min`, `max`, `step` | yes |
+| `WiseTextBox` | `new WiseTextBox(placeholder, options)` | `value`, `minLength`, `maxLength` | yes |
+| `WiseNumericBox` | `new WiseNumericBox(placeholder, options)` | `value`, `min`, `max`, `step`, `prefix`, `suffix` (see note below) | yes |
 | `WiseTextArea` | `new WiseTextArea(value, options)` | `placeholder`, `rows`, `onChange` | yes |
 | `WiseButton` | `new WiseButton(label, options)` | `onClick` | no |
 | `WiseComboBox` | `new WiseComboBox(items, options)` | `items: [{value,label}]`, `value`, `onChange` | yes |
@@ -160,7 +175,15 @@ properties, e.g. `{ fontSize: 15, marginTop: '8px' }`).
 | `WiseFileUpload` | `new WiseFileUpload(label, options)` | `accept`, `onChange` | yes |
 | `WiseTableLayout` | `new WiseTableLayout(options)` | `rows`, `columns` | container |
 | `WiseTabControl` | `new WiseTabControl(options)` | — | container |
+| `WiseFrame` | `new WiseFrame(title, options)` | `title` | container |
 | `WiseDataTable` | `new WiseDataTable(options)` | see §5 | container |
+
+`WiseNumericBox` renders as a text input with **live digit-grouping** as you
+type (grouping/decimal separators auto-detected from the browser's locale
+via `Intl.NumberFormat`, e.g. `1,234.56` in en-US vs `1.234,56` in id-ID) —
+it is not a bare `<input type="number">`. `prefix`/`suffix` (e.g. `'Rp'`,
+`'kg'`) render inline inside the control's own box. See
+`docs/API_REFERENCE.md` for the full behavior.
 
 `isInput: yes` means the control's value is included in
 `WiseWindow.getValues()` (see §4). `WiseLabel`/`WiseButton` are display/
@@ -333,98 +356,82 @@ async run(appConfig, appParameter) {
 
 ## 6. Talking to the database from an application
 
-Follow the exact repository pattern used throughout `system/Postgres*.js` —
-don't invent a new style. Put a new repository at `system/PostgresXRepository.js`
-(or co-locate it under your app's folder if it's truly app-specific — both
-exist in this codebase; `system/` is for anything another app might also
-want to reuse).
+There are **two different repository patterns** in this codebase — don't
+mix them up:
+
+- **Client-side (`client/system/Api*Repository.js`)** — what an
+  application author almost always wants. A thin `fetch` wrapper that talks
+  to the REST API server (`server/applications/WiseapeApplicationSystem/`)
+  over HTTP. The client process has **no direct Postgres access at all**.
+- **REST API-side (`server/applications/WiseapeApplicationSystem/src/models/*Model.js`)**
+  — the ones that actually run SQL against Postgres, via a shared `pg` pool.
+  You only touch this layer if you're adding a genuinely new
+  database-backed resource (a new table), not just consuming one that
+  already has a REST endpoint.
+
+For a new app that needs its own data (e.g. "Notes"), the usual path is:
+add a small resource to the REST API (routes/controller/service/model,
+mirroring the existing `employees` resource as a template), then add a
+matching client-side repository:
 
 ```js
-const { Client } = require('pg');
-
-class PostgresNoteRepository {
+// client/system/ApiNoteRepository.js
+class ApiNoteRepository {
   constructor(config = {}) {
-    this.config = {
-      host: config.host || process.env.DB_HOST,
-      database: config.database || process.env.DB_NAME || 'wiseape-application-system',
-      user: config.user || process.env.DB_USER,
-      password: config.password || process.env.DB_PASSWORD,
-      port: config.port || process.env.DB_PORT || 5432,
-      ssl: config.ssl !== undefined ? config.ssl : { rejectUnauthorized: false },
-      ...config,
-    };
+    this.baseUrl = config.baseUrl || process.env.API_BASE_URL || 'http://localhost:4000';
   }
 
-  async connect() {
-    if (!this.client) {
-      this.client = new Client(this.config);
-      // REQUIRED -- without this, a dropped connection later on crashes the
-      // whole Node process (Node's default behavior for an unhandled
-      // EventEmitter 'error'). Just drop the dead client; the next call
-      // reconnects fresh.
-      this.client.on('error', (error) => {
-        console.warn('[WAS] PostgreSQL connection lost; will reconnect on next request.', error.message);
-        this.client = null;
-      });
-      await this.client.connect();
-    }
-    return this.client;
+  async listNotes(token) {
+    const response = await fetch(`${this.baseUrl}/api/notes`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+    return response.json();
   }
 
-  async ensureTable(client) {
-    if (this.tableReady) return;
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS wiseape_notes (
-        note_id SERIAL PRIMARY KEY,
-        user_id INTEGER NOT NULL,
-        body TEXT NOT NULL,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
-      );
-    `);
-    this.tableReady = true;
-  }
-
-  async listNotesForUser(userId) {
-    const client = await this.connect();
-    await this.ensureTable(client);
-    const result = await client.query(
-      'SELECT note_id AS id, body, created_at AS "createdAt" FROM wiseape_notes WHERE user_id = $1 ORDER BY created_at DESC',
-      [userId]
-    );
-    return result.rows;
-  }
-
-  async addNote(userId, body) {
-    const client = await this.connect();
-    await this.ensureTable(client);
-    await client.query('INSERT INTO wiseape_notes (user_id, body) VALUES ($1, $2)', [userId, body]);
+  async addNote(token, body) {
+    const response = await fetch(`${this.baseUrl}/api/notes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ body }),
+    });
+    if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+    return response.json();
   }
 }
 
-module.exports = PostgresNoteRepository;
+module.exports = ApiNoteRepository;
 ```
 
-Wire it into the system once, in `system/WiseApplicationSystem.js`'s
-constructor (alongside the existing repositories):
+Wire it into the system once, in `client/system/WiseApplicationSystem.js`'s
+constructor (alongside `ApiAppRepository`/`ApiThemeRepository`/etc — inside
+the `if (isServer)` branch):
 
 ```js
-const PostgresNoteRepository = require('./PostgresNoteRepository');
+const ApiNoteRepository = require('./ApiNoteRepository');
 // ...
 if (isServer) {
   // ...
-  this.noteRepository = new PostgresNoteRepository(options.db || {});
+  this.noteRepository = new ApiNoteRepository(options.api || {});
 }
 ```
 
 Now any window can reach it via `this.system.noteRepository` (see §8 for
-why `this.system` is always available).
+why `this.system` is always available, and how to get the caller's token to
+pass into a repository method that needs auth).
+
+If you're instead building the REST API side of a new resource, follow the
+existing `src/models/*Model.js` pattern (a `pool` from `config/db.js`, an
+idempotent `ensureSchema()` memoized with a flag so it only runs once) —
+copy `employeesModel.js` as the template rather than starting from scratch.
 
 ## 7. Registering the app and adding it to a menu
 
-Apps and menus live in the database, not in code — `wiseape_apps` and
-`wiseape_menus`. Both tables auto-seed a couple of demo rows on first boot
-(see `PostgresAppRepository`/`PostgresMenuRepository`), but for a new app
-you insert directly:
+Apps and menus live in the REST API's database, not in code —
+`wiseape_apps` and `wiseape_menus`, owned by
+`server/applications/WiseapeApplicationSystem/src/models/appsModel.js` and
+`menusModel.js` respectively (both auto-seed a couple of demo rows on first
+boot). For a new app you insert directly into that database:
 
 ```sql
 INSERT INTO wiseape_apps (app_id, app_title, app_version, app_developer, app_icon, app_start_point, app_config, app_parameter)
@@ -438,61 +445,83 @@ VALUES (NULL, 'item', 'Notes', 'notes', 2);
 ```
 
 `app_icon` is the *fallback glyph* (used only if `assets/icons/icon.svg`
-doesn't exist, or hasn't loaded yet) — see §9 for the real per-app icon
-file. `app_start_point` is `<relative path from project root>:<exported
-class name>`, exactly how you'd `require()` it.
+doesn't exist, or hasn't loaded yet) — see §10 for the real per-app icon
+file. `app_start_point` is `<path relative to the client/ directory>:<exported
+class name>` — exactly how `resolveApplicationClass` `require()`s it (see §1).
 
 ## 8. Per-user context inside a window
 
-Every `WiseWindow` instance carries `this.system` (the shared
-`WiseApplicationSystem`, giving access to every repository) and
-`this.currentUser` (a snapshot of whoever opened this app —
-`{ id, name, email, role, themeId, backgroundImage }`, or `null` if nobody
-is logged in). Both propagate automatically through `createWindow()`, so a
-dialog opened from within a window also has them — you never set these
-yourself.
+There is **one shared `WiseApplicationSystem` instance** for the whole
+client process (see `docs/ARCHITECTURE.md` §2 point 6) — a window does not
+get its own private "current user" property. Instead, every `WiseWindow`
+reaches the caller of the *current* event through `this.system.currentSession`
+— `{ user: {id, name, email, role, themeId, backgroundImage}, token }`, or
+`null` if nobody is logged in for this request. It's re-resolved from the
+Bearer token on **every single request** by `client/app.js#resolveSession`,
+not cached on the window or the app instance:
 
 ```js
 onWindowInit() {
   this.controls = [];
-  if (this.currentUser) {
-    this.addControl(new WiseLabel(`Logged in as ${this.currentUser.name}`, { id: 'lblUser' }));
+  const user = this.system && this.system.currentSession && this.system.currentSession.user;
+  if (user) {
+    this.addControl(new WiseLabel(`Logged in as ${user.name}`, { id: 'lblUser' }));
   }
-  if (this.currentUser && this.currentUser.role === 'admin') {
+  if (user && user.role === 'admin') {
     // build an admin-only section
   }
   return this;
 }
 
 async onAddNote() {
-  await this.system.noteRepository.addNote(this.currentUser.id, this.txtNewNote.value);
+  const session = this.system.currentSession;
+  if (!session) return;
+  await this.system.noteRepository.addNote(session.token, this.txtNewNote.value);
 }
 ```
 
-**Gotcha:** if a handler updates something on `this.currentUser` in the
-database (a preference, a role, ...), also mutate `this.currentUser` in
-memory afterward (`this.currentUser.themeId = saved.themeId`). The running
-app instance's `currentUser` is a point-in-time snapshot, and
-`dispatchControlEvent` reads it — not the database — when echoing
-theme/background back on every subsequent event in that same window's
-lifetime. See `applications/Settings/forms/WinSettings.js#onThemeChange` for
-the reference implementation.
+**Gotcha:** if a handler saves a change to the user's own record (a
+preference, e.g. theme/background), it must **also** mutate
+`this.system.currentSession.user` in memory immediately, synchronously,
+*before* the handler returns — not just fire off the database save. This is
+because `dispatchControlEvent` builds its response (which is what echoes
+the new theme/background to the browser) from that same in-memory
+`session.user` object right after the handler resolves, and it does not
+re-fetch from the database. See
+`applications/Settings/forms/WinSettings.js#persistPreferences` for the
+reference implementation, and `docs/ARCHITECTURE.md` §8 for the full
+mechanism (including its one narrow, deliberately-accepted race window).
 
-## 9. Opening another window (dialogs)
+## 9. In-window alerts (there is no multi-window dialog system)
 
-Any `WiseWindow` can open another one — it doesn't have to be the app's
-first/main window:
+A `WiseWindow` **cannot** open a second window — only `WiseApplication` can
+(its one main window, via `createWindow()`, normally called once from
+`run()`). There is no `createWindow()` on `WiseWindow`, and a control
+event's response only ever carries exactly one window back to the browser
+— see `docs/ARCHITECTURE.md` §5.
+
+For a notification/alert/confirmation, use `showInfo()` instead — a modal
+overlay (not a second draggable window), available on both `WiseWindow` and
+`WiseApplication`:
 
 ```js
-onOpenDialog() {
-  const about = this.createWindow(WinAbout, { positionX: 460, positionY: 160 });
-  about.show();
+async onSave() {
+  try {
+    await this.system.noteRepository.addNote(this.system.currentSession.token, this.txtNewNote.value);
+    this.showInfo('Saved', 'Your note was saved.', 'success');
+  } catch (error) {
+    this.showInfo('Error', error.message, 'error');
+  }
 }
 ```
 
-The framework detects the new window automatically (see
-`docs/ARCHITECTURE.md` §5) and tells the browser to render it — no extra
-wiring needed on your end beyond calling `createWindow()` + `.show()`.
+`type` is one of `'information'` (default), `'success'`, `'warning'`,
+`'error'` — each renders with a different icon. Internally this just queues
+`this.pendingInfo`, which `WiseWindow.toJSON()` reads and clears into an
+`info` field on the next response; `WiseDesktop` shows it as a centered
+modal card (`showInfoDialog`) whenever a window response or a control-event
+response carries one. You don't need to know any of that to use it — just
+call `this.showInfo(...)`.
 
 ## 10. Giving your app a colorful icon
 
@@ -524,9 +553,11 @@ the `app_icon` glyph from the database.
 
 1. `node --check <every file you touched>` — syntax errors fail loudly and
    instantly, cheaper than finding them via the browser.
-2. Restart the dev server (`node --watch --env-file=.env app.js` — kill any
+2. Restart the client dev server (`cd client && npm run dev` — kill any
    stale `node app.js`/`node --watch` processes first; they accumulate
-   across long sessions and will fight over the port).
+   across long sessions and will fight over the port). Confirm the REST API
+   process is also still running — most app breakage during development is
+   actually "the REST API isn't up," not a bug in your new code.
 3. Actually open the app in a browser (or drive it headlessly with
    Playwright) — a syntax check proves the file parses, not that the
    feature works. Click the actual control, confirm the actual DOM update,
@@ -550,9 +581,15 @@ the `app_icon` glyph from the database.
   radio group across the whole page and selecting one un-checks the other
   window's. `WiseRadioGroup` already does this; keep the pattern if you
   build a new control with native radio inputs.
-- **An unhandled `pg` Client `'error'` event crashes the whole server**, not
-  just the one request — every repository's `connect()` must attach the
-  error listener described in §6.
+- **An unhandled `pg` pool `'error'` event crashes the whole REST API
+  process**, not just the one request — this only applies if you're adding
+  a new table/model on the REST API side (§6); `config/db.js`'s shared
+  `pool.on('error', ...)` already covers every model that reuses it, so you
+  only need to worry about this if you create a *separate* pool/client.
 - **`onWindowInit()` must stay synchronous.** If you need async setup data,
   add a separate `async loadInitialData()` method and `await` it from the
   app's `run()`, after `createWindow()` and before `.show()`.
+- **A handler that changes the current user's theme/background must mutate
+  `this.system.currentSession.user` in memory too**, not just save it to
+  the database — see §8. Skipping this makes the change appear to silently
+  not take effect until the next login.

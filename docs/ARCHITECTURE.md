@@ -8,18 +8,30 @@
 
 ## 1. What WAS is
 
-Wiseape Application System is a **browser-based desktop OS simulation**.
-A single Node/Express server renders a desktop UI (dock, wallpaper, window
-manager) in the browser, and lets you install "applications" — server-side
-JS classes that build windows full of UI controls (labels, buttons, text
-boxes, data tables, ...). Application logic (event handlers, database
-access) runs **on the server**; the browser only renders DOM and forwards
-user interactions back to the server. There is no client-side app logic to
-write — an app author writes one thing: a server-side window/app class.
+Wiseape Application System is a **browser-based desktop OS simulation**,
+split into **two independent Node/Express processes**:
 
-Think of it as "a tiny window-manager + a tiny UI-control framework +
-generic RPC for control events", all hand-rolled, all plain JavaScript, no
-build step, no framework dependency (no React/Vue/etc).
+- **`client/`** (port 3000, default) — serves the desktop UI (dock,
+  wallpaper, window manager) and hosts "applications": server-side JS
+  classes that build windows full of UI controls. Application logic (event
+  handlers) runs **inside the client process**, not in the browser — the
+  browser only renders DOM and forwards user interactions back over HTTP.
+  The client has **no direct database access**; anything it needs (apps,
+  menus, themes, employees, auth) it fetches from the REST API server.
+- **`server/applications/WiseapeApplicationSystem/`** (port 4000, default)
+  — the REST API: the only process that talks to PostgreSQL. Plain
+  controller/service/model Express app, no desktop concept at all.
+
+See `docs/RUNNING.md` for how to actually start both. This split exists
+specifically so the desktop UI has no database credentials and no direct
+DB coupling — every read/write goes through the REST API's own
+routes/auth.
+
+An app author writes one thing: a server-side (meaning: inside the
+*client* process) window/app class pair under `client/applications/`.
+There is no client-side (browser) app logic to write at all — no
+build step, no framework dependency (no React/Vue/etc), just plain
+JavaScript loaded via `<script>` tags.
 
 ## 2. Core design decisions (read this before changing anything)
 
@@ -27,207 +39,231 @@ These are the load-bearing decisions. If you're about to "simplify"
 something that looks unusual, check this list first — it's very likely
 unusual on purpose.
 
-1. **Isomorphic files.** Most files under `system/` and `system/controls/`
-   run *both* in Node (server) and in the browser (client), from the exact
-   same source file. Each file starts with
-   `const isBrowser = typeof window !== 'undefined';` and branches on it.
-   The server `require()`s the file normally; the browser loads it via a
-   plain `<script src="...">` tag (Express serves `system/*.js` and
-   `system/controls/*.js` directly — see §7).
+1. **Isomorphic files.** Most files under `client/system/` and
+   `client/system/controls/` run *both* in Node (inside the client
+   process) and in the browser, from the exact same source file. Each file
+   starts with `const isServer = typeof window === 'undefined';` (or
+   `isBrowser`, the inverse) and branches on it. The client's own `app.js`
+   `require()`s the file normally for server-side use, and *also* serves it
+   raw to the browser via a dedicated route (`/WiseDesktop.js`,
+   `/WiseApplicationSystem.js`, `/controls/:file`) — see §7.
 
 2. **IIFE wrapper on every control file.** Every file in
-   `system/controls/*.js` is wrapped in `(function () { ... })();`. This is
-   **not** stylistic. Classic `<script>` tags all share one global lexical
-   scope in the browser; without the IIFE, two control files declaring
-   `const isBrowser = ...` at top level would collide with a
-   `SyntaxError: Identifier 'isBrowser' has already been declared`, and
-   *every control file after the first would silently fail to load*. This
-   bug was hit once during development and is why the wrapper exists —
-   never remove it.
+   `client/system/controls/*.js` is wrapped in `(function () { ... })();`.
+   This is **not** stylistic. Classic `<script>` tags all share one global
+   lexical scope in the browser; without the IIFE, two control files
+   declaring `const isBrowser = ...` at top level would collide with a
+   `SyntaxError`, and *every control file after the first would silently
+   fail to load*. Never remove it.
 
-3. **No client-side business logic, ever.** An app author never writes a
-   client-side event handler or a client-side data-fetch. All control event
-   handlers (`onClick`, `onChange`, `onRowSelect`, ...) are plain server-side
-   methods on a `WiseWindow` subclass. The browser's only job for an event
-   is: gather current form values → POST them to the server → apply
-   whatever DOM patch the server sends back. This was an explicit product
-   requirement during development ("I don't want a `clientBehaviors`
-   registry — a programmer should be able to attach *any* function as an
-   event handler without also registering it on the client"). See §5 for
-   the exact mechanism.
+3. **No client-side (browser) business logic, ever.** An app author never
+   writes a browser-side event handler or a browser-side data-fetch. All
+   control event handlers (`onClick`, `onChange`, `onRowSelect`, ...) are
+   plain methods on a `WiseWindow` subclass, running inside the *client
+   Node process*. The browser's only job for an event is: gather current
+   form values → POST them to the client's own `/api/applications/:appId/events`
+   → apply whatever DOM patch comes back. See §5 for the exact mechanism.
 
-4. **Every control owns its own rendering.** `WiseDesktop` (and the server)
-   never contains per-control-type rendering logic. Each control class in
-   `system/controls/*.js` implements its own `render()` (server → JSON),
-   `static renderElement()` (JSON → DOM), `static gatherValue()` (DOM →
-   value), and `static patchElement()` (fresh JSON → update DOM). WiseDesktop
-   just looks the class up by type name in a registry and calls the method.
-   Adding a new control type never requires touching `WiseDesktop.js`.
+4. **Every control owns its own rendering.** `WiseDesktop` never contains
+   per-control-type rendering logic. Each control class in
+   `client/system/controls/*.js` implements its own `render()` (server →
+   JSON), `static renderElement()` (JSON → DOM), `static gatherValue()`
+   (DOM → value), and `static patchElement()` (fresh JSON → update DOM).
+   `WiseDesktop` just looks the class up by type name in
+   `window.WiseControlRegistry` and calls the method. Adding a new control
+   type never requires touching `WiseDesktop.js`.
 
 5. **A container control MUST override `patchElement`.** A control that
-   holds other controls (`WiseTableLayout`, `WiseTabControl`, `WiseDataTable`
-   for its toolbar) has its own child controls nested inside its DOM
-   subtree. If it doesn't override `patchElement` to delegate to its
-   children, it inherits the base class's generic implementation, which
-   treats the whole container as a single value node and does
-   `el.textContent = ''`, wiping out every nested child on the very next
-   unrelated event anywhere in the same window. This exact bug was found
-   and fixed once (`WiseTableLayout`) — see `system/controls/WiseTableLayout.js`
-   and `WiseTabControl.js` for the required pattern.
+   holds other controls (`WiseTableLayout`, `WiseTabControl`, `WiseFrame`)
+   has its own child controls nested inside its DOM subtree. If it doesn't
+   override `patchElement` to delegate to its children, it inherits the
+   base class's generic implementation, which treats the whole container as
+   a single value node and corrupts the DOM on the next unrelated event.
+   `WiseDataTable` is a partial exception — see its entry in
+   `docs/API_REFERENCE.md` for why it fully re-renders itself instead of
+   delegating.
+
+6. **The client is a single shared process, not one-instance-per-user.**
+   There is exactly one `WiseApplicationSystem` instance in the client
+   process, created once at boot (`client/app.js`), and exactly one
+   `runningApplications` Map shared by every browser tab/user. Per-user
+   behavior (theme, background, admin visibility) is layered on top of this
+   shared instance via a **request-scoped session**, not per-user
+   instances — see §8 and §9 for exactly how, and the real limitation this
+   still leaves.
 
 ## 3. High-level architecture
 
 ```mermaid
 flowchart TB
     subgraph Browser
-        AuthJS["public/auth.js<br/>(login/register screen)"]
-        ScriptJS["public/script.js<br/>bootWiseDesktop()"]
-        WASClient["WiseApplicationSystem<br/>(client instance)"]
+        ScriptJS["public/script.js<br/>boot() -- checks session, then either
+        renders the login screen or the desktop"]
+        AuthJS["public/auth.js<br/>renderAuthScreen()"]
+        WASClient["WiseApplicationSystem<br/>(browser instance)"]
         DesktopClient["WiseDesktop<br/>(renders DOM)"]
-        Registry["window.WiseControlRegistry<br/>(control classes)"]
+        Registry["window.WiseControlRegistry"]
     end
 
-    subgraph Server["Node / Express (app.js)"]
-        WASServer["WiseApplicationSystem<br/>(server instance, one per process)"]
-        AppInstances["Running WiseApplication<br/>+ WiseWindow instances"]
-        Repos["Postgres*Repository classes"]
+    subgraph ClientProcess["client/ (Express, port 3000)"]
+        ClientApp["app.js -- one shared
+        WiseApplicationSystem instance"]
+        AppInstances["Running WiseApplication
+        + WiseWindow instances"]
+        ApiRepos["Api*Repository classes
+        (ApiAppRepository, ApiThemeRepository,
+        ApiMenuRepository, ApiEmployeeRepository,
+        ApiAuthRepository)"]
+    end
+
+    subgraph ServerProcess["server/applications/WiseapeApplicationSystem/
+    (Express REST API, port 4000)"]
+        RestRoutes["controllers / services / models"]
     end
 
     DB[(PostgreSQL)]
 
-    AuthJS -- "POST /api/auth/login|register" --> Server
-    AuthJS -- "bootWiseDesktop(user, token)" --> ScriptJS
+    ScriptJS -- "GET /api/auth/session" --> ClientApp
+    ScriptJS -- "not logged in" --> AuthJS
+    AuthJS -- "POST /api/auth/login or /register" --> ClientApp
     ScriptJS --> WASClient
-    WASClient -- "fetch /api/apps /api/menus /api/themes" --> Server
+    WASClient -- "fetch /api/apps /api/menus /api/themes" --> ClientApp
     WASClient --> DesktopClient
     DesktopClient -- "renderElement() via" --> Registry
-    DesktopClient -- "POST /api/applications/run<br/>POST /api/applications/:appId/events" --> Server
-    Server --> WASServer
-    WASServer --> AppInstances
-    WASServer --> Repos
-    Repos --> DB
+    DesktopClient -- "POST /api/applications/run
+    POST /api/applications/:appId/events" --> ClientApp
+    ClientApp --> AppInstances
+    ClientApp --> ApiRepos
+    ApiRepos -- "HTTP (API_BASE_URL)" --> RestRoutes
+    RestRoutes --> DB
 ```
 
-Two separate `WiseApplicationSystem` instances exist at runtime:
+Two separate `WiseApplicationSystem` instances exist at runtime, both
+defined by the same isomorphic source file:
 
-- **Server instance** — created once in `app.js`'s `start()`. Holds the
-  Postgres repositories, `apps`, `menus`, `themes`, and a
-  `runningApplications` map. Lives for the whole process lifetime, shared by
-  every HTTP request (see §9 for why this matters).
-- **Client instance** — created once per browser tab in
-  `public/script.js`, after login. Holds no database access; it only
-  fetches JSON from the server and renders it via `WiseDesktop`.
+- **Client-process instance** — created once in `client/app.js`'s
+  `start()`. Holds the `Api*Repository` instances, `apps`/`menus`/`themes`,
+  and `runningApplications`. Lives for the whole process lifetime, shared
+  by every HTTP request (see §9).
+- **Browser instance** — created once per browser tab in `public/script.js`,
+  after the session check succeeds. Holds no repositories at all; it only
+  fetches JSON from the client's own routes and renders it via
+  `WiseDesktop`.
 
 ## 4. Boot sequence
 
 ```mermaid
 sequenceDiagram
     participant B as Browser
+    participant Script as script.js (boot)
     participant Auth as auth.js
-    participant Srv as Express (app.js)
-    participant WAS as WiseApplicationSystem (client)
-    participant Desk as WiseDesktop (client)
+    participant Clt as client/app.js
+    participant WAS as WiseApplicationSystem (browser)
+    participant Desk as WiseDesktop (browser)
 
-    B->>Auth: page load
-    Auth->>Srv: GET /api/auth/session (Bearer token from localStorage)
-    alt token valid, not expired
-        Srv-->>Auth: 200 { user }
-    else no token / expired / invalid
-        Auth->>B: show #login-form
-        B->>Auth: submit login/register form
-        Auth->>Srv: POST /api/auth/login or /register
-        Srv-->>Auth: { user, token, expiresAt }
-        Auth->>B: localStorage.setItem('wiseape_token', token)
+    B->>Script: page load
+    Script->>Script: read localStorage.was_token
+    alt token present
+        Script->>Clt: GET /api/auth/session (Bearer token)
+        Clt-->>Script: { user } or error
     end
-    Auth->>WAS: window.bootWiseDesktop(user, token)
-    WAS->>Srv: GET /api/apps, /api/menus, /api/themes
-    Srv-->>WAS: apps[], menu tree, themes[]
-    WAS->>Desk: desktop.run(apps, user, menus)
+    alt no valid session
+        Script->>Auth: renderAuthScreen(root, {onAuthenticated})
+        B->>Auth: submit login/register form
+        Auth->>Clt: POST /api/auth/login or /register
+        Clt-->>Auth: { user, token }
+        Auth->>B: localStorage.setItem('was_token', token)
+        Auth->>Script: onAuthenticated(user)
+    end
+    Script->>WAS: new WiseApplicationSystem({root}); run(user)
+    WAS->>Clt: GET /api/apps, /api/menus, /api/themes
+    Clt-->>WAS: apps[], menu tree, themes[]
+    WAS->>Desk: desktop.run(visibleMenus)
     Desk->>B: render topbar, dock, desktop-grid icons
+    Script->>WAS: setActiveTheme(user.themeId) / setBackgroundImage(user.backgroundImage)
 ```
 
-Key files: `public/auth.js` (login/register/auto-login UI + logic),
-`public/script.js` (defines `window.bootWiseDesktop`, called once auth
-succeeds), `system/WiseApplicationSystem.js#run()`.
+Key files: `client/public/auth.js` (`renderAuthScreen`), `client/public/script.js`
+(`boot()`, `startDesktop(user)` — both plain top-level functions in that
+file, nothing exposed as a documented global), `client/system/WiseApplicationSystem.js#run()`.
 
-**"Automatic login kalau belum expired"** works entirely through
-`GET /api/auth/session`: the browser always has *a* token in localStorage
-after a first login (30-day expiry, see `PostgresAuthRepository`), and every
-page load re-validates it against `wiseape_sessions` before deciding whether
-to show the login screen at all.
+The token is stored in `localStorage` under `was_token` (and the last-known
+user under `was_user`) with a 30-day server-side expiry
+(`wiseape_sessions.expires_at`, checked by the REST API on every
+`GET /api/auth/session` call) — there is no separate "remember me" flow,
+every login just always issues a 30-day token.
 
 ## 5. The control-event round trip (the core mechanism)
 
 This is the single most important flow to understand. It is what lets an
 app author write `onClick: this.mySaveHandler.bind(this)` and have it "just
-work" as a real server-side method call, with no client-side registration
-of any kind.
+work" as a real method call inside the client process, with no browser-side
+registration of any kind.
 
 ```mermaid
 sequenceDiagram
     participant U as User
     participant DOM as Browser DOM (control element)
     participant Desk as WiseDesktop.sendControlEvent
-    participant Srv as POST /api/applications/:appId/events
+    participant Route as POST /api/applications/:appId/events (client/app.js)
     participant Sys as WiseApplicationSystem.dispatchControlEvent
-    participant Win as WiseWindow instance (server, in memory)
+    participant Win as WiseWindow instance (in the client process, in memory)
     participant Ctrl as Control instance (e.g. WiseButton)
 
     U->>DOM: clicks / changes a control
-    DOM->>Desk: sendControlEvent(appId, controlId, el, eventName, overrides, args)
+    DOM->>Desk: sendControlEvent(appId, controlId, el, eventName, overrideValues)
     Desk->>Desk: gatherControlValues(winEl) -- reads every control's current DOM value
-    Desk->>Srv: POST { controlId, event, values, args }
-    Srv->>Sys: dispatchControlEvent(appId, controlId, event, values, args)
-    Sys->>Win: find window whose controls include controlId (searches this window + all childWindows)
-    Sys->>Win: sync `values` onto matching control.value fields
+    Desk->>Route: POST { controlId, event, values } (Authorization: Bearer <token>)
+    Route->>Route: resolveSession(req) -- validates the token against the REST API
+    Route->>Sys: dispatchControlEvent(appId, controlId, event, values, session)
+    Sys->>Sys: this.currentSession = session
+    Sys->>Win: find the running instance's window, sync values onto controls
     Sys->>Ctrl: control['on' + Capitalize(event)] -- e.g. control.onClick
-    Ctrl-->>Sys: handler.apply(control, args) -- awaited, may hit the database
-    Sys-->>Srv: { window: win.toJSON(), theme, backgroundImage, newWindows }
-    Srv-->>Desk: JSON response
+    Ctrl-->>Sys: await handler.call(win) -- may hit the database (via an Api*Repository)
+    Sys-->>Route: { window: win.toJSON(), theme, backgroundImage }
+    Route-->>Desk: JSON response
     Desk->>DOM: patchWindowControls() -- each control's own patchElement()
-    Desk->>DOM: applyTheme() / applyBackgroundImage() if present
-    Desk->>DOM: renderWindow() for any newWindows (e.g. a dialog opened via createWindow())
+    Desk->>DOM: applyTheme() / applyBackgroundImage()
+    Desk->>DOM: showInfoDialog(result.window.info) if present
 ```
 
 Important details baked into this flow:
 
 - **Handler resolution is generic.** `dispatchControlEvent` computes
   `` `on${Capitalize(eventName)}` `` and looks it up **on the control
-  instance**, not on the window. For an app-author-supplied handler (the
-  overwhelmingly common case — `onClick`, `onChange`, `onRowSelect`,
-  `onDataFilterChanged`, ...), that property is a function the app author
-  already bound to the window with `.bind(this)`, so `this` inside the
-  handler is the window regardless of what `dispatchControlEvent` binds it
-  to. For a few built-in *control-class* methods (`WiseDataTable.onCellClick`
-  / `onCellChange`, used for button/checkbox/combobox/radio table columns),
-  the method is unbound, so `dispatchControlEvent` explicitly does
-  `handler.apply(control, args)` so `this` resolves to the control itself
-  (letting it read `this.columns`/`this.data`).
-- **`args` carries real positional parameters.** Beyond the generic
-  `values` sync (control id → current value, used to keep sibling controls
-  in sync before running the handler), an event can also carry an `args`
-  array that becomes the handler's actual function parameters — e.g.
-  `onRowSelect(rowData)` or `onDataFilterChanged(pageSize, currentPage)`.
-  This is threaded end-to-end:
-  `WiseDesktop.sendControlEvent(..., eventArgs)` → request body `args` →
-  `dispatchControlEvent(..., args)` → `handler.apply(control, args)`.
+  instance**. App-author handlers are `.bind(this)`'d to the window when
+  constructed, so `this` inside them is the window regardless of how
+  they're invoked. A few controls (`WiseDataTable`) instead define their
+  own handlers as **arrow functions assigned in the constructor**
+  (`this.onCellchange = () => {...}`), specifically so `this` stays the
+  control instance even though `dispatchControlEvent` calls
+  `handler.call(win)` — arrow functions ignore `.call()`'s `this` override.
 - **The handler is `await`ed.** `dispatchControlEvent` is `async` and does
-  `await handler.apply(...)`. This is what lets a handler perform a real
-  database write (e.g. `WiseDataTable`'s cell `onChange` saving an edit, or
-  `WinSettings`'s theme picker persisting to the user's row) and have that
-  write actually finish before the HTTP response — and therefore the DOM
-  patch — goes out.
-- **Windows opened via `createWindow()` are discovered automatically.**
-  `dispatchControlEvent` snapshots `windowId`s before running the handler
-  and diffs against `collectWindows(instance.window)` (which recurses into
-  every window's `childWindows`) afterward. Anything new is returned in
-  `newWindows` and rendered by the client — this is how a window can open
-  *another* window (a dialog, an "About" box, ...) from inside an event
-  handler with zero extra plumbing from the app author.
+  `await handler.call(win)`. This is what lets a handler perform a real
+  database write (via an `Api*Repository`, e.g. an admin approving a user,
+  or `WinSettings` saving a theme change) and have that write actually
+  finish before the HTTP response — and therefore the DOM patch — goes out.
+- **`session` is request-scoped, not stored per-instance.** Every event
+  dispatch re-resolves the caller's session from the Bearer token
+  (`client/app.js`'s `resolveSession(req)`) and stashes it as
+  `this.currentSession` on the *shared* `WiseApplicationSystem` instance
+  right before invoking the handler, synchronously, in the same tick. A
+  handler that needs to know who's calling (e.g. `WinAdmin`'s approve
+  button) reads `this.system.currentSession.{user,token}`. See §8/§9 for
+  why this is safe in practice but not bulletproof under real concurrency.
 - **Theme/background echo is per-user, not global.** The response's
-  `theme`/`backgroundImage` fields are read from `instance.currentUser`
-  (the user who opened this running app instance), not from a shared
-  system-wide setting — see §8.
+  `theme`/`backgroundImage` fields are read from `session.user` when a
+  session is present (falling back to the shared system-wide values
+  otherwise) — **not** from a shared system-wide setting. This is what
+  stops one user's theme change from bleeding into another user's view;
+  see §8.
+- **There is no multi-window-per-app / dialog system.** Unlike a more
+  elaborate design you might expect, a `WiseWindow` cannot open *another*
+  window mid-session and have it delivered to the browser — the round trip
+  above only ever carries exactly one `window` per response. For an
+  in-window alert/notification, use `this.showInfo(title, message, type)`
+  instead (§9 below) — it's a modal overlay delivered through this exact
+  same `window.info` field, not a second window.
 
 ## 6. Class map
 
@@ -238,27 +274,32 @@ classDiagram
         +menus[]
         +themes[]
         +runningApplications: Map
-        +run()
+        +currentSession
+        +run(user)
         +loadApplications()
         +loadMenus()
         +loadThemes()
-        +buildMenuTree(rows)
-        +runApplication(appId, user)
-        +dispatchControlEvent(appId, controlId, event, values, args)
-        +collectWindows(win)
+        +filterMenusForUser(menus, user)
+        +runApplication(appId, session)
+        +dispatchControlEvent(appId, controlId, event, values, session)
         +setActiveTheme(themeId)
         +setBackgroundImage(url)
     }
 
     class WiseDesktop {
-        +apps[]
         +menus[]
-        +run(apps, user, menus)
+        +topBar
+        +onIconClick
+        +run(menus)
         +renderDesktop()
-        +openMenuFolder(node, root)
+        +openMenuOverlay(root, items, title, opts)
+        +launchApp(node, glyphEl)
+        +upgradeIcon(container, entity)
+        +startClock(clockEl)
+        +showInfoDialog(info)
         +renderWindow(application, startupResult)
         +renderControl(control, appId, windowId)
-        +sendControlEvent(appId, controlId, el, event, overrides, args)
+        +sendControlEvent(appId, controlId, el, event, overrides)
         +patchWindowControls(winEl, controls)
         +gatherControlValues(winEl)
     }
@@ -267,10 +308,10 @@ classDiagram
         +appID
         +appStartPoint
         +system
-        +currentUser
         +window
         +run(appConfig, appParameter)
         +createWindow(WindowClass, options)
+        +showInfo(title, message, type)
         +toJSON()
     }
 
@@ -278,12 +319,11 @@ classDiagram
         +windowId
         +controls[]
         +system
-        +currentUser
-        +childWindows[]
+        +pendingInfo
         +onWindowInit()
         +addControl(control)
         +getValues()
-        +createWindow(WindowClass, options)
+        +showInfo(title, message, type)
         +show(param)
         +toJSON()
     }
@@ -292,7 +332,6 @@ classDiagram
         +id
         +dataField
         +value
-        +isInput
         +render()
         +renderElement(data, context)$
         +gatherValue(winEl, id)$
@@ -300,12 +339,12 @@ classDiagram
     }
 
     WiseApplicationSystem "1" o-- "1" WiseDesktop : owns
-    WiseApplicationSystem "1" o-- "*" WiseApplication : runningApplications
+    WiseApplicationSystem "1" o-- "*" WiseApplication : runningApplications (keyed by appId -- see §9)
     WiseApplication "1" *-- "1" WiseWindow : createWindow()
-    WiseWindow "1" *-- "*" WiseWindow : childWindows (via createWindow)
     WiseWindow "1" o-- "*" WiseControl : controls[]
     WiseControl <|-- WiseLabel
     WiseControl <|-- WiseTextBox
+    WiseControl <|-- WiseNumericBox
     WiseControl <|-- WiseTextArea
     WiseControl <|-- WiseButton
     WiseControl <|-- WiseComboBox
@@ -317,34 +356,43 @@ classDiagram
     WiseControl <|-- WiseFileUpload
     WiseControl <|-- WiseTableLayout
     WiseControl <|-- WiseTabControl
+    WiseControl <|-- WiseFrame
     WiseControl <|-- WiseDataTable
 ```
 
-Full method-by-method reference: see `docs/API_REFERENCE.md`.
+Note `WiseWindow` has **no** `createWindow()`/`childWindows` — only
+`WiseApplication` can create a window (its one main window). Full
+method-by-method reference: see `docs/API_REFERENCE.md`.
 
 ## 7. How files reach the browser
 
-`applications/**` is **never** statically served — it holds server-side
-Node code (`require()`d directly by `resolveApplicationClass`) and must not
-be exposed as raw downloadable files. Instead, `app.js` whitelists exactly
-what the browser is allowed to fetch:
+`client/applications/**` is **never** statically served — it holds
+server-side (client-process) Node code (`require()`d directly by
+`resolveApplicationClass`) and must not be exposed as raw downloadable
+files. Instead, `client/app.js` whitelists exactly what the browser is
+allowed to fetch:
 
 | Route | Serves |
 |---|---|
-| `express.static('public/')` | everything under `public/` (HTML, CSS, `auth.js`, `script.js`, uploaded background images) |
-| `GET /WiseDesktop.js` | `system/WiseDesktop.js` |
-| `GET /WiseApplicationSystem.js` | `system/WiseApplicationSystem.js` |
-| `GET /controls/:file` | `system/controls/<file>.js`, regex-whitelisted to `^Wise[A-Za-z]+\.js$` |
+| `express.static('public/')` | everything under `client/public/` (HTML, CSS, `auth.js`, `script.js`, uploaded background images) |
+| `GET /WiseDesktop.js` | `client/system/WiseDesktop.js` |
+| `GET /WiseApplicationSystem.js` | `client/system/WiseApplicationSystem.js` |
+| `GET /controls/:file` | `client/system/controls/<file>.js`, regex-whitelisted to `^Wise[A-Za-z]+\.js$` |
 | `GET /app-assets/:appId/icon.svg` | that app's own `assets/icons/icon.svg`, resolved from its `appStartPoint` — see §10 |
 
-`public/index.html` loads all of the above via plain `<script>` tags, in a
-specific order: `WiseControl.js` first (every other control class extends
-it), then the rest of the controls, then `WiseDesktop.js`, then
-`WiseApplicationSystem.js`, then `script.js`, then `auth.js`.
+`client/public/index.html` loads all of the above via plain `<script>`
+tags, in a specific order: `WiseControl.js` first (every other control
+class extends it), then the rest of the controls, then `WiseDesktop.js`,
+then `WiseApplicationSystem.js`, then `auth.js`, then `script.js` last
+(it's the one that actually boots).
 
 ## 8. Authentication, sessions, and per-user state
 
-Schema (all in `system/PostgresAuthRepository.js`):
+All auth data lives in PostgreSQL, owned by the REST API server
+(`server/applications/WiseapeApplicationSystem/src/models/authModel.js`) —
+the client never touches these tables directly, only through
+`client/system/ApiAuthRepository.js` (a thin `fetch` wrapper) and, for the
+browser-facing subset, `client/app.js`'s own `/api/auth/*` proxy routes.
 
 ```mermaid
 erDiagram
@@ -373,92 +421,104 @@ erDiagram
 
 - Passwords are hashed with Node's built-in `crypto.scryptSync` (salted,
   per-user salt) — no external hashing dependency.
-- A session token is a random 32-byte hex string, valid 30 days
-  (`SESSION_TTL_MS`), checked via `findValidSession` (a join against
-  `wiseape_sessions` filtering `expires_at > now()`).
-- `wiseape_app_settings` currently holds exactly one row,
-  `registration_requires_approval` — toggled from the admin-only section of
-  the Settings app (`applications/Settings/forms/WinSettings.js`), read by
-  `PostgresAuthRepository.createUser()` to decide whether a new signup's
-  `status` starts as `'active'` or `'pending'`.
-- The seeded admin account: `miftahul.huda@devoteam.com`, created
-  automatically by `ensureSchema()` the first time the auth tables are
-  touched.
+- A session token is a random 32-byte hex string, valid 30 days.
+- `wiseape_app_settings` currently holds one row,
+  `registration_requires_approval`, toggled from the **Admin** app
+  (`client/applications/Admin/forms/WinAdmin.js`) and read by
+  `authModel.createUser()` to decide whether a new signup's `status`
+  starts as `'active'` or `'pending'`.
+- The seeded admin account's email/password come from `ADMIN_EMAIL`/
+  `ADMIN_PASSWORD` env vars on the REST API server (defaulting to a
+  placeholder if unset) — **not** hardcoded in source, specifically so a
+  real credential never ends up committed to a public repo.
 
-**Per-user theme/background propagation** — this is the part most likely to
-surprise someone extending the system, since the server has exactly *one*
-`WiseApplicationSystem` instance shared by every connected browser:
+**Per-user theme/background propagation** — this is the part most likely
+to surprise someone extending the system, since the client has exactly
+*one* `WiseApplicationSystem` instance shared by every connected browser:
 
 ```mermaid
 flowchart LR
-    Login["POST /api/auth/login"] -- "user row incl. themeId/backgroundImage" --> Client["client WiseApplicationSystem.currentUser"]
-    Client -- "desktop.run(apps, currentUser, menus)" --> Desktop["applyTheme/applyBackgroundImage on boot"]
-    RunApp["POST /api/applications/run<br/>(Bearer token resolved to user)"] -- "instance.currentUser = user" --> AppInstance["WiseApplication instance"]
-    AppInstance -- "createWindow() propagates currentUser" --> WindowInstance["WiseWindow instance"]
-    WindowInstance -- "handler mutates this.currentUser.themeId<br/>after a successful DB save" --> AppInstance
-    AppInstance -- "dispatchControlEvent reads instance.currentUser" --> EchoedTheme["response.theme / response.backgroundImage"]
+    Login["POST /api/auth/login"] -- "user row incl. themeId/backgroundImage" --> LS["browser localStorage (was_user)"]
+    LS -- "script.js: setActiveTheme/setBackgroundImage on boot" --> BrowserDesktop["applied once, at boot"]
+    Event["POST /api/applications/:appId/events<br/>(Bearer token resolved to session)"] -- "system.currentSession = session" --> Handler["control's on&lt;Event&gt; handler"]
+    Handler -- "mutates session.user.themeId<br/>after a successful DB save (WinSettings)" --> Session
+    Session -- "dispatchControlEvent reads session.user" --> EchoedTheme["response.theme / response.backgroundImage"]
 ```
 
-The `currentUser` object attached to a running `WiseApplication`/`WiseWindow`
-is a **snapshot fetched at `runApplication()` time**, not a live query. If a
-handler changes the user's stored preference (see
-`WinSettings.onThemeChange`), it must also update that same in-memory
-`this.currentUser` object so subsequent events *in that same running app
-instance* echo the correct value back. This avoids re-querying the database
-on every unrelated event, but it means: **whenever you write a handler that
-changes something on `currentUser` in the database, mutate
-`this.currentUser` in place afterward too.**
+The `session` object passed into `runApplication`/`dispatchControlEvent`
+is **resolved fresh from the Bearer token on every single request** — it
+is not cached between requests. If a handler changes the user's stored
+preference (see `WinSettings.onThemeChange`/`.onBackgroundChange`), it
+must **also** mutate that same in-memory `session.user` object
+immediately, synchronously, before the handler returns — otherwise the
+*very same* response (the one confirming the change) would still echo the
+stale value, since the DB write and the response are racing and the
+response doesn't re-fetch. See `WinSettings.persistPreferences` for the
+reference implementation.
 
-## 9. Known architectural limitation: one running instance per appId
+## 9. Known architectural limitations (flagged deliberately, not accidental)
 
-`WiseApplicationSystem.runningApplications` is a single `Map<appId,
-WiseApplication instance>`, shared by the whole Node process. Every time
-`runApplication(appId, user)` runs (i.e. every time *any* browser session
-opens app X), it **overwrites** the previous entry for that `appId`.
+**One running instance per appId.** `WiseApplicationSystem.runningApplications`
+is a single `Map<appId, WiseApplication instance>`, shared by the whole
+client process. Every time `runApplication(appId, session)` runs (i.e.
+every time *any* browser session opens app X), it **overwrites** the
+previous entry for that `appId`. Practical consequence: if two different
+logged-in users (or two browser tabs) have the same app open at the same
+time, control events from the *first* tab's window may dispatch against
+whatever instance is currently in the map — which may by then belong to
+the *second* tab's session. Fixing this properly would mean keying
+`runningApplications` by something like `(appId, userId, windowId)`
+instead of just `appId`. If you're asked to support genuinely concurrent
+multi-user use of the same app, **this is the first thing to fix**.
 
-Practical consequence: if two different logged-in users (or two browser
-tabs) have the same app open at the same time, control events from the
-*first* tab's window will be dispatched against whatever instance is
-currently in the map — which may by then belong to the *second* tab's
-session. This is a pre-existing, deliberately-not-yet-fixed limitation
-(flagged during development, not something introduced by accident) — fixing
-it properly would mean keying `runningApplications` by something like
-`(appId, userId, windowId)` instead of just `appId`, plus deciding how the
-client tracks which instance its own window belongs to. If you're asked to
-support genuinely concurrent multi-user use of the same app, **this is the
-first thing to fix** — don't patch around it downstream.
+**`currentSession` has a narrow race window.** Because it's stashed on the
+shared system instance right before a handler runs, a handler that
+`await`s something mid-execution (e.g. a database call) could in
+principle have `this.system.currentSession` reassigned by a *different*,
+concurrent request before it resumes. `dispatchControlEvent` mitigates
+this for its own *response* by capturing `session` into a local variable
+before awaiting the handler (so the echoed theme/background can't leak
+across requests), but a handler that reads `this.system.currentSession`
+itself *after* an internal `await` is not protected the same way. In
+practice, for this app's scale, this has not been an issue — but a true
+fix (per-request context instead of a shared mutable field) would be a
+larger change.
 
 ## 10. Per-app colorful icons
 
 Every application folder can carry its own icon:
 
 ```
-applications/<AppName>/assets/icons/icon.svg
+client/applications/<AppName>/assets/icons/icon.svg
 ```
 
-`GET /app-assets/:appId/icon.svg` (in `app.js`) resolves an app's folder
-from its `appStartPoint` (e.g.
+`GET /app-assets/:appId/icon.svg` (in `client/app.js`) resolves an app's
+folder from its `appStartPoint` (e.g.
 `applications/HelloWorld/AppHelloWorld.js:AppHelloWorld` → folder
-`applications/HelloWorld`) and serves that file if it exists, 404s
-otherwise. `WiseDesktop.getIconMarkup()` always tries
-`<img src="/app-assets/<appId>/icon.svg">` first for anything with an
-`appId` (real apps, and menu items linked to one — **not** menu
-groups/folders, which have no app to link to and always use the folder
-glyph); if that image fails to load, an `onerror` handler swaps in the
-original hand-drawn monochrome SVG glyph as a fallback, and an `onload`
-handler adds an `icon-loaded` class that strips the surrounding
-colored-box/border framing (`public/styles.css`) — that framing exists only
-to make the plain glyph fallback visible against the wallpaper; a real icon
-file already looks complete on its own.
+`applications/HelloWorld`) and serves that file if it exists (double-checked
+to stay inside `applications/`), 404s otherwise.
 
-Icon SVGs are drawn on a `128×128` canvas, edge-to-edge (a full
-`rx="28"` rounded rect background, no inset margin), so there's no gap for
-the container's own background to show through.
+Icon *authoring* is file-based; the database `app_icon` (and a menu row's
+own `icon` column) is only ever a **fallback glyph**, never the source of
+truth once a real file exists. `WiseDesktop.getIconMarkup()` always
+renders the fallback glyph first (so there's never a blank icon), and
+`WiseDesktop.upgradeIcon()` probes the file in the background, swapping in
+an `<img class="wise-app-icon-img">` only once it's confirmed to actually
+load — see the doc comment on `upgradeIcon` for exactly why (avoids ever
+showing a broken-image icon).
+
+Icon SVGs are drawn on a `128×128` canvas, edge-to-edge (a full `rx="28"`
+rounded rect background, no inset margin) — the four bundled apps
+(HelloWorld, Settings, Controls, Admin) all have one; see
+`docs/DEVELOPMENT_GUIDE.md` §10 for the template.
 
 ## 11. The menu system
 
 Desktop icons and Launchpad are driven by a **menu tree**, not the flat app
-list (`system/PostgresMenuRepository.js`, table `wiseape_menus`):
+list. The tree is built entirely on the REST API server
+(`server/applications/WiseapeApplicationSystem/src/services/menusService.js`,
+table `wiseape_menus`) and delivered to the client already-built —
+`client/system/ApiMenuRepository.js` just relays it.
 
 ```mermaid
 erDiagram
@@ -475,76 +535,91 @@ erDiagram
 
 - A `group` row is a folder; an `item` row links to an app via `app_id`.
 - Groups can nest arbitrarily deep (`parent_id` self-reference).
-- `WiseApplicationSystem.buildMenuTree(rows)` turns the flat row list into a
-  nested tree and resolves each node's effective icon: an explicit `icon`
+- Icon resolution (server-side, in `menusService.js`): an explicit `icon`
   column wins; otherwise an `item` inherits its linked app's `appIcon`, and
   a `group` defaults to a folder glyph (`📁`).
-- `WiseDesktop`'s desktop-grid rendering and Launchpad (`openMenuFolder`)
-  both consume this same tree — Launchpad is literally
-  `openMenuFolder({ type: 'root', children: this.menus }, root)`, so the two
-  views can never drift apart.
-- The **dock** (taskbar) is intentionally *not* menu-driven — it stays a
-  flat quick-launch strip of every installed app, by design (a deliberate
-  scoping decision: "Desktop tidak menampilkan aplikasi, tapi menampilkan
-  menu" was about the desktop surface specifically).
+- `WiseApplicationSystem.filterMenusForUser(menus, user)` (client-side, in
+  the browser) recursively drops the admin-only item (and any group left
+  empty as a result) for non-admin viewers — this is purely a *display*
+  filter; `AppAdmin.run()` also independently enforces the role check
+  server-side, so a non-admin can't reach it even by guessing the appId.
+- `WiseDesktop`'s desktop-grid rendering and the Launchpad trigger both
+  consume this same tree, via the same `openMenuOverlay()` method
+  (Launchpad is just `openMenuOverlay(root, this.menus, 'Launchpad')`) —
+  clicking a folder anywhere **stacks** another overlay on top rather than
+  replacing the current one; a `closers` array is threaded through the
+  recursive calls so that launching an app from several folders deep still
+  closes the *entire* stack, not just the folder it happened in.
+- The **dock** (taskbar) is intentionally *not* menu-tree-shaped — it's the
+  same tree flattened to just its leaf items (`flattenMenuItems`), by
+  design (a deliberate scoping decision: the desktop surface shows the
+  menu/folder structure, the dock stays a flat quick-launch strip like a
+  real macOS dock).
 
-## 12. Repository pattern (all `system/Postgres*Repository.js` files)
+## 12. Repository patterns — two different ones, don't mix them up
 
-Every repository follows the same shape — copy this pattern for a new one
-rather than inventing a new style:
+**Client-side (`client/system/Api*Repository.js`)** — thin `fetch`
+wrappers around the REST API server, nothing more. Constructor takes
+`{ baseUrl }` (defaulting to `process.env.API_BASE_URL`); one method per
+REST endpoint; on failure, most of them (apps/themes/menus/employees) fall
+back to a small hardcoded default so the desktop never completely fails to
+boot just because the REST API is briefly unreachable
+(`ApiAuthRepository` is the one exception — auth failures should be loud,
+not silently faked). Copy this pattern for a new client-side data source
+that talks to the REST API. See `docs/DEVELOPMENT_GUIDE.md` §6.
 
-1. Constructor reads DB connection config from `process.env` (`DB_HOST`,
-   `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_PORT`), with **no hardcoded
-   credentials** (this repo is public on GitHub — credentials live only in
-   the gitignored `.env`).
-2. `async connect()` — lazily creates a `pg.Client`, and **always** attaches
-   `client.on('error', ...)` that nulls out `this.client` instead of letting
-   the error propagate. Without this, a dropped connection (idle timeout,
-   network blip) crashes the entire Node process via Node's default
-   unhandled-EventEmitter-error behavior. This exact bug happened once in
-   development — never omit this handler on a new repository.
-3. `async ensureTable(client)` / `ensureSchema(client)` — idempotent
-   `CREATE TABLE IF NOT EXISTS`, seeds demo/default rows if the table is
-   empty, memoizes with a `this.tableReady`/`this.schemaReady` flag so it
-   only actually hits the DB once per process.
-4. Every public method wraps its query in `try/catch` and falls back to an
-   in-memory default list on failure (`PostgresAppRepository`,
-   `PostgresThemeRepository`, `PostgresEmployeeRepository`,
-   `PostgresMenuRepository`) — the desktop should never completely fail to
-   boot just because the DB is briefly unreachable. (`PostgresAuthRepository`
-   is the one exception — auth failures should be loud, not silently
-   faked.)
+**REST API-side (`server/.../src/models/*Model.js`)** — the ones that
+actually touch PostgreSQL, via `config/db.js`'s pooled client
+(`pool.on('error', ...)` is required there too, for the same
+crash-on-dropped-connection reason). Idempotent `ensureSchema()`-style
+seeding, memoized with a `schemaReady`/similar flag so it only runs once
+per process. If you're adding a genuinely new *database-backed* feature,
+it belongs here, not in `client/`.
 
 ## 13. File/folder map
 
 ```
-app.js                          Express server: all routes, one process-wide
-                                 WiseApplicationSystem instance
-public/
-  index.html                    Script tags, load order, login/register markup
-  styles.css                    Desktop/dock/window chrome + login screen CSS
-                                 (controls themselves are styled with Tailwind
-                                 utility classes directly in their renderElement)
-  auth.js                       Login/register UI + localStorage token + auto-login
-  script.js                     window.bootWiseDesktop(user, token)
-  uploads/                      User-uploaded background images (gitignored contents)
-system/
-  WiseApplicationSystem.js      Orchestrator -- isomorphic (see §1)
-  WiseDesktop.js                Desktop/dock/window-chrome rendering -- isomorphic
-  WiseApplication.js            Base class for an installed app
-  WiseWindow.js                 Base class for a window
-  Postgres*Repository.js        One per concern: Apps, Themes, Employees, Auth, Menu
-  controls/
-    WiseControl.js              Base control class + registry bootstrap
-    Wise*.js                    One file per control type (see docs/API_REFERENCE.md)
-applications/
-  <AppName>/
-    App<AppName>.js             extends WiseApplication, implements run()
-    forms/
-      Win<Name>.js               extends WiseWindow, implements onWindowInit()
-    assets/icons/icon.svg        Optional colorful app icon (see §10)
+client/
+  app.js                         Express server (port 3000): all client
+                                  routes, one process-wide
+                                  WiseApplicationSystem instance
+  public/
+    index.html                   Script tags, load order
+    styles.css                   Desktop/dock/window chrome (controls
+                                  themselves use Tailwind utility classes
+                                  directly in their renderElement)
+    auth.js                      renderAuthScreen() -- login/register UI
+    script.js                    boot() -- entry point, session check,
+                                  desktop bootstrap
+    uploads/                     User-uploaded background images (gitignored)
+  system/
+    WiseApplicationSystem.js     Orchestrator -- isomorphic (see §1)
+    WiseDesktop.js                Desktop/dock/window-chrome rendering -- isomorphic
+    WiseApplication.js            Base class for an installed app
+    WiseWindow.js                 Base class for a window
+    Api*Repository.js             Client-side REST API clients (see §12)
+    controls/
+      WiseControl.js               Base control class + registry bootstrap
+      Wise*.js                     One file per control type (see docs/API_REFERENCE.md)
+  applications/
+    <AppName>/
+      App<AppName>.js              extends WiseApplication, implements run()
+      forms/
+        Win<Name>.js                extends WiseWindow, implements onWindowInit()
+      assets/icons/icon.svg         Optional colorful app icon (see §10)
+server/applications/WiseapeApplicationSystem/
+  app.js                          Express REST API (port 4000)
+  config/db.js                    pg Pool
+  src/
+    routes/                        One router file per resource, mounted in index.js
+    controllers/                   Thin req/res glue
+    services/                      Business logic (e.g. menusService builds the tree)
+    models/                        The only files that touch PostgreSQL
+    middleware/auth.js              Bearer token parsing, requireUser/requireAdmin
+    utils/password.js               scrypt hash/verify
 docs/
-  ARCHITECTURE.md                This file
-  DEVELOPMENT_GUIDE.md            Tutorial for building a new WAS application
-  API_REFERENCE.md                Class/method reference
+  ARCHITECTURE.md                 This file
+  DEVELOPMENT_GUIDE.md             Tutorial for building a new WAS application
+  API_REFERENCE.md                 Class/method reference
+  RUNNING.md                       How to actually start both processes
 ```
