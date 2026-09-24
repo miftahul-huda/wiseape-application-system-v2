@@ -28,7 +28,7 @@
 
     static renderElement(data, context) {
       const wrapper = document.createElement('div');
-      wrapper.className = 'justify-self-start';
+      wrapper.className = 'w-full';
       WiseControl.applyCommon(wrapper, data);
 
       const inputId = `upload-${data.id || Math.random().toString(36).slice(2)}`;
@@ -41,7 +41,7 @@
 
       const label = document.createElement('label');
       label.htmlFor = inputId;
-      label.className = 'flex cursor-pointer items-center gap-3.5 rounded-lg border-2 border-dashed border-slate-300 bg-white/50 px-4 py-3.5 shadow-sm transition hover:border-[var(--accent)] hover:bg-white';
+      label.className = 'w-full flex cursor-pointer items-center gap-3.5 rounded-lg border-2 border-dashed border-slate-300 bg-white/50 px-4 py-3.5 shadow-sm transition hover:border-[var(--accent)] hover:bg-white';
 
       const preview = document.createElement('div');
       preview.className = 'wise-upload-preview flex h-14 w-14 flex-none items-center justify-center rounded-md bg-gradient-to-br from-slate-100 to-slate-200 bg-cover bg-center text-slate-400';

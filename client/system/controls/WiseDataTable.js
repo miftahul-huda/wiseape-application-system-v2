@@ -116,8 +116,13 @@
         });
       };
 
+      // Pagination at both ends -- convenient on a long table where the
+      // bottom pager would otherwise be a scroll away. Both instances are
+      // wired to the same fireFilterChange, and a full re-render on every
+      // interaction (see patchElement) keeps them in sync automatically.
+      wrapper.appendChild(WiseDataTable.renderPager(data, fireFilterChange, 'top'));
       wrapper.appendChild(WiseDataTable.renderTable(data, context, fireFilterChange));
-      wrapper.appendChild(WiseDataTable.renderPager(data, fireFilterChange));
+      wrapper.appendChild(WiseDataTable.renderPager(data, fireFilterChange, 'bottom'));
 
       return wrapper;
     }
@@ -161,7 +166,9 @@
 
       (data.data || []).forEach((row, rowIndex) => {
         const tr = document.createElement('tr');
-        const zebra = rowIndex % 2 === 1 ? 'bg-slate-50/70' : 'bg-white';
+        // bg-slate-50 is nearly indistinguishable from white -- bump to
+        // slate-100 so the stripe is actually visible.
+        const zebra = rowIndex % 2 === 1 ? 'bg-slate-100' : 'bg-white';
 
         if (data.hasRowSelectHandler) {
           tr.className = `${zebra} cursor-pointer hover:bg-slate-900/5`;
@@ -269,9 +276,10 @@
       return td;
     }
 
-    static renderPager(data, fireFilterChange) {
+    static renderPager(data, fireFilterChange, position = 'bottom') {
       const pager = document.createElement('div');
-      pager.className = 'flex items-center justify-between gap-3 pt-1 text-xs text-slate-500';
+      const spacing = position === 'top' ? 'pb-2' : 'pt-2';
+      pager.className = `flex items-center justify-between gap-3 px-1 ${spacing} text-xs`;
 
       const totalCount = data.totalCount || 0;
       const pageSize = data.pageSize || 10;
@@ -279,15 +287,16 @@
       const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
       const info = document.createElement('span');
-      info.textContent = `${totalCount} rows · page ${currentPage} of ${totalPages}`;
+      info.className = 'text-slate-400';
+      info.textContent = `${totalCount} rows`;
       pager.appendChild(info);
 
       const controls = document.createElement('div');
-      controls.className = 'flex items-center gap-2';
+      controls.className = 'flex items-center gap-1';
 
       if ((data.pageSizeOptions || []).length > 0) {
         const sizeSelect = document.createElement('select');
-        sizeSelect.className = 'rounded border border-slate-300 px-1.5 py-1';
+        sizeSelect.className = 'mr-2 cursor-pointer rounded-md border-0 bg-slate-100 px-2 py-1.5 text-xs text-slate-600 outline-none transition focus:ring-2 focus:ring-[var(--accent)]';
         data.pageSizeOptions.forEach((size) => {
           const option = document.createElement('option');
           option.value = size;
@@ -301,24 +310,73 @@
         controls.appendChild(sizeSelect);
       }
 
-      const prevBtn = document.createElement('button');
-      prevBtn.type = 'button';
-      prevBtn.textContent = '‹ Prev';
-      prevBtn.disabled = currentPage <= 1;
-      prevBtn.className = 'rounded border border-slate-300 px-2 py-1 disabled:opacity-40 cursor-pointer disabled:cursor-default';
-      prevBtn.addEventListener('click', () => fireFilterChange({ currentPage: currentPage - 1 }));
-      controls.appendChild(prevBtn);
+      // Flat nav "buttons" -- no borders/shadows, just a background that
+      // appears on hover or for whichever page is current.
+      const navButton = (label, { disabled = false, active = false, onClick } = {}) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = label;
+        btn.disabled = disabled;
+        const state = active
+          ? 'bg-[var(--accent)] text-white font-semibold'
+          : 'bg-transparent text-slate-600 hover:bg-slate-100';
+        btn.className = `min-w-[26px] cursor-pointer rounded-md border-0 px-2 py-1.5 text-xs transition disabled:cursor-default disabled:opacity-30 disabled:hover:bg-transparent ${state}`;
+        if (!disabled && onClick) btn.addEventListener('click', onClick);
+        return btn;
+      };
 
-      const nextBtn = document.createElement('button');
-      nextBtn.type = 'button';
-      nextBtn.textContent = 'Next ›';
-      nextBtn.disabled = currentPage >= totalPages;
-      nextBtn.className = 'rounded border border-slate-300 px-2 py-1 disabled:opacity-40 cursor-pointer disabled:cursor-default';
-      nextBtn.addEventListener('click', () => fireFilterChange({ currentPage: currentPage + 1 }));
-      controls.appendChild(nextBtn);
+      controls.appendChild(navButton('‹', {
+        disabled: currentPage <= 1,
+        onClick: () => fireFilterChange({ currentPage: currentPage - 1 }),
+      }));
+
+      WiseDataTable.buildPageList(currentPage, totalPages).forEach((page) => {
+        if (page === '…') {
+          const ellipsis = document.createElement('span');
+          ellipsis.className = 'px-1 text-slate-400';
+          ellipsis.textContent = '…';
+          controls.appendChild(ellipsis);
+          return;
+        }
+        controls.appendChild(navButton(String(page), {
+          active: page === currentPage,
+          onClick: () => fireFilterChange({ currentPage: page }),
+        }));
+      });
+
+      controls.appendChild(navButton('›', {
+        disabled: currentPage >= totalPages,
+        onClick: () => fireFilterChange({ currentPage: currentPage + 1 }),
+      }));
 
       pager.appendChild(controls);
       return pager;
+    }
+
+    // Windows the page-number list around the current page (with leading/
+    // trailing ellipses once there are more pages than fit) instead of
+    // rendering every single page button when there are many pages.
+    static buildPageList(current, total) {
+      const pages = [];
+      const addRange = (start, end) => {
+        for (let page = start; page <= end; page += 1) pages.push(page);
+      };
+
+      if (total <= 7) {
+        addRange(1, total);
+      } else if (current <= 4) {
+        addRange(1, 5);
+        pages.push('…', total);
+      } else if (current >= total - 3) {
+        pages.push(1, '…');
+        addRange(total - 4, total);
+      } else {
+        pages.push(1, '…');
+        addRange(current - 1, current + 1);
+        pages.push('…', total);
+      }
+
+      return pages;
     }
 
     // The DOM shape depends on row count/sort/pager state, which changes on

@@ -13,6 +13,7 @@ const WiseButton = require('../../../system/controls/WiseButton');
 const WiseTableLayout = require('../../../system/controls/WiseTableLayout');
 const WiseTabControl = require('../../../system/controls/WiseTabControl');
 const WiseDataTable = require('../../../system/controls/WiseDataTable');
+const WiseFrame = require('../../../system/controls/WiseFrame');
 
 const HEADING_STYLE = { fontSize: 15, fontWeight: 700, marginTop: '4px' };
 const DEPARTMENTS = ['Engineering', 'Sales', 'Support', 'Marketing'];
@@ -91,6 +92,15 @@ class WinControls extends WiseWindow {
       { id: 'checkNotify', value: ['email'], dataField: 'notify' }
     )]);
     this.addControl(tabs);
+
+    // -- WiseFrame: a titled box grouping controls together --
+    const noteFrame = new WiseFrame('Quick Note', { id: 'frameNote' });
+    noteFrame.addControl(new WiseTextArea('', { id: 'txtQuickNote', placeholder: 'Type a quick note...', rows: 2, dataField: 'quickNote' }));
+    noteFrame.addControl(new WiseCheckboxGroup(
+      [{ value: 'pinned', label: 'Pin this note' }],
+      { id: 'checkPinNote', value: [], dataField: 'notePinned' }
+    ));
+    this.addControl(noteFrame);
 
     // -- WiseDataTable: paged/sortable/editable rows backed by the real
     // wiseape_employees table via this.system.employeeRepository. Data

@@ -24,10 +24,10 @@
 
     static renderElement(data, context) {
       const wrapper = document.createElement('div');
-      wrapper.className = 'justify-self-start flex items-center gap-2.5';
+      wrapper.className = 'w-full flex items-center gap-2.5';
       WiseControl.applyCommon(wrapper, data);
 
-      const dateInputClass = 'appearance-none rounded-lg border-0 bg-white px-4 py-2.5 text-sm text-slate-800 shadow-sm ring-1 ring-slate-900/10 outline-none transition focus:shadow-md focus:ring-2 focus:ring-[var(--accent)]';
+      const dateInputClass = 'min-w-0 flex-1 appearance-none rounded-lg border-0 bg-white px-3 py-1.5 text-sm text-slate-800 shadow-sm ring-1 ring-slate-900/10 outline-none transition focus:shadow-md focus:ring-2 focus:ring-[var(--accent)]';
 
       const startInput = document.createElement('input');
       startInput.type = 'date';

@@ -26,10 +26,10 @@
 
     static renderElement(data, context) {
       const wrapper = document.createElement('div');
-      wrapper.className = 'relative justify-self-start min-w-[200px]';
+      wrapper.className = 'relative w-full';
 
       const el = document.createElement('select');
-      el.className = 'w-full cursor-pointer appearance-none rounded-lg border-0 bg-white py-2.5 pl-4 pr-9 text-sm text-slate-800 shadow-sm ring-1 ring-slate-900/10 outline-none transition focus:shadow-md focus:ring-2 focus:ring-[var(--accent)]';
+      el.className = 'w-full cursor-pointer appearance-none rounded-lg border-0 bg-white py-1.5 pl-3 pr-8 text-sm text-slate-800 shadow-sm ring-1 ring-slate-900/10 outline-none transition focus:shadow-md focus:ring-2 focus:ring-[var(--accent)]';
       (data.items || []).forEach((item) => {
         const option = document.createElement('option');
         option.value = item.value;

@@ -27,7 +27,7 @@
       el.type = 'text';
       el.placeholder = data.placeholder || '';
       el.value = data.value || '';
-      el.className = 'w-full appearance-none rounded-lg border-0 bg-white px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 shadow-sm ring-1 ring-slate-900/10 outline-none transition focus:shadow-md focus:ring-2 focus:ring-[var(--accent)]';
+      el.className = 'w-full appearance-none rounded-lg border-0 bg-white px-3 py-1.5 text-sm text-slate-800 placeholder-slate-400 shadow-sm ring-1 ring-slate-900/10 outline-none transition focus:shadow-md focus:ring-2 focus:ring-[var(--accent)]';
       WiseControl.applyCommon(el, data);
       return el;
     }

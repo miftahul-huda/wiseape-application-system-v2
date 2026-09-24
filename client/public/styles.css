@@ -15,9 +15,21 @@
 
 * { box-sizing: border-box; }
 
+/* Browsers don't let native form controls inherit the page font by default
+   (they use their own UA font instead) -- Tailwind's preflight normally
+   fixes this, but it's disabled here (see index.html) since it would also
+   strip the desktop/window chrome's own styling. Without this, every
+   input/select/textarea/button (WiseTextBox, WiseComboBox, WiseDate,
+   WiseDateRange, WiseTextArea, WiseDataTable's per-cell controls, ...)
+   would render in the browser's default UI font instead of the one set on
+   body below. */
+input, select, textarea, button {
+  font-family: inherit;
+}
+
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: linear-gradient(135deg, var(--bg1), var(--bg2));
   color: var(--dark-text);
   overflow: hidden;
@@ -352,7 +364,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 11px;
   line-height: 1;
   color: rgba(0,0,0,0.55);
