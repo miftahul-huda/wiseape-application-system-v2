@@ -5,7 +5,7 @@
   // Real Chrome-style tabs: the active one physically overlaps the content
   // panel's top border (-mb-px + z-10 + matching white background) so it
   // reads as fused onto the panel wherever it happens to sit.
-  const TAB_BUTTON_BASE = 'appearance-none relative -mb-px rounded-t-lg border border-b-0 border-slate-900/15 px-5 py-2.5 text-base font-medium cursor-pointer transition';
+  const TAB_BUTTON_BASE = 'appearance-none relative -mb-px rounded-t-lg border border-b-0 border-slate-900/15 px-5 py-1.5 text-base font-medium cursor-pointer transition';
   const TAB_BUTTON_ACTIVE = `${TAB_BUTTON_BASE} z-10 bg-white text-slate-900 shadow-[0_-1px_4px_rgba(15,23,42,0.06)]`;
   const TAB_BUTTON_INACTIVE = `${TAB_BUTTON_BASE} bg-slate-100 text-slate-500 hover:bg-slate-50 hover:text-slate-800`;
 

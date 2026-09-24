@@ -74,7 +74,6 @@ class WinControls extends WiseWindow {
     this.addControl(new WiseFileUpload('Choose Image...', { id: 'uploadAvatar', onChange: this.onAvatarChange.bind(this) }));
 
 
-    this.addControl(new WiseLabel('', { id: 'lblResult', style: { fontSize: 12, marginTop: '2px', color: '#374151' } }));
 
     // -- Layout containers: WiseTableLayout + WiseTabControl --
     this.addControl(new WiseLabel('Contact (Table Layout)', { id: 'lblContactHeading', style: { ...HEADING_STYLE, marginTop: '16px' } }));
@@ -195,17 +194,9 @@ class WinControls extends WiseWindow {
   }
 
   onShowValues() {
-    const summary = {
-      color: this.radioColor.value,
-      department: this.cmbDepartment.value,
-      interests: this.checkInterests.value,
-      birthday: this.dateBirthday.value,
-      vacation: this.rangeVacation.value,
-      bio: this.textBio.value,
-      notes: this.editorNotes.value,
-      avatar: this.uploadAvatar.value,
-    };
-    this.lblResult.text(JSON.stringify(summary, null, 2));
+    const summary = this.getValues();
+    alert('Current Control Values:\n\n' + JSON.stringify(summary, null, 2));
+    //this.lblResult.text(JSON.stringify(summary, null, 2));
   }
 
   show(param = null) {

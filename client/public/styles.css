@@ -312,6 +312,17 @@ body {
 
 .window {
   position: absolute;
+  /* Without an explicit z-index, this sits at the implicit "auto" stacking
+     layer, which paints BELOW any sibling that has one -- so .topbar and
+     .app-grid (both z-index: 2) were covering windows whenever a window
+     was dragged under them. 3 puts every window above the desktop chrome
+     (topbar/icons) but still below .taskbar (5) and .launchpad-overlay
+     (50), matching "not blocked by anything except the taskbar and other
+     windows". Windows share this same z-index with each other, so their
+     relative front/back order is still just DOM order -- which is exactly
+     what the header's mousedown handler already manipulates to bring a
+     clicked window to the front of its sibling windows. */
+  z-index: 3;
   background: rgba(255,255,255,0.72);
   border: 1px solid rgba(15,23,42,0.1);
   border-radius: 14px;
