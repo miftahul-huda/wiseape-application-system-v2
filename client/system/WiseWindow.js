@@ -5,6 +5,7 @@
 // handling in addControl/getValues below).
 const INPUT_CONTROL_TYPES = new Set([
   'WiseTextBox',
+  'WiseNumericBox',
   'WiseTextArea',
   'WiseComboBox',
   'WiseRadioGroup',

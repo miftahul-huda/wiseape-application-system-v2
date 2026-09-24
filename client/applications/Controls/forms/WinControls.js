@@ -1,6 +1,7 @@
 const WiseWindow = require('../../../system/WiseWindow');
 const WiseLabel = require('../../../system/controls/WiseLabel');
 const WiseTextBox = require('../../../system/controls/WiseTextBox');
+const WiseNumericBox = require('../../../system/controls/WiseNumericBox');
 const WiseComboBox = require('../../../system/controls/WiseComboBox');
 const WiseRadioGroup = require('../../../system/controls/WiseRadioGroup');
 const WiseCheckboxGroup = require('../../../system/controls/WiseCheckboxGroup');
@@ -17,6 +18,21 @@ const WiseFrame = require('../../../system/controls/WiseFrame');
 
 const HEADING_STYLE = { fontSize: 15, fontWeight: 700, marginTop: '4px' };
 const DEPARTMENTS = ['Engineering', 'Sales', 'Support', 'Marketing'];
+const AVATAR_COLORS = ['#2563eb', '#7c3aed', '#059669', '#d97706', '#dc2626', '#0891b2'];
+
+// wiseape_employees has no avatar column (and this is just a demo of
+// WiseDataTable's 'image' column type, not a real upload feature) -- an
+// initials-on-a-color-swatch SVG, generated client-side and never
+// persisted, gives every row a distinct image without inventing a schema
+// change or fake stored data.
+function initialsAvatar(name) {
+  const initials = String(name || '?').split(' ').filter(Boolean).map((part) => part[0]).join('').slice(0, 2).toUpperCase();
+  let hash = 0;
+  for (let i = 0; i < name.length; i += 1) hash = (hash * 31 + name.charCodeAt(i)) % AVATAR_COLORS.length;
+  const color = AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" rx="14" fill="${color}"/><text x="32" y="41" font-family="sans-serif" font-size="24" font-weight="600" fill="white" text-anchor="middle">${initials}</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
 
 class WinControls extends WiseWindow {
   constructor(options = {}) {
@@ -46,6 +62,16 @@ class WinControls extends WiseWindow {
       DEPARTMENTS.map((dept) => ({ value: dept, label: dept })),
       { id: 'cmbDepartment', value: 'Engineering' }
     ));
+
+    this.addControl(new WiseLabel('Age', { id: 'lblAge', style: HEADING_STYLE }));
+    this.addControl(new WiseNumericBox('Enter age...', { id: 'numAge', value: 25, min: 0, max: 120, step: 1, suffix: 'yrs' }));
+
+    // A number small enough for min/max clamping doesn't reach into the
+    // thousands, so it never actually shows the digit-grouping separator --
+    // this field is here specifically to demonstrate that (grouping is
+    // live as you type; see WiseNumericBox's input handler), plus a prefix.
+    this.addControl(new WiseLabel('Annual Salary', { id: 'lblSalary', style: HEADING_STYLE }));
+    this.addControl(new WiseNumericBox('Enter salary...', { id: 'numSalary', value: 75000000, min: 0, prefix: 'Rp' }));
 
     this.addControl(new WiseLabel('Interests', { id: 'lblInterests', style: HEADING_STYLE }));
     this.addControl(new WiseCheckboxGroup(
@@ -85,7 +111,7 @@ class WinControls extends WiseWindow {
 
     this.addControl(new WiseLabel('Preferences (Tabs)', { id: 'lblTabsHeading', style: HEADING_STYLE }));
     const tabs = new WiseTabControl({ id: 'tabsDemo' });
-    tabs.addTab('Profile', [new WiseTextBox('', { id: 'txtNickname', dataField: 'nickname' })]);
+    tabs.addTab('Profile', [new WiseTextBox('2-20 characters...', { id: 'txtNickname', dataField: 'nickname', minLength: 2, maxLength: 20 })]);
     tabs.addTab('Notifications', [new WiseCheckboxGroup(
       [{ value: 'email', label: 'Email' }, { value: 'sms', label: 'SMS' }],
       { id: 'checkNotify', value: ['email'], dataField: 'notify' }
@@ -114,6 +140,7 @@ class WinControls extends WiseWindow {
       onRowSelect: this.onEmployeeRowSelect.bind(this),
     }));
     this.dtEmployees.setColumns([
+      { dataField: 'avatar', header: '', width: 50, sortable: false, type: 'image' },
       { dataField: 'name', header: 'Name', width: 170 },
       {
         dataField: 'department', header: 'Department', width: 160, type: 'combobox',
@@ -166,7 +193,7 @@ class WinControls extends WiseWindow {
     });
     this.dtEmployees.pageSize = pageSize;
     this.dtEmployees.currentPage = page;
-    this.dtEmployees.setData(rows, totalCount);
+    this.dtEmployees.setData(rows.map((row) => ({ ...row, avatar: initialsAvatar(row.name) })), totalCount);
   }
 
   async onEmployeesFilterChanged(pageSize, page) {

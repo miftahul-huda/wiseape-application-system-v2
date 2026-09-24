@@ -717,3 +717,12 @@ input[type="checkbox"]:checked {
   background-position: center;
   background-size: 70% 70%;
 }
+
+/* WiseTextBox's minLength -> a native `minlength` attribute, which the
+   browser can't actively block typing under (there's nothing to block
+   until you've typed *something*) but does mark :invalid for once there's
+   a value shorter than it -- :placeholder-shown excludes the untouched
+   empty field, which is valid-looking by default, not an error state. */
+input:invalid:not(:placeholder-shown) {
+  box-shadow: 0 0 0 2px rgba(220,38,38,0.35);
+}

@@ -269,6 +269,23 @@
           label.appendChild(document.createTextNode(optLabel));
           td.appendChild(label);
         });
+      } else if (col.type === 'image') {
+        // Read-only thumbnail, like 'text' -- there's no natural "edit" for
+        // an image cell in a grid, so this just displays whatever URL is in
+        // the cell (e.g. an avatar uploaded elsewhere via WiseFileUpload),
+        // with a neutral placeholder when there isn't one.
+        if (cellValue) {
+          const img = document.createElement('img');
+          img.src = cellValue;
+          img.alt = '';
+          img.className = 'h-9 w-9 rounded-md object-cover bg-slate-100';
+          td.appendChild(img);
+        } else {
+          const placeholder = document.createElement('div');
+          placeholder.className = 'flex h-9 w-9 items-center justify-center rounded-md bg-slate-100 text-slate-400';
+          placeholder.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg>';
+          td.appendChild(placeholder);
+        }
       } else {
         td.textContent = cellValue === undefined || cellValue === null ? '' : String(cellValue);
       }

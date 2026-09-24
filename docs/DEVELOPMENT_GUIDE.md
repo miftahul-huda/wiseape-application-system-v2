@@ -148,6 +148,7 @@ properties, e.g. `{ fontSize: 15, marginTop: '8px' }`).
 |---|---|---|---|
 | `WiseLabel` | `new WiseLabel(text, options)` | — | no |
 | `WiseTextBox` | `new WiseTextBox(placeholder, options)` | `value` | yes |
+| `WiseNumericBox` | `new WiseNumericBox(placeholder, options)` | `value`, `min`, `max`, `step` | yes |
 | `WiseTextArea` | `new WiseTextArea(value, options)` | `placeholder`, `rows`, `onChange` | yes |
 | `WiseButton` | `new WiseButton(label, options)` | `onClick` | no |
 | `WiseComboBox` | `new WiseComboBox(items, options)` | `items: [{value,label}]`, `value`, `onChange` | yes |
@@ -300,7 +301,9 @@ async onDeptChange(row, newValue) {
 `type: 'radiobutton'` works the same way as `checkbox`/`combobox` (an
 `items` array, an `onChange(row, newValue, rowIndex)`). Column types
 available: `'text'` (default, read-only), `'button'`, `'checkbox'`,
-`'combobox'`, `'radiobutton'`.
+`'combobox'`, `'radiobutton'`, `'image'` (read-only thumbnail -- the cell
+value is a URL, e.g. one produced by `WiseFileUpload`'s upload; a neutral
+placeholder shows when it's empty).
 
 Since `onWindowInit()` must stay synchronous but the first page of data
 needs a database round trip, the standard pattern is:
