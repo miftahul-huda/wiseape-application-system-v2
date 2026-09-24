@@ -15,6 +15,7 @@
       return {
         type: this.name,
         id: this.id,
+        dataField: this.dataField,
         value: this.value,
         items: this.items,
         hasHandler: !!this.onChange,

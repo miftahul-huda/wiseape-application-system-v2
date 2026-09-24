@@ -14,6 +14,7 @@
       return {
         type: this.name,
         id: this.id,
+        dataField: this.dataField,
         value: this.value,
         // The onClick function itself can't cross the JSON boundary to the
         // browser. Only whether a handler exists is sent; the browser asks

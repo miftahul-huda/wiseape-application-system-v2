@@ -16,6 +16,7 @@
       return {
         type: this.name,
         id: this.id,
+        dataField: this.dataField,
         value: this.value,
         placeholder: this.placeholder,
         rows: this.rows,

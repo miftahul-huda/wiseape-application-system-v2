@@ -1,0 +1,331 @@
+(function () {
+  const isBrowser = typeof window !== 'undefined';
+  const WiseControl = isBrowser ? window.WiseControlRegistry.WiseControl : require('./WiseControl');
+
+  // Paging/sort/row-select/cell interactions all round-trip through this one
+  // control id with a different eventName per interaction (see the
+  // on<EventName> handlers below). Since dispatchControlEvent() only syncs
+  // values by matching control id -> control.value before calling the
+  // handler, every interaction is sent as { [data.id]: <payload> } and read
+  // back as `this.value` inside the matching handler -- the same trick
+  // WiseFileUpload uses for its async upload result.
+  class WiseDataTable extends WiseControl {
+    constructor(options = {}) {
+      super(null, options);
+      this.name = 'WiseDataTable';
+      this.columns = [];
+      this.data = [];
+      this.totalCount = 0;
+      this.pageSize = options.pageSize || 10;
+      this.currentPage = options.currentPage || 1;
+      this.pageSizeOptions = options.pageSizeOptions || [];
+      this.sortField = options.sortField || null;
+      this.sortDirection = options.sortDirection || 'asc';
+      this.onDataFilterChanged = typeof options.onDataFilterChanged === 'function' ? options.onDataFilterChanged : null;
+      this.onRowSelect = typeof options.onRowSelect === 'function' ? options.onRowSelect : null;
+      this.style = options.style || {};
+
+      // Arrow functions (not prototype methods) so `this` stays the control
+      // instance even though dispatchControlEvent invokes them via
+      // `handler.call(win)` -- exactly like an app author's own
+      // `.bind(this)`'d handlers, just supplied internally here instead.
+      this.onFilterchange = () => {
+        const payload = this.value || {};
+        if (payload.pageSize !== undefined) this.pageSize = payload.pageSize;
+        if (payload.currentPage !== undefined) this.currentPage = payload.currentPage;
+        if (payload.sortField !== undefined) this.sortField = payload.sortField;
+        if (payload.sortDirection !== undefined) this.sortDirection = payload.sortDirection;
+        if (this.onDataFilterChanged) {
+          return this.onDataFilterChanged(this.pageSize, this.currentPage);
+        }
+      };
+
+      this.onRowselect = () => {
+        const payload = this.value || {};
+        const row = this.data[payload.rowIndex];
+        if (row && this.onRowSelect) {
+          return this.onRowSelect(row);
+        }
+      };
+
+      this.onCellchange = () => {
+        const payload = this.value || {};
+        const column = this.columns.find((col) => col.dataField === payload.dataField);
+        const row = this.data[payload.rowIndex];
+        if (row && column && typeof column.onChange === 'function') {
+          return column.onChange(row, payload.newValue, payload.rowIndex);
+        }
+      };
+
+      this.onCellclick = () => {
+        const payload = this.value || {};
+        const column = this.columns.find((col) => col.dataField === payload.dataField);
+        const row = this.data[payload.rowIndex];
+        if (row && column && typeof column.onClick === 'function') {
+          return column.onClick(row, payload.rowIndex);
+        }
+      };
+    }
+
+    setColumns(columns) {
+      this.columns = columns || [];
+      return this;
+    }
+
+    // Exactly one page of data at a time -- this control never holds (or
+    // expects) the whole dataset. See docs/DEVELOPMENT_GUIDE.md §5.
+    setData(rows, totalCount) {
+      this.data = rows || [];
+      this.totalCount = totalCount || 0;
+      return this;
+    }
+
+    render() {
+      return {
+        type: this.name,
+        id: this.id,
+        dataField: this.dataField,
+        columns: this.columns,
+        data: this.data,
+        totalCount: this.totalCount,
+        pageSize: this.pageSize,
+        currentPage: this.currentPage,
+        pageSizeOptions: this.pageSizeOptions,
+        sortField: this.sortField,
+        sortDirection: this.sortDirection,
+        hasRowSelectHandler: !!this.onRowSelect,
+        style: this.style,
+        visible: this.visible,
+      };
+    }
+
+    static renderElement(data, context) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'flex flex-col gap-2';
+      WiseControl.applyCommon(wrapper, data);
+
+      const fireFilterChange = (patch) => {
+        context.desktop.sendControlEvent(context.appId, data.id, wrapper, 'filterchange', {
+          [data.id]: {
+            pageSize: data.pageSize,
+            currentPage: data.currentPage,
+            sortField: data.sortField,
+            sortDirection: data.sortDirection,
+            ...patch,
+          },
+        });
+      };
+
+      wrapper.appendChild(WiseDataTable.renderTable(data, context, fireFilterChange));
+      wrapper.appendChild(WiseDataTable.renderPager(data, fireFilterChange));
+
+      return wrapper;
+    }
+
+    static renderTable(data, context, fireFilterChange) {
+      const table = document.createElement('table');
+      table.className = 'w-full border-collapse text-sm';
+
+      const thead = document.createElement('thead');
+      const headRow = document.createElement('tr');
+
+      (data.columns || []).forEach((col) => {
+        const th = document.createElement('th');
+        th.className = 'border-b border-slate-900/10 px-2 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500';
+        if (col.width) th.style.width = `${col.width}px`;
+
+        let headerText = col.header || '';
+        const sortable = col.sortable !== false && !!col.dataField;
+        if (sortable) {
+          if (data.sortField === col.dataField) {
+            headerText += data.sortDirection === 'desc' ? ' ▼' : ' ▲';
+          }
+          th.classList.add('cursor-pointer', 'select-none');
+          th.addEventListener('click', () => {
+            const nextDirection = data.sortField === col.dataField && data.sortDirection === 'asc' ? 'desc' : 'asc';
+            fireFilterChange({ sortField: col.dataField, sortDirection: nextDirection, currentPage: 1 });
+          });
+        }
+        th.textContent = headerText;
+        headRow.appendChild(th);
+      });
+
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+
+      (data.data || []).forEach((row, rowIndex) => {
+        const tr = document.createElement('tr');
+
+        if (data.hasRowSelectHandler) {
+          tr.className = 'cursor-pointer hover:bg-slate-900/5';
+          tr.addEventListener('click', (event) => {
+            if (event.target.closest('[data-cell-interactive]')) return;
+            context.desktop.sendControlEvent(context.appId, data.id, table, 'rowselect', {
+              [data.id]: { rowIndex },
+            });
+          });
+        }
+
+        (data.columns || []).forEach((col) => {
+          tr.appendChild(WiseDataTable.renderCell(data, context, col, row, rowIndex));
+        });
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      return table;
+    }
+
+    static renderCell(data, context, col, row, rowIndex) {
+      const td = document.createElement('td');
+      td.className = 'border-b border-slate-900/5 px-2 py-2';
+      const cellValue = row[col.dataField];
+
+      const fireCellChange = (newValue) => {
+        context.desktop.sendControlEvent(context.appId, data.id, td, 'cellchange', {
+          [data.id]: { rowIndex, dataField: col.dataField, newValue },
+        });
+      };
+
+      if (col.type === 'button') {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.dataset.cellInteractive = 'true';
+        btn.textContent = col.label || 'Action';
+        btn.className = 'appearance-none rounded-md border-0 bg-[var(--accent)] px-3 py-1 text-xs font-semibold text-white cursor-pointer';
+        btn.addEventListener('click', (event) => {
+          event.stopPropagation();
+          context.desktop.sendControlEvent(context.appId, data.id, td, 'cellclick', {
+            [data.id]: { rowIndex, dataField: col.dataField },
+          });
+        });
+        td.appendChild(btn);
+      } else if (col.type === 'checkbox') {
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.dataset.cellInteractive = 'true';
+        input.checked = !!cellValue;
+        input.addEventListener('click', (event) => event.stopPropagation());
+        input.addEventListener('change', () => fireCellChange(input.checked));
+        td.appendChild(input);
+      } else if (col.type === 'combobox') {
+        const select = document.createElement('select');
+        select.dataset.cellInteractive = 'true';
+        select.className = 'rounded border border-slate-300 px-1.5 py-1 text-xs';
+        (col.items || []).forEach((item) => {
+          const option = document.createElement('option');
+          const optValue = typeof item === 'object' ? item.value : item;
+          const optLabel = typeof item === 'object' ? item.label : item;
+          option.value = optValue;
+          option.textContent = optLabel;
+          if (optValue === cellValue) option.selected = true;
+          select.appendChild(option);
+        });
+        select.addEventListener('click', (event) => event.stopPropagation());
+        select.addEventListener('change', () => fireCellChange(select.value));
+        td.appendChild(select);
+      } else if (col.type === 'radiobutton') {
+        (col.items || []).forEach((item) => {
+          const optValue = typeof item === 'object' ? item.value : item;
+          const optLabel = typeof item === 'object' ? item.label : item;
+
+          const label = document.createElement('label');
+          label.className = 'mr-2 inline-flex items-center gap-1 text-xs';
+
+          const input = document.createElement('input');
+          input.type = 'radio';
+          input.name = `${data.id}-${rowIndex}-${col.dataField}`;
+          input.dataset.cellInteractive = 'true';
+          input.checked = optValue === cellValue;
+          input.addEventListener('click', (event) => event.stopPropagation());
+          input.addEventListener('change', () => fireCellChange(optValue));
+
+          label.appendChild(input);
+          label.appendChild(document.createTextNode(optLabel));
+          td.appendChild(label);
+        });
+      } else {
+        td.textContent = cellValue === undefined || cellValue === null ? '' : String(cellValue);
+      }
+
+      return td;
+    }
+
+    static renderPager(data, fireFilterChange) {
+      const pager = document.createElement('div');
+      pager.className = 'flex items-center justify-between gap-3 pt-1 text-xs text-slate-500';
+
+      const totalCount = data.totalCount || 0;
+      const pageSize = data.pageSize || 10;
+      const currentPage = data.currentPage || 1;
+      const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+
+      const info = document.createElement('span');
+      info.textContent = `${totalCount} rows · page ${currentPage} of ${totalPages}`;
+      pager.appendChild(info);
+
+      const controls = document.createElement('div');
+      controls.className = 'flex items-center gap-2';
+
+      if ((data.pageSizeOptions || []).length > 0) {
+        const sizeSelect = document.createElement('select');
+        sizeSelect.className = 'rounded border border-slate-300 px-1.5 py-1';
+        data.pageSizeOptions.forEach((size) => {
+          const option = document.createElement('option');
+          option.value = size;
+          option.textContent = `${size} / page`;
+          if (size === pageSize) option.selected = true;
+          sizeSelect.appendChild(option);
+        });
+        sizeSelect.addEventListener('change', () => {
+          fireFilterChange({ pageSize: Number(sizeSelect.value), currentPage: 1 });
+        });
+        controls.appendChild(sizeSelect);
+      }
+
+      const prevBtn = document.createElement('button');
+      prevBtn.type = 'button';
+      prevBtn.textContent = '‹ Prev';
+      prevBtn.disabled = currentPage <= 1;
+      prevBtn.className = 'rounded border border-slate-300 px-2 py-1 disabled:opacity-40 cursor-pointer disabled:cursor-default';
+      prevBtn.addEventListener('click', () => fireFilterChange({ currentPage: currentPage - 1 }));
+      controls.appendChild(prevBtn);
+
+      const nextBtn = document.createElement('button');
+      nextBtn.type = 'button';
+      nextBtn.textContent = 'Next ›';
+      nextBtn.disabled = currentPage >= totalPages;
+      nextBtn.className = 'rounded border border-slate-300 px-2 py-1 disabled:opacity-40 cursor-pointer disabled:cursor-default';
+      nextBtn.addEventListener('click', () => fireFilterChange({ currentPage: currentPage + 1 }));
+      controls.appendChild(nextBtn);
+
+      pager.appendChild(controls);
+      return pager;
+    }
+
+    // The DOM shape depends on row count/sort/pager state, which changes on
+    // every interaction -- rather than diffing cell-by-cell, just rebuild
+    // this control's whole subtree in place from the fresh data.
+    static patchElement(winEl, data, context) {
+      const existing = winEl.querySelector(`[data-control-id="${data.id}"]`);
+      if (!existing || !context) return;
+      existing.replaceWith(WiseDataTable.renderElement(data, context));
+    }
+
+    // Every interaction sends its payload explicitly via overrideValues
+    // (see the fire* helpers above); there's nothing meaningful to read
+    // passively off this control's own DOM.
+    static gatherValue() {
+      return undefined;
+    }
+  }
+
+  if (isBrowser) {
+    window.WiseControlRegistry.WiseDataTable = WiseDataTable;
+  } else {
+    module.exports = WiseDataTable;
+  }
+})();

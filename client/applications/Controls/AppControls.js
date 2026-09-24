@@ -2,7 +2,7 @@ const WiseApplication = require('../../system/WiseApplication');
 const WinControls = require('./forms/WinControls');
 
 class AppControls extends WiseApplication {
-  run(appConfig = {}, appParameter = {}) {
+  async run(appConfig = {}, appParameter = {}) {
     const controlsWindow = this.createWindow(WinControls, {
       width: 480,
       height: 680,
@@ -10,6 +10,7 @@ class AppControls extends WiseApplication {
       positionY: 60,
     });
 
+    await controlsWindow.loadInitialData();
     controlsWindow.show(appParameter);
 
     return {

@@ -6,6 +6,9 @@
       this.value = value;
       this.name = 'WiseControl';
       this.id = options.id || null;
+      // Key WiseWindow.getValues() collects this control's value under;
+      // defaults to id so most controls never need to set it explicitly.
+      this.dataField = options.dataField || options.id || null;
       this.visible = options.visible !== undefined ? options.visible : true;
     }
 

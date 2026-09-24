@@ -606,7 +606,11 @@ class WiseDesktop {
       if (wrapper) {
         const ControlClass = registry[control.type] || registry.WiseControl;
         if (typeof ControlClass.patchElement === 'function') {
-          ControlClass.patchElement(winEl, control);
+          // Third arg is new: a control whose patch needs to fully rebuild
+          // itself (e.g. WiseDataTable re-rendering rows/pager) can call
+          // back into renderControl() via context.desktop. Existing
+          // patchElement(winEl, data) overrides just ignore the extra arg.
+          ControlClass.patchElement(winEl, control, { appId, desktop: this });
         }
       } else if (body) {
         body.appendChild(this.wrapControl(control, appId));

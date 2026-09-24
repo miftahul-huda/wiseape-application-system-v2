@@ -1,3 +1,20 @@
+// Control type names whose value belongs in WiseWindow.getValues() --
+// display/action-only controls (WiseLabel, WiseButton) and containers
+// (WiseTableLayout, WiseTabControl, WiseDataTable) are excluded; containers
+// contribute through their own child controls instead (see getChildControls
+// handling in addControl/getValues below).
+const INPUT_CONTROL_TYPES = new Set([
+  'WiseTextBox',
+  'WiseTextArea',
+  'WiseComboBox',
+  'WiseRadioGroup',
+  'WiseCheckboxGroup',
+  'WiseDate',
+  'WiseDateRange',
+  'WiseHtmlEditor',
+  'WiseFileUpload',
+]);
+
 class WiseWindow {
   constructor(options = {}) {
     this.windowId = options.windowId || `window-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -21,14 +38,48 @@ class WiseWindow {
 
   addControl(control) {
     this.controls.push(control);
+    this.registerControl(control);
+    return this;
+  }
+
+  // Registers a control (and, for a container control, every control
+  // nested inside it) as this[control.id] -- what makes this.txtName work
+  // for a control added directly OR nested inside a WiseTableLayout/
+  // WiseTabControl added via addControl().
+  registerControl(control) {
     if (control.id) {
       this[control.id] = control;
     }
-    return this;
+    if (typeof control.getChildControls === 'function') {
+      control.getChildControls().forEach((child) => this.registerControl(child));
+    }
   }
 
   onWindowInit() {
     return this;
+  }
+
+  // Collects every input control's current value, keyed by its dataField
+  // (defaults to id). Display/action-only controls (WiseLabel, WiseButton)
+  // are excluded; a container control (getChildControls()) is walked
+  // recursively instead of contributing a value of its own.
+  getValues() {
+    const values = {};
+
+    const collect = (controls) => {
+      controls.forEach((control) => {
+        if (typeof control.getChildControls === 'function') {
+          collect(control.getChildControls());
+          return;
+        }
+        if (!INPUT_CONTROL_TYPES.has(control.name)) return;
+        const key = control.dataField || control.id;
+        if (key) values[key] = control.value;
+      });
+    };
+
+    collect(this.controls);
+    return values;
   }
 
   show(param = null) {

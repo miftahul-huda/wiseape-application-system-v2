@@ -20,6 +20,7 @@
       return {
         type: this.name,
         id: this.id,
+        dataField: this.dataField,
         value: this.value,
         style: this.style,
         visible: this.visible,

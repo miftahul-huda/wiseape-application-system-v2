@@ -16,6 +16,7 @@
       return {
         type: this.name,
         id: this.id,
+        dataField: this.dataField,
         value: this.value,
         label: this.label,
         accept: this.accept,
