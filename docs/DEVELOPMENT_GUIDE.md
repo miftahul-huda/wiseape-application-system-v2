@@ -42,6 +42,8 @@ client/applications/
     AppMyApp.js              <- extends WiseApplication; entry point
     forms/
       WinMyApp.js             <- extends WiseWindow; builds the UI
+    repositories/
+      ApiXRepository.js       <- optional; REST API access only this app needs (see §6)
     assets/
       icons/
         icon.svg              <- optional; a colorful 128x128 app icon
@@ -328,6 +330,12 @@ the reference.
 
 ```js
 const WiseDataTable = require('../../../system/controls/WiseDataTable');
+// A repository for data only THIS app uses lives in the app's own
+// repositories/ folder, not client/system/ -- see docs/ARCHITECTURE.md §12.
+// Instantiated once at module scope, same pattern WinSettings.js/WinAdmin.js
+// use for their own ApiAuthRepository instances.
+const ApiEmployeeRepository = require('../repositories/ApiEmployeeRepository');
+const employeeRepository = new ApiEmployeeRepository();
 
 // 1. Create it with paging config and the two top-level events:
 const dtEmployees = new WiseDataTable({
@@ -364,7 +372,7 @@ this.addControl(dtEmployees);
 //    query with LIMIT/OFFSET).
 async applyEmployeesPage(pageSize, page) {
   const offset = (page - 1) * pageSize;
-  const { rows, totalCount } = await this.system.employeeRepository.listEmployees({ limit: pageSize, offset });
+  const { rows, totalCount } = await employeeRepository.listEmployees({ limit: pageSize, offset });
   this.dtEmployees.pageSize = pageSize;
   this.dtEmployees.currentPage = page;
   this.dtEmployees.setData(rows, totalCount);
@@ -377,7 +385,7 @@ async onEmployeesFilterChanged(pageSize, page) {
 }
 
 async onDeptChange(row, newValue) {
-  await this.system.employeeRepository.updateEmployee(row.id, { department: newValue });
+  await employeeRepository.updateEmployee(row.id, { department: newValue });
 }
 ```
 
@@ -419,23 +427,34 @@ async run(appConfig, appParameter) {
 There are **two different repository patterns** in this codebase — don't
 mix them up:
 
-- **Client-side (`client/system/Api*Repository.js`)** — what an
-  application author almost always wants. A thin `fetch` wrapper that talks
-  to the REST API server (`server/applications/WiseapeApplicationSystem/`)
-  over HTTP. The client process has **no direct Postgres access at all**.
+- **Client-side (`Api*Repository.js`)** — what an application author
+  almost always wants. A thin `fetch` wrapper that talks to the REST API
+  server (`server/applications/WiseapeApplicationSystem/`) over HTTP. The
+  client process has **no direct Postgres access at all**.
 - **REST API-side (`server/applications/WiseapeApplicationSystem/src/models/*Model.js`)**
   — the ones that actually run SQL against Postgres, via a shared `pg` pool.
   You only touch this layer if you're adding a genuinely new
   database-backed resource (a new table), not just consuming one that
   already has a REST endpoint.
 
-For a new app that needs its own data (e.g. "Notes"), the usual path is:
-add a small resource to the REST API (routes/controller/service/model,
+**Where a client-side repository file lives depends on who uses it** (see
+`docs/ARCHITECTURE.md` §12): `client/system/Api*Repository.js` is for
+repositories the shared `WiseApplicationSystem` instance itself owns
+(apps/themes/menus, plus auth) — genuine framework-wide infrastructure. A
+repository that's only relevant to **one specific application** belongs in
+that app's own `client/applications/<AppName>/repositories/` folder
+instead, instantiated directly by that app's own code — **not** wired into
+`WiseApplicationSystem`'s constructor. `Controls/repositories/ApiEmployeeRepository.js`
+is the reference example (used only by the `WiseDataTable` demo in that one
+app).
+
+For a new app that needs its own data (e.g. a "Notes" app), the usual path
+is: add a small resource to the REST API (routes/controller/service/model,
 mirroring the existing `employees` resource as a template), then add a
-matching client-side repository:
+matching client-side repository under that app's own `repositories/` folder:
 
 ```js
-// client/system/ApiNoteRepository.js
+// client/applications/Notes/repositories/ApiNoteRepository.js
 class ApiNoteRepository {
   constructor(config = {}) {
     this.baseUrl = config.baseUrl || process.env.API_BASE_URL || 'http://localhost:4000';
@@ -463,22 +482,26 @@ class ApiNoteRepository {
 module.exports = ApiNoteRepository;
 ```
 
-Wire it into the system once, in `client/system/WiseApplicationSystem.js`'s
-constructor (alongside `ApiAppRepository`/`ApiThemeRepository`/etc — inside
-the `if (isServer)` branch):
+Instantiate it once, at module scope, in the `Win*.js` (or `App*.js`) file
+that actually uses it — the same pattern `WinSettings.js`/`WinAdmin.js` use
+for their own `ApiAuthRepository` instances, and `WinControls.js` uses for
+`ApiEmployeeRepository`:
 
 ```js
-const ApiNoteRepository = require('./ApiNoteRepository');
-// ...
-if (isServer) {
+// client/applications/Notes/forms/WinNotes.js
+const ApiNoteRepository = require('../repositories/ApiNoteRepository');
+
+const noteRepository = new ApiNoteRepository();
+
+class WinNotes extends WiseWindow {
   // ...
-  this.noteRepository = new ApiNoteRepository(options.api || {});
+  async onAddNote() {
+    const session = this.system.currentSession;
+    if (!session) return;
+    await noteRepository.addNote(session.token, this.txtNewNote.value);
+  }
 }
 ```
-
-Now any window can reach it via `this.system.noteRepository` (see §8 for
-why `this.system` is always available, and how to get the caller's token to
-pass into a repository method that needs auth).
 
 If you're instead building the REST API side of a new resource, follow the
 existing `src/models/*Model.js` pattern (a `pool` from `config/db.js`, an

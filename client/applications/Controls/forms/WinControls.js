@@ -15,6 +15,9 @@ const WiseTableLayout = require('../../../system/controls/WiseTableLayout');
 const WiseTabControl = require('../../../system/controls/WiseTabControl');
 const WiseDataTable = require('../../../system/controls/WiseDataTable');
 const WiseFrame = require('../../../system/controls/WiseFrame');
+const ApiEmployeeRepository = require('../repositories/ApiEmployeeRepository');
+
+const employeeRepository = new ApiEmployeeRepository();
 
 const HEADING_STYLE = { fontSize: 15, fontWeight: 700, marginTop: '4px' };
 const DEPARTMENTS = ['Engineering', 'Sales', 'Support', 'Marketing'];
@@ -128,7 +131,7 @@ class WinControls extends WiseWindow {
     this.addControl(noteFrame);
 
     // -- WiseDataTable: paged/sortable/editable rows backed by the real
-    // wiseape_employees table via this.system.employeeRepository. Data
+    // wiseape_employees table via this app's own employeeRepository. Data
     // starts empty here (onWindowInit must stay synchronous) and is filled
     // in by loadInitialData(), awaited from AppControls.run() before show().
     this.addControl(new WiseLabel('Team Directory (Data Table)', { id: 'lblEmployeesHeading', style: HEADING_STYLE }));
@@ -185,7 +188,7 @@ class WinControls extends WiseWindow {
 
   async applyEmployeesPage(pageSize, page) {
     const offset = (page - 1) * pageSize;
-    const { rows, totalCount } = await this.system.employeeRepository.listEmployees({
+    const { rows, totalCount } = await employeeRepository.listEmployees({
       limit: pageSize,
       offset,
       sortField: this.dtEmployees.sortField || 'id',
@@ -205,17 +208,17 @@ class WinControls extends WiseWindow {
   }
 
   async onEmployeeDeptChange(row, newValue) {
-    await this.system.employeeRepository.updateEmployee(row.id, { department: newValue });
+    await employeeRepository.updateEmployee(row.id, { department: newValue });
     row.department = newValue;
   }
 
   async onEmployeeActiveChange(row, newValue) {
-    await this.system.employeeRepository.updateEmployee(row.id, { active: newValue });
+    await employeeRepository.updateEmployee(row.id, { active: newValue });
     row.active = newValue;
   }
 
   async onEmployeeLevelChange(row, newValue) {
-    await this.system.employeeRepository.updateEmployee(row.id, { level: newValue });
+    await employeeRepository.updateEmployee(row.id, { level: newValue });
     row.level = newValue;
   }
 

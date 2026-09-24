@@ -45,7 +45,7 @@ construction — see ARCHITECTURE.md §8.
 | `backgroundImage` | string/null | the shared, process-wide fallback background — same caveat |
 | `systemConfig` | `{name, version, theme}` | static metadata, not user-configurable |
 | `runningApplications` | `Map<appId, WiseApplication instance>` | server only. **One entry per appId, process-wide** — see ARCHITECTURE.md §9 for the concurrency caveat |
-| `repository` / `themeRepository` / `menuRepository` / `employeeRepository` | server only | the `Api*Repository` clients (there is **no** `authRepository` on this class — see below) |
+| `repository` / `themeRepository` / `menuRepository` | server only | the `Api*Repository` clients (there is **no** `authRepository`, and **no** `employeeRepository`, on this class — see the `Api*Repository classes` section below) |
 | `root` | browser only | the DOM element passed via `options.root` |
 | `desktop` | `WiseDesktop` instance | created inside `run()` |
 | `currentSession` | `{user, token}` or `null` | server only. Set immediately before a handler runs, by `runApplication`/`dispatchControlEvent` — see ARCHITECTURE.md §5/§8/§9 |
@@ -1074,6 +1074,19 @@ no toolbar-controls concept.
   `getData()`/`setData()` instead (see `WiseControl`'s "Instance methods"
   section above).
 
+**`client/applications/Controls/repositories/ApiEmployeeRepository.js`**
+— the one shipped example of an app-owned repository (see ARCHITECTURE.md
+§12): the Controls app's `WinControls.js` feeds this control's demo
+"Team Directory" table from it, instantiating it directly
+(`new ApiEmployeeRepository()`, module scope) rather than reaching into
+`WiseApplicationSystem` for a shared one, since employee records aren't a
+system-wide concern — nothing else in WAS touches them. Same `Api*Repository`
+shape as the system-level ones: `async listEmployees({limit, offset, sortField, sortDirection})`
+(`GET /api/employees?<querystring>`, falls back to `{rows: [], totalCount: 0}`
+on failure) and `async updateEmployee(id, fields)` (`PATCH /api/employees/:id`,
+throws on failure, returns `data.employee`). See
+`docs/DEVELOPMENT_GUIDE.md` §5/§6 for the full worked example.
+
 **Events** (control-level — see "Column-level events" below for the
 separate per-cell handlers)
 - **`onDataFilterChanged(pageSize, currentPage)`** — fires whenever paging,
@@ -1167,21 +1180,36 @@ DOM.
 
 ---
 
-## `Api*Repository` classes (`system/Api*Repository.js`) — client-side, HTTP-only
+## `Api*Repository` classes — client-side, HTTP-only
 
 **These are the client-side repositories** — thin `fetch` wrappers around
 the REST API server, run inside the client process (or, in principle, the
-browser, though in practice only the server-side `WiseApplicationSystem`
-instance constructs them). They never touch PostgreSQL directly. Contrast
-with `server/applications/WiseapeApplicationSystem/src/models/*Model.js` —
-those are the ones that actually run SQL against Postgres, inside the
-*other* process; see ARCHITECTURE.md §12 for the two-repository-pattern
-overview. This document intentionally does not detail the server-side
-models (that's REST-API-internal); if you're adding a new database-backed
-feature, it belongs there, exposed through a new REST route, then wrapped
-by a corresponding new `Api*Repository` client-side.
+browser, though in practice only server-side code constructs them). They
+never touch PostgreSQL directly. Contrast with
+`server/applications/WiseapeApplicationSystem/src/models/*Model.js` — those
+are the ones that actually run SQL against Postgres, inside the *other*
+process; see ARCHITECTURE.md §12 for the two-repository-pattern overview.
+This document intentionally does not detail the server-side models (that's
+REST-API-internal); if you're adding a new database-backed feature, it
+belongs there, exposed through a new REST route, then wrapped by a
+corresponding new `Api*Repository` client-side.
 
-All five follow the same shape: `constructor(config = {})` reads
+The four below (`system/Api*Repository.js`) are framework-wide
+infrastructure, constructed once by the shared `WiseApplicationSystem`
+instance — see its "Properties" table above (`ApiAuthRepository` is the
+exception: it's *also* used this way by `client/app.js`'s own auth proxy
+routes, but is not itself a `WiseApplicationSystem` property; see its own
+entry below). A repository that's only relevant to **one specific
+application** is **not** listed here — it lives instead in that
+application's own `client/applications/<AppName>/repositories/` folder,
+instantiated directly by that app's code, not wired into
+`WiseApplicationSystem` at all. `Controls/repositories/ApiEmployeeRepository.js`
+is the one shipped example (documented alongside `WiseDataTable`'s entry
+above, since it exists purely to feed that control's demo data — see
+`docs/ARCHITECTURE.md` §12 for the "which folder does a new one belong in"
+guidance).
+
+All four below follow the same shape: `constructor(config = {})` reads
 `config.baseUrl || process.env.API_BASE_URL || 'http://localhost:4000'`.
 
 ### `ApiAppRepository`
@@ -1208,15 +1236,6 @@ All five follow the same shape: `constructor(config = {})` reads
   `JSON.parse(JSON.stringify(...))` per call.
 - **`async listMenus()`** — `GET {baseUrl}/api/menus`; falls back the same
   way.
-
-### `ApiEmployeeRepository`
-
-- **`async listEmployees({limit = 10, offset = 0, sortField = 'id', sortDirection = 'asc'} = {})`**
-  — `GET {baseUrl}/api/employees?<querystring>`; on failure, returns
-  `{rows: [], totalCount: 0}` (logging a `console.warn`) rather than
-  throwing.
-- **`async updateEmployee(id, fields)`** — `PATCH {baseUrl}/api/employees/${id}`
-  with a JSON body; throws on a non-OK response; returns `data.employee`.
 
 ### `ApiAuthRepository`
 

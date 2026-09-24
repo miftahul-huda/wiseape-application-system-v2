@@ -4,7 +4,6 @@ let path;
 let ApiAppRepository;
 let ApiThemeRepository;
 let ApiMenuRepository;
-let ApiEmployeeRepository;
 let WiseApplication;
 let ServerWiseDesktop;
 
@@ -13,7 +12,6 @@ if (isServer) {
   ApiAppRepository = require('./ApiAppRepository');
   ApiThemeRepository = require('./ApiThemeRepository');
   ApiMenuRepository = require('./ApiMenuRepository');
-  ApiEmployeeRepository = require('./ApiEmployeeRepository');
   WiseApplication = require('./WiseApplication');
   ServerWiseDesktop = require('./WiseDesktop');
 }
@@ -37,7 +35,6 @@ class WiseApplicationSystem {
       this.repository = new ApiAppRepository(options.api || {});
       this.themeRepository = new ApiThemeRepository(options.api || {});
       this.menuRepository = new ApiMenuRepository(options.api || {});
-      this.employeeRepository = new ApiEmployeeRepository(options.api || {});
     } else {
       this.root = options.root || null;
     }

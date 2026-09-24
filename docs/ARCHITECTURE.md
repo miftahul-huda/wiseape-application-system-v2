@@ -148,8 +148,7 @@ flowchart TB
         + WiseWindow instances"]
         ApiRepos["Api*Repository classes
         (ApiAppRepository, ApiThemeRepository,
-        ApiMenuRepository, ApiEmployeeRepository,
-        ApiAuthRepository)"]
+        ApiMenuRepository, ApiAuthRepository)"]
     end
 
     subgraph ServerProcess["server/applications/WiseapeApplicationSystem/
@@ -599,15 +598,39 @@ erDiagram
 
 ## 12. Repository patterns — two different ones, don't mix them up
 
-**Client-side (`client/system/Api*Repository.js`)** — thin `fetch`
-wrappers around the REST API server, nothing more. Constructor takes
-`{ baseUrl }` (defaulting to `process.env.API_BASE_URL`); one method per
-REST endpoint; on failure, most of them (apps/themes/menus/employees) fall
-back to a small hardcoded default so the desktop never completely fails to
-boot just because the REST API is briefly unreachable
-(`ApiAuthRepository` is the one exception — auth failures should be loud,
-not silently faked). Copy this pattern for a new client-side data source
-that talks to the REST API. See `docs/DEVELOPMENT_GUIDE.md` §6.
+**Client-side (`Api*Repository.js`)** — thin `fetch` wrappers around the
+REST API server, nothing more. Constructor takes `{ baseUrl }` (defaulting
+to `process.env.API_BASE_URL`); one method per REST endpoint; on failure,
+most of them (apps/themes/menus) fall back to a small hardcoded default so
+the desktop never completely fails to boot just because the REST API is
+briefly unreachable (`ApiAuthRepository` is the one exception — auth
+failures should be loud, not silently faked). Copy this pattern for a new
+client-side data source that talks to the REST API. See
+`docs/DEVELOPMENT_GUIDE.md` §6.
+
+Where the file *lives* depends on who it's for:
+
+- **`client/system/Api*Repository.js`** — repositories the shared
+  `WiseApplicationSystem` instance itself owns and constructs
+  (`ApiAppRepository`, `ApiThemeRepository`, `ApiMenuRepository`), plus
+  `ApiAuthRepository` (used both by `client/app.js`'s own auth proxy routes
+  *and*, separately, by individual apps — see below). These are genuine
+  framework-wide infrastructure, not any one app's concern.
+- **`client/applications/<AppName>/repositories/Api*Repository.js`** — a
+  repository that only one specific application actually uses (e.g.
+  `Controls/repositories/ApiEmployeeRepository.js`, which the demo
+  `WiseDataTable` in the Controls app uses for its own business data —
+  nothing else in the system touches employee records). That app's own
+  `Win*.js`/`App*.js` instantiates it directly
+  (`new ApiEmployeeRepository()`, module-scope, same pattern
+  `WinSettings.js`/`WinAdmin.js` already use for their own `ApiAuthRepository`
+  instances) — it is **not** wired into `WiseApplicationSystem`'s
+  constructor or exposed as `this.system.<name>Repository`, since it isn't
+  a system-wide concern. When you add a new app-specific REST-backed
+  feature, this is where its repository belongs — check whether it's
+  genuinely reusable across apps (→ `client/system/`) or only relevant to
+  the one app you're building (→ that app's own `repositories/` folder)
+  before deciding where to put it.
 
 **REST API-side (`server/.../src/models/*Model.js`)** — the ones that
 actually touch PostgreSQL, via `config/db.js`'s pooled client
@@ -647,6 +670,8 @@ client/
       App<AppName>.js              extends WiseApplication, implements run()
       forms/
         Win<Name>.js                extends WiseWindow, implements onWindowInit()
+      repositories/                 Optional -- Api*Repository.js for REST
+                                     data only this app uses (see §12)
       assets/icons/icon.svg         Optional colorful app icon (see §10)
 server/applications/WiseapeApplicationSystem/
   app.js                          Express REST API (port 4000)
