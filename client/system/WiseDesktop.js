@@ -222,6 +222,31 @@ class WiseDesktop {
     const rightBar = root.querySelector('.topbar .right');
 
     if (rightBar) {
+      const themeToggle = document.createElement('span');
+      themeToggle.className = 'theme-toggle-item';
+      themeToggle.title = 'Toggle Dark/Light Theme';
+      themeToggle.style.cursor = 'pointer';
+
+      const isDark = document.body.classList.contains('dark-theme') || localStorage.getItem('wise_theme') === 'dark';
+      if (isDark) {
+        document.body.classList.add('dark-theme');
+        themeToggle.textContent = '🌙 Dark';
+      } else {
+        themeToggle.textContent = '☀️ Light';
+      }
+
+      themeToggle.addEventListener('click', () => {
+        const nowDark = document.body.classList.toggle('dark-theme');
+        if (nowDark) {
+          localStorage.setItem('wise_theme', 'dark');
+          themeToggle.textContent = '🌙 Dark';
+        } else {
+          localStorage.setItem('wise_theme', 'light');
+          themeToggle.textContent = '☀️ Light';
+        }
+      });
+      rightBar.appendChild(themeToggle);
+
       const clock = document.createElement('span');
       clock.className = 'topbar-clock';
       rightBar.appendChild(clock);
@@ -236,7 +261,7 @@ class WiseDesktop {
         localStorage.removeItem('was_user');
         if (token) {
           fetch('/api/auth/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
-            .catch(() => {})
+            .catch(() => { })
             .finally(() => location.reload());
         } else {
           location.reload();
@@ -772,7 +797,7 @@ class WiseDesktop {
           // back into renderControl() via context.desktop. Existing
           // patchElement(winEl, data) overrides just ignore the extra arg.
           ControlClass.patchElement(winEl, control, { appId, windowId, desktop: this });
-          
+
           const el = winEl.querySelector(`[data-control-id="${control.id}"]`);
           if (el) {
             if (control.visible === false) {

@@ -21,13 +21,14 @@ class WinSettings extends WiseWindow {
     this.appTitle = options.appTitle || 'Settings';
     this.appIcon = options.appIcon || '⚙';
     this.width = '480';
-    this.height = '680';
+    this.height = '620';
     this.themes = options.themes || [];
   }
 
   onWindowInit() {
     this.controls = [];
-    this.addControl(new WiseLabel('Desktop Theme', { id: 'lblThemeHeading', style: { fontSize: 22, color: '#111827' } }));
+
+    this.addControl(new WiseLabel('Desktop Preset', { id: 'lblThemeHeading', icon: '🎨', style: { fontSize: 16, fontWeight: 700, color: '#111827' } }));
     this.addControl(new WiseComboBox(
       this.themes.map((theme) => ({ value: theme.id, label: theme.name })),
       {
@@ -37,24 +38,13 @@ class WinSettings extends WiseWindow {
       }
     ));
 
-    this.addControl(new WiseLabel('Background Image', { id: 'lblBackgroundHeading', style: { fontSize: 22, color: '#111827', marginTop: '12px' } }));
+    this.addControl(new WiseLabel('Background Image', { id: 'lblBackgroundHeading', icon: '🖼️', style: { fontSize: 16, fontWeight: 700, marginTop: '12px', color: '#111827' } }));
     this.addControl(new WiseFileUpload('Choose Image...', {
       id: 'uploadBackground',
-      // Seeds the preview thumbnail with whatever's actually active right
-      // now (a theme default or a previously picked custom image), not
-      // always blank -- see applyBackground(), which keeps this in sync
-      // afterward regardless of which path (upload, gallery pick, theme
-      // change) set the background.
       value: this.system ? this.system.backgroundImage : undefined,
       onChange: this.onBackgroundChange.bind(this),
     }));
 
-    // -- WiseCardGroup: a picker for background images this user has
-    // uploaded before, backed by the wiseape_background_images table via
-    // this app's own backgroundImageRepository (see
-    // client/applications/Settings/repositories/). Data starts empty here
-    // (onWindowInit must stay synchronous) and is filled in by
-    // loadInitialData(), awaited from AppSettings.run() before show().
     this.addControl(new WiseLabel('Previously Uploaded', { id: 'lblGalleryHeading', style: { fontSize: 13, fontWeight: 700, marginTop: '14px', color: '#374151' } }));
     this.addControl(new WiseCardGroup({
       id: 'cgBackgroundGallery',

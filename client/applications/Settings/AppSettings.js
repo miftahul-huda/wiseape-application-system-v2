@@ -4,10 +4,10 @@ const WinSettings = require('./forms/WinSettings');
 class AppSettings extends WiseApplication {
   async run(appConfig = {}, appParameter = {}) {
     const settingsWindow = this.createWindow(WinSettings, {
-      width: 420,
-      height: 260,
+      width: 480,
+      height: 620,
       positionX: 360,
-      positionY: 140,
+      positionY: 80,
       themes: this.system.themes,
     });
 

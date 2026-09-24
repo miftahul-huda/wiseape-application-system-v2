@@ -170,7 +170,7 @@ matters).
 
 ### Properties
 
-`root`, `menus` (set by `run()`), `topBar` (`{left: [displayName], right: ['Battery 100%', 'Wi‑Fi']}` — `displayName` is read from `localStorage.was_user` at construction time (falling back to `'User'`), the clock and Logout item are appended live by `renderDesktop()`, not part of this static list), `theme` (defaults `'macos'`, becomes the active theme's `id` after `applyTheme`), `themeColors` (the full theme object, set by `applyTheme`), `backgroundImage` (set by `applyBackgroundImage`), `windowStack` (reset to `[]` by every `run()` call — not actually used to track open windows elsewhere in this file), `onIconClick` (callback wired externally by `WiseApplicationSystem`), `clockInterval`.
+`root`, `menus` (set by `run()`), `topBar` (`{left: [displayName], right: ['Battery 100%', 'Wi‑Fi']}` — `displayName` is read from `localStorage.was_user` at construction time (falling back to `'User'`), the Dark Theme toggle button (`🌙 Dark` / `☀️ Light`), clock, and Logout item are appended live by `renderDesktop()`, not part of this static list), `theme` (defaults `'macos'`, becomes the active theme's `id` after `applyTheme`), `themeColors` (the full theme object, set by `applyTheme`), `backgroundImage` (set by `applyBackgroundImage`), `windowStack` (reset to `[]` by every `run()` call — not actually used to track open windows elsewhere in this file), `onIconClick` (callback wired externally by `WiseApplicationSystem`), `clockInterval`.
 
 There is **no `currentUser` property anywhere on this class** and **no
 `escapeHtml` method** — user-controlled text (menu labels, etc.) is set via

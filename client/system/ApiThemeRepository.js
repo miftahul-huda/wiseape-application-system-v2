@@ -1,9 +1,11 @@
 const fallbackThemes = [
-  { id: 'macos-light', name: 'macOS Light', bg1: '#a4bfd5', bg2: '#d9e9f7', accent: '#3b82f6', accentDark: '#1d4ed8', defaultBackground: null },
   { id: 'light-blue', name: 'Light Blue', bg1: '#bfe3ff', bg2: '#eaf6ff', accent: '#0ea5e9', accentDark: '#0284c7', defaultBackground: null },
-  { id: 'midnight', name: 'Midnight', bg1: '#1e293b', bg2: '#0f172a', accent: '#8b5cf6', accentDark: '#6d28d9', defaultBackground: null },
-  { id: 'sunset', name: 'Sunset', bg1: '#fb923c', bg2: '#db2777', accent: '#f97316', accentDark: '#c2410c', defaultBackground: null },
-  { id: 'forest', name: 'Forest', bg1: '#4ade80', bg2: '#064e3b', accent: '#16a34a', accentDark: '#166534', defaultBackground: null },
+  { id: 'dark-obsidian', name: 'Dark Obsidian', bg1: '#0f172a', bg2: '#020617', accent: '#64748b', accentDark: '#334155', defaultBackground: null },
+  { id: 'midnight', name: 'Midnight', bg1: '#1e293b', bg2: '#0f172a', accent: '#978ab4ff', accentDark: '#5110b3ff', defaultBackground: null },
+  { id: 'emerald', name: 'Emerald', bg1: '#064e3b', bg2: '#022c22', accent: '#10b981', accentDark: '#047857', defaultBackground: null },
+  { id: 'amber', name: 'Amber', bg1: '#451a03', bg2: '#1a0901', accent: '#f59e0b', accentDark: '#b45309', defaultBackground: null },
+  { id: 'sunset', name: 'Sunset Orange', bg1: '#fb923c', bg2: '#db2777', accent: '#f97316', accentDark: '#c2410c', defaultBackground: null },
+  { id: 'forest', name: 'Forest Green', bg1: '#4ade80', bg2: '#064e3b', accent: '#22c55e', accentDark: '#15803d', defaultBackground: null },
 ];
 
 class ApiThemeRepository {
