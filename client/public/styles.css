@@ -394,12 +394,13 @@ body {
 .window-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .window-action {
-  width: 14px;
-  height: 14px;
+  position: relative;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   border: none;
   padding: 0;
@@ -413,6 +414,19 @@ body {
   line-height: 1;
   color: rgba(0,0,0,0.55);
   transition: transform 0.15s ease;
+}
+
+/* The visible dot stays small (matching macOS's own traffic-light size),
+   but real mouse/trackpad precision isn't macOS's system-level click
+   tolerance -- this invisible ::before expands the actual clickable area
+   to ~26x26px without changing how the button looks. Sized (with the
+   10px gap above) to stay just short of touching the neighboring
+   button's own expanded area, so there's no ambiguous overlap between
+   adjacent hit targets. */
+.window-action::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
 }
 
 .window-action:hover {
@@ -440,12 +454,33 @@ body {
 }
 
 .window-body {
-  padding: 20px;
+  padding: 30px;
   background: rgba(255,255,255,0.22);
   min-height: 200px;
   height: calc(100% - 40px);
   overflow-y: auto;
   color: var(--dark-text);
+  /* Firefox's flat-scrollbar equivalent -- WebKit/Chromium/Edge get theirs
+     from the ::-webkit-scrollbar-* rules below instead. */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 23, 42, 0.22) transparent;
+}
+
+.window-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.window-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.window-body::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.22);
+  border-radius: 999px;
+}
+
+.window-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.4);
 }
 
 .window-body h2 {
