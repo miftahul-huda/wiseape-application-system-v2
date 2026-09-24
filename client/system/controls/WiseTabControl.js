@@ -2,33 +2,79 @@
   const isBrowser = typeof window !== 'undefined';
   const WiseControl = isBrowser ? window.WiseControlRegistry.WiseControl : require('./WiseControl');
 
-  // Real Chrome-style tabs: the active one physically overlaps the content
-  // panel's top border (-mb-px + z-10 + matching white background) so it
-  // reads as fused onto the panel wherever it happens to sit.
-  const TAB_BUTTON_BASE = 'appearance-none relative -mb-px rounded-t-lg border border-b-0 border-slate-900/15 px-5 py-1.5 text-base font-medium cursor-pointer transition';
-  const TAB_BUTTON_ACTIVE = `${TAB_BUTTON_BASE} z-10 bg-white text-slate-900 shadow-[0_-1px_4px_rgba(15,23,42,0.06)]`;
-  const TAB_BUTTON_INACTIVE = `${TAB_BUTTON_BASE} bg-slate-100 text-slate-500 hover:bg-slate-50 hover:text-slate-800`;
+  // Horizontal layout button styles
+  const TAB_BUTTON_BASE = 'appearance-none relative overflow-hidden flex items-center justify-center rounded-t-xl px-5 py-2.5 text-xs font-medium cursor-pointer transition-all duration-150 border border-transparent select-none';
+  const TAB_BUTTON_ACTIVE = `${TAB_BUTTON_BASE} bg-white text-slate-900 font-semibold border-slate-200/80 border-b-white shadow-2xs -mb-px z-10`;
+  const TAB_BUTTON_INACTIVE = `${TAB_BUTTON_BASE} bg-slate-100/60 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900`;
+
+  // Vertical layout button styles (sidebar navigation pills)
+  const SIDEBAR_BUTTON_BASE = 'appearance-none group relative flex items-center justify-between w-full rounded-lg px-3.5 py-2.5 text-xs font-medium cursor-pointer transition-all duration-150 border border-transparent select-none';
+  const SIDEBAR_BUTTON_ACTIVE = `${SIDEBAR_BUTTON_BASE} bg-white text-slate-900 font-semibold shadow-xs ring-1 ring-slate-900/10 border-slate-200/60`;
+  const SIDEBAR_BUTTON_INACTIVE = `${SIDEBAR_BUTTON_BASE} text-slate-600 hover:bg-slate-200/50 hover:text-slate-900`;
+
+  function formatTabIcon(icon) {
+    if (!icon) return '';
+    const rawIcon = String(icon).trim();
+    if (rawIcon.startsWith('<')) {
+      return `<span class="wise-tab-icon inline-flex items-center justify-center shrink-0">${rawIcon}</span>`;
+    }
+    if (/^(https?:\/\/|\/|data:)/.test(rawIcon)) {
+      return `<span class="wise-tab-icon inline-flex items-center justify-center shrink-0"><img src="${rawIcon}" class="w-4 h-4 object-contain" alt="" /></span>`;
+    }
+    if (rawIcon.includes(' ')) {
+      return `<span class="wise-tab-icon inline-flex items-center justify-center shrink-0"><i class="${rawIcon}"></i></span>`;
+    }
+    return `<span class="wise-tab-icon inline-flex items-center justify-center shrink-0 text-sm">${rawIcon}</span>`;
+  }
+
+  function renderSidebarButtonContent(label, icon, isActive) {
+    const activePill = isActive
+      ? '<span class="absolute left-1.5 top-2.5 bottom-2.5 w-1 rounded-full bg-[var(--accent,#2563eb)]"></span>'
+      : '';
+    const iconHtml = formatTabIcon(icon);
+    const chevron = isActive
+      ? '<svg class="w-3.5 h-3.5 text-[var(--accent,#2563eb)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>'
+      : '<svg class="w-3.5 h-3.5 text-slate-400 opacity-0 group-hover:opacity-100 shrink-0 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>';
+    return `
+      ${activePill}
+      <span class="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap ${isActive ? 'pl-2' : 'pl-0'} transition-all">
+        ${iconHtml}
+        <span>${label}</span>
+      </span>
+      ${chevron}
+    `;
+  }
+
+  function renderHorizontalButtonContent(label, icon, isActive) {
+    const activeLine = isActive
+      ? '<span class="absolute top-0 left-0 right-0 h-[2.5px] rounded-t-full bg-[var(--accent,#2563eb)]"></span>'
+      : '';
+    const iconHtml = formatTabIcon(icon);
+    return `
+      ${activeLine}
+      <span class="inline-flex items-center gap-2 relative z-10">
+        ${iconHtml}
+        <span>${label}</span>
+      </span>
+    `;
+  }
+
+  function tabButtonClasses(layout) {
+    return layout === 'vertical'
+      ? { active: SIDEBAR_BUTTON_ACTIVE, inactive: SIDEBAR_BUTTON_INACTIVE }
+      : { active: TAB_BUTTON_ACTIVE, inactive: TAB_BUTTON_INACTIVE };
+  }
 
   class WiseTabControl extends WiseControl {
     constructor(options = {}) {
-      // The active tab index is stored as this.value (via the base class),
-      // consistent with every other control -- gettable/settable through
-      // the generic getValue()/setValue() rather than a bespoke property.
       super(options.activeIndex || 0, options);
       this.name = 'WiseTabControl';
       this.tabs = [];
+      this.layout = options.layout === 'vertical' ? 'vertical' : 'horizontal';
       this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
       this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
       this.style = options.style || {};
 
-      // Tab switching itself stays instant/client-only (see renderElement --
-      // no round trip needed just to change which panel is visible).
-      // onTabChanged is opt-in on top of that: when set, clicking a tab
-      // ALSO fires a 'tabchange' event so server-side app code can react.
-      // Bridged the same way WiseDataTable bridges its internal on<Event>
-      // handlers to its public options -- dispatchControlEvent resolves
-      // 'tabchange' to `onTabchange` (only the first letter capitalized),
-      // so that's the internal hook; onTabChanged is the public one.
       this.onTabChanged = typeof options.onTabChanged === 'function' ? options.onTabChanged : null;
       this._lastActiveIndex = this.value;
       this.onTabchange = () => {
@@ -41,13 +87,23 @@
       };
     }
 
-    addTab(label, controls = []) {
-      this.tabs.push({ label, controls });
+    addTab(label, controls = [], icon = null) {
+      let tabLabel = label;
+      let tabControls = controls;
+      let tabIcon = icon;
+
+      if (typeof label === 'object' && label !== null && !Array.isArray(label)) {
+        tabLabel = label.label || '';
+        tabControls = label.controls || controls || [];
+        tabIcon = label.icon || icon || null;
+      } else if (typeof icon === 'object' && icon !== null) {
+        tabIcon = icon.icon || null;
+      }
+
+      this.tabs.push({ label: tabLabel, controls: tabControls, icon: tabIcon });
       return this;
     }
 
-    // See WiseTableLayout for why this is what makes addControl(tabControl)
-    // auto-register every tab's controls as this[control.id].
     getChildControls() {
       return this.tabs.flatMap((tab) => tab.controls);
     }
@@ -60,11 +116,13 @@
         value: this.value,
         tabs: this.tabs.map((tab) => ({
           label: tab.label,
+          icon: tab.icon || null,
           controls: tab.controls.map((control) => control.render()),
         })),
         hasTabChangeHandler: !!this.onTabChanged,
         hasClickHandler: !!this.onClick,
         hasHoverHandler: !!this.onHover,
+        layout: this.layout,
         style: this.style,
         visible: this.visible,
         disabled: this.disabled,
@@ -72,43 +130,56 @@
     }
 
     static renderElement(data, context) {
+      const isVertical = data.layout === 'vertical';
+      const buttonClasses = tabButtonClasses(data.layout);
+
       const wrapper = document.createElement('div');
+      wrapper.className = isVertical ? 'flex items-stretch gap-2' : 'flex flex-col';
       WiseControl.applyCommon(wrapper, data, context);
 
       const activeIndex = Number(data.value) || 0;
 
-      // The row of tab boxes, bottom-aligned so they all sit flush on the
-      // panel's top edge regardless of each tab's own height...
       const tabBar = document.createElement('div');
-      tabBar.className = 'flex items-end gap-1 pl-1';
+      tabBar.className = isVertical
+        ? 'flex w-52 flex-none flex-col gap-1.5 rounded-xl border border-slate-200/80 bg-slate-50/70 p-2 shadow-2xs backdrop-blur-xs'
+        : 'flex items-center gap-1.5 border-b border-slate-200/80 pl-1 z-10';
 
       const panels = document.createElement('div');
-      panels.className = 'rounded-lg border border-slate-900/15 bg-white p-4 shadow-sm';
+      panels.className = isVertical
+        ? 'min-w-0 flex-1 rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs'
+        : 'rounded-b-xl rounded-tr-xl border border-slate-200/80 bg-white p-5 shadow-xs';
 
       (data.tabs || []).forEach((tab, index) => {
+        const isActive = index === activeIndex;
         const tabButton = document.createElement('button');
         tabButton.type = 'button';
-        tabButton.textContent = tab.label;
-        tabButton.className = index === activeIndex ? TAB_BUTTON_ACTIVE : TAB_BUTTON_INACTIVE;
+        tabButton.className = isActive ? buttonClasses.active : buttonClasses.inactive;
+        if (isVertical) {
+          tabButton.innerHTML = renderSidebarButtonContent(tab.label, tab.icon, isActive);
+        } else {
+          tabButton.innerHTML = renderHorizontalButtonContent(tab.label, tab.icon, isActive);
+        }
 
         const panel = document.createElement('div');
         panel.className = 'flex flex-col gap-2';
         panel.dataset.tabPanel = String(index);
-        panel.style.display = index === activeIndex ? '' : 'none';
+        panel.style.display = isActive ? '' : 'none';
         (tab.controls || []).forEach((control) => panel.appendChild(context.desktop.renderControl(control, context.appId, context.windowId)));
 
         tabButton.addEventListener('click', () => {
-          // Switching tabs stays instant/client-only -- no reason to wait
-          // on a round trip just to show a different panel.
           Array.from(tabBar.children).forEach((btn, btnIndex) => {
-            btn.className = btnIndex === index ? TAB_BUTTON_ACTIVE : TAB_BUTTON_INACTIVE;
+            const isBtnActive = btnIndex === index;
+            const currentTab = data.tabs[btnIndex] || {};
+            btn.className = isBtnActive ? buttonClasses.active : buttonClasses.inactive;
+            if (isVertical) {
+              btn.innerHTML = renderSidebarButtonContent(currentTab.label || '', currentTab.icon, isBtnActive);
+            } else {
+              btn.innerHTML = renderHorizontalButtonContent(currentTab.label || '', currentTab.icon, isBtnActive);
+            }
           });
           panels.querySelectorAll('[data-tab-panel]').forEach((p) => {
             p.style.display = p.dataset.tabPanel === String(index) ? '' : 'none';
           });
-          // onTabChanged is opt-in on top of that -- only fires a real
-          // event (and so a server round trip) when an app author actually
-          // asked for one.
           if (data.hasTabChangeHandler) {
             context.desktop.sendControlEvent(context.appId, data.id, tabButton, 'tabchange', { [data.id]: index });
           }
@@ -123,20 +194,23 @@
       return wrapper;
     }
 
-    // Delegates to each tab's controls' own patchElement -- switching tabs
-    // is purely client-side, but the controls inside every tab (including
-    // hidden ones) still need to stay in sync with server-driven updates.
-    // Also re-syncs which tab is showing, in case a handler called
-    // setValue() on this control server-side (e.g. jumping to a tab in
-    // response to something other than the user clicking it directly).
     static patchElement(winEl, data, context) {
       const wrapper = winEl.querySelector(`[data-control-id="${data.id}"]`);
       if (wrapper) {
         const activeIndex = Number(data.value) || 0;
+        const isVertical = data.layout === 'vertical';
+        const buttonClasses = tabButtonClasses(data.layout);
         const [tabBar, panels] = wrapper.children;
         if (tabBar && panels) {
           Array.from(tabBar.children).forEach((btn, index) => {
-            btn.className = index === activeIndex ? TAB_BUTTON_ACTIVE : TAB_BUTTON_INACTIVE;
+            const isActive = index === activeIndex;
+            const currentTab = data.tabs[index] || {};
+            btn.className = isActive ? buttonClasses.active : buttonClasses.inactive;
+            if (isVertical) {
+              btn.innerHTML = renderSidebarButtonContent(currentTab.label || '', currentTab.icon, isActive);
+            } else {
+              btn.innerHTML = renderHorizontalButtonContent(currentTab.label || '', currentTab.icon, isActive);
+            }
           });
           panels.querySelectorAll('[data-tab-panel]').forEach((panel) => {
             panel.style.display = panel.dataset.tabPanel === String(activeIndex) ? '' : 'none';
@@ -162,3 +236,8 @@
     module.exports = WiseTabControl;
   }
 })();
+
+
+
+
+

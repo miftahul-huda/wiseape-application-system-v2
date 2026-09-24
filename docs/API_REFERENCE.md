@@ -555,7 +555,7 @@ knowing.
 
 ### `WiseLabel`
 
-`new WiseLabel(value = '', options)`. Options: `style`, `onClick`, `onHover`.
+`new WiseLabel(value = '', options)`. Options: `icon`, `style`, `onClick`, `onHover`.
 
 **Methods**
 - **`getValue()`** / **`setValue(value)`** — inherited from `WiseControl`;
@@ -565,6 +565,8 @@ knowing.
   text), setter otherwise (sets it and returns the new value). This is the
   idiomatic way a handler updates a label on screen, e.g.
   `this.lblResult.text('Hello!')`.
+- **`getIcon()`** — returns `this.icon`.
+- **`setIcon(icon)`** — sets `this.icon = icon`, returns `this` (chainable). Accepts emojis (`'🎨'`), SVG markup (`'<svg ...>'`), font icon classes (`'fa fa-user'`), or image URLs (`'https://...'`).
 
 **Events**
 - **`onClick`** — generic (see `WiseControl.applyCommon` above); fires a
@@ -575,11 +577,8 @@ knowing.
 
 There is no `onChange` — a label isn't user-editable, so nothing ever
 changes it from the browser side. `render()` adds
-`dataField, style, hasClickHandler, hasHoverHandler`. `renderElement`: a
-plain `<div>` with `data.value` as `textContent` — no `gatherValue`/
-`patchElement` override (a label has no meaningful value to gather; the
-base `patchElement` writes `data.value` to `.textContent` correctly for a
-plain div).
+`dataField, icon, style, hasClickHandler, hasHoverHandler`. `renderElement`: a
+`<div>` carrying `data-control-id`. If `icon` is set, displays an inline-flex wrapper containing the icon before the text. Includes custom `patchElement` to handle dynamic icon/text updates.
 
 ### `WiseTextBox`
 
@@ -879,13 +878,22 @@ object, resolved off the wrapper's own `data-control-id`.
   wired unless supplied.
 
 `render()` adds `dataField, hasHandler, hasClickHandler, hasHoverHandler, hasKeyPressHandler, style, disabled`.
-`renderElement`: a wrapper `<div>` with a toolbar (Bold/Italic/Underline/
-bullet list, each a button that calls `document.execCommand` on `mousedown`
-with `preventDefault()`) above a `contenteditable="true"` `<div>` that holds
-`data-control-id` itself (not the wrapper). Because the editable element
-carries the id directly, the **base class's default** `gatherValue`/
-`patchElement` already handle it correctly (contenteditable → `innerHTML`)
-— no override needed.
+`renderElement`: a wrapper `<div>` (`wise-htmleditor-wrapper`) containing a full WYSIWYG & HTML Source toolbar above a `contenteditable="true"` `<div>` (`wise-htmleditor-editable`) and a hidden `<textarea>` (`wise-htmleditor-source`).
+Features include:
+- **View Source** toggle mode (`</> Source`) switching between WYSIWYG visual editor and raw HTML `<textarea>`.
+- **Undo / Redo / Clear Formatting** (`removeFormat`).
+- **Font Family & Font Size** dropdown selects.
+- **Format Block / Headings** dropdown (`<p>`, `<h1>`–`<h4>`, `<blockquote>`, `<pre>`).
+- **Inline Text Styling**: Bold, Italic, Underline, Strikethrough, Subscript, Superscript.
+- **Text & Background Colors**: custom color pickers (`foreColor`, `hiliteColor`).
+- **Alignment**: Left, Center, Right, Justify.
+- **Lists & Indents**: Unordered Bullet List, Ordered Numbered List, Outdent, Indent.
+- **Insert Options**:
+  - **Add Link**: modal prompt for URL and display text (`<a href="..." target="_blank">`).
+  - **Add Image**: modal prompt for Image URL, Alt text, and Width (`<img src="...">`).
+  - **Add Table**: modal prompt for Rows, Columns, and Header option (`<table>`).
+  - **Horizontal Line**: inserts `<hr>`.
+- **Custom `gatherValue` & `patchElement`**: syncs content between visual and HTML source views automatically when gathering values or patching updates.
 
 ### `WiseFileUpload`
 
@@ -970,8 +978,8 @@ containers on this page: it's stored as `this.value` (via the base class'
 `super(options.activeIndex || 0, options)`).
 
 **Methods**
-- **`addTab(label, controls = [])`** — pushes `{label, controls}` onto
-  `this.tabs`. Returns `this` (chainable).
+- **`addTab(label, controls = [], icon = null)`** — pushes `{label, controls, icon}` onto
+  `this.tabs`. `icon` accepts emojis (`'👤'`), SVG markup (`'<svg ...>'`), font icon classes (`'fa fa-user'`), or image URLs (`'https://...'`). Returns `this` (chainable).
 - **`getChildControls()`** — `this.tabs.flatMap(tab => tab.controls)` — the
   immediate controls across every tab, flattened one level (same
   non-deep-recursive caveat as `WiseTableLayout` above). Framework-internal.
@@ -985,7 +993,7 @@ containers on this page: it's stored as `this.value` (via the base class'
 - **`onTabChanged(previousTab, currentTab)`** — opt-in; only when supplied
   does clicking a tab *also* fire a real `POST .../events` call
   (`event: 'tabchange'`) so server-side app code can react. Called with the
-  full `{label, controls}` tab objects (`this.tabs[index]`), or `null` if
+  full `{label, controls, icon}` tab objects (`this.tabs[index]`), or `null` if
   an index is out of range. **Switching tabs itself stays instant/
   client-only either way** — the visible panel always changes immediately,
   with or without this handler; apps that don't supply it see zero
@@ -998,7 +1006,7 @@ containers on this page: it's stored as `this.value` (via the base class'
 - **`onHover`** — generic, same wrapper.
 
 `render()`:
-`{ type, id, dataField, value, tabs: [{label, controls: [control.render()]}], hasTabChangeHandler, hasClickHandler, hasHoverHandler, style, visible }`
+`{ type, id, dataField, value, tabs: [{label, icon, controls: [control.render()]}], hasTabChangeHandler, hasClickHandler, hasHoverHandler, style, visible }`
 — `value` is the active tab index; `hasTabChangeHandler` is
 `!!this.onTabChanged`.
 
