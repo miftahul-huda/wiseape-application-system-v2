@@ -343,6 +343,7 @@ class WiseDesktop {
     const win = document.createElement('div');
     win.className = 'window';
     win.dataset.appId = application.appID;
+    win.dataset.windowId = windowData ? windowData.windowId : '';
     win.style.left = `${positionX}px`;
     win.style.top = `${positionY}px`;
     win.style.width = `${width}px`;
@@ -370,7 +371,7 @@ class WiseDesktop {
     const controls = windowData && Array.isArray(windowData.controls) ? windowData.controls : [];
 
     if (controls.length > 0) {
-      controls.forEach((control) => body.appendChild(this.wrapControl(control, application.appID)));
+      controls.forEach((control) => body.appendChild(this.wrapControl(control, application.appID, win.dataset.windowId)));
     } else {
       const empty = document.createElement('p');
       empty.textContent = `"${application.appTitle}" did not return any window content.`;
@@ -510,20 +511,24 @@ class WiseDesktop {
   // method), so WiseDesktop just looks it up by type and calls it. See
   // WiseControlRegistry, populated by system/controls/*.js when loaded in
   // the browser.
-  renderControl(control, appId) {
+  // `windowId` lets a control scope anything that must be unique per native
+  // DOM element across the whole page -- e.g. a radio input's `name` --
+  // rather than just per control id, which collides when the same app is
+  // opened in two windows at once (see WiseRadioGroup).
+  renderControl(control, appId, windowId) {
     const registry = window.WiseControlRegistry;
     const ControlClass = registry[control.type] || registry.WiseControl;
-    return ControlClass.renderElement(control, { appId, desktop: this });
+    return ControlClass.renderElement(control, { appId, windowId, desktop: this });
   }
 
   // Wraps a control's own markup in a container keyed by control id. The
   // wrapper -- not the control's internal DOM shape, which varies by type
   // (e.g. WiseCheckboxGroup has no single root carrying the id) -- is what
   // lets patchWindowControls add/remove whole controls generically later.
-  wrapControl(control, appId) {
+  wrapControl(control, appId, windowId) {
     const wrapper = document.createElement('div');
     if (control.id) wrapper.dataset.controlWrapper = control.id;
-    wrapper.appendChild(this.renderControl(control, appId));
+    wrapper.appendChild(this.renderControl(control, appId, windowId));
     return wrapper;
   }
 
@@ -597,6 +602,7 @@ class WiseDesktop {
     const registry = window.WiseControlRegistry;
     const body = winEl.querySelector('.app-shell');
     const appId = winEl.dataset.appId;
+    const windowId = winEl.dataset.windowId;
     const seen = new Set();
 
     controls.forEach((control) => {
@@ -610,10 +616,10 @@ class WiseDesktop {
           // itself (e.g. WiseDataTable re-rendering rows/pager) can call
           // back into renderControl() via context.desktop. Existing
           // patchElement(winEl, data) overrides just ignore the extra arg.
-          ControlClass.patchElement(winEl, control, { appId, desktop: this });
+          ControlClass.patchElement(winEl, control, { appId, windowId, desktop: this });
         }
       } else if (body) {
-        body.appendChild(this.wrapControl(control, appId));
+        body.appendChild(this.wrapControl(control, appId, windowId));
       }
     });
 

@@ -2,9 +2,16 @@
   const isBrowser = typeof window !== 'undefined';
   const WiseControl = isBrowser ? window.WiseControlRegistry.WiseControl : require('./WiseControl');
 
-  const TAB_BUTTON_BASE = 'appearance-none border-0 bg-transparent px-4 py-2 text-sm font-medium cursor-pointer border-b-2 -mb-px transition';
-  const TAB_BUTTON_ACTIVE = `${TAB_BUTTON_BASE} border-[var(--accent)] text-[var(--accent)]`;
-  const TAB_BUTTON_INACTIVE = `${TAB_BUTTON_BASE} border-transparent text-slate-500 hover:text-slate-800`;
+  // Real Chrome-style tabs: the active one physically overlaps the content
+  // panel's top border (-mb-px + z-10 + matching white background) so it
+  // reads as fused onto the panel, no matter which tab is active. That
+  // "no matter which" part is the fix over the last attempt -- this only
+  // works cleanly because the panel's top edge is left completely flat
+  // (rounded-b-lg only, no top rounding at all) instead of pre-rounding one
+  // specific corner for whichever tab was assumed to be active.
+  const TAB_BUTTON_BASE = 'appearance-none relative -mb-px rounded-t-lg border border-b-0 border-slate-900/15 px-5 py-2.5 text-base font-bold cursor-pointer transition';
+  const TAB_BUTTON_ACTIVE = `${TAB_BUTTON_BASE} z-10 bg-white text-slate-900 shadow-[0_-1px_4px_rgba(15,23,42,0.06)]`;
+  const TAB_BUTTON_INACTIVE = `${TAB_BUTTON_BASE} bg-slate-100 text-slate-500 hover:bg-slate-50 hover:text-slate-800`;
 
   class WiseTabControl extends WiseControl {
     constructor(options = {}) {
@@ -43,10 +50,15 @@
       const wrapper = document.createElement('div');
       WiseControl.applyCommon(wrapper, data);
 
+      // The row of tab boxes, bottom-aligned so they all sit flush on the
+      // panel's top edge regardless of each tab's own height...
       const tabBar = document.createElement('div');
-      tabBar.className = 'flex gap-1 border-b border-slate-900/10 mb-3';
+      tabBar.className = 'flex items-end gap-1 pl-1';
 
+      // ...whose top is left completely flat -- the active tab is what
+      // visually closes it off, wherever it happens to be.
       const panels = document.createElement('div');
+      panels.className = 'rounded-b-lg border border-slate-900/15 bg-white p-4 shadow-sm';
 
       (data.tabs || []).forEach((tab, index) => {
         const tabButton = document.createElement('button');
@@ -58,7 +70,7 @@
         panel.className = 'flex flex-col gap-2';
         panel.dataset.tabPanel = String(index);
         panel.style.display = index === 0 ? '' : 'none';
-        (tab.controls || []).forEach((control) => panel.appendChild(context.desktop.renderControl(control, context.appId)));
+        (tab.controls || []).forEach((control) => panel.appendChild(context.desktop.renderControl(control, context.appId, context.windowId)));
 
         tabButton.addEventListener('click', () => {
           Array.from(tabBar.children).forEach((btn, btnIndex) => {

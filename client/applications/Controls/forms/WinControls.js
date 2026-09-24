@@ -40,6 +40,12 @@ class WinControls extends WiseWindow {
       { id: 'radioColor', value: 'green' }
     ));
 
+    this.addControl(new WiseLabel('Department', { id: 'lblDepartment', style: HEADING_STYLE }));
+    this.addControl(new WiseComboBox(
+      DEPARTMENTS.map((dept) => ({ value: dept, label: dept })),
+      { id: 'cmbDepartment', value: 'Engineering' }
+    ));
+
     this.addControl(new WiseLabel('Interests', { id: 'lblInterests', style: HEADING_STYLE }));
     this.addControl(new WiseCheckboxGroup(
       [
@@ -169,6 +175,7 @@ class WinControls extends WiseWindow {
   onShowValues() {
     const summary = {
       color: this.radioColor.value,
+      department: this.cmbDepartment.value,
       interests: this.checkInterests.value,
       birthday: this.dateBirthday.value,
       vacation: this.rangeVacation.value,

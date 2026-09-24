@@ -81,7 +81,7 @@
               }
             }
 
-            td.appendChild(context.desktop.renderControl(cell.control, context.appId));
+            td.appendChild(context.desktop.renderControl(cell.control, context.appId, context.windowId));
           }
 
           tr.appendChild(td);

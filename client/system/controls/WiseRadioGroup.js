@@ -35,7 +35,11 @@
 
         const input = document.createElement('input');
         input.type = 'radio';
-        input.name = data.id;
+        // Scoped per window instance, not just per control id -- two windows
+        // of the same app both having a "radioColor" group would otherwise
+        // share one native radio group across the whole page (selecting one
+        // un-checks the other window's).
+        input.name = context.windowId ? `${context.windowId}-${data.id}` : data.id;
         input.value = item.value;
         input.className = 'h-[18px] w-[18px] cursor-pointer';
         input.style.accentColor = 'var(--accent)';

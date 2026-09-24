@@ -54,6 +54,17 @@ class WinSettings extends WiseWindow {
     const session = this.system && this.system.currentSession;
     if (!session || !session.token) return;
 
+    // Mutate the in-memory session user immediately (not just after the
+    // async save resolves) -- dispatchControlEvent echoes this same object
+    // back as `theme`/`backgroundImage` on every event, including this one,
+    // so without this the change would appear to "not take" until the
+    // request-scoped session is next re-resolved from the DB. See
+    // docs/DEVELOPMENT_GUIDE.md §8.
+    if (session.user) {
+      if (prefs.themeId !== undefined) session.user.themeId = prefs.themeId;
+      if (prefs.backgroundImage !== undefined) session.user.backgroundImage = prefs.backgroundImage;
+    }
+
     authRepository.updatePreferences(session.token, prefs)
       .catch((error) => console.warn('[WAS] Failed to save preferences:', error.message));
   }

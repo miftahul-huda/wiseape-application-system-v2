@@ -262,10 +262,23 @@ class WiseApplicationSystem {
       await handler.call(win);
     }
 
+    // Echo the CURRENT USER's own theme/background, not the shared system
+    // defaults -- otherwise every control event, in any window, would reset
+    // whatever the browser is showing to whoever last changed it globally
+    // (e.g. your background image vanishing the moment you click anything,
+    // requiring a reload to bring back). `session` (the local param, not
+    // this.currentSession) is used so a concurrent request re-stashing
+    // this.currentSession during an awaited handler above can't leak into
+    // this response; WinSettings mutates session.user in place on a
+    // theme/background change, so this still echoes the fresh value for
+    // that specific event. See docs/DEVELOPMENT_GUIDE.md §8.
+    const user = session && session.user;
+    const userTheme = user && user.themeId ? this.themes.find((theme) => theme.id === user.themeId) : null;
+
     return {
       window: win.toJSON(),
-      theme: this.getActiveTheme(),
-      backgroundImage: this.backgroundImage,
+      theme: userTheme || this.getActiveTheme(),
+      backgroundImage: user ? user.backgroundImage : this.backgroundImage,
     };
   }
 

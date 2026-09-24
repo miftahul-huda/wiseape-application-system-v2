@@ -123,15 +123,19 @@
     }
 
     static renderTable(data, context, fireFilterChange) {
+      const box = document.createElement('div');
+      box.className = 'overflow-hidden rounded-lg border border-slate-900/10 bg-white shadow-sm';
+
       const table = document.createElement('table');
       table.className = 'w-full border-collapse text-sm';
 
       const thead = document.createElement('thead');
+      thead.className = 'bg-[var(--accent-dark)]';
       const headRow = document.createElement('tr');
 
       (data.columns || []).forEach((col) => {
         const th = document.createElement('th');
-        th.className = 'border-b border-slate-900/10 px-2 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-500';
+        th.className = 'border-b border-black/15 px-2 py-2 text-left text-xs font-semibold uppercase tracking-wide text-white/90';
         if (col.width) th.style.width = `${col.width}px`;
 
         let headerText = col.header || '';
@@ -157,15 +161,18 @@
 
       (data.data || []).forEach((row, rowIndex) => {
         const tr = document.createElement('tr');
+        const zebra = rowIndex % 2 === 1 ? 'bg-slate-50/70' : 'bg-white';
 
         if (data.hasRowSelectHandler) {
-          tr.className = 'cursor-pointer hover:bg-slate-900/5';
+          tr.className = `${zebra} cursor-pointer hover:bg-slate-900/5`;
           tr.addEventListener('click', (event) => {
             if (event.target.closest('[data-cell-interactive]')) return;
             context.desktop.sendControlEvent(context.appId, data.id, table, 'rowselect', {
               [data.id]: { rowIndex },
             });
           });
+        } else {
+          tr.className = zebra;
         }
 
         (data.columns || []).forEach((col) => {
@@ -176,7 +183,8 @@
       });
 
       table.appendChild(tbody);
-      return table;
+      box.appendChild(table);
+      return box;
     }
 
     static renderCell(data, context, col, row, rowIndex) {
@@ -237,7 +245,9 @@
 
           const input = document.createElement('input');
           input.type = 'radio';
-          input.name = `${data.id}-${rowIndex}-${col.dataField}`;
+          // Scoped per window instance too -- see WiseRadioGroup for why.
+          const namePrefix = context.windowId ? `${context.windowId}-` : '';
+          input.name = `${namePrefix}${data.id}-${rowIndex}-${col.dataField}`;
           input.dataset.cellInteractive = 'true';
           input.checked = optValue === cellValue;
           input.addEventListener('click', (event) => event.stopPropagation());
