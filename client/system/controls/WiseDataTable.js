@@ -30,6 +30,7 @@
       this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
       this.selectedRowIndex = null;
       this.style = options.style || {};
+      this.contextMenuItems = [];
 
       // Arrow functions (not prototype methods) so `this` stays the control
       // instance even though dispatchControlEvent invokes them via
@@ -72,10 +73,32 @@
           return column.onClick(row, payload.rowIndex);
         }
       };
+
+      this.onContextmenuaction = () => {
+        const payload = this.value || {};
+        const item = this.contextMenuItems.find((entry) => entry.id === payload.itemId);
+        const row = this.data[payload.rowIndex];
+        if (item && typeof item.onClick === 'function') {
+          return item.onClick(row, payload.rowIndex);
+        }
+      };
     }
 
     setColumns(columns) {
       this.columns = columns || [];
+      return this;
+    }
+
+    // Registers the right-click context menu shown on every row. Each item
+    // is { id?, label, onClick(row, rowIndex) } -- onClick runs server-side
+    // (like a column's own onClick/onChange), routed back through the same
+    // event round-trip as row selection via the 'contextmenuaction' event.
+    addContextMenu(items) {
+      this.contextMenuItems = (items || []).map((item, index) => ({
+        id: item.id || `ctx-${index}`,
+        label: item.label,
+        onClick: typeof item.onClick === 'function' ? item.onClick : null,
+      }));
       return this;
     }
 
@@ -126,6 +149,7 @@
         height: this.height,
         maxHeight: this.maxHeight,
         scrollable: this.scrollable,
+        contextMenuItems: this.contextMenuItems.map((item) => ({ id: item.id, label: item.label })),
         hasRowSelectHandler: true,
         hasClickHandler: !!this.onClick,
         hasHoverHandler: !!this.onHover,
@@ -286,6 +310,14 @@
 
         tr.addEventListener('click', selectRow);
 
+        if ((data.contextMenuItems || []).length > 0) {
+          tr.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            selectRow(e);
+            WiseDataTable.showContextMenu(data, context, rowIndex, e.clientX, e.clientY);
+          });
+        }
+
         (data.columns || []).forEach((col) => {
           const td = WiseDataTable.renderCell(data, context, col, row, rowIndex);
           if (col.type !== 'button' && col.type !== 'checkbox' && col.type !== 'combobox' && col.type !== 'radiobutton') {
@@ -301,6 +333,71 @@
       scrollDiv.appendChild(table);
       box.appendChild(scrollDiv);
       return box;
+    }
+
+    // Appended to document.body (not the table) with fixed positioning --
+    // same reasoning as the topbar Windows menu in WiseDesktop.js: the
+    // table's own ancestors have no stacking context issue here, but a
+    // menu anchored at the cursor still needs to escape any overflow:auto
+    // clipping from .wise-datatable-scroll, which a descendant popup would
+    // otherwise be cut off by.
+    static showContextMenu(data, context, rowIndex, x, y) {
+      document.querySelectorAll('.wise-dt-context-menu').forEach((el) => el.remove());
+
+      const menu = document.createElement('div');
+      menu.className = 'wise-dt-context-menu';
+
+      (data.contextMenuItems || []).forEach((item) => {
+        const entry = document.createElement('div');
+        entry.className = 'wise-dt-context-menu-item';
+        entry.textContent = item.label;
+        entry.addEventListener('click', (event) => {
+          event.stopPropagation();
+          // sendControlEvent resolves the window via sourceEl.closest('.window').
+          // menu itself lives in document.body (see the comment above), so it
+          // can't be sourceEl -- and a table/row element captured back when
+          // the menu opened can't either: right-clicking a row also selects
+          // it, whose own round trip rebuilds the whole table (patchElement),
+          // detaching that captured element before the user finishes reading
+          // the menu. Re-querying the window fresh at click time by its
+          // stable windowId sidesteps both.
+          const winEl = document.querySelector(`.window[data-window-id="${context.windowId}"]`);
+          context.desktop.sendControlEvent(context.appId, data.id, winEl, 'contextmenuaction', {
+            [data.id]: { rowIndex, itemId: item.id },
+          });
+          closeMenu();
+        });
+        menu.appendChild(entry);
+      });
+
+      const closeMenu = () => {
+        menu.remove();
+        document.removeEventListener('mousedown', onOutsideClick, true);
+        document.removeEventListener('keydown', onKeydown);
+      };
+      const onOutsideClick = (event) => {
+        if (!menu.contains(event.target)) closeMenu();
+      };
+      const onKeydown = (event) => {
+        if (event.key === 'Escape') closeMenu();
+      };
+
+      document.body.appendChild(menu);
+
+      // Clamp so the menu doesn't spill past the right/bottom viewport edge
+      // when the right-click happens near it.
+      const rect = menu.getBoundingClientRect();
+      const clampedX = Math.min(x, window.innerWidth - rect.width - 8);
+      const clampedY = Math.min(y, window.innerHeight - rect.height - 8);
+      menu.style.left = `${Math.max(8, Math.round(clampedX))}px`;
+      menu.style.top = `${Math.max(8, Math.round(clampedY))}px`;
+
+      // Deferred to the next tick: the contextmenu event that triggered this
+      // is itself a "press" the capturing mousedown listener would otherwise
+      // see and immediately treat as an outside click, closing the menu the
+      // instant it opens.
+      setTimeout(() => document.addEventListener('mousedown', onOutsideClick, true), 0);
+      document.addEventListener('keydown', onKeydown);
     }
 
     static renderCell(data, context, col, row, rowIndex) {

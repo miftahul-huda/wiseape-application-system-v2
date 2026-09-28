@@ -22,7 +22,7 @@
 
     static renderElement(data, context) {
       const el = document.createElement('div');
-      el.className = 'wise-vertical-separator self-center w-px mx-1 bg-slate-300/80 transition-colors';
+      el.className = 'wise-vertical-separator self-center w-0.5 mx-1 rounded-full bg-slate-400 transition-colors';
       const h = typeof data.height === 'number' ? `${data.height}px` : (data.height || '26px');
       el.style.height = h;
       WiseControl.applyCommon(el, data, context);

@@ -97,7 +97,21 @@ class WinEmployeeManagement extends WiseWindow {
     ], {
       id: 'groupIconMenu',
       layout: 'horizontal',
-      style: { marginBottom: '10px', position: 'relative', zIndex: 40 }
+      // Overrides WiseIconMenuGroup's default "card" look (bg-white/70,
+      // backdrop-blur-md, border, shadow-xs) -- inline style wins over those
+      // Tailwind classes without having to touch the shared control (which
+      // other apps may still want the card look on). backdropFilter alone
+      // can still read as a boxed container even with a transparent
+      // background (it blurs whatever's behind it), so it's cleared too.
+      style: {
+        marginBottom: '10px',
+        position: 'relative',
+        zIndex: 40,
+        backgroundColor: 'transparent',
+        backdropFilter: 'none',
+        border: 'none',
+        boxShadow: 'none'
+      }
     });
 
     this.addControl(iconMenuGroup);
@@ -120,6 +134,13 @@ class WinEmployeeManagement extends WiseWindow {
       { dataField: 'employmentStatus', header: 'Status Kepegawaian', width: 150 },
       { dataField: 'statusBadge', header: 'Status', width: 90 },
       { dataField: 'tenureText', header: 'Masa Kerja', width: 140 }
+    ]);
+
+    dtEmployees.addContextMenu([
+      { id: 'detail', label: 'Detail', onClick: (row) => this.onEditEmployeeClick(row) },
+      { id: 'edit', label: 'Edit', onClick: (row) => this.onEditEmployeeClick(row) },
+      { id: 'copy', label: 'Copy', onClick: (row) => this.onCopyEmployeeRow(row) },
+      { id: 'paste', label: 'Paste', onClick: () => this.onPasteEmployeeRow() }
     ]);
 
     this.addControl(dtEmployees);
@@ -184,6 +205,37 @@ class WinEmployeeManagement extends WiseWindow {
 
   async openDetailWindow(employeeId) {
     this.launchApp('employeeDetail', { employeeId });
+  }
+
+  // Keeps the copied employee's fields in memory only (not the OS
+  // clipboard) -- Paste turns it into a brand new employee record, so id/nik
+  // and this table's own display-only fields (statusBadge, tenureText,
+  // virtual tenure/totalSalary) are stripped since they either must be
+  // unique or aren't real columns to send back to the API.
+  onCopyEmployeeRow(row) {
+    if (!row) return;
+    const { id, nik, tenure, totalSalary, statusBadge, tenureText, createdAt, updatedAt, ...copyable } = row;
+    this.copiedEmployee = copyable;
+    this.showInfo('Disalin', `Data karyawan "${row.fullName}" disalin. Pilih Paste pada baris mana pun untuk menduplikasinya sebagai karyawan baru.`, 'information');
+  }
+
+  async onPasteEmployeeRow() {
+    if (!this.copiedEmployee) {
+      return this.showInfo('Belum Ada Salinan', 'Gunakan menu Copy pada sebuah baris terlebih dahulu sebelum Paste.', 'warning');
+    }
+    try {
+      const suffix = Date.now().toString().slice(-6);
+      const newEmployee = {
+        ...this.copiedEmployee,
+        fullName: `${this.copiedEmployee.fullName} (Copy)`,
+        nik: `COPY-${suffix}`
+      };
+      await api.createEmployee(newEmployee);
+      await this.loadEmployeesTable(this.dtEmployees.currentPage, this.dtEmployees.pageSize);
+      this.showInfo('Berhasil Ditempel', `Karyawan baru "${newEmployee.fullName}" (${newEmployee.nik}) berhasil dibuat dari data yang disalin.`, 'success');
+    } catch (err) {
+      this.showInfo('Gagal Paste', err.message, 'error');
+    }
   }
 
   async onDisplayAllClick() {
