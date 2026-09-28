@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const WiseWindow = require('../../../../system/WiseWindow');
 const WiseLabel = require('../../../../system/controls/WiseLabel');
 const WiseDataTable = require('../../../../system/controls/WiseDataTable');
@@ -8,6 +11,22 @@ const WiseVerticalSeparator = require('../../../../system/controls/WiseVerticalS
 const HrisApiRepository = require('../services/HrisApiRepository');
 const api = new HrisApiRepository();
 
+// Toolbar icons live as their own .svg files (assets/icons/) so a designer
+// can restyle them without touching this file -- read once at module load
+// and inlined as markup, since WiseIconMenu renders an `icon` starting with
+// "<svg" directly rather than fetching it as an <img> src.
+const ICONS_DIR = path.join(__dirname, '..', 'assets', 'icons');
+const loadIcon = (fileName) => fs.readFileSync(path.join(ICONS_DIR, fileName), 'utf8');
+const MENU_ICONS = {
+  displayAll: loadIcon('display-all.svg'),
+  selectAll: loadIcon('select-all.svg'),
+  detail: loadIcon('detail.svg'),
+  add: loadIcon('add.svg'),
+  deactivate: loadIcon('deactivate.svg'),
+  find: loadIcon('find.svg'),
+  report: loadIcon('report.svg')
+};
+
 const DEPARTMENTS = ['Semua', 'Technology', 'Human Resources', 'Finance', 'Operations', 'Marketing'];
 
 class WinEmployeeManagement extends WiseWindow {
@@ -16,10 +35,10 @@ class WinEmployeeManagement extends WiseWindow {
     this.title = 'Employee Management — Wise HRIS';
     this.appTitle = options.appTitle || 'Employee Management';
     this.appIcon = options.appIcon || '👤';
-    this.width = '88%';
-    this.height = 700;
-    this.positionX = 70;
-    this.positionY = 50;
+    this.width = options.width || '88%';
+    this.height = options.height || 700;
+    this.positionX = options.positionX !== undefined ? options.positionX : 70;
+    this.positionY = options.positionY !== undefined ? options.positionY : 50;
 
     this.selectedEmployeeId = null;
     this.currentEmployeeData = null;
@@ -33,45 +52,45 @@ class WinEmployeeManagement extends WiseWindow {
     const iconMenuGroup = new WiseIconMenuGroup('', [
       new WiseIconMenu('Display All', {
         id: 'btnMenuDisplayAll',
-        icon: '📋',
+        icon: MENU_ICONS.displayAll,
         description: 'Tampilkan Semua',
         onClick: this.onDisplayAllClick.bind(this)
       }),
       new WiseIconMenu('Select/Deselect All', {
         id: 'btnMenuSelectAll',
-        icon: '☑️',
+        icon: MENU_ICONS.selectAll,
         description: 'Pilih / Batal',
         onClick: this.onToggleSelectAllClick.bind(this)
       }),
       new WiseVerticalSeparator({ height: 26 }),
       new WiseIconMenu('Detail Employee', {
         id: 'btnMenuDetail',
-        icon: '👤',
+        icon: MENU_ICONS.detail,
         description: 'Lihat Detail',
         onClick: this.onDetailEmployeeClick.bind(this)
       }),
       new WiseIconMenu('Add Employee', {
         id: 'btnMenuAdd',
-        icon: '➕',
+        icon: MENU_ICONS.add,
         description: 'Karyawan Baru',
         onClick: this.onNewEmployeeClick.bind(this)
       }),
       new WiseIconMenu('Deactivate Employee', {
         id: 'btnMenuDeactivate',
-        icon: '⚡',
+        icon: MENU_ICONS.deactivate,
         description: 'Status Aktif',
         onClick: this.onToggleDeactivate.bind(this)
       }),
       new WiseIconMenu('Find Employee', {
         id: 'btnMenuFind',
-        icon: '🔍',
+        icon: MENU_ICONS.find,
         description: 'Cari Karyawan',
         onClick: this.onFindEmployeeMenuClick.bind(this)
       }),
       new WiseVerticalSeparator({ height: 26 }),
       new WiseIconMenu('Report', {
         id: 'btnMenuReport',
-        icon: '📊',
+        icon: MENU_ICONS.report,
         description: 'Laporan Ringkasan',
         onClick: this.onReportClick.bind(this)
       })
@@ -88,6 +107,7 @@ class WinEmployeeManagement extends WiseWindow {
       id: 'dtEmployees',
       pageSize: 12,
       pageSizeOptions: [8, 12, 20, 50],
+      maxHeight: '65vh',
       onDataFilterChanged: this.onTableFilterChanged.bind(this),
       onRowSelect: this.onEmployeeRowSelect.bind(this)
     });
@@ -99,16 +119,7 @@ class WinEmployeeManagement extends WiseWindow {
       { dataField: 'department', header: 'Departemen', width: 130 },
       { dataField: 'employmentStatus', header: 'Status Kepegawaian', width: 150 },
       { dataField: 'statusBadge', header: 'Status', width: 90 },
-      { dataField: 'tenureText', header: 'Masa Kerja', width: 140 },
-      {
-        dataField: 'actionBtn',
-        header: 'Detail',
-        width: 100,
-        sortable: false,
-        type: 'button',
-        label: 'Lihat Detail',
-        onClick: this.onEditEmployeeClick.bind(this)
-      }
+      { dataField: 'tenureText', header: 'Masa Kerja', width: 140 }
     ]);
 
     this.addControl(dtEmployees);
@@ -181,16 +192,21 @@ class WinEmployeeManagement extends WiseWindow {
   }
 
   async onToggleSelectAllClick() {
-    if (this.selectedEmployeeId) {
+    const selectedRow = this.dtEmployees ? this.dtEmployees.getSelectedRow() : null;
+    const currentId = this.selectedEmployeeId || (selectedRow ? selectedRow.id : null);
+
+    if (currentId) {
       this.selectedEmployeeId = null;
       this.currentEmployeeData = null;
+      if (this.dtEmployees) this.dtEmployees.setSelectedRowIndex(null);
       if (this.lblSelectedInfo) this.lblSelectedInfo.text('Tidak ada karyawan yang dipilih.');
       this.showInfo('Deselect', 'Pilihan karyawan telah dibatalkan.', 'information');
     } else if (this.cachedEmployees && this.cachedEmployees.length > 0) {
       const first = this.cachedEmployees[0];
       this.selectedEmployeeId = first.id;
       this.currentEmployeeData = first;
-      if (this.lblSelectedInfo) this.lblSelectedInfo.text(`Karyawan Terpilih: ${first.fullName} (${first.nik})`);
+      if (this.dtEmployees) this.dtEmployees.setSelectedRowIndex(0);
+      if (this.lblSelectedInfo) this.lblSelectedInfo.text(`Karyawan Terpilih: ${first.fullName} (${first.nik}) — ${first.jobTitle}`);
       this.showInfo('Select Employee', `Karyawan terpilih: ${first.fullName}`, 'success');
     } else {
       this.showInfo('Peringatan', 'Tidak ada data karyawan pada daftar.', 'warning');
@@ -198,10 +214,13 @@ class WinEmployeeManagement extends WiseWindow {
   }
 
   async onDetailEmployeeClick() {
-    if (!this.selectedEmployeeId) {
+    const selectedRow = this.dtEmployees ? this.dtEmployees.getSelectedRow() : null;
+    const empId = this.selectedEmployeeId || (selectedRow ? selectedRow.id : null);
+
+    if (!empId) {
       return this.showInfo('Pilih Karyawan', 'Silakan pilih karyawan dari daftar terlebih dahulu.', 'warning');
     }
-    await this.openDetailWindow(this.selectedEmployeeId);
+    await this.openDetailWindow(empId);
   }
 
   async onNewEmployeeClick() {
@@ -210,11 +229,14 @@ class WinEmployeeManagement extends WiseWindow {
   }
 
   async onToggleDeactivate() {
-    if (!this.selectedEmployeeId) {
+    const selectedRow = this.dtEmployees ? this.dtEmployees.getSelectedRow() : null;
+    const empId = this.selectedEmployeeId || (selectedRow ? selectedRow.id : null);
+
+    if (!empId) {
       return this.showInfo('Peringatan', 'Pilih karyawan terlebih dahulu.', 'warning');
     }
     try {
-      const emp = await api.getEmployeeById(this.selectedEmployeeId);
+      const emp = await api.getEmployeeById(empId);
       const isActive = emp?.isActive;
       if (isActive) {
         await api.deactivateEmployee(this.selectedEmployeeId, {

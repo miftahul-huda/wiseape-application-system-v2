@@ -104,6 +104,100 @@ body {
   background: rgba(255, 255, 255, 0.6);
 }
 
+/* Topbar "Windows" menu -- lists every open window, dropdown anchored below
+   the trigger label. z-index has to clear .window's own 3 (see the comment
+   on .window) since the list should sit above any open window, not behind it. */
+.windows-menu-item {
+  position: relative;
+}
+
+.windows-menu-label {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.windows-menu-item.open .windows-menu-label,
+.windows-menu-label:hover {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* Positioned via JS (positionDropdown in buildWindowsMenu) and appended
+   directly to <body> -- see the comment there for why it can't just live
+   inside .windows-menu-item with position: absolute. */
+.windows-menu-dropdown {
+  position: fixed;
+  min-width: 220px;
+  max-width: 320px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  z-index: 1000;
+}
+
+.windows-menu-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(17, 24, 39, 0.85);
+  transition: background 0.12s ease;
+}
+
+.windows-menu-entry:hover {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.windows-menu-entry.active {
+  background: color-mix(in srgb, var(--accent) 16%, white 84%);
+}
+
+.windows-menu-entry-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* .window-title's icon markup (reused verbatim -- see buildWindowsMenu) is
+   only sized correctly by a `.window-title svg` rule that doesn't apply
+   here, so it would otherwise render at its unconstrained intrinsic size. */
+.windows-menu-entry-label svg,
+.windows-menu-entry-label img {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.windows-menu-entry-badge {
+  flex: none;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(17, 24, 39, 0.6);
+}
+
+.windows-menu-empty {
+  padding: 10px;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(17, 24, 39, 0.45);
+}
+
 .app-grid {
   position: absolute;
   top: 68px;
@@ -583,12 +677,133 @@ body.dark-theme .wise-datatable-scroll {
   scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
 }
 
+/* WiseDataTable header: subtle depth instead of a flat fill */
+.wise-dt-thead {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent-dark) 92%, white 8%), var(--accent-dark));
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.wise-dt-th {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  background: transparent;
+  transition: background-color 0.15s ease-out;
+}
+
+.wise-dt-th.cursor-pointer:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.wise-dt-sort-arrow {
+  display: inline-block;
+}
+
+/* WiseDataTable row styling with soft theme colors */
+.wise-dt-row {
+  transition: background-color 0.12s ease-out;
+}
+
+tr.wise-dt-row-alt,
+.wise-dt-row-alt {
+  background-color: rgba(15, 23, 42, 0.025) !important;
+}
+
+tr.wise-dt-row-alt td,
+.wise-dt-row-alt td {
+  background-color: transparent !important;
+}
+
+.wise-datatable-scroll tbody tr.wise-dt-row:not(.selected):hover {
+  /* A neutral dark overlay rather than var(--accent) -- some themes set
+     --accent to a very pale color, which would make the tint invisible. */
+  background-color: rgba(15, 23, 42, 0.05) !important;
+}
+
+.wise-datatable-scroll tbody tr.wise-dt-row:not(.selected):hover td {
+  background-color: transparent !important;
+}
+
+tr.selected,
+tr.wise-dt-row-selected,
+.wise-dt-row-selected {
+  background-color: #bfdbfe !important;
+  color: #1e3a8a !important;
+}
+
+tr.selected td,
+tr.wise-dt-row-selected td,
+.wise-dt-row-selected td {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+.wise-dt-empty {
+  background: transparent !important;
+}
+
+/* WiseDataTable pager */
+.wise-dt-pager-info strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.wise-dt-nav-btn {
+  font-variant-numeric: tabular-nums;
+}
+
 body.dark-theme .wise-datatable-scroll::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.22);
 }
 
 body.dark-theme .wise-datatable-scroll::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.4);
+}
+
+body.dark-theme .wise-dt-box {
+  background-color: #1e293b !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.dark-theme .wise-dt-td {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+body.dark-theme tr.wise-dt-row-alt,
+body.dark-theme .wise-dt-row-alt {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+body.dark-theme .wise-datatable-scroll tbody tr.wise-dt-row:not(.selected):hover {
+  background-color: color-mix(in srgb, var(--accent) 18%, #1e293b 82%) !important;
+}
+
+body.dark-theme tr.selected,
+body.dark-theme tr.wise-dt-row-selected,
+body.dark-theme .wise-dt-row-selected {
+  background-color: color-mix(in srgb, var(--accent) 35%, #1e293b 65%) !important;
+  color: #eff6ff !important;
+}
+
+body.dark-theme .wise-dt-pager-info,
+body.dark-theme .wise-dt-pager-info strong {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+body.dark-theme .wise-dt-nav-btn {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+body.dark-theme .wise-dt-nav-btn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+body.dark-theme .wise-dt-page-size {
+  background-color: #1e293b !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+body.dark-theme .wise-dt-empty {
+  color: rgba(255, 255, 255, 0.35) !important;
 }
 
 .window-body h2 {
@@ -926,8 +1141,36 @@ body.dark-theme .topbar .right span {
 }
 
 body.dark-theme .topbar .right .logout-item:hover,
-body.dark-theme .topbar .right .theme-toggle-item:hover {
+body.dark-theme .topbar .right .theme-toggle-item:hover,
+body.dark-theme .windows-menu-item.open .windows-menu-label,
+body.dark-theme .windows-menu-label:hover {
   background: rgba(255, 255, 255, 0.18);
+}
+
+body.dark-theme .windows-menu-dropdown {
+  background: rgba(30, 41, 59, 0.92);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .windows-menu-entry {
+  color: #f1f5f9;
+}
+
+body.dark-theme .windows-menu-entry:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-theme .windows-menu-entry.active {
+  background: color-mix(in srgb, var(--accent) 30%, #1e293b 70%);
+}
+
+body.dark-theme .windows-menu-entry-badge {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(241, 245, 249, 0.75);
+}
+
+body.dark-theme .windows-menu-empty {
+  color: rgba(241, 245, 249, 0.45);
 }
 
 body.dark-theme .taskbar {

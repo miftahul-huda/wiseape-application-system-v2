@@ -181,6 +181,15 @@
 
       return btn;
     }
+
+    // Without this, a patch would fall back to WiseControl's generic
+    // patchElement, which sets textContent and wipes out the icon markup
+    // built above -- rebuild the whole button from fresh data instead.
+    static patchElement(winEl, data, context) {
+      const existing = winEl.querySelector(`[data-control-id="${data.id}"]`);
+      if (!existing || !context) return;
+      existing.replaceWith(WiseIconMenu.renderElement(data, context));
+    }
   }
 
   if (isBrowser) {

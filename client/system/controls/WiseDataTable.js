@@ -93,6 +93,22 @@
       return this.data;
     }
 
+    getSelectedRowIndex() {
+      return this.selectedRowIndex !== undefined && this.selectedRowIndex !== null ? Number(this.selectedRowIndex) : null;
+    }
+
+    setSelectedRowIndex(index) {
+      this.selectedRowIndex = index !== null && index !== undefined ? Number(index) : null;
+      return this;
+    }
+
+    getSelectedRow() {
+      if (this.selectedRowIndex !== null && this.selectedRowIndex !== undefined && this.data && this.data[this.selectedRowIndex]) {
+        return this.data[this.selectedRowIndex];
+      }
+      return null;
+    }
+
     render() {
       return {
         type: this.name,
@@ -101,7 +117,7 @@
         columns: this.columns,
         data: this.data,
         totalCount: this.totalCount,
-        selectedRowIndex: this.selectedRowIndex !== undefined ? this.selectedRowIndex : null,
+        selectedRowIndex: this.selectedRowIndex !== undefined && this.selectedRowIndex !== null ? Number(this.selectedRowIndex) : null,
         pageSize: this.pageSize,
         currentPage: this.currentPage,
         pageSizeOptions: this.pageSizeOptions,
@@ -110,7 +126,7 @@
         height: this.height,
         maxHeight: this.maxHeight,
         scrollable: this.scrollable,
-        hasRowSelectHandler: !!this.onRowSelect,
+        hasRowSelectHandler: true,
         hasClickHandler: !!this.onClick,
         hasHoverHandler: !!this.onHover,
         style: this.style,
@@ -149,7 +165,7 @@
 
     static renderTable(data, context, fireFilterChange) {
       const box = document.createElement('div');
-      box.className = 'overflow-hidden rounded-lg border border-slate-900/10 bg-white shadow-sm';
+      box.className = 'wise-dt-box overflow-hidden rounded-xl border border-slate-900/10 bg-white shadow-md';
 
       // Scrollable div wrapping the table and rows
       const scrollDiv = document.createElement('div');
@@ -167,7 +183,7 @@
       table.className = 'w-full border-collapse text-sm';
 
       const thead = document.createElement('thead');
-      thead.className = 'bg-[var(--accent-dark)]';
+      thead.className = 'wise-dt-thead';
       thead.style.position = 'sticky';
       thead.style.top = '0';
       thead.style.zIndex = '10';
@@ -175,30 +191,39 @@
 
       (data.columns || []).forEach((col) => {
         const th = document.createElement('th');
-        th.className = 'border-b border-black/15 px-2 py-2 text-left text-xs font-semibold uppercase tracking-wide text-white/90';
+        th.className = 'wise-dt-th px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-white/95';
         th.style.position = 'sticky';
         th.style.top = '0';
         th.style.zIndex = '10';
-        th.style.backgroundColor = 'var(--accent-dark)';
         if (col.width) {
           const w = typeof col.width === 'number' ? `${col.width}px` : col.width;
           th.style.width = w;
           th.style.minWidth = w;
         }
 
-        let headerText = col.header || '';
         const sortable = col.sortable !== false && !!col.dataField;
+        const label = document.createElement('span');
+        label.className = 'inline-flex items-center gap-1';
+        const labelText = document.createElement('span');
+        labelText.textContent = col.header || '';
+        label.appendChild(labelText);
+
         if (sortable) {
-          if (data.sortField === col.dataField) {
-            headerText += data.sortDirection === 'desc' ? ' ▼' : ' ▲';
-          }
+          const arrow = document.createElement('span');
+          arrow.className = 'wise-dt-sort-arrow text-[9px] leading-none';
+          const isActive = data.sortField === col.dataField;
+          arrow.textContent = isActive ? (data.sortDirection === 'desc' ? '▼' : '▲') : '⇅';
+          arrow.style.opacity = isActive ? '1' : '0.45';
+          label.appendChild(arrow);
+
           th.classList.add('cursor-pointer', 'select-none');
           th.addEventListener('click', () => {
             const nextDirection = data.sortField === col.dataField && data.sortDirection === 'asc' ? 'desc' : 'asc';
             fireFilterChange({ sortField: col.dataField, sortDirection: nextDirection, currentPage: 1 });
           });
         }
-        th.textContent = headerText;
+
+        th.appendChild(label);
         headRow.appendChild(th);
       });
 
@@ -207,47 +232,66 @@
 
       const tbody = document.createElement('tbody');
 
+      if (!data.data || data.data.length === 0) {
+        const emptyRow = document.createElement('tr');
+        const emptyCell = document.createElement('td');
+        emptyCell.colSpan = (data.columns || []).length || 1;
+        emptyCell.className = 'wise-dt-empty px-3 py-10 text-center text-sm text-slate-400';
+        emptyCell.textContent = 'Tidak ada data';
+        emptyRow.appendChild(emptyCell);
+        tbody.appendChild(emptyRow);
+      }
+
       (data.data || []).forEach((row, rowIndex) => {
         const tr = document.createElement('tr');
-        // bg-slate-50 is nearly indistinguishable from white -- bump to
-        // slate-100 so the stripe is actually visible.
-        const zebra = rowIndex % 2 === 1 ? 'bg-slate-100' : 'bg-white';
+        tr.dataset.rowIndex = String(rowIndex);
+        const isOdd = rowIndex % 2 === 1;
 
-        if (data.hasRowSelectHandler) {
-          tr.className = `${zebra} cursor-pointer hover:bg-slate-900/5 transition-colors`;
-          const isSelected = data.selectedRowIndex !== null && data.selectedRowIndex !== undefined && data.selectedRowIndex === rowIndex;
-          if (isSelected) {
-            tr.classList.add('wise-dt-row-selected');
-            tr.style.background = 'color-mix(in srgb, var(--accent) 15%, white)';
-            tr.style.outline = '2px solid var(--accent)';
-            tr.style.outlineOffset = '-2px';
-          }
-          tr.addEventListener('click', (event) => {
-            if (event.target.closest('[data-cell-interactive]')) return;
-            // Immediate visual feedback — highlight this row before the server round-trip
-            const tableEl = tr.closest('table');
-            if (tableEl) {
-              tableEl.querySelectorAll('tbody tr').forEach((r) => {
-                r.classList.remove('wise-dt-row-selected');
-                r.style.background = '';
-                r.style.outline = '';
-                r.style.outlineOffset = '';
-              });
-            }
-            tr.classList.add('wise-dt-row-selected');
-            tr.style.background = 'color-mix(in srgb, var(--accent) 15%, white)';
-            tr.style.outline = '2px solid var(--accent)';
-            tr.style.outlineOffset = '-2px';
-            context.desktop.sendControlEvent(context.appId, data.id, table, 'rowselect', {
-              [data.id]: { rowIndex },
-            });
-          });
+        const isSelected = data.selectedRowIndex !== null && data.selectedRowIndex !== undefined && Number(data.selectedRowIndex) === rowIndex;
+        if (isSelected) {
+          tr.className = 'selected wise-dt-row-selected wise-dt-row cursor-pointer';
+        } else if (isOdd) {
+          tr.className = 'wise-dt-row-alt wise-dt-row cursor-pointer';
         } else {
-          tr.className = zebra;
+          tr.className = 'wise-dt-row cursor-pointer';
         }
 
+        const selectRow = (e) => {
+          if (e && e.target && e.target.closest && e.target.closest('[data-cell-interactive]')) return;
+
+          const tbodyEl = tr.closest('tbody');
+          if (tbodyEl) {
+            tbodyEl.querySelectorAll('tr').forEach((r, idx) => {
+              r.classList.remove('selected', 'wise-dt-row-selected');
+              r.style.removeProperty('background-color');
+              if (idx % 2 === 1) {
+                r.classList.add('wise-dt-row-alt');
+              } else {
+                r.classList.remove('wise-dt-row-alt');
+              }
+            });
+          }
+
+          tr.classList.remove('wise-dt-row-alt');
+          tr.classList.add('selected', 'wise-dt-row-selected');
+          tr.style.setProperty('background-color', '#bfdbfe', 'important');
+          tr.querySelectorAll('td').forEach((td) => {
+            td.style.setProperty('background-color', 'transparent', 'important');
+          });
+
+          context.desktop.sendControlEvent(context.appId, data.id, table, 'rowselect', {
+            [data.id]: { rowIndex },
+          });
+        };
+
+        tr.addEventListener('click', selectRow);
+
         (data.columns || []).forEach((col) => {
-          tr.appendChild(WiseDataTable.renderCell(data, context, col, row, rowIndex));
+          const td = WiseDataTable.renderCell(data, context, col, row, rowIndex);
+          if (col.type !== 'button' && col.type !== 'checkbox' && col.type !== 'combobox' && col.type !== 'radiobutton') {
+            td.style.cursor = 'pointer';
+          }
+          tr.appendChild(td);
         });
 
         tbody.appendChild(tr);
@@ -261,7 +305,7 @@
 
     static renderCell(data, context, col, row, rowIndex) {
       const td = document.createElement('td');
-      td.className = 'border-b border-slate-900/5 px-2 py-2';
+      td.className = 'wise-dt-td border-b border-slate-900/5 px-3 py-2.5';
       if (col.width) {
         const w = typeof col.width === 'number' ? `${col.width}px` : col.width;
         td.style.width = w;
@@ -365,8 +409,7 @@
 
     static renderPager(data, fireFilterChange, position = 'bottom') {
       const pager = document.createElement('div');
-      const spacing = position === 'top' ? 'pb-2' : 'pt-2';
-      pager.className = `flex items-center justify-between gap-3 px-1 ${spacing} text-xs`;
+      pager.className = `wise-dt-pager flex flex-wrap items-center justify-between gap-3 px-1 py-1 text-xs ${position === 'top' ? 'wise-dt-pager-top' : 'wise-dt-pager-bottom'}`;
 
       const totalCount = data.totalCount || 0;
       const pageSize = data.pageSize || 10;
@@ -374,20 +417,24 @@
       const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
       const info = document.createElement('span');
-      info.className = 'text-slate-400';
-      info.textContent = `${totalCount} rows`;
+      info.className = 'wise-dt-pager-info inline-flex items-center gap-1 font-medium text-slate-500';
+      const countStrong = document.createElement('strong');
+      countStrong.className = 'font-semibold text-slate-700';
+      countStrong.textContent = String(totalCount);
+      info.appendChild(countStrong);
+      info.appendChild(document.createTextNode(totalCount === 1 ? ' baris' : ' baris'));
       pager.appendChild(info);
 
       const controls = document.createElement('div');
-      controls.className = 'flex items-center gap-1';
+      controls.className = 'flex items-center gap-1.5';
 
       if ((data.pageSizeOptions || []).length > 0) {
         const sizeSelect = document.createElement('select');
-        sizeSelect.className = 'mr-2 cursor-pointer rounded-md border-0 bg-slate-100 px-2 py-1.5 text-xs text-slate-600 outline-none transition focus:ring-2 focus:ring-[var(--accent)]';
+        sizeSelect.className = 'wise-dt-page-size mr-1 cursor-pointer rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 outline-none transition hover:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/40';
         data.pageSizeOptions.forEach((size) => {
           const option = document.createElement('option');
           option.value = size;
-          option.textContent = `${size} / page`;
+          option.textContent = `${size} / halaman`;
           if (size === pageSize) option.selected = true;
           sizeSelect.appendChild(option);
         });
@@ -397,30 +444,52 @@
         controls.appendChild(sizeSelect);
       }
 
-      // Flat nav "buttons" -- no borders/shadows, just a background that
-      // appears on hover or for whichever page is current.
-      const navButton = (label, { disabled = false, active = false, onClick } = {}) => {
+      const chevron = (direction) => {
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', '2.5');
+        svg.setAttribute('stroke-linecap', 'round');
+        svg.setAttribute('stroke-linejoin', 'round');
+        svg.classList.add('h-3.5', 'w-3.5');
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', direction === 'prev' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6');
+        svg.appendChild(path);
+        return svg;
+      };
+
+      // Pill nav buttons: current page is a solid accent pill, others are
+      // ghost buttons that lift slightly on hover (matches WiseIconMenu's
+      // hover affordance elsewhere in the desktop).
+      const navButton = (content, { disabled = false, active = false, onClick, ariaLabel } = {}) => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.textContent = label;
         btn.disabled = disabled;
+        if (ariaLabel) btn.setAttribute('aria-label', ariaLabel);
+        if (typeof content === 'string') {
+          btn.textContent = content;
+        } else {
+          btn.appendChild(content);
+        }
         const state = active
-          ? 'bg-[var(--accent)] text-white font-semibold'
-          : 'bg-transparent text-slate-600 hover:bg-slate-100';
-        btn.className = `min-w-[26px] cursor-pointer rounded-md border-0 px-2 py-1.5 text-xs transition disabled:cursor-default disabled:opacity-30 disabled:hover:bg-transparent ${state}`;
+          ? 'bg-[var(--accent)] text-white font-semibold shadow-sm'
+          : 'bg-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-700 hover:-translate-y-px';
+        btn.className = `wise-dt-nav-btn inline-flex h-7 min-w-[28px] cursor-pointer items-center justify-center rounded-full border-0 px-2 text-xs transition-all duration-150 ease-out active:translate-y-0 active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:translate-y-0 ${state}`;
         if (!disabled && onClick) btn.addEventListener('click', onClick);
         return btn;
       };
 
-      controls.appendChild(navButton('‹', {
+      controls.appendChild(navButton(chevron('prev'), {
         disabled: currentPage <= 1,
+        ariaLabel: 'Halaman sebelumnya',
         onClick: () => fireFilterChange({ currentPage: currentPage - 1 }),
       }));
 
       WiseDataTable.buildPageList(currentPage, totalPages).forEach((page) => {
         if (page === '…') {
           const ellipsis = document.createElement('span');
-          ellipsis.className = 'px-1 text-slate-400';
+          ellipsis.className = 'inline-flex h-7 min-w-[20px] items-center justify-center text-slate-300';
           ellipsis.textContent = '…';
           controls.appendChild(ellipsis);
           return;
@@ -431,8 +500,9 @@
         }));
       });
 
-      controls.appendChild(navButton('›', {
+      controls.appendChild(navButton(chevron('next'), {
         disabled: currentPage >= totalPages,
+        ariaLabel: 'Halaman berikutnya',
         onClick: () => fireFilterChange({ currentPage: currentPage + 1 }),
       }));
 
@@ -472,7 +542,20 @@
     static patchElement(winEl, data, context) {
       const existing = winEl.querySelector(`[data-control-id="${data.id}"]`);
       if (!existing || !context) return;
-      existing.replaceWith(WiseDataTable.renderElement(data, context));
+
+      // A full rebuild otherwise resets the row viewport to the top on
+      // every interaction (e.g. selecting a row scrolled out of view),
+      // since the fresh .wise-datatable-scroll div starts at scrollTop 0.
+      const existingScroll = existing.querySelector('.wise-datatable-scroll');
+      const scrollTop = existingScroll ? existingScroll.scrollTop : 0;
+
+      const fresh = WiseDataTable.renderElement(data, context);
+      existing.replaceWith(fresh);
+
+      if (scrollTop) {
+        const freshScroll = fresh.querySelector('.wise-datatable-scroll');
+        if (freshScroll) freshScroll.scrollTop = scrollTop;
+      }
     }
 
     // Every interaction sends its payload explicitly via overrideValues

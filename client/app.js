@@ -48,17 +48,24 @@ async function start() {
   const port = process.env.PORT || 3000;
 
   app.use(express.json());
+  app.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    next();
+  });
   app.use(express.static(path.join(__dirname, 'public')));
 
   app.get('/WiseDesktop.js', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     res.sendFile(path.join(__dirname, 'system', 'WiseDesktop.js'));
   });
 
   app.get('/WiseApplicationSystem.js', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     res.sendFile(path.join(__dirname, 'system', 'WiseApplicationSystem.js'));
   });
 
   app.get('/controls/:file', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     if (!/^Wise[A-Za-z]+\.js$/.test(req.params.file)) {
       return res.status(404).end();
     }

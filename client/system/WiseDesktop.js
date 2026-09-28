@@ -18,8 +18,9 @@ class WiseDesktop {
       left: [displayName],
       // The clock isn't a static string here -- it's rendered and kept
       // live separately (see renderDesktop/startClock), since a fixed
-      // string obviously never changes.
-      right: ['Battery 100%', 'Wi‑Fi'],
+      // string obviously never changes. The Windows menu, theme toggle,
+      // and logout button are likewise built directly in renderDesktop.
+      right: [],
     };
     this.theme = 'macos';
     this.windowStack = [];
@@ -200,6 +201,116 @@ class WiseDesktop {
 
   // ---- Browser-only rendering below (requires `root` and `document`) ----
 
+  // Topbar "Windows" menu: lists every currently open window (queried live
+  // off the DOM, not from any tracked list, so it's always accurate even
+  // as windows open/close/minimize) and activates whichever one is picked
+  // via the same win.__wiseActivate hook renderWindow() wires up for its
+  // own click handler and taskbar minimize-restore icon.
+  buildWindowsMenu(root) {
+    const item = document.createElement('div');
+    item.className = 'windows-menu-item';
+
+    const label = document.createElement('span');
+    label.className = 'windows-menu-label';
+    label.textContent = '🗔 Windows';
+    item.appendChild(label);
+
+    // Appended to document.body (not `item`) rather than nested inside the
+    // topbar: .topbar has its own transform + backdrop-filter, which makes
+    // it a stacking context of its own -- so a z-index on a descendant only
+    // wins against *other topbar content*, not against .window (z-index 3),
+    // since the whole topbar subtree stacks as one unit at the topbar's own
+    // z-index (2), below every window. Same fix WiseIconMenu's floating
+    // tooltip already uses for the same reason.
+    const dropdown = document.createElement('div');
+    dropdown.className = 'windows-menu-dropdown';
+
+    const positionDropdown = () => {
+      const rect = label.getBoundingClientRect();
+      dropdown.style.top = `${Math.round(rect.bottom + 8)}px`;
+      // Clamp so a long window title list doesn't overflow past the right
+      // edge of the viewport when the label sits near it.
+      const maxLeft = window.innerWidth - 320 - 12;
+      dropdown.style.left = `${Math.round(Math.min(rect.left, Math.max(maxLeft, 12)))}px`;
+    };
+
+    const closeDropdown = () => {
+      item.classList.remove('open');
+      dropdown.remove();
+      document.removeEventListener('mousedown', onOutsideClick, true);
+      window.removeEventListener('resize', positionDropdown);
+    };
+
+    const onOutsideClick = (event) => {
+      if (!item.contains(event.target) && !dropdown.contains(event.target)) closeDropdown();
+    };
+
+    const buildList = () => {
+      dropdown.innerHTML = '';
+      const openWindows = Array.from(root.querySelectorAll('.window'));
+
+      if (openWindows.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'windows-menu-empty';
+        empty.textContent = 'No windows open';
+        dropdown.appendChild(empty);
+        return;
+      }
+
+      openWindows.forEach((winEl) => {
+        const entry = document.createElement('div');
+        entry.className = 'windows-menu-entry';
+
+        const isMinimized = winEl.style.display === 'none';
+        const isActive = !isMinimized && !winEl.classList.contains('window-inactive');
+        if (isActive) entry.classList.add('active');
+
+        // .window-title already holds the icon markup + title text together
+        // (see renderWindow) -- reuse it verbatim rather than trying to pick
+        // it back apart into separate icon/label pieces.
+        const titleEl = winEl.querySelector('.window-title');
+        const entryLabel = document.createElement('div');
+        entryLabel.className = 'windows-menu-entry-label';
+        entryLabel.innerHTML = titleEl ? titleEl.innerHTML : (winEl.dataset.appId || 'Window');
+        entry.appendChild(entryLabel);
+
+        if (isMinimized) {
+          const badge = document.createElement('div');
+          badge.className = 'windows-menu-entry-badge';
+          badge.textContent = 'Minimized';
+          entry.appendChild(badge);
+        }
+
+        entry.addEventListener('click', (event) => {
+          event.stopPropagation();
+          if (typeof winEl.__wiseActivate === 'function') {
+            winEl.__wiseActivate();
+          }
+          closeDropdown();
+        });
+
+        dropdown.appendChild(entry);
+      });
+    };
+
+    label.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const isOpen = item.classList.contains('open');
+      if (isOpen) {
+        closeDropdown();
+        return;
+      }
+      buildList();
+      positionDropdown();
+      document.body.appendChild(dropdown);
+      item.classList.add('open');
+      document.addEventListener('mousedown', onOutsideClick, true);
+      window.addEventListener('resize', positionDropdown);
+    });
+
+    return item;
+  }
+
   renderDesktop() {
     const root = document.createElement('div');
     root.className = 'desktop';
@@ -222,6 +333,8 @@ class WiseDesktop {
     const rightBar = root.querySelector('.topbar .right');
 
     if (rightBar) {
+      rightBar.appendChild(this.buildWindowsMenu(root));
+
       const themeToggle = document.createElement('span');
       themeToggle.className = 'theme-toggle-item';
       themeToggle.title = 'Toggle Dark/Light Theme';
@@ -612,19 +725,6 @@ class WiseDesktop {
       win.classList.remove('window-inactive');
     };
 
-    // Bring to front + activate whenever the user clicks anywhere on the window.
-    // IMPORTANT: skip desktop.appendChild when the click target is any interactive
-    // element (button, input, select, textarea, a). Moving the DOM node during the
-    // mousedown→mouseup sequence causes the browser to cancel the click event,
-    // making ALL buttons and controls inside the window appear unresponsive.
-    win.addEventListener('mousedown', (event) => {
-      const isInteractive = event.target.closest('button, input, select, textarea, a, [role="button"]');
-      if (!isInteractive) {
-        desktop.appendChild(win);
-      }
-      setActiveWindow();
-    });
-
     let minimizedItem = null;
 
     const removeMinimizedItem = () => {
@@ -633,6 +733,57 @@ class WiseDesktop {
         minimizedItem = null;
       }
     };
+
+    // Single entry point for "make this the frontmost, visible, active
+    // window" -- restoring it first if it was minimized. Used by this
+    // window's own click handler below, by its taskbar minimized-icon
+    // restore handler, AND (via the __wiseActivate hook) by the topbar's
+    // Windows menu, so all three ways of switching to a window share one
+    // implementation instead of drifting out of sync.
+    const activateWindow = () => {
+      if (win.style.display === 'none') {
+        removeMinimizedItem();
+        win.style.display = 'block';
+        void win.offsetWidth;
+        win.style.opacity = '1';
+        win.style.transform = 'scale(1) translateY(0)';
+      }
+      // appendChild() detaches and reinserts win even when it's already the
+      // last child (a no-op reorder) -- and that reattachment resets the
+      // scrollTop of every scrollable descendant (e.g. .window-body), even
+      // though its on-screen position never actually changes. Skipping the
+      // call when win is already frontmost avoids that side effect, which
+      // otherwise reset the window's scroll position on every single click.
+      if (desktop.lastElementChild !== win) {
+        desktop.appendChild(win);
+      }
+      setActiveWindow();
+    };
+    win.__wiseActivate = activateWindow;
+
+    // Bring to front + activate whenever the user clicks anywhere on the window.
+    // Moving win's DOM node while a mousedown→mouseup press is in flight makes
+    // the browser cancel the click event that would otherwise follow -- not
+    // just for native <button>/<input> elements, but for any custom control
+    // that reacts to 'click' on a plain element (WiseDataTable rows,
+    // WiseCardGroup cards, ...). A setTimeout(0) still fires within a few
+    // milliseconds -- comfortably before a real mouseup (tens to hundreds of
+    // milliseconds after mousedown for an actual person), so it does NOT
+    // avoid the cancellation; it only happened to look fixed against
+    // Playwright's near-instant synthetic clicks. Listening on 'click'
+    // instead sidesteps the problem entirely: by the time 'click' fires, the
+    // browser has already committed to it (and any control's own click
+    // handler -- sendControlEvent etc. -- has already run, since bubbling
+    // reaches this outer listener last), so reparenting here can no longer
+    // cancel anything.
+    win.addEventListener('mousedown', () => {
+      setActiveWindow();
+    });
+    win.addEventListener('click', () => {
+      if (desktop.lastElementChild !== win) {
+        desktop.appendChild(win);
+      }
+    });
 
     closeBtn.addEventListener('click', () => {
       removeMinimizedItem();
@@ -666,13 +817,7 @@ class WiseDesktop {
         minimizedItem.title = title;
         this.upgradeIcon(minimizedItem, application);
         minimizedItem.addEventListener('click', () => {
-          removeMinimizedItem();
-          win.style.display = 'block';
-          void win.offsetWidth;
-          win.style.opacity = '1';
-          win.style.transform = 'scale(1) translateY(0)';
-          desktop.appendChild(win);
-          setActiveWindow();
+          activateWindow();
         });
         dock.appendChild(minimizedItem);
       }
