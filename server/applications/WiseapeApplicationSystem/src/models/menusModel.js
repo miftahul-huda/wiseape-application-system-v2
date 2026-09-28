@@ -5,6 +5,9 @@ const FALLBACK_MENUS = [
   { id: 2, parentId: 1, type: 'item', label: 'HelloWorld', icon: null, appId: 'helloWorld', sortOrder: 0 },
   { id: 3, parentId: 1, type: 'item', label: 'Controls', icon: null, appId: 'controls', sortOrder: 1 },
   { id: 4, parentId: null, type: 'item', label: 'Settings', icon: null, appId: 'settings', sortOrder: 1 },
+  { id: 5, parentId: null, type: 'group', label: 'Wise HRIS', icon: '🏢', appId: null, sortOrder: 3 },
+  { id: 6, parentId: 5, type: 'item', label: 'Wise HRIS', icon: '🏢', appId: 'hris', sortOrder: 0 },
+  { id: 7, parentId: 5, type: 'item', label: 'Employee Management', icon: '👤', appId: 'employeeManagement', sortOrder: 1 },
 ];
 
 let schemaReady = false;
@@ -58,6 +61,47 @@ async function ensureAdminMenuSeeded() {
     await db.query(
       `INSERT INTO wiseape_menus (parent_id, menu_type, label, icon, app_id, sort_order)
        VALUES (NULL, 'item', 'Admin', NULL, 'admin', 2)`
+    );
+  }
+
+  // Ensure 'Wise HRIS' group exists in database
+  let hrisGroupId = null;
+  const existingGroup = await db.query(
+    "SELECT menu_id FROM wiseape_menus WHERE menu_type = 'group' AND label = 'Wise HRIS'"
+  );
+  if (existingGroup.rowCount > 0) {
+    hrisGroupId = existingGroup.rows[0].menu_id;
+  } else {
+    const res = await db.query(
+      `INSERT INTO wiseape_menus (parent_id, menu_type, label, icon, app_id, sort_order)
+       VALUES (NULL, 'group', 'Wise HRIS', '🏢', NULL, 3) RETURNING menu_id`
+    );
+    hrisGroupId = res.rows[0].menu_id;
+  }
+
+  // Ensure child menu item 'hris'
+  const existingHris = await db.query(
+    'SELECT 1 FROM wiseape_menus WHERE parent_id = $1 AND app_id = $2',
+    [hrisGroupId, 'hris']
+  );
+  if (existingHris.rowCount === 0) {
+    await db.query(
+      `INSERT INTO wiseape_menus (parent_id, menu_type, label, icon, app_id, sort_order)
+       VALUES ($1, 'item', 'Wise HRIS', '🏢', 'hris', 0)`,
+      [hrisGroupId]
+    );
+  }
+
+  // Ensure child menu item 'employeeManagement'
+  const existingEmp = await db.query(
+    'SELECT 1 FROM wiseape_menus WHERE parent_id = $1 AND app_id = $2',
+    [hrisGroupId, 'employeeManagement']
+  );
+  if (existingEmp.rowCount === 0) {
+    await db.query(
+      `INSERT INTO wiseape_menus (parent_id, menu_type, label, icon, app_id, sort_order)
+       VALUES ($1, 'item', 'Employee Management', '👤', 'employeeManagement', 1)`,
+      [hrisGroupId]
     );
   }
 

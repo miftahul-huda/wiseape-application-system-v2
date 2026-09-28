@@ -27,6 +27,7 @@ class WiseWindow {
     this.height = options.height || 420;
     this.positionX = options.positionX || 220;
     this.positionY = options.positionY || 120;
+    this.centered = options.centered || false;
     this.visible = false;
     this.minimized = false;
     this.maximized = false;
@@ -164,9 +165,16 @@ class WiseWindow {
     return { status: this.minimized ? 'minimized' : 'restored', minimized: this.minimized, window: this.toJSON() };
   }
 
+  launchApp(appId) {
+    this.pendingLaunchAppId = appId;
+    return this.pendingLaunchAppId;
+  }
+
   toJSON() {
     const info = this.pendingInfo;
     this.pendingInfo = null;
+    const launchAppId = this.pendingLaunchAppId;
+    this.pendingLaunchAppId = null;
 
     return {
       windowId: this.windowId,
@@ -178,11 +186,13 @@ class WiseWindow {
       height: this.height,
       positionX: this.positionX,
       positionY: this.positionY,
+      centered: this.centered,
       visible: this.visible,
       minimized: this.minimized,
       maximized: this.maximized,
       params: this.params,
       info,
+      launchAppId,
       controls: this.controls.map((control) => control.render ? control.render() : control),
     };
   }

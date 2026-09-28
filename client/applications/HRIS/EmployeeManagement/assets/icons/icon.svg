@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+  <defs>
+    <linearGradient id="empBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="50%" stop-color="#7c3aed" />
+      <stop offset="100%" stop-color="#9333ea" />
+    </linearGradient>
+    <filter id="empShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#4f46e5" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Background Squircle -->
+  <rect x="8" y="8" width="112" height="112" rx="26" fill="url(#empBg)" filter="url(#empShadow)" />
+
+  <!-- Inner subtle border -->
+  <rect x="9" y="9" width="110" height="110" rx="25" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" />
+
+  <!-- ID Card Badge Lanyard / Clip -->
+  <rect x="56" y="16" width="16" height="8" rx="3" fill="#cbd5e1" />
+  <rect x="52" y="24" width="24" height="6" rx="2" fill="#94a3b8" />
+
+  <!-- ID Card Container -->
+  <rect x="30" y="28" width="68" height="82" rx="10" fill="#ffffff" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.15))" />
+
+  <!-- ID Card Photo Avatar Box -->
+  <rect x="48" y="38" width="32" height="32" rx="16" fill="#e0e7ff" />
+  <circle cx="64" cy="50" r="7" fill="#6366f1" />
+  <path d="M52 68 C52 61 57 58 64 58 C71 58 76 61 76 68 Z" fill="#6366f1" />
+
+  <!-- ID Card Information Lines -->
+  <rect x="42" y="78" width="44" height="5" rx="2.5" fill="#475569" />
+  <rect x="48" y="87" width="32" height="4" rx="2" fill="#94a3b8" />
+  <rect x="54" y="95" width="20" height="3" rx="1.5" fill="#cbd5e1" />
+
+  <!-- Verified Checkmark Badge -->
+  <circle cx="88" cy="88" r="11" fill="#10b981" stroke="#ffffff" stroke-width="2.5" />
+  <path d="M83.5 88 L86.5 91 L92.5 85" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

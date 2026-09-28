@@ -81,6 +81,19 @@ async function approveUser(id) {
   return authModel.approveUser(id);
 }
 
+async function listUsers(params) {
+  return authModel.listUsers(params);
+}
+
+
+async function updateUser(id, data) {
+  return authModel.updateUser(id, data);
+}
+
+async function deleteUser(id) {
+  return authModel.deleteUser(id);
+}
+
 module.exports = {
   register,
   login,
@@ -92,4 +105,8 @@ module.exports = {
   setRegistrationRequiresApproval,
   listPendingUsers,
   approveUser,
+  listUsers,
+  updateUser,
+  deleteUser,
 };
+

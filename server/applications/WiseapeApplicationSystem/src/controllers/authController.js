@@ -88,4 +88,50 @@ async function approveUser(req, res, next) {
   }
 }
 
-module.exports = { register, login, session, logout, updatePreferences, getSettings, putSettings, pendingUsers, approveUser };
+async function listUsers(req, res, next) {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const offset = parseInt(req.query.offset, 10) || 0;
+    const search = req.query.search || '';
+    const result = await authService.listUsers({ limit, offset, search });
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function updateUser(req, res, next) {
+  try {
+    const updated = await authService.updateUser(req.params.id, req.body || {});
+    if (!updated) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({ user: updated });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function deleteUser(req, res, next) {
+  try {
+    await authService.deleteUser(req.params.id);
+    res.json({ status: 'ok' });
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = {
+  register,
+  login,
+  session,
+  logout,
+  updatePreferences,
+  getSettings,
+  putSettings,
+  pendingUsers,
+  approveUser,
+  listUsers,
+  updateUser,
+  deleteUser,
+};

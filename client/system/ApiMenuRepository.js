@@ -12,6 +12,18 @@ const fallbackMenus = [
     ],
   },
   { id: 4, type: 'item', label: 'Settings', icon: '⚙', appId: 'settings', sortOrder: 1, children: [] },
+  {
+    id: 5,
+    type: 'group',
+    label: 'HRIS System',
+    icon: '🏢',
+    appId: null,
+    sortOrder: 2,
+    children: [
+      { id: 6, type: 'item', label: 'HRIS Portal', icon: '🏢', appId: 'hris', sortOrder: 0, children: [] },
+      { id: 7, type: 'item', label: 'Employee Management', icon: '👤', appId: 'employeeManagement', sortOrder: 1, children: [] },
+    ],
+  },
 ];
 
 class ApiMenuRepository {

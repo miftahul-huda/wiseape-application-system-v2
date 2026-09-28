@@ -17,20 +17,20 @@
       this.imageField = options.imageField || 'image';
       this.textField = options.textField || 'text';
       this.data = [];
+
       this.totalCount = 0;
       this.pageSize = options.pageSize || 10;
       this.currentPage = options.currentPage || 1;
       this.pageSizeOptions = options.pageSizeOptions || [];
+      this.actions = options.actions || [];
+      this.onCardAction = typeof options.onCardAction === 'function' ? options.onCardAction : null;
       this.onDataFilterChanged = typeof options.onDataFilterChanged === 'function' ? options.onDataFilterChanged : null;
       this.onRowSelect = typeof options.onRowSelect === 'function' ? options.onRowSelect : null;
       this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
       this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
       this.style = options.style || {};
 
-      // Arrow functions (not prototype methods) so `this` stays the control
-      // instance even though dispatchControlEvent invokes them via
-      // `handler.call(win)` -- same trick WiseDataTable's own internal
-      // on<Event> handlers use.
+
       this.onFilterchange = () => {
         const payload = this.value || {};
         if (payload.pageSize !== undefined) this.pageSize = payload.pageSize;
@@ -47,10 +47,16 @@
           return this.onRowSelect(row);
         }
       };
+
+      this.onCardaction = () => {
+        const payload = this.value || {};
+        const row = this.data[payload.rowIndex];
+        if (row && this.onCardAction) {
+          return this.onCardAction(payload.action, row, payload.rowIndex);
+        }
+      };
     }
 
-    // Exactly one page of data at a time -- this control never holds (or
-    // expects) the whole dataset. Same contract as WiseDataTable.setData.
     setData(rows, totalCount) {
       this.data = rows || [];
       this.totalCount = totalCount || 0;
@@ -69,11 +75,13 @@
         titleField: this.titleField,
         imageField: this.imageField,
         textField: this.textField,
+        actions: this.actions,
         data: this.data,
         totalCount: this.totalCount,
         pageSize: this.pageSize,
         currentPage: this.currentPage,
         pageSizeOptions: this.pageSizeOptions,
+        hasCardActionHandler: !!this.onCardAction,
         hasRowSelectHandler: !!this.onRowSelect,
         hasClickHandler: !!this.onClick,
         hasHoverHandler: !!this.onHover,
@@ -82,6 +90,7 @@
         disabled: this.disabled,
       };
     }
+
 
     static renderElement(data, context) {
       const wrapper = document.createElement('div');
@@ -160,10 +169,35 @@
         body.appendChild(title);
         body.appendChild(text);
 
+        const cardActions = row.actions || data.actions;
+        if (Array.isArray(cardActions) && cardActions.length > 0) {
+          const actionBox = document.createElement('div');
+          actionBox.className = 'mt-2 flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100';
+          cardActions.forEach((act) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `px-2 py-1 text-xs font-semibold rounded-md cursor-pointer transition ${
+              act.variant === 'danger'
+                ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+            }`;
+            btn.textContent = act.label;
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              context.desktop.sendControlEvent(context.appId, data.id, btn, 'cardaction', {
+                [data.id]: { rowIndex, action: act.id || act.action },
+              });
+            });
+            actionBox.appendChild(btn);
+          });
+          body.appendChild(actionBox);
+        }
+
         card.appendChild(imageBox);
         card.appendChild(body);
         grid.appendChild(card);
       });
+
 
       if ((data.data || []).length === 0) {
         const empty = document.createElement('div');

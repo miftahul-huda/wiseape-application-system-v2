@@ -20,15 +20,45 @@ let schemaReady = false;
 // by listThemes()'s own try/catch below, same as any other DB error.
 async function ensureSchema() {
   if (schemaReady) return;
-  await db.query('ALTER TABLE wiseape_themes ADD COLUMN IF NOT EXISTS default_background TEXT;');
-  schemaReady = true;
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS wiseape_themes (
+        theme_id TEXT PRIMARY KEY,
+        theme_name TEXT NOT NULL,
+        bg1 TEXT,
+        bg2 TEXT,
+        accent TEXT,
+        accent_dark TEXT,
+        default_background TEXT,
+        css_content TEXT
+      );
+    `);
+    await db.query('ALTER TABLE wiseape_themes ADD COLUMN IF NOT EXISTS default_background TEXT;');
+    await db.query('ALTER TABLE wiseape_themes ADD COLUMN IF NOT EXISTS css_content TEXT;');
+
+    const check = await db.query('SELECT 1 FROM wiseape_themes LIMIT 1;');
+    if (check.rowCount === 0) {
+      for (const theme of FALLBACK_THEMES) {
+        await db.query(
+          `INSERT INTO wiseape_themes (theme_id, theme_name, bg1, bg2, accent, accent_dark, default_background, css_content)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+           ON CONFLICT (theme_id) DO NOTHING`,
+          [theme.id, theme.name, theme.bg1, theme.bg2, theme.accent, theme.accentDark, theme.defaultBackground || null, theme.cssContent || '']
+        );
+      }
+    }
+    schemaReady = true;
+  } catch (error) {
+    console.warn('[WAS API] Error ensuring wiseape_themes schema:', error.message);
+  }
 }
 
 async function listThemes() {
   try {
     await ensureSchema();
     const result = await db.query(`
-      SELECT theme_id AS id, theme_name AS name, bg1, bg2, accent, accent_dark AS "accentDark", default_background AS "defaultBackground"
+      SELECT theme_id AS id, theme_name AS name, bg1, bg2, accent, accent_dark AS "accentDark",
+             default_background AS "defaultBackground", css_content AS "cssContent"
       FROM wiseape_themes
       ORDER BY theme_name ASC
     `);
@@ -40,4 +70,42 @@ async function listThemes() {
   }
 }
 
-module.exports = { listThemes };
+async function createTheme({ id, name, bg1, bg2, accent, accentDark, defaultBackground, cssContent }) {
+  await ensureSchema();
+  const themeId = id || `theme-${Date.now()}`;
+  const themeName = name || 'New Theme';
+  const result = await db.query(
+    `INSERT INTO wiseape_themes (theme_id, theme_name, bg1, bg2, accent, accent_dark, default_background, css_content)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     RETURNING theme_id AS id, theme_name AS name, bg1, bg2, accent, accent_dark AS "accentDark", default_background AS "defaultBackground", css_content AS "cssContent"`,
+    [themeId, themeName, bg1 || '#ffffff', bg2 || '#f3f4f6', accent || '#2563eb', accentDark || '#1d4ed8', defaultBackground || null, cssContent || '']
+  );
+  return result.rows[0];
+}
+
+async function updateTheme(id, { name, bg1, bg2, accent, accentDark, defaultBackground, cssContent }) {
+  await ensureSchema();
+  const result = await db.query(
+    `UPDATE wiseape_themes
+     SET theme_name = COALESCE($1, theme_name),
+         bg1 = COALESCE($2, bg1),
+         bg2 = COALESCE($3, bg2),
+         accent = COALESCE($4, accent),
+         accent_dark = COALESCE($5, accent_dark),
+         default_background = COALESCE($6, default_background),
+         css_content = COALESCE($7, css_content)
+     WHERE theme_id = $8
+     RETURNING theme_id AS id, theme_name AS name, bg1, bg2, accent, accent_dark AS "accentDark", default_background AS "defaultBackground", css_content AS "cssContent"`,
+    [name, bg1, bg2, accent, accentDark, defaultBackground, cssContent, id]
+  );
+  return result.rows[0] || null;
+}
+
+async function deleteTheme(id) {
+  await ensureSchema();
+  await db.query('DELETE FROM wiseape_themes WHERE theme_id = $1', [id]);
+  return true;
+}
+
+module.exports = { listThemes, createTheme, updateTheme, deleteTheme };
+

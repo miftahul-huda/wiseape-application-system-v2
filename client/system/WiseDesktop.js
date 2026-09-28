@@ -361,7 +361,10 @@ class WiseDesktop {
     const closeOverlay = () => {
       overlay.style.opacity = '0';
       gridWrap.style.transform = 'scale(0.94)';
-      overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
+      let overlayRemoved = false;
+      const doRemoveOverlay = () => { if (!overlayRemoved) { overlayRemoved = true; overlay.remove(); } };
+      overlay.addEventListener('transitionend', doRemoveOverlay, { once: true });
+      setTimeout(doRemoveOverlay, 350);
       document.removeEventListener('keydown', onKeydown);
       const index = closers.indexOf(closeOverlay);
       if (index !== -1) closers.splice(index, 1);
@@ -464,7 +467,10 @@ class WiseDesktop {
     const closeDialog = () => {
       overlay.style.opacity = '0';
       card.style.transform = 'scale(0.94)';
-      overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
+      let dialogRemoved = false;
+      const doRemoveDialog = () => { if (!dialogRemoved) { dialogRemoved = true; overlay.remove(); } };
+      overlay.addEventListener('transitionend', doRemoveDialog, { once: true });
+      setTimeout(doRemoveDialog, 350);
       document.removeEventListener('keydown', onKeydown);
     };
 
@@ -505,22 +511,67 @@ class WiseDesktop {
 
     const windowData = startupResult && startupResult.window;
 
-    const positionX = windowData?.positionX ?? 330;
-    const positionY = windowData?.positionY ?? 110;
-    const width = windowData?.width ?? 640;
-    const height = windowData?.height ?? 420;
+    const formatDimension = (val, defaultPx) => {
+      if (val === undefined || val === null || val === '') return `${defaultPx}px`;
+      if (typeof val === 'number') return `${val}px`;
+      const trimmed = String(val).trim();
+      if (/^-?\d+(\.\d+)?$/.test(trimmed)) return `${trimmed}px`;
+      return trimmed;
+    };
+
+    const widthVal = windowData?.width ?? 640;
+    const heightVal = windowData?.height ?? 420;
+    let positionXVal = windowData?.positionX ?? 330;
+    let positionYVal = windowData?.positionY ?? 110;
+    // These may be overridden to resolved pixel values when centering is active.
+    let resolvedWidth  = widthVal;
+    let resolvedHeight = heightVal;
+
+    // Center the window when explicitly requested (centered: true) OR when a
+    // percentage size is used -- both cases mean "fill a fraction of the
+    // desktop and sit in the middle".
+    const wantsCentered = windowData?.centered
+      || (typeof widthVal === 'string' && widthVal.endsWith('%'))
+      || (typeof heightVal === 'string' && heightVal.endsWith('%'));
+
+    if (wantsCentered) {
+      // The taskbar is a vertical sidebar on the left:
+      //   left: 14px, width: 68px  →  usable area starts at ~82px from the left.
+      const TASKBAR_LEFT = 82;
+      const desktopRect = desktop.getBoundingClientRect();
+      const usableWidth  = desktopRect.width  - TASKBAR_LEFT;
+      const usableHeight = desktopRect.height;
+
+      // Resolve window width/height to pixels so we can compute the offset.
+      // We also use these resolved values for the actual CSS dimensions so that
+      // a "90%" window doesn't accidentally overflow by being 90% of 100vw
+      // instead of 90% of the usable (taskbar-excluded) area.
+      const winW = typeof widthVal === 'string' && widthVal.endsWith('%')
+        ? Math.round(usableWidth  * parseFloat(widthVal)  / 100)
+        : (parseFloat(widthVal) || 640);
+      const winH = typeof heightVal === 'string' && heightVal.endsWith('%')
+        ? Math.round(usableHeight * parseFloat(heightVal) / 100)
+        : (parseFloat(heightVal) || 420);
+
+      resolvedWidth  = winW;
+      resolvedHeight = winH;
+      positionXVal = Math.round(TASKBAR_LEFT + (usableWidth  - winW)  / 2);
+      positionYVal = Math.round((usableHeight - winH) / 2);
+    }
+
     const title = (windowData && windowData.title) || application.appTitle;
 
     const win = document.createElement('div');
     win.className = 'window';
     win.dataset.appId = application.appID;
     win.dataset.windowId = windowData ? windowData.windowId : '';
-    win.style.left = `${positionX}px`;
-    win.style.top = `${positionY}px`;
-    win.style.width = `${width}px`;
-    win.style.height = `${height}px`;
+    win.style.left = formatDimension(positionXVal, 330);
+    win.style.top = formatDimension(positionYVal, 110);
+    win.style.width = formatDimension(resolvedWidth, 640);
+    win.style.height = formatDimension(resolvedHeight, 420);
     win.style.opacity = '0';
     win.style.transform = 'scale(0.92)';
+
 
     win.innerHTML = `
       <div class="window-header">
@@ -555,6 +606,25 @@ class WiseDesktop {
     const maximizeBtn = win.querySelector('.maximize');
     const resizeHandle = win.querySelector('.resize-handle');
 
+    // Marks `win` as the active window and dims all other windows.
+    const setActiveWindow = () => {
+      desktop.querySelectorAll('.window').forEach((w) => w.classList.add('window-inactive'));
+      win.classList.remove('window-inactive');
+    };
+
+    // Bring to front + activate whenever the user clicks anywhere on the window.
+    // IMPORTANT: skip desktop.appendChild when the click target is any interactive
+    // element (button, input, select, textarea, a). Moving the DOM node during the
+    // mousedown→mouseup sequence causes the browser to cancel the click event,
+    // making ALL buttons and controls inside the window appear unresponsive.
+    win.addEventListener('mousedown', (event) => {
+      const isInteractive = event.target.closest('button, input, select, textarea, a, [role="button"]');
+      if (!isInteractive) {
+        desktop.appendChild(win);
+      }
+      setActiveWindow();
+    });
+
     let minimizedItem = null;
 
     const removeMinimizedItem = () => {
@@ -568,15 +638,26 @@ class WiseDesktop {
       removeMinimizedItem();
       win.style.opacity = '0';
       win.style.transform = 'scale(0.92)';
-      win.addEventListener('transitionend', () => win.remove(), { once: true });
+      // Fallback: if transitionend never fires (e.g. transition was blocked or
+      // the window was already at these values), force-remove after the
+      // transition duration + a small buffer.
+      let removed = false;
+      const doRemove = () => {
+        if (!removed) { removed = true; win.remove(); }
+      };
+      win.addEventListener('transitionend', doRemove, { once: true });
+      setTimeout(doRemove, 350);
     });
 
     minimizeBtn.addEventListener('click', () => {
       win.style.opacity = '0';
       win.style.transform = 'scale(0.92) translateY(40px)';
-      win.addEventListener('transitionend', () => {
-        win.style.display = 'none';
-      }, { once: true });
+      let hidden = false;
+      const doHide = () => {
+        if (!hidden) { hidden = true; win.style.display = 'none'; }
+      };
+      win.addEventListener('transitionend', doHide, { once: true });
+      setTimeout(doHide, 350);
 
       if (!minimizedItem && dock) {
         minimizedItem = document.createElement('div');
@@ -590,6 +671,8 @@ class WiseDesktop {
           void win.offsetWidth;
           win.style.opacity = '1';
           win.style.transform = 'scale(1) translateY(0)';
+          desktop.appendChild(win);
+          setActiveWindow();
         });
         dock.appendChild(minimizedItem);
       }
@@ -629,11 +712,12 @@ class WiseDesktop {
       event.preventDefault();
 
       desktop.appendChild(win);
+      setActiveWindow();
 
       const startX = event.clientX;
       const startY = event.clientY;
-      const startLeft = parseFloat(win.style.left) || 0;
-      const startTop = parseFloat(win.style.top) || 0;
+      const startLeft = win.offsetLeft;
+      const startTop = win.offsetTop;
 
       const onMouseMove = (moveEvent) => {
         win.style.left = `${startLeft + (moveEvent.clientX - startX)}px`;
@@ -674,6 +758,7 @@ class WiseDesktop {
     });
 
     desktop.appendChild(win);
+    setActiveWindow();
     void win.offsetWidth;
     win.style.opacity = '1';
     win.style.transform = 'scale(1)';
@@ -748,12 +833,24 @@ class WiseDesktop {
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers.Authorization = `Bearer ${token}`;
 
-    const response = await fetch(`/api/applications/${appId}/events`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ controlId, event: eventName, values }),
-    });
-    const result = await response.json();
+    let result;
+    try {
+      const response = await fetch(`/api/applications/${appId}/events`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ controlId, event: eventName, values }),
+      });
+
+      result = await response.json();
+
+      if (!response.ok) {
+        console.error(`[WAS] Control event error (${response.status}):`, result);
+        return;
+      }
+    } catch (err) {
+      console.error('[WAS] sendControlEvent fetch failed:', err);
+      return;
+    }
 
     if (result.window && Array.isArray(result.window.controls)) {
       this.patchWindowControls(winEl, result.window.controls);
@@ -769,6 +866,16 @@ class WiseDesktop {
 
     if (result.window && result.window.info) {
       this.showInfoDialog(result.window.info);
+    }
+
+    if (result.window && result.window.launchAppId) {
+      const targetAppId = result.window.launchAppId;
+      console.log('[WAS] Launching app from control event:', targetAppId);
+      if (typeof this.onIconClick === 'function') {
+        this.onIconClick({ appId: targetAppId });
+      } else {
+        console.warn('[WAS] onIconClick is not set on desktop — cannot launch', targetAppId);
+      }
     }
   }
 

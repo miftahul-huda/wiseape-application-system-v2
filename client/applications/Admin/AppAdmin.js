@@ -17,15 +17,19 @@ class AppAdmin extends WiseApplication {
     ]);
 
     const adminWindow = this.createWindow(WinAdmin, {
-      width: 480,
-      height: 440,
-      positionX: 340,
-      positionY: 120,
+      width: '90%',
+      height: 640,
+      positionY: 60,
       requiresApproval,
       pendingUsers,
     });
 
+
     adminWindow.show(appParameter);
+
+    if (typeof adminWindow.loadInitialData === 'function') {
+      await adminWindow.loadInitialData();
+    }
 
     return {
       appID: this.appID,
@@ -37,3 +41,4 @@ class AppAdmin extends WiseApplication {
 }
 
 module.exports = AppAdmin;
+

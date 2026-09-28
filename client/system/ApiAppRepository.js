@@ -32,6 +32,28 @@ const fallbackApps = [
     appStartPoint: 'applications/Controls/AppControls.js:AppControls',
     appParameter: {},
   },
+  {
+    appID: 'hris',
+    appTitle: 'Wise HRIS',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '🏢',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/HRIS/AppHRIS.js:AppHRIS',
+    appParameter: {},
+  },
+  {
+    appID: 'employeeManagement',
+    appTitle: 'Employee Management',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '👤',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/HRIS/EmployeeManagement/AppEmployeeManagement.js:AppEmployeeManagement',
+    appParameter: {},
+  },
 ];
 
 class ApiAppRepository {

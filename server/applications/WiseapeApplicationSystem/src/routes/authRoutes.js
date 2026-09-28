@@ -13,5 +13,9 @@ router.get('/settings', authController.getSettings);
 router.put('/settings', requireUser, requireAdmin, authController.putSettings);
 router.get('/pending-users', requireUser, requireAdmin, authController.pendingUsers);
 router.post('/approve/:id', requireUser, requireAdmin, authController.approveUser);
+router.get('/users', requireUser, requireAdmin, authController.listUsers);
+router.put('/users/:id', requireUser, requireAdmin, authController.updateUser);
+router.delete('/users/:id', requireUser, requireAdmin, authController.deleteUser);
 
 module.exports = router;
+

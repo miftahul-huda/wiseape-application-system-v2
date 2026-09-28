@@ -34,6 +34,28 @@ const FALLBACK_APPS = [
     appStartPoint: 'applications/Controls/AppControls.js:AppControls',
     appParameter: {},
   },
+  {
+    appID: 'hris',
+    appTitle: 'Wise HRIS',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '🏢',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/HRIS/AppHRIS.js:AppHRIS',
+    appParameter: {},
+  },
+  {
+    appID: 'employeeManagement',
+    appTitle: 'Employee Management',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '👤',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/HRIS/EmployeeManagement/AppEmployeeManagement.js:AppEmployeeManagement',
+    appParameter: {},
+  },
 ];
 
 function parseJsonField(value, fallback) {
@@ -65,6 +87,45 @@ async function ensureAdminAppSeeded() {
         JSON.stringify(['Wiseape WAS']),
         JSON.stringify({}),
         'applications/Admin/AppAdmin.js:AppAdmin',
+        JSON.stringify({}),
+      ]
+    );
+  }
+
+  // Ensure HRIS applications are seeded
+  const existingHris = await db.query('SELECT 1 FROM wiseape_apps WHERE app_id = $1', ['hris']);
+  if (existingHris.rowCount === 0) {
+    await db.query(
+      `INSERT INTO wiseape_apps (app_id, app_title, app_version, app_developer, app_icon, app_libraries, app_config, app_start_point, app_parameter)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [
+        'hris',
+        'Wise HRIS',
+        '1.0.0',
+        'Wiseape',
+        '🏢',
+        JSON.stringify(['Wiseape WAS']),
+        JSON.stringify({}),
+        'applications/HRIS/AppHRIS.js:AppHRIS',
+        JSON.stringify({}),
+      ]
+    );
+  }
+
+  const existingEmp = await db.query('SELECT 1 FROM wiseape_apps WHERE app_id = $1', ['employeeManagement']);
+  if (existingEmp.rowCount === 0) {
+    await db.query(
+      `INSERT INTO wiseape_apps (app_id, app_title, app_version, app_developer, app_icon, app_libraries, app_config, app_start_point, app_parameter)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [
+        'employeeManagement',
+        'Employee Management',
+        '1.0.0',
+        'Wiseape',
+        '👤',
+        JSON.stringify(['Wiseape WAS']),
+        JSON.stringify({}),
+        'applications/HRIS/EmployeeManagement/AppEmployeeManagement.js:AppEmployeeManagement',
         JSON.stringify({}),
       ]
     );

@@ -36,6 +36,40 @@ class ApiThemeRepository {
       return this.getFallbackThemes();
     }
   }
+
+  async request(path, { method = 'GET', token, body } = {}) {
+    const headers = {};
+    if (body !== undefined) headers['Content-Type'] = 'application/json';
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    const response = await fetch(`${this.baseUrl}${path}`, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      const error = new Error(data.error || `Request failed with status ${response.status}`);
+      error.status = response.status;
+      throw error;
+    }
+
+    return data;
+  }
+
+  createTheme(token, data) {
+    return this.request('/api/themes', { method: 'POST', token, body: data });
+  }
+
+  updateTheme(token, id, data) {
+    return this.request(`/api/themes/${id}`, { method: 'PUT', token, body: data });
+  }
+
+  deleteTheme(token, id) {
+    return this.request(`/api/themes/${id}`, { method: 'DELETE', token });
+  }
 }
 
 module.exports = ApiThemeRepository;

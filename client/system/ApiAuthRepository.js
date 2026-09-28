@@ -60,6 +60,23 @@ class ApiAuthRepository {
   approveUser(token, id) {
     return this.request(`/api/auth/approve/${id}`, { method: 'POST', token });
   }
+
+  listUsers(token, { limit = 10, offset = 0, search = '' } = {}) {
+    const params = new URLSearchParams();
+    if (limit) params.set('limit', limit);
+    if (offset) params.set('offset', offset);
+    if (search) params.set('search', search);
+    return this.request(`/api/auth/users?${params.toString()}`, { token });
+  }
+
+  updateUser(token, id, data) {
+    return this.request(`/api/auth/users/${id}`, { method: 'PUT', token, body: data });
+  }
+
+  deleteUser(token, id) {
+    return this.request(`/api/auth/users/${id}`, { method: 'DELETE', token });
+  }
 }
 
 module.exports = ApiAuthRepository;
+

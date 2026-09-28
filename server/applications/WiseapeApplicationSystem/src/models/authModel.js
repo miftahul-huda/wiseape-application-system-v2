@@ -209,6 +209,78 @@ async function approveUser(id) {
   return result.rows[0] || null;
 }
 
+async function listUsers({ limit = 10, offset = 0, search = '' } = {}) {
+  await ensureSchema();
+  let whereClause = '';
+  const params = [];
+  if (search) {
+    params.push(`%${search.toLowerCase()}%`);
+    whereClause = `WHERE LOWER(name) LIKE $1 OR LOWER(email) LIKE $1 OR LOWER(role) LIKE $1 OR LOWER(status) LIKE $1`;
+  }
+  const countResult = await db.query(`SELECT COUNT(*) FROM wiseape_users ${whereClause}`, params);
+  const totalCount = parseInt(countResult.rows[0].count, 10);
+
+  const queryParams = [...params];
+  const limitIdx = queryParams.length + 1;
+  queryParams.push(limit);
+  const offsetIdx = queryParams.length + 1;
+  queryParams.push(offset);
+
+  const result = await db.query(
+    `SELECT user_id AS id, name, email, role, status, theme_id AS "themeId", background_image AS "backgroundImage", created_at AS "createdAt"
+     FROM wiseape_users
+     ${whereClause}
+     ORDER BY user_id DESC
+     LIMIT $${limitIdx} OFFSET $${offsetIdx}`,
+    queryParams
+  );
+  return { rows: result.rows.map((row) => toUserJson(row)), totalCount };
+}
+
+async function updateUser(id, { name, email, role, status }) {
+  await ensureSchema();
+  const sets = [];
+  const values = [];
+  let index = 1;
+
+  if (name !== undefined) {
+    sets.push(`name = $${index}`);
+    values.push(name);
+    index += 1;
+  }
+  if (email !== undefined) {
+    sets.push(`email = $${index}`);
+    values.push(String(email).toLowerCase());
+    index += 1;
+  }
+  if (role !== undefined) {
+    sets.push(`role = $${index}`);
+    values.push(role);
+    index += 1;
+  }
+  if (status !== undefined) {
+    sets.push(`status = $${index}`);
+    values.push(status);
+    index += 1;
+  }
+
+  if (sets.length === 0) return findUserById(id);
+
+  values.push(id);
+  const result = await db.query(
+    `UPDATE wiseape_users SET ${sets.join(', ')} WHERE user_id = $${index}
+     RETURNING user_id AS id, name, email, role, status, theme_id AS "themeId", background_image AS "backgroundImage"`,
+    values
+  );
+  return toUserJson(result.rows[0]);
+}
+
+async function deleteUser(id) {
+  await ensureSchema();
+  await db.query('DELETE FROM wiseape_users WHERE user_id = $1', [id]);
+  return true;
+}
+
 module.exports = {
   getRegistrationRequiresApproval,
   setRegistrationRequiresApproval,
@@ -221,4 +293,8 @@ module.exports = {
   updateUserPreferences,
   listPendingUsers,
   approveUser,
+  listUsers,
+  updateUser,
+  deleteUser,
 };
+

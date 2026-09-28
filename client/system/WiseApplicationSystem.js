@@ -202,19 +202,38 @@ class WiseApplicationSystem {
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers.Authorization = `Bearer ${token}`;
 
-      const response = await fetch('/api/applications/run', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ appId }),
-      });
-      const result = await response.json();
-      if (result.application && this.desktop) {
-        this.desktop.renderWindow(result.application, result.startupResult);
+      try {
+        const response = await fetch('/api/applications/run', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ appId }),
+        });
+        const result = await response.json();
+
+        if (!response.ok) {
+          console.error(`[WAS] runApplication error (${response.status}):`, result);
+          return result;
+        }
+
+        console.log('[WAS] runApplication result keys:', Object.keys(result));
+        if (result.application && this.desktop) {
+          this.desktop.renderWindow(result.application, result.startupResult);
+        } else if (!result.application) {
+          console.warn('[WAS] runApplication: result.application is missing', result);
+        }
+        return result;
+      } catch (err) {
+        console.error('[WAS] runApplication fetch failed:', err);
+        return {};
       }
-      return result;
     }
 
-    const app = this.apps.find((item) => item.appID === appId || item.appID === Number(appId));
+    let app = this.apps.find((item) => item.appID === appId || item.appID === Number(appId));
+
+    if (!app && isServer) {
+      await this.loadApplications();
+      app = this.apps.find((item) => item.appID === appId || item.appID === Number(appId));
+    }
 
     if (!app) {
       throw new Error(`Application ${appId} not found`);
