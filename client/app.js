@@ -126,13 +126,13 @@ async function start() {
 
   app.post('/api/applications/run', async (req, res) => {
     try {
-      const { appId } = req.body || {};
+      const { appId, appParameter } = req.body || {};
       if (!appId) {
         return res.status(400).json({ error: 'appId is required' });
       }
 
       const session = await resolveSession(req);
-      const result = await system.runApplication(appId, session);
+      const result = await system.runApplication(appId, session, appParameter || null);
       return res.json(result);
     } catch (error) {
       return res.status(500).json({ error: error.message });

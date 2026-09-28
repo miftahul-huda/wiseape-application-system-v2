@@ -165,8 +165,9 @@ class WiseWindow {
     return { status: this.minimized ? 'minimized' : 'restored', minimized: this.minimized, window: this.toJSON() };
   }
 
-  launchApp(appId) {
+  launchApp(appId, param = null) {
     this.pendingLaunchAppId = appId;
+    this.pendingLaunchParam = param || null;
     return this.pendingLaunchAppId;
   }
 
@@ -175,6 +176,8 @@ class WiseWindow {
     this.pendingInfo = null;
     const launchAppId = this.pendingLaunchAppId;
     this.pendingLaunchAppId = null;
+    const launchAppParam = this.pendingLaunchParam;
+    this.pendingLaunchParam = null;
 
     return {
       windowId: this.windowId,
@@ -193,6 +196,7 @@ class WiseWindow {
       params: this.params,
       info,
       launchAppId,
+      launchAppParam,
       controls: this.controls.map((control) => control.render ? control.render() : control),
     };
   }

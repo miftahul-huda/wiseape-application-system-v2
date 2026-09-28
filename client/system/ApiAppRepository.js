@@ -54,6 +54,17 @@ const fallbackApps = [
     appStartPoint: 'applications/HRIS/EmployeeManagement/AppEmployeeManagement.js:AppEmployeeManagement',
     appParameter: {},
   },
+  {
+    appID: 'employeeDetail',
+    appTitle: 'Employee Detail',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '📋',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/HRIS/EmployeeManagement/AppEmployeeDetail.js:AppEmployeeDetail',
+    appParameter: {},
+  },
 ];
 
 class ApiAppRepository {

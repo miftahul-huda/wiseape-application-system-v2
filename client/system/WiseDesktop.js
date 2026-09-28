@@ -870,9 +870,10 @@ class WiseDesktop {
 
     if (result.window && result.window.launchAppId) {
       const targetAppId = result.window.launchAppId;
-      console.log('[WAS] Launching app from control event:', targetAppId);
+      const launchAppParam = result.window.launchAppParam || null;
+      console.log('[WAS] Launching app from control event:', targetAppId, launchAppParam);
       if (typeof this.onIconClick === 'function') {
-        this.onIconClick({ appId: targetAppId });
+        this.onIconClick({ appId: targetAppId, appParameter: launchAppParam });
       } else {
         console.warn('[WAS] onIconClick is not set on desktop — cannot launch', targetAppId);
       }

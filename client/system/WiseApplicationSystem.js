@@ -49,7 +49,7 @@ class WiseApplicationSystem {
     this.desktop = isServer ? new DesktopClass() : new DesktopClass(this.root);
 
     if (!isServer) {
-      this.desktop.onIconClick = (menuItem) => this.runApplication(menuItem.appId);
+      this.desktop.onIconClick = (menuItem) => this.runApplication(menuItem.appId, null, menuItem.appParameter || null);
     }
 
     this.desktop.applyTheme(this.getActiveTheme());
@@ -196,7 +196,7 @@ class WiseApplicationSystem {
     return loadedModule[className] || loadedModule || WiseApplication;
   }
 
-  async runApplication(appId, session = null) {
+  async runApplication(appId, session = null, appParameter = null) {
     if (!isServer) {
       const token = typeof localStorage !== 'undefined' ? localStorage.getItem('was_token') : null;
       const headers = { 'Content-Type': 'application/json' };
@@ -206,7 +206,7 @@ class WiseApplicationSystem {
         const response = await fetch('/api/applications/run', {
           method: 'POST',
           headers,
-          body: JSON.stringify({ appId }),
+          body: JSON.stringify({ appId, appParameter }),
         });
         const result = await response.json();
 
@@ -245,7 +245,12 @@ class WiseApplicationSystem {
     const AppClass = this.resolveApplicationClass(app);
     const instance = new AppClass(app.toJSON());
     instance.system = this;
-    const startupResult = await instance.run(app.appConfig, app.appParameter);
+    // Merge the runtime-supplied parameter (e.g. employeeId from a control
+    // event) with the app's static appParameter so the window can use both.
+    const mergedParam = appParameter
+      ? { ...(app.appParameter || {}), ...appParameter }
+      : (app.appParameter || {});
+    const startupResult = await instance.run(app.appConfig, mergedParam);
 
     this.runningApplications.set(instance.appID || app.appID, instance);
 
