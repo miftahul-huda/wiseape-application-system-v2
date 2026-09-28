@@ -28,6 +28,7 @@
       this.onRowSelect = typeof options.onRowSelect === 'function' ? options.onRowSelect : null;
       this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
       this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
+      this.selectedRowIndex = null;
       this.style = options.style || {};
 
       // Arrow functions (not prototype methods) so `this` stays the control
@@ -47,6 +48,7 @@
 
       this.onRowselect = () => {
         const payload = this.value || {};
+        this.selectedRowIndex = payload.rowIndex;
         const row = this.data[payload.rowIndex];
         if (row && this.onRowSelect) {
           return this.onRowSelect(row);
@@ -79,9 +81,11 @@
 
     // Exactly one page of data at a time -- this control never holds (or
     // expects) the whole dataset. See docs/DEVELOPMENT_GUIDE.md §5.
+    // Resetting selectedRowIndex ensures the highlight clears on page navigation.
     setData(rows, totalCount) {
       this.data = rows || [];
       this.totalCount = totalCount || 0;
+      this.selectedRowIndex = null;
       return this;
     }
 
@@ -97,6 +101,7 @@
         columns: this.columns,
         data: this.data,
         totalCount: this.totalCount,
+        selectedRowIndex: this.selectedRowIndex !== undefined ? this.selectedRowIndex : null,
         pageSize: this.pageSize,
         currentPage: this.currentPage,
         pageSizeOptions: this.pageSizeOptions,
@@ -209,9 +214,30 @@
         const zebra = rowIndex % 2 === 1 ? 'bg-slate-100' : 'bg-white';
 
         if (data.hasRowSelectHandler) {
-          tr.className = `${zebra} cursor-pointer hover:bg-slate-900/5`;
+          tr.className = `${zebra} cursor-pointer hover:bg-slate-900/5 transition-colors`;
+          const isSelected = data.selectedRowIndex !== null && data.selectedRowIndex !== undefined && data.selectedRowIndex === rowIndex;
+          if (isSelected) {
+            tr.classList.add('wise-dt-row-selected');
+            tr.style.background = 'color-mix(in srgb, var(--accent) 15%, white)';
+            tr.style.outline = '2px solid var(--accent)';
+            tr.style.outlineOffset = '-2px';
+          }
           tr.addEventListener('click', (event) => {
             if (event.target.closest('[data-cell-interactive]')) return;
+            // Immediate visual feedback — highlight this row before the server round-trip
+            const tableEl = tr.closest('table');
+            if (tableEl) {
+              tableEl.querySelectorAll('tbody tr').forEach((r) => {
+                r.classList.remove('wise-dt-row-selected');
+                r.style.background = '';
+                r.style.outline = '';
+                r.style.outlineOffset = '';
+              });
+            }
+            tr.classList.add('wise-dt-row-selected');
+            tr.style.background = 'color-mix(in srgb, var(--accent) 15%, white)';
+            tr.style.outline = '2px solid var(--accent)';
+            tr.style.outlineOffset = '-2px';
             context.desktop.sendControlEvent(context.appId, data.id, table, 'rowselect', {
               [data.id]: { rowIndex },
             });
