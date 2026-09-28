@@ -555,6 +555,42 @@ body {
   background: rgba(15, 23, 42, 0.4);
 }
 
+/* WiseDataTable scrollable rows container */
+.wise-datatable-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 23, 42, 0.22) transparent;
+}
+
+.wise-datatable-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.wise-datatable-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.wise-datatable-scroll::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.22);
+  border-radius: 999px;
+}
+
+.wise-datatable-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.4);
+}
+
+body.dark-theme .wise-datatable-scroll {
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+}
+
+body.dark-theme .wise-datatable-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+body.dark-theme .wise-datatable-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
 .window-body h2 {
   margin-top: 0;
   font-size: 24px;
@@ -999,4 +1035,48 @@ body.dark-theme .wise-editor-modal>div {
   background-color: #1e293b !important;
   color: #f8fafc !important;
   border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+body.dark-theme .wise-icon-menu-group {
+  background-color: rgba(15, 23, 42, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.dark-theme .wise-vertical-separator {
+  background-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+.wise-icon-menu:hover {
+  background-color: rgba(15, 23, 42, 0.08);
+}
+
+body.dark-theme .wise-icon-menu:hover {
+  background-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Stacking context for WiseIconMenuGroup and floating tooltips */
+.wise-icon-menu-group,
+[data-control-wrapper]:has(.wise-icon-menu-group) {
+  position: relative !important;
+  z-index: 40 !important;
+}
+
+.wise-icon-menu {
+  position: relative;
+}
+
+.wise-icon-menu:hover {
+  z-index: 60 !important;
+}
+
+.wise-floating-tooltip {
+  position: fixed !important;
+  z-index: 99999999 !important;
+  pointer-events: none !important;
+}
+
+.dock-item:has(.wise-app-icon-img) {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }

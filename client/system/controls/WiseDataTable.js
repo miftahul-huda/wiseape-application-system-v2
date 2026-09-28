@@ -21,6 +21,9 @@
       this.pageSizeOptions = options.pageSizeOptions || [];
       this.sortField = options.sortField || null;
       this.sortDirection = options.sortDirection || 'asc';
+      this.height = options.height || (options.style && options.style.height) || null;
+      this.maxHeight = options.maxHeight || (options.style && options.style.maxHeight) || null;
+      this.scrollable = options.scrollable !== undefined ? options.scrollable : true;
       this.onDataFilterChanged = typeof options.onDataFilterChanged === 'function' ? options.onDataFilterChanged : null;
       this.onRowSelect = typeof options.onRowSelect === 'function' ? options.onRowSelect : null;
       this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
@@ -99,6 +102,9 @@
         pageSizeOptions: this.pageSizeOptions,
         sortField: this.sortField,
         sortDirection: this.sortDirection,
+        height: this.height,
+        maxHeight: this.maxHeight,
+        scrollable: this.scrollable,
         hasRowSelectHandler: !!this.onRowSelect,
         hasClickHandler: !!this.onClick,
         hasHoverHandler: !!this.onHover,
@@ -140,17 +146,40 @@
       const box = document.createElement('div');
       box.className = 'overflow-hidden rounded-lg border border-slate-900/10 bg-white shadow-sm';
 
+      // Scrollable div wrapping the table and rows
+      const scrollDiv = document.createElement('div');
+      scrollDiv.className = 'wise-datatable-scroll overflow-x-auto overflow-y-auto';
+      if (data.height) {
+        scrollDiv.style.height = typeof data.height === 'number' ? `${data.height}px` : data.height;
+      }
+      if (data.maxHeight) {
+        scrollDiv.style.maxHeight = typeof data.maxHeight === 'number' ? `${data.maxHeight}px` : data.maxHeight;
+      } else if (!data.height && data.scrollable !== false) {
+        scrollDiv.style.maxHeight = '380px';
+      }
+
       const table = document.createElement('table');
       table.className = 'w-full border-collapse text-sm';
 
       const thead = document.createElement('thead');
       thead.className = 'bg-[var(--accent-dark)]';
+      thead.style.position = 'sticky';
+      thead.style.top = '0';
+      thead.style.zIndex = '10';
       const headRow = document.createElement('tr');
 
       (data.columns || []).forEach((col) => {
         const th = document.createElement('th');
         th.className = 'border-b border-black/15 px-2 py-2 text-left text-xs font-semibold uppercase tracking-wide text-white/90';
-        if (col.width) th.style.width = `${col.width}px`;
+        th.style.position = 'sticky';
+        th.style.top = '0';
+        th.style.zIndex = '10';
+        th.style.backgroundColor = 'var(--accent-dark)';
+        if (col.width) {
+          const w = typeof col.width === 'number' ? `${col.width}px` : col.width;
+          th.style.width = w;
+          th.style.minWidth = w;
+        }
 
         let headerText = col.header || '';
         const sortable = col.sortable !== false && !!col.dataField;
@@ -199,13 +228,19 @@
       });
 
       table.appendChild(tbody);
-      box.appendChild(table);
+      scrollDiv.appendChild(table);
+      box.appendChild(scrollDiv);
       return box;
     }
 
     static renderCell(data, context, col, row, rowIndex) {
       const td = document.createElement('td');
       td.className = 'border-b border-slate-900/5 px-2 py-2';
+      if (col.width) {
+        const w = typeof col.width === 'number' ? `${col.width}px` : col.width;
+        td.style.width = w;
+        td.style.minWidth = w;
+      }
       const cellValue = row[col.dataField];
 
       const fireCellChange = (newValue) => {

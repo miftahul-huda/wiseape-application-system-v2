@@ -701,6 +701,22 @@ exists). `renderElement`: `<button type="button">`. No `gatherValue`/
 `patchElement` override needed — a `<button>` matches none of the base
 `gatherValue`'s element-type checks, so it naturally contributes no value.
 
+### `WiseIconMenu`
+
+`new WiseIconMenu(label = '', options)`. Options:
+- `icon`: Image URL (e.g. `'/app-assets/hris/icon.svg'`, `'/images/icon.png'`), SVG markup (`<svg...`), or emoji string (`'👥'`).
+- `iconSize`: Icon size in pixels or CSS length (default `36`).
+- `badge`: Optional pill badge string/number on the top-right corner.
+- `badgeColor`: Background color for the badge (defaults to theme `var(--accent)`).
+- `description`: Optional secondary text label underneath the title.
+- `layout`: `'vertical'` (default, icon on top) or `'horizontal'` (icon on left).
+- `active`: Boolean indicating active/selected state.
+- `onClick`: Click event handler `async () => { ... }`.
+- `onHover`: Hover event handler.
+- `style`: Custom style overrides.
+
+Displays an interactive icon button with hover animations, theme integration, active states, and full button event handling. Often grouped within a `WiseIconMenuGroup`.
+
 ### `WiseComboBox`
 
 `new WiseComboBox(items = [], options)` — `items: [{value, label}]`. Value
@@ -1063,6 +1079,26 @@ uppercase title heading, then a flex-column body rendering each child via
 `context.desktop.renderControl(...)`. `patchElement(winEl, data, context)`
 — delegates to each child control's own registered `patchElement`.
 
+### `WiseIconMenuGroup` — container
+
+`new WiseIconMenuGroup(title = '', items = [], options = {})` — groups multiple `WiseIconMenu` controls together with consistent layout, spacing, and styling.
+- `title`: Optional group title/header text.
+- `items`: Initial array of `WiseIconMenu` instances.
+- `options.layout`: `'horizontal'` (default row/wrap), `'grid'` (multi-column grid), or `'vertical'`.
+- `options.columns`: Column count when `layout: 'grid'` (default `4`).
+- `options.onClick` / `options.onHover` / `options.style`.
+
+**Methods**
+- **`addMenu(iconMenu)`** / **`addControl(iconMenu)`** — appends a `WiseIconMenu` to the group. Returns `this`.
+- **`getChildControls()`** — returns `this.items` so all child `WiseIconMenu` controls are auto-registered in the parent window by ID.
+- **`getItems()`** / **`setItems(items)`** — get or replace the child items array.
+
+### `WiseVerticalSeparator`
+
+`new WiseVerticalSeparator(options = {})` — renders a vertical divider line between toolbar or menu items.
+- `options.height`: Divider height in px or string (default `36`).
+- `options.style`: Custom style overrides.
+
 ### `WiseDataTable` — container (partial exception, see below)
 
 `new WiseDataTable(options)`:
@@ -1078,6 +1114,9 @@ uppercase title heading, then a flex-column body rendering each child via
 | `onRowSelect` | `null` | `(rowData) => ...`, invoked on a row click (only wired up if this is set — see below) |
 | `onClick` | `null` | generic — see the shared note above; wired on this control's own outer wrapper element, distinct from `onRowSelect`/cell-level `onClick` |
 | `onHover` | `null` | generic, same wrapper |
+| `height` | `null` | explicit fixed height for the scrollable rows container (e.g. `'350px'`) |
+| `maxHeight` | `'380px'` | maximum height for the scrollable rows container before scrolling starts |
+| `scrollable` | `true` | whether rows are placed inside a scrollable container with a sticky header |
 | `style` | `{}` | |
 
 `columns = []` and `data = []` start empty (set via `setColumns`/`setData`,

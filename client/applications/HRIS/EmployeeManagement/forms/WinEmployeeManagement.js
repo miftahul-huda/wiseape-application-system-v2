@@ -8,6 +8,9 @@ const WiseTabControl = require('../../../../system/controls/WiseTabControl');
 const WiseDataTable = require('../../../../system/controls/WiseDataTable');
 const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
 const WiseFrame = require('../../../../system/controls/WiseFrame');
+const WiseIconMenu = require('../../../../system/controls/WiseIconMenu');
+const WiseIconMenuGroup = require('../../../../system/controls/WiseIconMenuGroup');
+const WiseVerticalSeparator = require('../../../../system/controls/WiseVerticalSeparator');
 
 const HrisApiRepository = require('../services/HrisApiRepository');
 const api = new HrisApiRepository();
@@ -45,35 +48,68 @@ class WinEmployeeManagement extends WiseWindow {
   onWindowInit() {
     this.controls = [];
 
-    // Header Panel
-    const headerFrame = new WiseFrame('', {
-      id: 'frameHeader',
-      style: { marginBottom: '8px', padding: '10px 14px', background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', color: '#ffffff' }
+    // Icon Menu Group Toolbar
+    const iconMenuGroup = new WiseIconMenuGroup('', [
+      new WiseIconMenu('Display All', {
+        id: 'btnMenuDisplayAll',
+        icon: '📋',
+        description: 'Tampilkan Semua',
+        onClick: this.onDisplayAllClick.bind(this)
+      }),
+      new WiseIconMenu('Select/Deselect All', {
+        id: 'btnMenuSelectAll',
+        icon: '☑️',
+        description: 'Pilih / Batal',
+        onClick: this.onToggleSelectAllClick.bind(this)
+      }),
+      new WiseVerticalSeparator({ height: 26 }),
+      new WiseIconMenu('Detail Employee', {
+        id: 'btnMenuDetail',
+        icon: '👤',
+        description: 'Lihat Detail',
+        onClick: this.onDetailEmployeeClick.bind(this)
+      }),
+      new WiseIconMenu('Add Employee', {
+        id: 'btnMenuAdd',
+        icon: '➕',
+        description: 'Karyawan Baru',
+        onClick: this.onNewEmployeeClick.bind(this)
+      }),
+      new WiseIconMenu('Deactivate Employee', {
+        id: 'btnMenuDeactivate',
+        icon: '⚡',
+        description: 'Status Aktif',
+        onClick: this.onToggleDeactivate.bind(this)
+      }),
+      new WiseIconMenu('Find Employee', {
+        id: 'btnMenuFind',
+        icon: '🔍',
+        description: 'Cari Karyawan',
+        onClick: this.onFindEmployeeMenuClick.bind(this)
+      }),
+      new WiseVerticalSeparator({ height: 26 }),
+      new WiseIconMenu('Report', {
+        id: 'btnMenuReport',
+        icon: '📊',
+        description: 'Laporan Ringkasan',
+        onClick: this.onReportClick.bind(this)
+      })
+    ], {
+      id: 'groupIconMenu',
+      layout: 'horizontal',
+      style: { marginBottom: '10px', position: 'relative', zIndex: 40 }
     });
 
-    headerFrame.addControl(new WiseLabel('Sistem Manajemen Data Karyawan (HRIS)', {
-      id: 'lblAppHeader',
-      style: { fontSize: 18, fontWeight: 700, color: '#ffffff' }
-    }));
-    headerFrame.addControl(new WiseLabel('Kelola data pribadi, pekerjaan, kompensasi payroll, dokumen digital, riwayat karir & pendidikan karyawan.', {
-      id: 'lblAppSubHeader',
-      style: { fontSize: 12, color: '#94a3b8', marginTop: '2px' }
-    }));
-    headerFrame.addControl(new WiseLabel('Statistik: Memuat...', {
-      id: 'lblStatsSummary',
-      style: { fontSize: 12, fontWeight: 600, color: '#38bdf8', marginTop: '6px' }
-    }));
-
-    this.addControl(headerFrame);
+    this.addControl(iconMenuGroup);
 
     // Toolbar & Search Action Bar
     const toolbarLayout = new WiseTableLayout({ rows: 1, columns: 6, id: 'tblToolbar', style: { marginBottom: '10px' } });
     toolbarLayout.setCell(0, 0, new WiseTextBox('', { id: 'txtSearch', placeholder: '🔍 Cari nama, NIK, jabatan, email...' }), { colSpan: 2 });
     toolbarLayout.setCell(0, 2, new WiseComboBox(DEPARTMENTS.map(d => ({ value: d, label: d })), { id: 'cmbFilterDept', value: 'Semua', onChange: this.onFilterChanged.bind(this) }));
     toolbarLayout.setCell(0, 3, new WiseButton('🔍 Cari', { id: 'btnSearch', onClick: this.onSearchClick.bind(this) }));
-    toolbarLayout.setCell(0, 4, new WiseButton('➕ Karyawan Baru', { id: 'btnNewEmployee', onClick: this.onNewEmployeeClick.bind(this), style: { background: '#2563eb' } }));
+    toolbarLayout.setCell(0, 4, new WiseButton('➕ Karyawan Baru', { id: 'btnNewEmployee', onClick: this.onNewEmployeeClick.bind(this) }));
     toolbarLayout.setCell(0, 5, new WiseButton('🔄 Segarkan', { id: 'btnRefresh', onClick: this.loadInitialData.bind(this) }));
-    this.addControl(toolbarLayout);
+    //this.addControl(toolbarLayout);
 
     // Main Tab Control
     this.mainTabs = new WiseTabControl({
@@ -364,7 +400,7 @@ class WinEmployeeManagement extends WiseWindow {
 
   createSaveBar(buttonId) {
     const bar = new WiseTableLayout({ rows: 1, columns: 4, id: `bar_${buttonId}`, style: { marginTop: '16px', borderTop: '1px solid #e2e8f0', paddingTop: '10px' } });
-    bar.setCell(0, 0, new WiseButton('💾 Simpan Data Karyawan', { id: buttonId, onClick: this.onSaveEmployee.bind(this), style: { background: '#2563eb' } }));
+    bar.setCell(0, 0, new WiseButton('💾 Simpan Data Karyawan', { id: buttonId, onClick: this.onSaveEmployee.bind(this) }));
     bar.setCell(0, 1, new WiseButton('⚡ Nonaktifkan / Aktifkan', { id: `btnDeact_${buttonId}`, onClick: this.onToggleDeactivate.bind(this), style: { background: '#d97706' } }));
     bar.setCell(0, 2, new WiseButton('🗑️ Hapus Karyawan', { id: `btnDel_${buttonId}`, onClick: this.onDeleteEmployee.bind(this), style: { background: '#dc2626' } }));
     bar.setCell(0, 3, new WiseButton('⬅️ Kembali ke Daftar', { id: `btnBack_${buttonId}`, onClick: () => this.mainTabs.setValue(0) }));
@@ -383,13 +419,16 @@ class WinEmployeeManagement extends WiseWindow {
   async refreshStatistics() {
     try {
       const stats = await api.getStatistics();
-      if (stats) {
+      this.latestStats = stats;
+      if (stats && this.lblStatsSummary && typeof this.lblStatsSummary.text === 'function') {
         this.lblStatsSummary.text(
           `👥 Total: ${stats.totalEmployees || 0} Karyawan  |  🟢 Aktif: ${stats.activeEmployees || 0}  |  🔴 Nonaktif: ${stats.inactiveEmployees || 0}`
         );
       }
     } catch (e) {
-      this.lblStatsSummary.text('⚠️ Gagal terhubung ke backend service HRIS (Port 4001)');
+      if (this.lblStatsSummary && typeof this.lblStatsSummary.text === 'function') {
+        this.lblStatsSummary.text('⚠️ Gagal terhubung ke backend service HRIS (Port 4001)');
+      }
     }
   }
 
@@ -519,6 +558,72 @@ class WinEmployeeManagement extends WiseWindow {
     }
     if (this.dtCareer) {
       this.dtCareer.setData(emp.careerHistories || [], (emp.careerHistories || []).length);
+    }
+  }
+
+  async onDisplayAllClick() {
+    if (this.txtSearch) this.txtSearch.setValue('');
+    if (this.cmbFilterDept) this.cmbFilterDept.setValue('Semua');
+    this.mainTabs.setValue(0);
+    await this.loadEmployeesTable(1, this.dtEmployees ? this.dtEmployees.pageSize : 8);
+    this.showInfo('Display All', 'Menampilkan seluruh daftar karyawan tanpa filter pencarian.', 'information');
+  }
+
+  async onToggleSelectAllClick() {
+    if (this.selectedEmployeeId) {
+      this.selectedEmployeeId = null;
+      this.currentEmployeeData = null;
+      if (this.lblSelectedInfo) this.lblSelectedInfo.text('Tidak ada karyawan yang dipilih.');
+      this.showInfo('Deselect', 'Pilihan karyawan telah dibatalkan.', 'information');
+    } else if (this.cachedEmployees && this.cachedEmployees.length > 0) {
+      await this.selectEmployee(this.cachedEmployees[0]);
+      this.showInfo('Select Employee', `Karyawan terpilih: ${this.cachedEmployees[0].fullName}`, 'success');
+    } else {
+      this.showInfo('Peringatan', 'Tidak ada data karyawan pada daftar.', 'warning');
+    }
+  }
+
+  async onDetailEmployeeClick() {
+    if (!this.selectedEmployeeId) {
+      return this.showInfo('Pilih Karyawan', 'Silakan pilih karyawan dari daftar terlebih dahulu untuk melihat detail.', 'warning');
+    }
+    this.mainTabs.setValue(1); // Jump to Personal Info tab
+  }
+
+  async onFindEmployeeMenuClick() {
+    this.mainTabs.setValue(0); // Jump to table list
+    await this.onSearchClick();
+  }
+
+  async onReportClick() {
+    try {
+      const stats = await api.getStatistics();
+      if (!stats) {
+        return this.showInfo('Laporan Ringkasan', 'Data statistik belum tersedia.', 'warning');
+      }
+      const deptBreakdown = Object.entries(stats.byDepartment || {})
+        .map(([dept, count]) => `• ${dept}: ${count} orang`)
+        .join('\n');
+
+      const statusBreakdown = Object.entries(stats.byStatus || {})
+        .map(([status, count]) => `• ${status}: ${count} orang`)
+        .join('\n');
+
+      const message = [
+        `📊 TOTAL KARYAWAN: ${stats.totalEmployees || 0} orang`,
+        `🟢 Status Aktif: ${stats.activeEmployees || 0} orang`,
+        `🔴 Status Nonaktif: ${stats.inactiveEmployees || 0} orang`,
+        '',
+        '🏢 JUMLAH PER DEPARTEMEN:',
+        deptBreakdown || 'Belum ada data',
+        '',
+        '💼 STATUS KEPEGAWAIAN:',
+        statusBreakdown || 'Belum ada data'
+      ].join('\n');
+
+      this.showInfo('Laporan Ringkasan Karyawan', message, 'information');
+    } catch (err) {
+      this.showInfo('Gagal Memuat Laporan', err.message, 'error');
     }
   }
 

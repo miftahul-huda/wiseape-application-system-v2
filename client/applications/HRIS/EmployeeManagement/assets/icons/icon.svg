@@ -1,20 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
   <defs>
     <linearGradient id="empBg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#4f46e5" />
       <stop offset="50%" stop-color="#7c3aed" />
       <stop offset="100%" stop-color="#9333ea" />
     </linearGradient>
-    <filter id="empShadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#4f46e5" flood-opacity="0.35" />
-    </filter>
   </defs>
 
-  <!-- Background Squircle -->
-  <rect x="8" y="8" width="112" height="112" rx="26" fill="url(#empBg)" filter="url(#empShadow)" />
-
-  <!-- Inner subtle border -->
-  <rect x="9" y="9" width="110" height="110" rx="25" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" />
+  <!-- Background edge-to-edge squircle (no outer border or inset) -->
+  <rect x="0" y="0" width="128" height="128" rx="28" fill="url(#empBg)"/>
 
   <!-- ID Card Badge Lanyard / Clip -->
   <rect x="56" y="16" width="16" height="8" rx="3" fill="#cbd5e1" />

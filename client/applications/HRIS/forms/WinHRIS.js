@@ -28,11 +28,11 @@ class WinHRIS extends WiseWindow {
     const bannerFrame = new WiseFrame('', {
       id: 'frameHero',
       style: {
-        background: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%)',
+        background: 'linear-gradient(135deg, var(--accent-dark) 0%, var(--accent) 100%)',
         color: '#ffffff',
         borderRadius: '12px',
         marginBottom: '14px',
-        boxShadow: '0 8px 16px -4px rgba(37, 99, 235, 0.25)'
+        boxShadow: '0 8px 16px -4px rgba(0, 0, 0, 0.15)'
       }
     });
 
@@ -42,11 +42,11 @@ class WinHRIS extends WiseWindow {
     }));
     bannerFrame.addControl(new WiseLabel('Pusat Layanan & Integrasi Manajemen Sumber Daya Manusia Terpadu', {
       id: 'lblPortalSubtitle',
-      style: { fontSize: 12, color: '#dbeafe', display: 'block' }
+      style: { fontSize: 12, color: 'rgba(255, 255, 255, 0.9)', display: 'block' }
     }));
     bannerFrame.addControl(new WiseLabel('Pilih sub-aplikasi di bawah ini untuk mengelola modul HRIS perusahaan:', {
       id: 'lblPortalDesc',
-      style: { fontSize: 11, color: '#bfdbfe', display: 'block' }
+      style: { fontSize: 11, color: 'rgba(255, 255, 255, 0.8)', display: 'block' }
     }));
 
     this.addControl(bannerFrame);
@@ -72,16 +72,16 @@ class WinHRIS extends WiseWindow {
     const cardEmployee = new WiseFrame('🟢 AKTIF — Employee Management', {
       id: 'cardEmployeeMgmt',
       style: {
-        border: '2px solid #3b82f6',
-        borderRadius: '10px',
-        background: 'linear-gradient(to bottom, #eff6ff, #f8fafc)',
-        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.06)',
+        border: 'none',
+        borderRadius: '12px',
+        background: 'linear-gradient(to bottom, color-mix(in srgb, var(--accent) 12%, rgba(255, 255, 255, 0.95)), rgba(255, 255, 255, 0.85))',
+        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.06)',
         height: '100%'
       }
     });
     cardEmployee.addControl(new WiseLabel('👤 Employee Management', {
       id: 'lblEmpCardTitle',
-      style: { fontSize: 14, fontWeight: 700, color: '#1e40af', display: 'block' }
+      style: { fontSize: 14, fontWeight: 700, color: 'var(--accent-dark)', display: 'block' }
     }));
     cardEmployee.addControl(new WiseLabel('Kelola data pribadi, posisi pekerjaan, kompensasi payroll, berkas legalitas, riwayat karir, dan pendidikan karyawan.', {
       id: 'lblEmpCardDesc',
@@ -90,7 +90,7 @@ class WinHRIS extends WiseWindow {
     cardEmployee.addControl(new WiseButton('🚀 Buka Employee Management', {
       id: 'btnOpenEmployeeMgmt',
       onClick: this.onOpenEmployeeManagement.bind(this),
-      style: { background: '#2563eb', marginTop: '8px' }
+      style: { marginTop: '8px' }
     }));
     gridLayout.setCell(0, 0, cardEmployee);
 
@@ -98,9 +98,10 @@ class WinHRIS extends WiseWindow {
     const cardAttendance = new WiseFrame('⏳ SEGERA HADIR — Presensi & Cuti', {
       id: 'cardAttendance',
       style: {
-        border: '1px solid #e2e8f0',
-        borderRadius: '10px',
-        background: '#f8fafc',
+        border: 'none',
+        borderRadius: '12px',
+        background: 'color-mix(in srgb, var(--bg2) 15%, rgba(255, 255, 255, 0.7))',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
         opacity: '0.82',
         height: '100%'
       }
@@ -125,9 +126,10 @@ class WinHRIS extends WiseWindow {
     const cardPayroll = new WiseFrame('⏳ SEGERA HADIR — Penggajian & Pajak', {
       id: 'cardPayroll',
       style: {
-        border: '1px solid #e2e8f0',
-        borderRadius: '10px',
-        background: '#f8fafc',
+        border: 'none',
+        borderRadius: '12px',
+        background: 'color-mix(in srgb, var(--bg2) 15%, rgba(255, 255, 255, 0.7))',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
         opacity: '0.82',
         height: '100%'
       }
@@ -152,9 +154,10 @@ class WinHRIS extends WiseWindow {
     const cardPerformance = new WiseFrame('⏳ SEGERA HADIR — Kinerja & Penilaian', {
       id: 'cardPerformance',
       style: {
-        border: '1px solid #e2e8f0',
-        borderRadius: '10px',
-        background: '#f8fafc',
+        border: 'none',
+        borderRadius: '12px',
+        background: 'color-mix(in srgb, var(--bg2) 15%, rgba(255, 255, 255, 0.7))',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
         opacity: '0.82',
         height: '100%'
       }

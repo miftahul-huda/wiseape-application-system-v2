@@ -4,8 +4,8 @@ const WinEmployeeManagement = require('./forms/WinEmployeeManagement');
 class AppEmployeeManagement extends WiseApplication {
   async run(appConfig = {}, appParameter = {}) {
     const employeeWindow = this.createWindow(WinEmployeeManagement, {
-      width: '90%',
-      height: 720,
+      width: '96%',
+      height: '90%',
       positionX: 60,
       positionY: 40,
     });
