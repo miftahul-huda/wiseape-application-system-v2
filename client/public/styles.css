@@ -34,7 +34,7 @@ button {
 
 body {
   margin: 0;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: linear-gradient(135deg, var(--bg1), var(--bg2));
   color: var(--dark-text);
   overflow: hidden;
@@ -217,7 +217,7 @@ body {
   padding: 7px 12px;
   border-radius: 7px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   color: rgba(17, 24, 39, 0.85);
   transition: background 0.12s ease;
@@ -609,7 +609,7 @@ body.dark-theme .wise-dt-context-menu-item:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 11px;
   line-height: 1;
   color: rgba(0, 0, 0, 0.55);
