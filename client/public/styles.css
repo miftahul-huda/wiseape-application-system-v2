@@ -214,6 +214,9 @@ body {
 }
 
 .wise-dt-context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 7px 12px;
   border-radius: 7px;
   cursor: pointer;
@@ -221,6 +224,23 @@ body {
   font-weight: 500;
   color: rgba(17, 24, 39, 0.85);
   transition: background 0.12s ease;
+}
+
+.wise-dt-context-menu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.wise-dt-context-menu-icon svg,
+.wise-dt-context-menu-icon img {
+  width: 16px;
+  height: 16px;
 }
 
 .wise-dt-context-menu-item:hover {

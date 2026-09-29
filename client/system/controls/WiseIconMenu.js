@@ -63,10 +63,11 @@
       iconWrapper.className = 'relative flex items-center justify-center shrink-0 transition-transform duration-150 group-hover:scale-110';
       iconWrapper.style.width = sizePx;
       iconWrapper.style.height = sizePx;
+      iconWrapper.style.overflow = 'hidden';
 
       const iconSrc = (data.icon || '').trim();
       const isImgUrl = /^(https?:\/\/|\/|\.\/|data:image\/)/i.test(iconSrc) || /\.(png|jpe?g|svg|webp|gif|ico)$/i.test(iconSrc);
-      const isSvgMarkup = iconSrc.startsWith('<svg');
+      const isSvgMarkup = iconSrc.startsWith('<svg') || /<svg[\s>]/i.test(iconSrc);
 
       if (isImgUrl) {
         const img = document.createElement('img');
@@ -83,8 +84,20 @@
         iconWrapper.innerHTML = iconSrc;
         const svgEl = iconWrapper.querySelector('svg');
         if (svgEl) {
+          // Tools like VTracer export SVGs with hard-coded width/height attributes
+          // (e.g. width="512" height="512"). Those presentation attributes prevent
+          // the SVG from scaling via CSS. Remove them and ensure a viewBox is set
+          // so the SVG preserves its aspect ratio when told to fill 100%.
+          const attrW = svgEl.getAttribute('width');
+          const attrH = svgEl.getAttribute('height');
+          if (!svgEl.getAttribute('viewBox') && attrW && attrH) {
+            svgEl.setAttribute('viewBox', `0 0 ${attrW} ${attrH}`);
+          }
+          svgEl.removeAttribute('width');
+          svgEl.removeAttribute('height');
           svgEl.style.width = '100%';
           svgEl.style.height = '100%';
+          svgEl.style.display = 'block';
         }
       } else {
         // Emoji or text glyph

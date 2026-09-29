@@ -82,6 +82,15 @@
           return item.onClick(row, payload.rowIndex);
         }
       };
+
+      // dispatchControlEvent capitalises the first letter of the event name
+      // to derive the handler: 'filterinputchange' → 'onFilterinputchange'.
+      this.onFilterinputchange = () => {
+        const payload = this.value || {};
+        if (this.onFilterChange) {
+          return this.onFilterChange(payload);
+        }
+      };
     }
 
     setColumns(columns) {
@@ -90,15 +99,45 @@
     }
 
     // Registers the right-click context menu shown on every row. Each item
-    // is { id?, label, onClick(row, rowIndex) } -- onClick runs server-side
-    // (like a column's own onClick/onChange), routed back through the same
-    // event round-trip as row selection via the 'contextmenuaction' event.
+    // is { id?, label, icon?, onClick(row, rowIndex) } -- onClick runs
+    // server-side (like a column's own onClick/onChange), routed back
+    // through the same event round-trip as row selection via the
+    // 'contextmenuaction' event. `icon` follows the same formats WiseIconMenu
+    // accepts: an emoji/glyph, inline "<svg...", or an image URL.
     addContextMenu(items) {
       this.contextMenuItems = (items || []).map((item, index) => ({
         id: item.id || `ctx-${index}`,
         label: item.label,
+        icon: item.icon || null,
         onClick: typeof item.onClick === 'function' ? item.onClick : null,
       }));
+      return this;
+    }
+
+    // Adds a single filter control descriptor to the filter bar.
+    // Each filter is a plain object:
+    //   { id, type: 'text'|'select', placeholder?, label?, items?, onChange }
+    // `onChange(filterValues)` receives a map of { [filterId]: value } for
+    // ALL current filters every time any one of them changes.
+    addFilter(filter) {
+      if (!this.filterControls) this.filterControls = [];
+      this.filterControls.push(filter);
+      // Store onChange separately (functions can't survive JSON serialize)
+      if (!this._filterHandlers) this._filterHandlers = {};
+      if (typeof filter.onChange === 'function') {
+        this._filterHandlers[filter.id] = filter.onChange;
+      }
+      // If any filter has an onChange, wire up the single shared handler
+      this.onFilterChange = (payload) => {
+        const handler = Object.values(this._filterHandlers)[0];
+        if (handler) return handler(payload);
+      };
+      return this;
+    }
+
+    // Adds multiple filter controls at once.
+    addFilters(filters) {
+      (filters || []).forEach((f) => this.addFilter(f));
       return this;
     }
 
@@ -149,7 +188,17 @@
         height: this.height,
         maxHeight: this.maxHeight,
         scrollable: this.scrollable,
-        contextMenuItems: this.contextMenuItems.map((item) => ({ id: item.id, label: item.label })),
+        contextMenuItems: this.contextMenuItems.map((item) => ({ id: item.id, label: item.label, icon: item.icon })),
+        // Serialize filter control descriptors (no function fields)
+        filterControls: (this.filterControls || []).map((f) => ({
+          id: f.id,
+          type: f.type || 'text',
+          placeholder: f.placeholder || '',
+          label: f.label || '',
+          items: f.items || [],
+          value: f.value || '',
+          hasHandler: !!(this._filterHandlers && Object.keys(this._filterHandlers).length > 0),
+        })),
         hasRowSelectHandler: true,
         hasClickHandler: !!this.onClick,
         hasHoverHandler: !!this.onHover,
@@ -176,6 +225,14 @@
         });
       };
 
+      // Filter bar -- rendered only when filters have been registered via
+      // addFilter / addFilters. Inputs fire a debounced 'filterinputchange'
+      // event (for text) or an immediate one (for select) so the app can
+      // re-query the API with the current filter values.
+      if ((data.filterControls || []).length > 0) {
+        wrapper.appendChild(WiseDataTable.renderFilterBar(data, context));
+      }
+
       // Pagination at both ends -- convenient on a long table where the
       // bottom pager would otherwise be a scroll away. Both instances are
       // wired to the same fireFilterChange, and a full re-render on every
@@ -185,6 +242,120 @@
       wrapper.appendChild(WiseDataTable.renderPager(data, fireFilterChange, 'bottom'));
 
       return wrapper;
+    }
+
+    // Renders the horizontal filter bar above the table. Each registered
+    // filter appears as a labelled input (text) or select (select/combobox).
+    // All inputs share one 'filterinputchange' event payload: a map of
+    // { [filterId]: currentValue } for every filter, so the server handler
+    // always has the full picture without having to merge state itself.
+    static renderFilterBar(data, context) {
+      const bar = document.createElement('div');
+      bar.className = 'wise-dt-filter-bar flex flex-wrap items-end gap-3 rounded-xl border border-slate-900/8 bg-white/70 px-4 py-3 shadow-sm backdrop-blur-sm';
+
+      // Collect all current input elements so we can snapshot all values
+      // whenever any one of them changes.
+      const inputEls = {};
+
+      const fireFilterInput = (triggerId, triggerEl) => {
+        if (!data.filterControls.some((f) => f.hasHandler)) return;
+        const values = {};
+        data.filterControls.forEach((f) => {
+          const el = inputEls[f.id];
+          values[f.id] = el ? el.value : (f.value || '');
+        });
+        // Use the triggering element (always live in DOM) as sourceEl so
+        // closest('.window') succeeds even after a patchElement rebuild that
+        // has already detached the original `bar` reference.
+        const sourceEl = triggerEl || bar;
+        context.desktop.sendControlEvent(context.appId, data.id, sourceEl, 'filterinputchange', {
+          [data.id]: { ...values, _triggerId: triggerId },
+        });
+      };
+
+      (data.filterControls || []).forEach((filter) => {
+        const group = document.createElement('div');
+        group.className = 'flex flex-col gap-1 min-w-[140px] flex-1';
+
+        if (filter.label) {
+          const lbl = document.createElement('label');
+          lbl.className = 'text-[11px] font-semibold uppercase tracking-wider text-slate-500 select-none';
+          lbl.textContent = filter.label;
+          lbl.htmlFor = `${data.id}-filter-${filter.id}`;
+          group.appendChild(lbl);
+        }
+
+        if (filter.type === 'select') {
+          // Wrapper for the chevron overlay
+          const selectWrap = document.createElement('div');
+          selectWrap.className = 'relative';
+
+          const sel = document.createElement('select');
+          sel.id = `${data.id}-filter-${filter.id}`;
+          sel.className = 'w-full cursor-pointer appearance-none rounded-lg border-0 bg-white py-1.5 pl-3 pr-8 text-sm text-slate-800 shadow-sm ring-1 ring-slate-900/10 outline-none transition focus:shadow-md focus:ring-2 focus:ring-[var(--accent)]';
+          inputEls[filter.id] = sel;
+
+          (filter.items || []).forEach((item) => {
+            const option = document.createElement('option');
+            const v = typeof item === 'object' ? item.value : item;
+            const l = typeof item === 'object' ? item.label : item;
+            option.value = v;
+            option.textContent = l;
+            if (v === (filter.value || '')) option.selected = true;
+            sel.appendChild(option);
+          });
+
+          sel.addEventListener('change', () => fireFilterInput(filter.id, sel));
+
+          const chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          chevron.setAttribute('viewBox', '0 0 24 24');
+          chevron.setAttribute('fill', 'none');
+          chevron.setAttribute('stroke', 'currentColor');
+          chevron.setAttribute('stroke-width', '2');
+          chevron.setAttribute('class', 'pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400');
+          chevron.innerHTML = '<path d="m6 9 6 6 6-6"></path>';
+
+          selectWrap.appendChild(sel);
+          selectWrap.appendChild(chevron);
+          group.appendChild(selectWrap);
+        } else {
+          // text input with search icon
+          const inputWrap = document.createElement('div');
+          inputWrap.className = 'relative';
+
+          const searchIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          searchIcon.setAttribute('viewBox', '0 0 24 24');
+          searchIcon.setAttribute('fill', 'none');
+          searchIcon.setAttribute('stroke', 'currentColor');
+          searchIcon.setAttribute('stroke-width', '2');
+          searchIcon.setAttribute('class', 'pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400');
+          searchIcon.innerHTML = '<circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.35-4.35"></path>';
+
+          const inp = document.createElement('input');
+          inp.type = 'text';
+          inp.id = `${data.id}-filter-${filter.id}`;
+          inp.placeholder = filter.placeholder || '';
+          inp.value = filter.value || '';
+          inp.className = 'w-full appearance-none rounded-lg border-0 bg-white py-1.5 pl-8 pr-3 text-sm text-slate-800 placeholder-slate-400 shadow-sm ring-1 ring-slate-900/10 outline-none transition focus:shadow-md focus:ring-2 focus:ring-[var(--accent)]';
+          inputEls[filter.id] = inp;
+
+          // Debounce text input so we don't fire a server round-trip on
+          // every keystroke -- 350 ms is short enough to feel responsive.
+          let debounceTimer = null;
+          inp.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => fireFilterInput(filter.id, inp), 350);
+          });
+
+          inputWrap.appendChild(searchIcon);
+          inputWrap.appendChild(inp);
+          group.appendChild(inputWrap);
+        }
+
+        bar.appendChild(group);
+      });
+
+      return bar;
     }
 
     static renderTable(data, context, fireFilterChange) {
@@ -347,10 +518,38 @@
       const menu = document.createElement('div');
       menu.className = 'wise-dt-context-menu';
 
+      // Same icon format WiseIconMenu accepts (emoji/glyph, inline "<svg...",
+      // or an image URL) so callers can reuse the same icon values/files.
+      const buildMenuIcon = (iconSrc) => {
+        const src = (iconSrc || '').trim();
+        if (!src) return null;
+        const wrapper = document.createElement('span');
+        wrapper.className = 'wise-dt-context-menu-icon';
+        if (src.startsWith('<svg')) {
+          wrapper.innerHTML = src;
+        } else if (/^(https?:\/\/|\/|\.\/|data:image\/)/i.test(src) || /\.(png|jpe?g|svg|webp|gif|ico)$/i.test(src)) {
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = '';
+          wrapper.appendChild(img);
+        } else {
+          wrapper.textContent = src;
+        }
+        return wrapper;
+      };
+
       (data.contextMenuItems || []).forEach((item) => {
         const entry = document.createElement('div');
         entry.className = 'wise-dt-context-menu-item';
-        entry.textContent = item.label;
+
+        const icon = buildMenuIcon(item.icon);
+        if (icon) entry.appendChild(icon);
+
+        const labelEl = document.createElement('span');
+        labelEl.className = 'wise-dt-context-menu-label';
+        labelEl.textContent = item.label;
+        entry.appendChild(labelEl);
+
         entry.addEventListener('click', (event) => {
           event.stopPropagation();
           // sendControlEvent resolves the window via sourceEl.closest('.window').
@@ -636,15 +835,32 @@
     // The DOM shape depends on row count/sort/pager state, which changes on
     // every interaction -- rather than diffing cell-by-cell, just rebuild
     // this control's whole subtree in place from the fresh data.
+    // Filter input values are snapshotted from the existing DOM first and
+    // restored into the rebuilt filter bar, so typing in a filter doesn't
+    // lose focus/value on every keystroke's round-trip.
     static patchElement(winEl, data, context) {
       const existing = winEl.querySelector(`[data-control-id="${data.id}"]`);
       if (!existing || !context) return;
 
-      // A full rebuild otherwise resets the row viewport to the top on
-      // every interaction (e.g. selecting a row scrolled out of view),
-      // since the fresh .wise-datatable-scroll div starts at scrollTop 0.
+      // Preserve scroll position
       const existingScroll = existing.querySelector('.wise-datatable-scroll');
       const scrollTop = existingScroll ? existingScroll.scrollTop : 0;
+
+      // Snapshot current filter values from the live DOM so they survive
+      // the full rebuild (the server sends back the original default values,
+      // not whatever the user has typed since the last page load).
+      const filterSnapshot = {};
+      (data.filterControls || []).forEach((f) => {
+        const el = existing.querySelector(`#${data.id}-filter-${f.id}`);
+        if (el) filterSnapshot[f.id] = el.value;
+      });
+
+      // Merge live values into the descriptor array before rendering
+      if (data.filterControls) {
+        data.filterControls = data.filterControls.map((f) =>
+          filterSnapshot[f.id] !== undefined ? { ...f, value: filterSnapshot[f.id] } : f
+        );
+      }
 
       const fresh = WiseDataTable.renderElement(data, context);
       existing.replaceWith(fresh);

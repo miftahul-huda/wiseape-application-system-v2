@@ -15,16 +15,40 @@ const api = new HrisApiRepository();
 // can restyle them without touching this file -- read once at module load
 // and inlined as markup, since WiseIconMenu renders an `icon` starting with
 // "<svg" directly rather than fetching it as an <img> src.
+//
+// Strip any XML declaration (<?xml ... ?>) and XML/HTML comments (<!-- ... -->)
+// that tools like VTracer prepend -- WiseIconMenu.renderElement detects SVG
+// markup via `iconSrc.startsWith('<svg')`, so the string MUST open with <svg.
 const ICONS_DIR = path.join(__dirname, '..', 'assets', 'icons');
-const loadIcon = (fileName) => fs.readFileSync(path.join(ICONS_DIR, fileName), 'utf8');
+const loadIcon = (fileName) => {
+  const raw = fs.readFileSync(path.join(ICONS_DIR, fileName), 'utf8');
+  return raw
+    .replace(/<\?xml[^?]*\?>/gi, '')   // strip <?xml ... ?>
+    .replace(/<!--[\s\S]*?-->/g, '')    // strip <!-- ... --> comments
+    .trim();
+};
 const MENU_ICONS = {
   displayAll: loadIcon('display-all.svg'),
   selectAll: loadIcon('select-all.svg'),
   detail: loadIcon('detail.svg'),
-  add: loadIcon('add.svg'),
+  add: loadIcon('addemployee.svg'),
+  edit: loadIcon('edit.svg'),
+  duplicate: loadIcon('duplicate.svg'),
+
   deactivate: loadIcon('deactivate.svg'),
   find: loadIcon('find.svg'),
   report: loadIcon('report.svg')
+};
+
+// Small monochrome (currentColor) glyphs for the row context menu -- kept
+// inline rather than as their own asset files since, unlike the colorful
+// toolbar tiles above, a compact text-row menu calls for the plain
+// single-color line-icon convention every OS/app context menu already uses.
+const CONTEXT_MENU_ICONS = {
+  detail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>',
+  edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+  paste: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/></svg>'
 };
 
 const DEPARTMENTS = ['Semua', 'Technology', 'Human Resources', 'Finance', 'Operations', 'Marketing'];
@@ -75,6 +99,18 @@ class WinEmployeeManagement extends WiseWindow {
         description: 'Karyawan Baru',
         onClick: this.onNewEmployeeClick.bind(this)
       }),
+      new WiseIconMenu('Edit Employee', {
+        id: 'btnMenuEdit',
+        icon: MENU_ICONS.edit,
+        description: 'Edit Employee Information',
+        onClick: this.onEditEmployeeClick.bind(this)
+      }),
+      new WiseIconMenu('Duplicate Employee', {
+        id: 'btnMenuDuplicate',
+        icon: MENU_ICONS.duplicate,
+        description: 'Duplikat Data Karyawan',
+        onClick: this.onDuplicateEmployeeClick.bind(this)
+      }),
       new WiseIconMenu('Deactivate Employee', {
         id: 'btnMenuDeactivate',
         icon: MENU_ICONS.deactivate,
@@ -121,7 +157,7 @@ class WinEmployeeManagement extends WiseWindow {
       id: 'dtEmployees',
       pageSize: 12,
       pageSizeOptions: [8, 12, 20, 50],
-      maxHeight: '65vh',
+      maxHeight: '58vh',
       onDataFilterChanged: this.onTableFilterChanged.bind(this),
       onRowSelect: this.onEmployeeRowSelect.bind(this)
     });
@@ -136,11 +172,67 @@ class WinEmployeeManagement extends WiseWindow {
       { dataField: 'tenureText', header: 'Masa Kerja', width: 140 }
     ]);
 
+    // ── Filter Bar ───────────────────────────────────────────────
+    dtEmployees.addFilters([
+      {
+        id: 'search',
+        type: 'text',
+        label: 'Nama / NIK',
+        placeholder: 'Cari nama atau NIK…',
+        onChange: this.onTableFilterInputChanged.bind(this)
+      },
+      {
+        id: 'jobTitle',
+        type: 'text',
+        label: 'Jabatan',
+        placeholder: 'Cari jabatan…',
+        onChange: this.onTableFilterInputChanged.bind(this)
+      },
+      {
+        id: 'department',
+        type: 'select',
+        label: 'Departemen',
+        items: [
+          { value: '', label: 'Semua Departemen' },
+          { value: 'Technology', label: 'Technology' },
+          { value: 'Human Resources', label: 'Human Resources' },
+          { value: 'Finance', label: 'Finance' },
+          { value: 'Operations', label: 'Operations' },
+          { value: 'Marketing', label: 'Marketing' }
+        ],
+        onChange: this.onTableFilterInputChanged.bind(this)
+      },
+      {
+        id: 'employmentStatus',
+        type: 'select',
+        label: 'Status Kepegawaian',
+        items: [
+          { value: '', label: 'Semua Status' },
+          { value: 'Tetap', label: 'Tetap' },
+          { value: 'Kontrak', label: 'Kontrak' },
+          { value: 'Magang', label: 'Magang' },
+          { value: 'Freelance', label: 'Freelance' }
+        ],
+        onChange: this.onTableFilterInputChanged.bind(this)
+      },
+      {
+        id: 'isActive',
+        type: 'select',
+        label: 'Status',
+        items: [
+          { value: '', label: 'Semua' },
+          { value: 'true', label: '🟢 Aktif' },
+          { value: 'false', label: '🔴 Nonaktif' }
+        ],
+        onChange: this.onTableFilterInputChanged.bind(this)
+      }
+    ]);
+
     dtEmployees.addContextMenu([
-      { id: 'detail', label: 'Detail', onClick: (row) => this.onEditEmployeeClick(row) },
-      { id: 'edit', label: 'Edit', onClick: (row) => this.onEditEmployeeClick(row) },
-      { id: 'copy', label: 'Copy', onClick: (row) => this.onCopyEmployeeRow(row) },
-      { id: 'paste', label: 'Paste', onClick: () => this.onPasteEmployeeRow() }
+      { id: 'detail', label: 'Detail', icon: CONTEXT_MENU_ICONS.detail, onClick: (row) => this.onEditEmployeeClick(row) },
+      { id: 'edit', label: 'Edit', icon: CONTEXT_MENU_ICONS.edit, onClick: (row) => this.onEditEmployeeClick(row) },
+      { id: 'copy', label: 'Copy', icon: CONTEXT_MENU_ICONS.copy, onClick: (row) => this.onCopyEmployeeRow(row) },
+      { id: 'paste', label: 'Paste', icon: CONTEXT_MENU_ICONS.paste, onClick: () => this.onPasteEmployeeRow() }
     ]);
 
     this.addControl(dtEmployees);
@@ -162,14 +254,31 @@ class WinEmployeeManagement extends WiseWindow {
     }
   }
 
-  async loadEmployeesTable(page = 1, limit = 12) {
+  async loadEmployeesTable(page = 1, limit = 12, filters = {}) {
     try {
-      const res = await api.listEmployees({ page, limit });
+      const res = await api.listEmployees({
+        page,
+        limit,
+        search: filters.search || '',
+        department: filters.department || 'Semua',
+        employmentStatus: filters.employmentStatus || 'Semua',
+        isActive: filters.isActive !== undefined ? filters.isActive : 'Semua',
+        ...(filters.jobTitle ? { jobTitle: filters.jobTitle } : {})
+      });
 
       this.cachedEmployees = res.rows || [];
       const totalCount = res.meta?.total || this.cachedEmployees.length;
 
-      const formattedRows = this.cachedEmployees.map(emp => ({
+      // Client-side jabatan filter (API may not support it -- safe to filter locally
+      // when the field isn't passed through as a server param)
+      const jobTitleFilter = (filters.jobTitle || '').toLowerCase().trim();
+      const filtered = jobTitleFilter
+        ? this.cachedEmployees.filter(emp =>
+            (emp.jobTitle || '').toLowerCase().includes(jobTitleFilter)
+          )
+        : this.cachedEmployees;
+
+      const formattedRows = filtered.map(emp => ({
         ...emp,
         statusBadge: emp.isActive ? '🟢 Aktif' : '🔴 Nonaktif',
         tenureText: emp.tenure?.formatted || '-'
@@ -177,14 +286,25 @@ class WinEmployeeManagement extends WiseWindow {
 
       this.dtEmployees.pageSize = limit;
       this.dtEmployees.currentPage = page;
-      this.dtEmployees.setData(formattedRows, totalCount);
+      this.dtEmployees.setData(formattedRows, jobTitleFilter ? formattedRows.length : totalCount);
+
+      // Persist current filters so pager navigation keeps them
+      this._currentFilters = filters;
     } catch (err) {
       this.showInfo('Gagal Memuat Karyawan', err.message, 'error');
     }
   }
 
   async onTableFilterChanged(pageSize, page) {
-    await this.loadEmployeesTable(page, pageSize);
+    await this.loadEmployeesTable(page, pageSize, this._currentFilters || {});
+  }
+
+  // Called by the filter bar whenever any filter input changes.
+  // `filterValues` is a map of { [filterId]: value } for every filter.
+  async onTableFilterInputChanged(filterValues) {
+    // Strip internal metadata added by WiseDataTable
+    const { _triggerId, ...filters } = filterValues;
+    await this.loadEmployeesTable(1, this.dtEmployees ? this.dtEmployees.pageSize : 12, filters);
   }
 
   onEmployeeRowSelect(row) {
@@ -206,6 +326,13 @@ class WinEmployeeManagement extends WiseWindow {
   async openDetailWindow(employeeId) {
     this.launchApp('employeeDetail', { employeeId });
   }
+
+  async onDuplicateEmployeeClick(row) {
+    if (!row) return;
+    this.selectedEmployeeId = row.id;
+  }
+
+
 
   // Keeps the copied employee's fields in memory only (not the OS
   // clipboard) -- Paste turns it into a brand new employee record, so id/nik
@@ -231,7 +358,7 @@ class WinEmployeeManagement extends WiseWindow {
         nik: `COPY-${suffix}`
       };
       await api.createEmployee(newEmployee);
-      await this.loadEmployeesTable(this.dtEmployees.currentPage, this.dtEmployees.pageSize);
+      await this.loadEmployeesTable(this.dtEmployees.currentPage, this.dtEmployees.pageSize, this._currentFilters || {});
       this.showInfo('Berhasil Ditempel', `Karyawan baru "${newEmployee.fullName}" (${newEmployee.nik}) berhasil dibuat dari data yang disalin.`, 'success');
     } catch (err) {
       this.showInfo('Gagal Paste', err.message, 'error');
@@ -239,7 +366,9 @@ class WinEmployeeManagement extends WiseWindow {
   }
 
   async onDisplayAllClick() {
-    await this.loadEmployeesTable(1, this.dtEmployees ? this.dtEmployees.pageSize : 12);
+    // Clear all active filters and reload the full dataset
+    this._currentFilters = {};
+    await this.loadEmployeesTable(1, this.dtEmployees ? this.dtEmployees.pageSize : 12, {});
     this.showInfo('Display All', 'Menampilkan seluruh daftar karyawan tanpa filter pencarian.', 'information');
   }
 
@@ -300,7 +429,7 @@ class WinEmployeeManagement extends WiseWindow {
         await api.activateEmployee(this.selectedEmployeeId);
         this.showInfo('Karyawan Diaktifkan', `${emp.fullName} berhasil diaktifkan kembali.`, 'success');
       }
-      await this.loadEmployeesTable(this.dtEmployees.currentPage, this.dtEmployees.pageSize);
+      await this.loadEmployeesTable(this.dtEmployees.currentPage, this.dtEmployees.pageSize, this._currentFilters || {});
     } catch (err) {
       this.showInfo('Gagal Ubah Status', err.message, 'error');
     }
