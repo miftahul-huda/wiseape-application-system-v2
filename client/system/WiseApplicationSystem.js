@@ -328,8 +328,18 @@ class WiseApplicationSystem {
       instance.windows.delete(targetWindowId);
     }
 
+    const updatedWindows = [];
+    if (instance.windows) {
+      instance.windows.forEach((w) => {
+        if (w && w.windowId !== win.windowId && w.visible !== false) {
+          updatedWindows.push(w.toJSON());
+        }
+      });
+    }
+
     return {
       window: windowData,
+      updatedWindows,
       openWindow,
       theme: userTheme || this.getActiveTheme(),
       backgroundImage: user ? user.backgroundImage : this.backgroundImage,

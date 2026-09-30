@@ -199,6 +199,33 @@ class HrisApiRepository {
   async deleteCareerHistory(id) {
     return this.request(`/career-history/${id}`, { method: 'DELETE' });
   }
+
+  // --- Family Members ---
+
+  async getFamilyMembers(employeeId) {
+    const res = await this.request(`/employees/${employeeId}/family`);
+    return res.data;
+  }
+
+  async addFamilyMember(employeeId, data) {
+    const res = await this.request(`/employees/${employeeId}/family`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    return res.data;
+  }
+
+  async updateFamilyMember(id, data) {
+    const res = await this.request(`/family/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    return res.data;
+  }
+
+  async deleteFamilyMember(id) {
+    return this.request(`/family/${id}`, { method: 'DELETE' });
+  }
 }
 
 module.exports = HrisApiRepository;

@@ -4,6 +4,7 @@ const EmployeeDocument = require('./EmployeeDocument');
 const WorkExperience = require('./WorkExperience');
 const EducationHistory = require('./EducationHistory');
 const CareerHistory = require('./CareerHistory');
+const EmployeeFamily = require('./EmployeeFamily');
 
 // ==========================================
 // Model Associations
@@ -53,7 +54,18 @@ CareerHistory.belongsTo(Employee, {
   as: 'employee'
 });
 
-// 5. Employee Self Association (Manager & Subordinates)
+// 5. Employee <-> Family Members (1 : M)
+Employee.hasMany(EmployeeFamily, {
+  foreignKey: 'employeeId',
+  as: 'familyMembers',
+  onDelete: 'CASCADE'
+});
+EmployeeFamily.belongsTo(Employee, {
+  foreignKey: 'employeeId',
+  as: 'employee'
+});
+
+// 6. Employee Self Association (Manager & Subordinates)
 Employee.belongsTo(Employee, {
   foreignKey: 'managerId',
   as: 'manager'
@@ -69,5 +81,6 @@ module.exports = {
   EmployeeDocument,
   WorkExperience,
   EducationHistory,
-  CareerHistory
+  CareerHistory,
+  EmployeeFamily
 };

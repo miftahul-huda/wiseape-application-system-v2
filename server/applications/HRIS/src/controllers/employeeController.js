@@ -5,7 +5,8 @@ const {
   EmployeeDocument,
   WorkExperience,
   EducationHistory,
-  CareerHistory
+  CareerHistory,
+  EmployeeFamily
 } = require('../models');
 const {
   success,
@@ -75,6 +76,7 @@ exports.findAll = async (req, res, next) => {
         { model: WorkExperience, as: 'workExperiences' },
         { model: EducationHistory, as: 'educationHistories' },
         { model: CareerHistory, as: 'careerHistories' },
+        { model: EmployeeFamily, as: 'familyMembers' },
         {
           model: Employee,
           as: 'manager',
@@ -216,6 +218,11 @@ exports.getById = async (req, res, next) => {
           model: CareerHistory,
           as: 'careerHistories',
           order: [['effectiveDate', 'DESC']]
+        },
+        {
+          model: EmployeeFamily,
+          as: 'familyMembers',
+          order: [['id', 'ASC']]
         },
         {
           model: Employee,

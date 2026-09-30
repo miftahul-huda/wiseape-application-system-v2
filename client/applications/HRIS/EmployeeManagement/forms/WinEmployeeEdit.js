@@ -14,6 +14,7 @@ const WinEmployeeDocumentEdit = require('./WinEmployeeDocumentEdit');
 const WinEmployeeExperienceEdit = require('./WinEmployeeExperienceEdit');
 const WinEmployeeEducationEdit = require('./WinEmployeeEducationEdit');
 const WinEmployeeCareerEdit = require('./WinEmployeeCareerEdit');
+const WinEmployeeFamilyEdit = require('./WinEmployeeFamilyEdit');
 
 const HrisApiRepository = require('../services/HrisApiRepository');
 const api = new HrisApiRepository();
@@ -343,6 +344,44 @@ class WinEmployeeEdit extends WiseWindow {
     tabCareerControls.push(dtCareer);
     editTabs.addTab({ label: 'Riwayat Karir', icon: '📈', controls: tabCareerControls });
 
+    // ── TAB 8: DATA KELUARGA ────────────────────────────────────
+    const tabFamilyControls = [];
+    const familyToolbar = new WiseFrame('', {
+      id: 'frameFamilyToolbar',
+      layout: 'horizontal',
+      style: { background: 'transparent', border: 'none', padding: '0', marginBottom: '10px' }
+    });
+    familyToolbar.addControl(new WiseButton('➕ Tambah Anggota Keluarga', {
+      id: 'btnOpenAddFamily',
+      onClick: this.onOpenAddFamilyClick.bind(this),
+      style: { background: 'var(--accent)', color: '#ffffff', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+    }));
+    familyToolbar.addControl(new WiseButton('✏️ Edit Anggota Keluarga', {
+      id: 'btnOpenEditFamily',
+      onClick: this.onOpenEditFamilyClick.bind(this),
+      style: { background: '#f1f5f9', color: '#334155', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+    }));
+    familyToolbar.addControl(new WiseButton('🗑️ Hapus Anggota Keluarga', {
+      id: 'btnDeleteFamily',
+      onClick: this.onDeleteFamilyClick.bind(this),
+      style: { background: '#fee2e2', color: '#dc2626', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+    }));
+    tabFamilyControls.push(familyToolbar);
+
+    const dtFamily = new WiseDataTable({ id: 'dtFamily', pageSize: 6 });
+    dtFamily.setColumns([
+      { dataField: 'name', header: 'Nama Anggota Keluarga', width: 240 },
+      { dataField: 'gender', header: 'Gender', width: 140 },
+      { dataField: 'relationship', header: 'Hubungan', width: 180 },
+      { dataField: 'phone', header: 'Nomor Kontak', width: 200 }
+    ]);
+    dtFamily.addContextMenu([
+      { id: 'edit', label: 'Edit Anggota Keluarga', onClick: (row) => this.onOpenEditFamilyClick(row) },
+      { id: 'delete', label: 'Hapus Anggota Keluarga', onClick: (row) => this.onDeleteFamilyClick(row) }
+    ]);
+    tabFamilyControls.push(dtFamily);
+    editTabs.addTab({ label: 'Data Keluarga', icon: '👨‍👩‍👧‍👦', controls: tabFamilyControls });
+
     this.addControl(editTabs);
     return this;
   }
@@ -356,7 +395,8 @@ class WinEmployeeEdit extends WiseWindow {
 
   async onShow(options = {}) {
     this.visible = true;
-    const employeeId = options.employeeId || this.selectedEmployeeId;
+    const opts = options || {};
+    const employeeId = opts.employeeId || this.selectedEmployeeId;
     if (employeeId) {
       await this.loadEmployee(employeeId);
     }
@@ -428,6 +468,7 @@ class WinEmployeeEdit extends WiseWindow {
     if (this.dtExperiences) this.dtExperiences.setData(emp.workExperiences || [], (emp.workExperiences || []).length);
     if (this.dtEducation) this.dtEducation.setData(emp.educationHistories || [], (emp.educationHistories || []).length);
     if (this.dtCareer) this.dtCareer.setData(emp.careerHistories || [], (emp.careerHistories || []).length);
+    if (this.dtFamily) this.dtFamily.setData(emp.familyMembers || [], (emp.familyMembers || []).length);
   }
 
   async onSaveEmployee() {
@@ -484,6 +525,9 @@ class WinEmployeeEdit extends WiseWindow {
         this.selectedEmployeeId = created.id;
         this.showInfo('Berhasil', `Karyawan baru ${created.fullName} (${created.nik}) berhasil didaftarkan.`, 'success');
         await this.loadEmployee(this.selectedEmployeeId);
+      }
+      if (this.parentWindow && typeof this.parentWindow.loadInitialData === 'function') {
+        await this.parentWindow.loadInitialData();
       }
     } catch (err) {
       this.showInfo('Gagal Menyimpan', err.message, 'error');
@@ -579,7 +623,31 @@ class WinEmployeeEdit extends WiseWindow {
     if (!targetRow) return this.showInfo('Pilih Riwayat Karir', 'Pilih riwayat karir dari tabel yang ingin dihapus.', 'warning');
     try {
       await api.deleteCareerHistory(targetRow.id);
-      this.showInfo('Berhasil', `Riwayat karir "${targetRow.changeType}" berhasil dihapus.`, 'success');
+      this.showInfo('Berhasil', 'Riwayat karir berhasil dihapus.', 'success');
+      await this.loadEmployee(this.selectedEmployeeId);
+    } catch (err) {
+      this.showInfo('Gagal Menghapus', err.message, 'error');
+    }
+  }
+
+  // ── Family Handlers ───────────────────────────────────────────
+  async onOpenAddFamilyClick() {
+    if (!this.selectedEmployeeId) return this.showInfo('Peringatan', 'Simpan data karyawan terlebih dahulu sebelum menambahkan data keluarga.', 'warning');
+    await this.openWindow(WinEmployeeFamilyEdit, { employeeId: this.selectedEmployeeId, data: null });
+  }
+
+  async onOpenEditFamilyClick(row) {
+    const targetRow = row || (this.dtFamily ? this.dtFamily.getSelectedRow() : null);
+    if (!targetRow) return this.showInfo('Pilih Anggota Keluarga', 'Pilih anggota keluarga dari tabel yang ingin diedit.', 'warning');
+    await this.openWindow(WinEmployeeFamilyEdit, { employeeId: this.selectedEmployeeId, data: targetRow });
+  }
+
+  async onDeleteFamilyClick(row) {
+    const targetRow = row || (this.dtFamily ? this.dtFamily.getSelectedRow() : null);
+    if (!targetRow) return this.showInfo('Pilih Anggota Keluarga', 'Pilih anggota keluarga dari tabel yang ingin dihapus.', 'warning');
+    try {
+      await api.deleteFamilyMember(targetRow.id);
+      this.showInfo('Berhasil', `Data anggota keluarga "${targetRow.name}" berhasil dihapus.`, 'success');
       await this.loadEmployee(this.selectedEmployeeId);
     } catch (err) {
       this.showInfo('Gagal Menghapus', err.message, 'error');

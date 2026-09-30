@@ -257,6 +257,18 @@ class WinEmployeeDetail extends WiseWindow {
     tabCareerControls.push(dtCareer);
     detailTabs.addTab({ label: 'Riwayat Karir', icon: '📈', controls: tabCareerControls });
 
+    // ── TAB 8: DATA KELUARGA ────────────────────────────────────
+    const tabFamilyControls = [];
+    const dtFamily = new WiseDataTable({ id: 'dtFamily', pageSize: 6 });
+    dtFamily.setColumns([
+      { dataField: 'name', header: 'Nama Anggota Keluarga', width: 240 },
+      { dataField: 'gender', header: 'Gender', width: 140 },
+      { dataField: 'relationship', header: 'Hubungan', width: 180 },
+      { dataField: 'phone', header: 'Nomor Kontak', width: 200 }
+    ]);
+    tabFamilyControls.push(dtFamily);
+    detailTabs.addTab({ label: 'Data Keluarga', icon: '👨‍👩‍👧‍👦', controls: tabFamilyControls });
+
     this.addControl(detailTabs);
     return this;
   }
@@ -300,7 +312,8 @@ class WinEmployeeDetail extends WiseWindow {
 
   async onShow(options = {}) {
     this.visible = true;
-    const employeeId = options.employeeId || this.selectedEmployeeId;
+    const opts = options || {};
+    const employeeId = opts.employeeId || this.selectedEmployeeId;
     if (employeeId) {
       await this.loadEmployee(employeeId);
     }
@@ -380,6 +393,7 @@ class WinEmployeeDetail extends WiseWindow {
     if (this.dtExperiences) this.dtExperiences.setData(emp.workExperiences || [], (emp.workExperiences || []).length);
     if (this.dtEducation) this.dtEducation.setData(emp.educationHistories || [], (emp.educationHistories || []).length);
     if (this.dtCareer) this.dtCareer.setData(emp.careerHistories || [], (emp.careerHistories || []).length);
+    if (this.dtFamily) this.dtFamily.setData(emp.familyMembers || [], (emp.familyMembers || []).length);
   }
 
   async onOpenEditClick() {

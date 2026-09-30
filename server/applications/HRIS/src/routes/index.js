@@ -6,6 +6,7 @@ const documentRoutes = require('./documentRoutes');
 const workExperienceRoutes = require('./workExperienceRoutes');
 const educationRoutes = require('./educationRoutes');
 const careerHistoryRoutes = require('./careerHistoryRoutes');
+const familyRoutes = require('./familyRoutes');
 
 // Service health check and meta
 router.get('/', (req, res) => {
@@ -53,6 +54,13 @@ router.get('/', (req, res) => {
         get: 'GET /api/career-history/:id',
         update: 'PUT /api/career-history/:id',
         delete: 'DELETE /api/career-history/:id'
+      },
+      family: {
+        listByEmployee: 'GET /api/employees/:employeeId/family',
+        create: 'POST /api/employees/:employeeId/family',
+        get: 'GET /api/family/:id',
+        update: 'PUT /api/family/:id',
+        delete: 'DELETE /api/family/:id'
       }
     }
   });
@@ -69,5 +77,6 @@ router.use('/documents', documentRoutes);
 router.use('/work-experiences', workExperienceRoutes);
 router.use('/education', educationRoutes);
 router.use('/career-history', careerHistoryRoutes);
+router.use('/family', familyRoutes);
 
 module.exports = router;

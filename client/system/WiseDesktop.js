@@ -1032,6 +1032,20 @@ class WiseDesktop {
       }
     }
 
+    if (Array.isArray(result.updatedWindows)) {
+      const desktop = this.root ? (this.root.querySelector('.desktop') || this.root) : document;
+      result.updatedWindows.forEach((wData) => {
+        if (!wData || !wData.windowId) return;
+        const otherWinEl = desktop.querySelector(`.window[data-window-id="${wData.windowId}"]`);
+        if (otherWinEl && Array.isArray(wData.controls)) {
+          this.patchWindowControls(otherWinEl, wData.controls);
+        }
+        if (wData.info) {
+          this.showInfoDialog(wData.info);
+        }
+      });
+    }
+
     if (result.openWindow) {
       this.renderWindow({
         appID: appId,

@@ -5,6 +5,7 @@ const documentController = require('../controllers/documentController');
 const workExperienceController = require('../controllers/workExperienceController');
 const educationController = require('../controllers/educationController');
 const careerHistoryController = require('../controllers/careerHistoryController');
+const familyController = require('../controllers/familyController');
 const { upload } = require('../middleware/upload');
 
 // ==========================================
@@ -42,5 +43,9 @@ router.post('/:employeeId/education', educationController.create);
 // 4. Internal Career & Org History
 router.get('/:employeeId/career-history', careerHistoryController.listByEmployee);
 router.post('/:employeeId/career-history', careerHistoryController.create);
+
+// 5. Family Members
+router.get('/:employeeId/family', familyController.listByEmployee);
+router.post('/:employeeId/family', familyController.create);
 
 module.exports = router;

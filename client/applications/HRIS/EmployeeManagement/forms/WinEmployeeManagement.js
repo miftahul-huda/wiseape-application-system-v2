@@ -243,7 +243,7 @@ class WinEmployeeManagement extends WiseWindow {
     // ── Selection Info ───────────────────────────────────────────
     this.addControl(new WiseLabel('', {
       id: 'lblSelectedInfo',
-      style: { fontSize: 12, marginTop: '8px', color: '#475569', fontWeight: 600 }
+      style: { marginTop: '8px', color: '#475569', fontWeight: 600 }
     }));
 
     return this;
