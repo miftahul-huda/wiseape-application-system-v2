@@ -910,10 +910,27 @@ class WiseDesktop {
       }
     });
 
+    const activatePreviousWindow = () => {
+      const remaining = Array.from(desktop.querySelectorAll('.window')).filter(
+        (w) => w !== win && w.style.display !== 'none' && !w.classList.contains('window-closing')
+      );
+      if (remaining.length > 0) {
+        const prev = remaining[remaining.length - 1];
+        if (typeof prev.__wiseActivate === 'function') {
+          prev.__wiseActivate();
+        } else {
+          desktop.querySelectorAll('.window').forEach((w) => w.classList.add('window-inactive'));
+          prev.classList.remove('window-inactive');
+        }
+      }
+    };
+
     const closeWindow = () => {
+      win.classList.add('window-closing');
       removeMinimizedItem();
       win.style.opacity = '0';
       win.style.transform = 'scale(0.92)';
+      activatePreviousWindow();
       let removed = false;
       const doRemove = () => {
         if (!removed) { removed = true; win.remove(); }
@@ -928,6 +945,7 @@ class WiseDesktop {
     minimizeBtn.addEventListener('click', () => {
       win.style.opacity = '0';
       win.style.transform = 'scale(0.92) translateY(40px)';
+      activatePreviousWindow();
       let hidden = false;
       const doHide = () => {
         if (!hidden) { hidden = true; win.style.display = 'none'; }

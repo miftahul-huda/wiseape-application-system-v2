@@ -754,18 +754,30 @@ body.dark-theme .wise-dt-context-menu-item:hover {
   overflow: hidden;
   backdrop-filter: blur(28px) saturate(1.5);
   -webkit-backdrop-filter: blur(28px) saturate(1.5);
-  transition: opacity 0.22s var(--spring), transform 0.22s var(--spring), box-shadow 0.22s ease;
+  transition: opacity 0.22s var(--spring), transform 0.22s var(--spring), box-shadow 0.22s ease, filter 0.22s ease;
 }
 
-/* Inactive window: dimmer header, lighter shadow, slightly reduced opacity */
+/* Inactive window: clearly dimmer, faded opacity, desaturated, softer shadow */
 .window.window-inactive {
-  box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.2), 0 4px 12px -3px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.35) inset;
+  opacity: 0.68 !important;
+  filter: saturate(0.75) contrast(0.95);
+  box-shadow: 0 10px 25px -6px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+}
+
+.window.window-inactive[style*="opacity: 0"],
+.window[style*="opacity: 0"],
+.window[style*="opacity:0"] {
+  opacity: 0 !important;
 }
 
 .window.window-inactive .window-header {
-  background: color-mix(in srgb, var(--accent-dark) 55%, #c8ced8 45%);
-  opacity: 0.82;
+  background: color-mix(in srgb, var(--accent-dark) 35%, #94a3b8 65%) !important;
+  opacity: 0.75;
   transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.window.window-inactive .window-action {
+  opacity: 0.45;
 }
 
 .window-header {
@@ -1451,12 +1463,14 @@ body.dark-theme .window-header {
 }
 
 body.dark-theme .window.window-inactive {
-  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.5), 0 4px 12px -3px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  opacity: 0.65 !important;
+  filter: brightness(0.82) saturate(0.7);
+  box-shadow: 0 10px 25px -6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
 }
 
 body.dark-theme .window.window-inactive .window-header {
-  background: #2d3f55;
-  opacity: 0.78;
+  background: #1e2530;
+  opacity: 0.7;
 }
 
 body.dark-theme .window-body {
