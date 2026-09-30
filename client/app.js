@@ -149,13 +149,13 @@ async function start() {
   app.post('/api/applications/:appId/events', async (req, res) => {
     try {
       const { appId } = req.params;
-      const { controlId, event, values } = req.body || {};
+      const { controlId, event, values, windowId } = req.body || {};
       if (!controlId) {
         return res.status(400).json({ error: 'controlId is required' });
       }
 
       const session = await resolveSession(req);
-      const result = await system.dispatchControlEvent(appId, controlId, event || 'click', values || {}, session);
+      const result = await system.dispatchControlEvent(appId, controlId, event || 'click', values || {}, session, windowId || (values && values._windowId) || null);
       return res.json(result);
     } catch (error) {
       return res.status(500).json({ error: error.message });

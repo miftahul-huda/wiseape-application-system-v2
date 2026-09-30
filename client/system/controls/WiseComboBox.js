@@ -63,7 +63,7 @@
       wrapper.className = 'relative w-full';
 
       const el = document.createElement('select');
-      el.className = 'w-full cursor-pointer appearance-none rounded-lg border-0 bg-white py-1.5 pl-3 pr-8 text-sm text-slate-800 shadow-sm ring-1 ring-slate-900/10 outline-none transition focus:shadow-md focus:ring-2 focus:ring-[var(--accent)]';
+      el.className = 'w-full cursor-pointer appearance-none rounded-md border border-slate-300 bg-white py-1.5 pl-3 pr-8 text-sm text-slate-800 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
       (data.items || []).forEach((item) => {
         const option = document.createElement('option');
         option.value = item.value;

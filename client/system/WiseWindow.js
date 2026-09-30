@@ -22,9 +22,8 @@ class WiseWindow {
     this.title = options.title || 'Untitled Window';
     this.appId = options.appId || null;
     this.appTitle = options.appTitle || 'Application';
-    this.appIcon = options.appIcon || '◫';
-    this.width = options.width || 640;
-    this.height = options.height || 420;
+    this.width = options.width !== undefined ? options.width : 640;
+    this.height = options.height !== undefined ? options.height : 'auto';
     this.positionX = options.positionX || 220;
     this.positionY = options.positionY || 120;
     this.centered = options.centered || false;
@@ -33,9 +32,15 @@ class WiseWindow {
     this.maximized = false;
     this.params = null;
     this.controls = [];
-    this.onShow = null;
-    this.onShowDialog = null;
+    if (typeof options.onShow === 'function') {
+      this.onShow = options.onShow;
+    }
+    if (typeof options.onShowDialog === 'function') {
+      this.onShowDialog = options.onShowDialog;
+    }
     this.system = options.system || null;
+    this.app = options.app || null;
+    this.parentWindow = options.parentWindow || null;
     this.pendingInfo = null;
   }
 
@@ -118,12 +123,12 @@ class WiseWindow {
     return values;
   }
 
-  show(param = null) {
+  async show(param = null) {
     this.visible = true;
     this.minimized = false;
     this.params = param;
     if (typeof this.onShow === 'function') {
-      this.onShow(param);
+      await this.onShow(param);
     }
 
     return {
@@ -133,12 +138,12 @@ class WiseWindow {
     };
   }
 
-  showDialog(param = null) {
+  async showDialog(param = null) {
     this.visible = true;
     this.minimized = false;
     this.params = param;
     if (typeof this.onShowDialog === 'function') {
-      this.onShowDialog(param);
+      await this.onShowDialog(param);
     }
 
     return {
@@ -165,6 +170,31 @@ class WiseWindow {
     return { status: this.minimized ? 'minimized' : 'restored', minimized: this.minimized, window: this.toJSON() };
   }
 
+  async openWindow(WindowClass, options = {}) {
+    const winOptions = {
+      appId: this.appId,
+      appTitle: this.appTitle,
+      appIcon: this.appIcon,
+      system: this.system,
+      app: this.app,
+      parentWindow: this,
+      ...options,
+    };
+    const childWin = new WindowClass(winOptions);
+    if (typeof childWin.onWindowInit === 'function') {
+      childWin.onWindowInit();
+    }
+    if (this.app && typeof this.app.registerWindow === 'function') {
+      this.app.registerWindow(childWin);
+    }
+    await childWin.show(options);
+    if (this.app) {
+      this.app.pendingOpenWindow = childWin;
+    }
+    this.pendingOpenWindow = childWin;
+    return childWin;
+  }
+
   launchApp(appId, param = null) {
     this.pendingLaunchAppId = appId;
     this.pendingLaunchParam = param || null;
@@ -178,6 +208,8 @@ class WiseWindow {
     this.pendingLaunchAppId = null;
     const launchAppParam = this.pendingLaunchParam;
     this.pendingLaunchParam = null;
+    const openWindow = this.pendingOpenWindow ? this.pendingOpenWindow.toJSON() : null;
+    this.pendingOpenWindow = null;
 
     return {
       windowId: this.windowId,
@@ -195,6 +227,7 @@ class WiseWindow {
       maximized: this.maximized,
       params: this.params,
       info,
+      openWindow,
       launchAppId,
       launchAppParam,
       controls: this.controls.map((control) => control.render ? control.render() : control),

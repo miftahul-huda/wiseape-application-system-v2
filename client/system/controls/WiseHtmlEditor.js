@@ -31,7 +31,7 @@
 
     static renderElement(data, context) {
       const wrapper = document.createElement('div');
-      wrapper.className = 'wise-htmleditor-wrapper relative flex flex-col overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-slate-900/10 transition focus-within:ring-2 focus-within:ring-[var(--accent)]';
+      wrapper.className = 'wise-htmleditor-wrapper relative flex flex-col overflow-hidden rounded-md border border-slate-300 bg-white shadow-none transition focus-within:border-[var(--accent)] focus-within:ring-1 focus-within:ring-[var(--accent)]';
 
       let isSourceView = false;
       let savedRange = null;

@@ -54,17 +54,6 @@ const fallbackApps = [
     appStartPoint: 'applications/HRIS/EmployeeManagement/AppEmployeeManagement.js:AppEmployeeManagement',
     appParameter: {},
   },
-  {
-    appID: 'employeeDetail',
-    appTitle: 'Employee Detail',
-    appVersion: '1.0.0',
-    appDeveloper: 'Wiseape',
-    appIcon: '📋',
-    appLibraries: ['Wiseape WAS'],
-    appConfig: {},
-    appStartPoint: 'applications/HRIS/EmployeeManagement/AppEmployeeDetail.js:AppEmployeeDetail',
-    appParameter: {},
-  },
 ];
 
 class ApiAppRepository {
@@ -84,14 +73,19 @@ class ApiAppRepository {
       }
 
       const apps = await response.json();
-      if (!Array.isArray(apps) || apps.length === 0) {
-        return this.getFallbackApps();
+      const appMap = new Map();
+      this.getFallbackApps().forEach((app) => appMap.set(app.appID, app));
+
+      if (Array.isArray(apps)) {
+        apps.forEach((app) => {
+          appMap.set(app.appID, {
+            ...app,
+            appIcon: app.appIcon || '◫',
+          });
+        });
       }
 
-      return apps.map((app) => ({
-        ...app,
-        appIcon: app.appIcon || '◫',
-      }));
+      return Array.from(appMap.values());
     } catch (error) {
       console.warn('[WAS] Application API unavailable; loading fallback application list.', error.message);
       return this.getFallbackApps();

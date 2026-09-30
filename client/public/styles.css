@@ -32,6 +32,125 @@ button {
   font-family: inherit;
 }
 
+button {
+  box-shadow: none;
+  border: none;
+}
+
+/* Strict Flat Input Controls - 1px solid uniform border on all 4 sides (No 3D/bevel/inset shadow) */
+input[type="text"]:not(.wise-numeric-inner-input),
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="date"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+select,
+textarea,
+.wise-numericbox-wrapper {
+  display: block;
+  width: 100%;
+  box-sizing: border-box !important;
+  border: 1px solid #94a3b8 !important; /* solid darker border, clearly visible */
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  outline: none !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+}
+
+input[type="text"]:not(.wise-numeric-inner-input),
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="date"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+select {
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 5px 10px !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+}
+
+textarea {
+  padding: 8px 10px !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+}
+
+.wise-numericbox-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 4px !important;
+}
+
+input[type="text"]:not(.wise-numeric-inner-input):focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="search"]:focus,
+select:focus,
+textarea:focus,
+.wise-numericbox-wrapper:focus-within {
+  border: 1px solid var(--accent) !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Inner inputs inside compound controls (e.g. WiseNumericBox) must have NO border or background */
+input.wise-numeric-inner-input,
+.wise-numeric-inner-input {
+  border: none !important;
+  border-width: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  outline: none !important;
+  height: 100% !important;
+  min-height: auto !important;
+  padding: 4px 6px !important;
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+}
+
+body.dark-theme input[type="text"]:not(.wise-numeric-inner-input),
+body.dark-theme input[type="password"],
+body.dark-theme input[type="email"],
+body.dark-theme input[type="number"],
+body.dark-theme input[type="date"],
+body.dark-theme select,
+body.dark-theme textarea,
+body.dark-theme .wise-numericbox-wrapper {
+  background-color: #1e293b !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-theme input[type="text"]:not(.wise-numeric-inner-input):focus,
+body.dark-theme select:focus,
+body.dark-theme textarea:focus,
+body.dark-theme .wise-numericbox-wrapper:focus-within {
+  border: 1px solid var(--accent) !important;
+  box-shadow: none !important;
+}
+
 body {
   margin: 0;
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -565,6 +684,9 @@ body.dark-theme .wise-dt-context-menu-item:hover {
      what the header's mousedown handler already manipulates to bring a
      clicked window to the front of its sibling windows. */
   z-index: 3;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(15, 23, 42, 0.1);
   border-radius: 14px;
@@ -588,6 +710,7 @@ body.dark-theme .wise-dt-context-menu-item:hover {
 
 .window-header {
   height: 40px;
+  flex: 0 0 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -684,8 +807,8 @@ body.dark-theme .wise-dt-context-menu-item:hover {
 .window-body {
   padding: 30px;
   background: rgba(255, 255, 255, 0.22);
-  min-height: 200px;
-  height: calc(100% - 40px);
+  min-height: 0;
+  flex: 1 1 auto;
   overflow-y: auto;
   color: var(--dark-text);
   /* Firefox's flat-scrollbar equivalent -- WebKit/Chromium/Edge get theirs

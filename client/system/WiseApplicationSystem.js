@@ -261,20 +261,25 @@ class WiseApplicationSystem {
     };
   }
 
-  async dispatchControlEvent(appId, controlId, eventName, values = {}, session = null) {
+  async dispatchControlEvent(appId, controlId, eventName, values = {}, session = null, windowId = null) {
     const instance = this.runningApplications.get(appId) || this.runningApplications.get(Number(appId));
 
-    if (!instance || !instance.window) {
+    if (!instance || (!instance.window && (!instance.windows || instance.windows.size === 0))) {
       throw new Error(`No running window for application ${appId}`);
     }
 
     this.currentSession = session || null;
 
-    const win = instance.window;
+    const targetWindowId = windowId || values._windowId;
+    const win = (instance.getWindow && targetWindowId) ? instance.getWindow(targetWindowId) : (instance.window || (instance.windows && Array.from(instance.windows.values())[0]));
+
+    if (!win) {
+      throw new Error(`Window ${targetWindowId || 'main'} not found in application ${appId}`);
+    }
 
     // Keypress metadata fields are not control IDs -- skip them to avoid
     // clobbering a control named 'key' or polluting win with stray fields.
-    const KEY_META_FIELDS = new Set(['key', 'code', 'ctrlKey', 'shiftKey', 'altKey']);
+    const KEY_META_FIELDS = new Set(['key', 'code', 'ctrlKey', 'shiftKey', 'altKey', '_windowId']);
     Object.entries(values).forEach(([id, value]) => {
       if (KEY_META_FIELDS.has(id)) return;
       if (win[id]) {
@@ -314,8 +319,18 @@ class WiseApplicationSystem {
     const user = session && session.user;
     const userTheme = user && user.themeId ? this.themes.find((theme) => theme.id === user.themeId) : null;
 
+    const openWindow = win.pendingOpenWindow ? win.pendingOpenWindow.toJSON() : (instance.pendingOpenWindow ? instance.pendingOpenWindow.toJSON() : null);
+    win.pendingOpenWindow = null;
+    instance.pendingOpenWindow = null;
+
+    const windowData = win.toJSON();
+    if (win.visible === false && targetWindowId && instance.windows && instance.windows.has(targetWindowId) && targetWindowId !== (instance.window && instance.window.windowId)) {
+      instance.windows.delete(targetWindowId);
+    }
+
     return {
-      window: win.toJSON(),
+      window: windowData,
+      openWindow,
       theme: userTheme || this.getActiveTheme(),
       backgroundImage: user ? user.backgroundImage : this.backgroundImage,
     };

@@ -8,6 +8,9 @@ const WiseIconMenu = require('../../../../system/controls/WiseIconMenu');
 const WiseIconMenuGroup = require('../../../../system/controls/WiseIconMenuGroup');
 const WiseVerticalSeparator = require('../../../../system/controls/WiseVerticalSeparator');
 
+const WinEmployeeDetail = require('./WinEmployeeDetail');
+const WinEmployeeEdit = require('./WinEmployeeEdit');
+
 const HrisApiRepository = require('../services/HrisApiRepository');
 const api = new HrisApiRepository();
 
@@ -229,7 +232,7 @@ class WinEmployeeManagement extends WiseWindow {
     ]);
 
     dtEmployees.addContextMenu([
-      { id: 'detail', label: 'Detail', icon: CONTEXT_MENU_ICONS.detail, onClick: (row) => this.onEditEmployeeClick(row) },
+      { id: 'detail', label: 'Detail', icon: CONTEXT_MENU_ICONS.detail, onClick: (row) => this.onDetailEmployeeClick(row) },
       { id: 'edit', label: 'Edit', icon: CONTEXT_MENU_ICONS.edit, onClick: (row) => this.onEditEmployeeClick(row) },
       { id: 'copy', label: 'Copy', icon: CONTEXT_MENU_ICONS.copy, onClick: (row) => this.onCopyEmployeeRow(row) },
       { id: 'paste', label: 'Paste', icon: CONTEXT_MENU_ICONS.paste, onClick: () => this.onPasteEmployeeRow() }
@@ -261,9 +264,9 @@ class WinEmployeeManagement extends WiseWindow {
         limit,
         search: filters.search || '',
         department: filters.department || 'Semua',
+        jobTitle: filters.jobTitle || '',
         employmentStatus: filters.employmentStatus || 'Semua',
-        isActive: filters.isActive !== undefined ? filters.isActive : 'Semua',
-        ...(filters.jobTitle ? { jobTitle: filters.jobTitle } : {})
+        isActive: filters.isActive !== undefined && filters.isActive !== '' ? filters.isActive : 'Semua'
       });
 
       this.cachedEmployees = res.rows || [];
@@ -307,29 +310,51 @@ class WinEmployeeManagement extends WiseWindow {
     await this.loadEmployeesTable(1, this.dtEmployees ? this.dtEmployees.pageSize : 12, filters);
   }
 
-  onEmployeeRowSelect(row) {
-    if (!row) return;
-    this.selectedEmployeeId = row.id;
-    this.currentEmployeeData = row;
+  onEmployeeRowSelect(row, selectedRows = []) {
+    const rows = selectedRows && selectedRows.length > 0 ? selectedRows : (row ? [row] : []);
+    if (rows.length === 0) {
+      this.selectedEmployeeId = null;
+      this.currentEmployeeData = null;
+      if (this.lblSelectedInfo) {
+        this.lblSelectedInfo.text('Tidak ada karyawan yang dipilih.');
+      }
+      return;
+    }
+
+    const primaryRow = row || rows[0];
+    this.selectedEmployeeId = primaryRow.id;
+    this.currentEmployeeData = primaryRow;
+
     if (this.lblSelectedInfo) {
-      this.lblSelectedInfo.text(`Karyawan Terpilih: ${row.fullName} (${row.nik}) — ${row.jobTitle}`);
+      if (rows.length === (this.cachedEmployees ? this.cachedEmployees.length : 0) && rows.length > 1) {
+        this.lblSelectedInfo.text(`Semua karyawan terpilih (${rows.length} karyawan)`);
+      } else if (rows.length > 1) {
+        this.lblSelectedInfo.text(`${rows.length} karyawan terpilih (Aktif: ${primaryRow.fullName})`);
+      } else {
+        this.lblSelectedInfo.text(`Karyawan Terpilih: ${primaryRow.fullName} (${primaryRow.nik}) — ${primaryRow.jobTitle}`);
+      }
     }
   }
 
   async onEditEmployeeClick(row) {
-    if (!row) return;
-    this.selectedEmployeeId = row.id;
-    this.currentEmployeeData = row;
-    await this.openDetailWindow(row.id);
+    const targetRow = row || (this.dtEmployees ? this.dtEmployees.getSelectedRow() : null) || this.currentEmployeeData;
+    if (!targetRow) {
+      return this.showInfo('Pilih Karyawan', 'Silakan pilih karyawan dari daftar terlebih dahulu untuk mengedit.', 'warning');
+    }
+    const empId = targetRow.id || targetRow.nik;
+    this.selectedEmployeeId = empId;
+    this.currentEmployeeData = targetRow;
+    await this.openWindow(WinEmployeeEdit, { employeeId: empId });
   }
 
   async openDetailWindow(employeeId) {
-    this.launchApp('employeeDetail', { employeeId });
+    await this.openWindow(WinEmployeeDetail, { employeeId });
   }
 
   async onDuplicateEmployeeClick(row) {
-    if (!row) return;
-    this.selectedEmployeeId = row.id;
+    const targetRow = row || (this.dtEmployees ? this.dtEmployees.getSelectedRow() : null) || this.currentEmployeeData;
+    if (!targetRow) return;
+    this.selectedEmployeeId = targetRow.id;
   }
 
 
@@ -340,10 +365,11 @@ class WinEmployeeManagement extends WiseWindow {
   // virtual tenure/totalSalary) are stripped since they either must be
   // unique or aren't real columns to send back to the API.
   onCopyEmployeeRow(row) {
-    if (!row) return;
-    const { id, nik, tenure, totalSalary, statusBadge, tenureText, createdAt, updatedAt, ...copyable } = row;
+    const targetRow = row || (this.dtEmployees ? this.dtEmployees.getSelectedRow() : null) || this.currentEmployeeData;
+    if (!targetRow) return;
+    const { id, nik, tenure, totalSalary, statusBadge, tenureText, createdAt, updatedAt, ...copyable } = targetRow;
     this.copiedEmployee = copyable;
-    this.showInfo('Disalin', `Data karyawan "${row.fullName}" disalin. Pilih Paste pada baris mana pun untuk menduplikasinya sebagai karyawan baru.`, 'information');
+    this.showInfo('Disalin', `Data karyawan "${targetRow.fullName}" disalin. Pilih Paste pada baris mana pun untuk menduplikasinya sebagai karyawan baru.`, 'information');
   }
 
   async onPasteEmployeeRow() {
@@ -368,45 +394,49 @@ class WinEmployeeManagement extends WiseWindow {
   async onDisplayAllClick() {
     // Clear all active filters and reload the full dataset
     this._currentFilters = {};
+    if (this.dtEmployees) {
+      this.dtEmployees.clearFilterValues();
+    }
     await this.loadEmployeesTable(1, this.dtEmployees ? this.dtEmployees.pageSize : 12, {});
-    this.showInfo('Display All', 'Menampilkan seluruh daftar karyawan tanpa filter pencarian.', 'information');
   }
 
   async onToggleSelectAllClick() {
-    const selectedRow = this.dtEmployees ? this.dtEmployees.getSelectedRow() : null;
-    const currentId = this.selectedEmployeeId || (selectedRow ? selectedRow.id : null);
+    if (!this.dtEmployees) return;
 
-    if (currentId) {
+    if (this.dtEmployees.isAllSelected()) {
+      this.dtEmployees.deselectAll();
       this.selectedEmployeeId = null;
       this.currentEmployeeData = null;
-      if (this.dtEmployees) this.dtEmployees.setSelectedRowIndex(null);
-      if (this.lblSelectedInfo) this.lblSelectedInfo.text('Tidak ada karyawan yang dipilih.');
-      this.showInfo('Deselect', 'Pilihan karyawan telah dibatalkan.', 'information');
-    } else if (this.cachedEmployees && this.cachedEmployees.length > 0) {
-      const first = this.cachedEmployees[0];
-      this.selectedEmployeeId = first.id;
-      this.currentEmployeeData = first;
-      if (this.dtEmployees) this.dtEmployees.setSelectedRowIndex(0);
-      if (this.lblSelectedInfo) this.lblSelectedInfo.text(`Karyawan Terpilih: ${first.fullName} (${first.nik}) — ${first.jobTitle}`);
-      this.showInfo('Select Employee', `Karyawan terpilih: ${first.fullName}`, 'success');
+      if (this.lblSelectedInfo) {
+        this.lblSelectedInfo.text('Pilihan karyawan telah dibatalkan.');
+      }
     } else {
-      this.showInfo('Peringatan', 'Tidak ada data karyawan pada daftar.', 'warning');
+      this.dtEmployees.selectAll();
+      const selectedRows = this.dtEmployees.getSelectedRows();
+      if (selectedRows.length > 0) {
+        this.selectedEmployeeId = selectedRows[0].id;
+        this.currentEmployeeData = selectedRows[0];
+        if (this.lblSelectedInfo) {
+          this.lblSelectedInfo.text(`Semua karyawan terpilih (${selectedRows.length} karyawan)`);
+        }
+      }
     }
   }
 
-  async onDetailEmployeeClick() {
-    const selectedRow = this.dtEmployees ? this.dtEmployees.getSelectedRow() : null;
-    const empId = this.selectedEmployeeId || (selectedRow ? selectedRow.id : null);
+  async onDetailEmployeeClick(row) {
+    const targetRow = row || (this.dtEmployees ? this.dtEmployees.getSelectedRow() : null) || this.currentEmployeeData;
+    const selectedRows = this.dtEmployees ? this.dtEmployees.getSelectedRows() : [];
+    const emp = targetRow || (selectedRows.length > 0 ? selectedRows[0] : null);
+    const empId = (emp ? (emp.id || emp.nik) : null) || this.selectedEmployeeId;
 
     if (!empId) {
-      return this.showInfo('Pilih Karyawan', 'Silakan pilih karyawan dari daftar terlebih dahulu.', 'warning');
+      return this.showInfo('Pilih Karyawan', 'Silakan pilih karyawan dari daftar terlebih dahulu untuk melihat detail.', 'warning');
     }
-    await this.openDetailWindow(empId);
+    await this.openWindow(WinEmployeeDetail, { employeeId: empId });
   }
 
   async onNewEmployeeClick() {
-    // Open detail window without an id (add mode)
-    this.launchApp('employeeDetail', { employeeId: null });
+    await this.openWindow(WinEmployeeEdit, { employeeId: null });
   }
 
   async onToggleDeactivate() {

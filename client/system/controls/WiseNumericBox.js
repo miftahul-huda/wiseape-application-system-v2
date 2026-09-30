@@ -123,7 +123,7 @@
       const raw = WiseNumericBox.toRaw(data.value, decimal);
 
       const wrapper = document.createElement('div');
-      wrapper.className = 'flex w-full items-center overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-slate-900/10 transition focus-within:shadow-md focus-within:ring-2 focus-within:ring-[var(--accent)]';
+      wrapper.className = 'wise-numericbox-wrapper flex w-full items-center overflow-hidden rounded-md border border-slate-300 bg-white shadow-none transition focus-within:border-[var(--accent)]';
       WiseControl.applyCommon(wrapper, data, context);
 
       if (data.prefix) {
@@ -140,7 +140,7 @@
       el.value = WiseNumericBox.toDisplay(raw, decimal, group);
       el.dataset.decimal = decimal;
       el.dataset.group = group;
-      el.className = 'min-w-0 flex-1 appearance-none border-0 bg-transparent px-3 py-1.5 text-sm text-slate-800 placeholder-slate-400 outline-none';
+      el.className = 'wise-numeric-inner-input min-w-0 flex-1 appearance-none border-0 bg-transparent px-3 py-1.5 text-sm text-slate-800 placeholder-slate-400 outline-none';
       wrapper.appendChild(el);
 
       if (data.suffix) {

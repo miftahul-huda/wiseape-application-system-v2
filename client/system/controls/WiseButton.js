@@ -32,7 +32,7 @@
       const el = document.createElement('button');
       el.type = 'button';
       el.textContent = data.value;
-      el.className = 'appearance-none border-0 justify-self-start inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-[var(--accent)]/30 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[var(--accent)]/40 hover:brightness-105 active:translate-y-0 active:shadow-sm active:brightness-95 cursor-pointer';
+      el.className = 'appearance-none border-0 justify-self-start inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white shadow-none transition hover:brightness-105 active:brightness-95 cursor-pointer';
       // hasHoverHandler wiring comes from applyCommon; hasHandler (click) is
       // this control's own primary event and stays wired here explicitly,
       // unchanged from before.

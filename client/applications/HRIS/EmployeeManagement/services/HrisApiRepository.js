@@ -52,9 +52,10 @@ class HrisApiRepository {
     if (query.page) params.append('page', query.page);
     if (query.limit) params.append('limit', query.limit);
     if (query.search) params.append('search', query.search);
-    if (query.department && query.department !== 'Semua') params.append('department', query.department);
-    if (query.employmentStatus && query.employmentStatus !== 'Semua') params.append('employmentStatus', query.employmentStatus);
-    if (query.isActive !== undefined && query.isActive !== 'Semua') params.append('isActive', query.isActive);
+    if (query.department && query.department !== 'Semua' && query.department !== '') params.append('department', query.department);
+    if (query.jobTitle && query.jobTitle !== 'Semua' && query.jobTitle !== '') params.append('jobTitle', query.jobTitle);
+    if (query.employmentStatus && query.employmentStatus !== 'Semua' && query.employmentStatus !== '') params.append('employmentStatus', query.employmentStatus);
+    if (query.isActive !== undefined && query.isActive !== 'Semua' && query.isActive !== '') params.append('isActive', query.isActive);
     if (query.sortBy) params.append('sortBy', query.sortBy);
     if (query.sortOrder) params.append('sortOrder', query.sortOrder);
     if (query.withDetails) params.append('withDetails', query.withDetails);
@@ -121,6 +122,14 @@ class HrisApiRepository {
     return res.data;
   }
 
+  async updateDocument(id, data) {
+    const res = await this.request(`/documents/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    return res.data;
+  }
+
   async deleteDocument(id) {
     return this.request(`/documents/${id}`, { method: 'DELETE' });
   }
@@ -130,6 +139,14 @@ class HrisApiRepository {
   async addWorkExperience(employeeId, data) {
     const res = await this.request(`/employees/${employeeId}/work-experiences`, {
       method: 'POST',
+      body: JSON.stringify(data)
+    });
+    return res.data;
+  }
+
+  async updateWorkExperience(id, data) {
+    const res = await this.request(`/work-experiences/${id}`, {
+      method: 'PUT',
       body: JSON.stringify(data)
     });
     return res.data;
@@ -149,6 +166,14 @@ class HrisApiRepository {
     return res.data;
   }
 
+  async updateEducationHistory(id, data) {
+    const res = await this.request(`/education/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    return res.data;
+  }
+
   async deleteEducationHistory(id) {
     return this.request(`/education/${id}`, { method: 'DELETE' });
   }
@@ -158,6 +183,14 @@ class HrisApiRepository {
   async addCareerHistory(employeeId, data) {
     const res = await this.request(`/employees/${employeeId}/career-history`, {
       method: 'POST',
+      body: JSON.stringify(data)
+    });
+    return res.data;
+  }
+
+  async updateCareerHistory(id, data) {
+    const res = await this.request(`/career-history/${id}`, {
+      method: 'PUT',
       body: JSON.stringify(data)
     });
     return res.data;

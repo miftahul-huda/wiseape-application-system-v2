@@ -46,7 +46,7 @@
       // than it -- see the input:invalid rule in styles.css for the ring.
       if (data.minLength !== undefined && data.minLength !== null) el.minLength = data.minLength;
       if (data.maxLength !== undefined && data.maxLength !== null) el.maxLength = data.maxLength;
-      el.className = 'w-full appearance-none rounded-lg border-0 bg-white px-3 py-1.5 text-sm text-slate-800 placeholder-slate-400 shadow-sm ring-1 ring-slate-900/10 outline-none transition focus:shadow-md focus:ring-2 focus:ring-[var(--accent)]';
+      el.className = 'w-full appearance-none rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-800 placeholder-slate-400 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
       WiseControl.applyCommon(el, data, context);
       if (data.hasHandler) {
         el.addEventListener('change', () => context.desktop.sendControlEvent(context.appId, data.id, el, 'change'));

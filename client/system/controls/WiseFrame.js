@@ -12,6 +12,7 @@
       super('', options);
       this.name = 'WiseFrame';
       this.title = title;
+      this.layout = options.layout || 'vertical';
       this.controls = [];
       this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
       this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
@@ -33,6 +34,7 @@
         id: this.id,
         dataField: this.dataField,
         title: this.title,
+        layout: this.layout,
         controls: this.controls.map((control) => control.render()),
         hasClickHandler: !!this.onClick,
         hasHoverHandler: !!this.onHover,
@@ -44,7 +46,7 @@
 
     static renderElement(data, context) {
       const wrapper = document.createElement('div');
-      wrapper.className = 'rounded-lg border border-slate-900/10 bg-white/60 p-4 shadow-sm';
+      wrapper.className = 'rounded-lg border border-slate-900/10 bg-white/60 p-4 shadow-none';
       WiseControl.applyCommon(wrapper, data, context);
 
       if (data.title) {
@@ -55,7 +57,8 @@
       }
 
       const body = document.createElement('div');
-      body.className = 'flex flex-col gap-2';
+      const isHorizontal = data.layout === 'horizontal' || (data.style && (data.style.flexDirection === 'row' || data.style.display === 'flex'));
+      body.className = isHorizontal ? 'flex flex-row flex-wrap items-center gap-2' : 'flex flex-col gap-2';
       (data.controls || []).forEach((control) => body.appendChild(context.desktop.renderControl(control, context.appId, context.windowId)));
       wrapper.appendChild(body);
 

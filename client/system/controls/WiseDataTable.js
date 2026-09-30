@@ -28,7 +28,11 @@
       this.onRowSelect = typeof options.onRowSelect === 'function' ? options.onRowSelect : null;
       this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
       this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
-      this.selectedRowIndex = null;
+      this.multiSelect = options.multiSelect !== undefined ? options.multiSelect : true;
+      this.selectedRowIndices = Array.isArray(options.selectedRowIndices)
+        ? options.selectedRowIndices.map(Number)
+        : (options.selectedRowIndex !== null && options.selectedRowIndex !== undefined ? [Number(options.selectedRowIndex)] : []);
+      this.selectedRowIndex = this.selectedRowIndices.length > 0 ? this.selectedRowIndices[0] : null;
       this.style = options.style || {};
       this.contextMenuItems = [];
 
@@ -49,10 +53,20 @@
 
       this.onRowselect = () => {
         const payload = this.value || {};
-        this.selectedRowIndex = payload.rowIndex;
-        const row = this.data[payload.rowIndex];
-        if (row && this.onRowSelect) {
-          return this.onRowSelect(row);
+        if (Array.isArray(payload.selectedRowIndices)) {
+          this.selectedRowIndices = payload.selectedRowIndices.map(Number).filter((idx) => !isNaN(idx));
+          this.selectedRowIndex = this.selectedRowIndices.length > 0 ? this.selectedRowIndices[0] : null;
+        } else if (payload.rowIndex !== undefined && payload.rowIndex !== null) {
+          this.selectedRowIndex = Number(payload.rowIndex);
+          this.selectedRowIndices = [this.selectedRowIndex];
+        } else {
+          this.selectedRowIndices = [];
+          this.selectedRowIndex = null;
+        }
+        const selectedRows = this.getSelectedRows();
+        const primaryRow = selectedRows.length > 0 ? selectedRows[0] : (payload.rowIndex !== undefined ? this.data[payload.rowIndex] : null);
+        if (this.onRowSelect) {
+          return this.onRowSelect(primaryRow, selectedRows);
         }
       };
 
@@ -87,10 +101,32 @@
       // to derive the handler: 'filterinputchange' → 'onFilterinputchange'.
       this.onFilterinputchange = () => {
         const payload = this.value || {};
+        if (this.filterControls && Array.isArray(this.filterControls)) {
+          this.filterControls.forEach((f) => {
+            if (payload[f.id] !== undefined) {
+              f.value = payload[f.id];
+            }
+          });
+        }
         if (this.onFilterChange) {
           return this.onFilterChange(payload);
         }
       };
+    }
+
+    get value() {
+      return this._value;
+    }
+
+    set value(val) {
+      this._value = val;
+      if (val && typeof val === 'object') {
+        if (Array.isArray(val.selectedRowIndices)) {
+          this.setSelectedRowIndices(val.selectedRowIndices);
+        } else if (val.rowIndex !== undefined && val.rowIndex !== null) {
+          this.setSelectedRowIndex(val.rowIndex);
+        }
+      }
     }
 
     setColumns(columns) {
@@ -141,12 +177,25 @@
       return this;
     }
 
+    // Clears all filter values and flags the control so the next DOM patch
+    // resets input values rather than restoring the stale DOM snapshot.
+    clearFilterValues() {
+      if (this.filterControls && Array.isArray(this.filterControls)) {
+        this.filterControls.forEach((f) => {
+          f.value = '';
+        });
+      }
+      this._filterValuesCleared = true;
+      return this;
+    }
+
     // Exactly one page of data at a time -- this control never holds (or
     // expects) the whole dataset. See docs/DEVELOPMENT_GUIDE.md §5.
     // Resetting selectedRowIndex ensures the highlight clears on page navigation.
     setData(rows, totalCount) {
       this.data = rows || [];
       this.totalCount = totalCount || 0;
+      this.selectedRowIndices = [];
       this.selectedRowIndex = null;
       return this;
     }
@@ -155,31 +204,118 @@
       return this.data;
     }
 
-    getSelectedRowIndex() {
-      return this.selectedRowIndex !== undefined && this.selectedRowIndex !== null ? Number(this.selectedRowIndex) : null;
-    }
-
-    setSelectedRowIndex(index) {
-      this.selectedRowIndex = index !== null && index !== undefined ? Number(index) : null;
+    selectAll() {
+      this.selectedRowIndices = (this.data || []).map((_, idx) => idx);
+      this.selectedRowIndex = this.selectedRowIndices.length > 0 ? this.selectedRowIndices[0] : null;
       return this;
     }
 
-    getSelectedRow() {
-      if (this.selectedRowIndex !== null && this.selectedRowIndex !== undefined && this.data && this.data[this.selectedRowIndex]) {
-        return this.data[this.selectedRowIndex];
+    deselectAll() {
+      this.selectedRowIndices = [];
+      this.selectedRowIndex = null;
+      return this;
+    }
+
+    clearSelection() {
+      return this.deselectAll();
+    }
+
+    isAllSelected() {
+      return (this.data || []).length > 0 && this.selectedRowIndices.length >= this.data.length;
+    }
+
+    toggleSelectAll() {
+      if (this.isAllSelected()) {
+        return this.deselectAll();
+      } else {
+        return this.selectAll();
+      }
+    }
+
+    setValue(value) {
+      super.setValue(value);
+      if (value && typeof value === 'object') {
+        if (Array.isArray(value.selectedRowIndices)) {
+          this.selectedRowIndices = value.selectedRowIndices.map(Number).filter((idx) => !isNaN(idx));
+          this.selectedRowIndex = this.selectedRowIndices.length > 0 ? this.selectedRowIndices[0] : null;
+        } else if (value.rowIndex !== undefined && value.rowIndex !== null) {
+          this.selectedRowIndex = Number(value.rowIndex);
+          this.selectedRowIndices = [this.selectedRowIndex];
+        }
+      }
+      return this;
+    }
+
+    getSelectedRowIndex() {
+      if (this.selectedRowIndices && this.selectedRowIndices.length > 0) {
+        return this.selectedRowIndices[0];
+      }
+      if (this.value && typeof this.value === 'object') {
+        if (this.value.rowIndex !== undefined && this.value.rowIndex !== null) {
+          return Number(this.value.rowIndex);
+        }
+        if (Array.isArray(this.value.selectedRowIndices) && this.value.selectedRowIndices.length > 0) {
+          return Number(this.value.selectedRowIndices[0]);
+        }
       }
       return null;
     }
 
+    setSelectedRowIndex(index) {
+      if (index === null || index === undefined) {
+        this.selectedRowIndices = [];
+        this.selectedRowIndex = null;
+      } else {
+        this.selectedRowIndices = [Number(index)];
+        this.selectedRowIndex = Number(index);
+      }
+      return this;
+    }
+
+    getSelectedRowIndices() {
+      if (this.selectedRowIndices && this.selectedRowIndices.length > 0) {
+        return [...this.selectedRowIndices];
+      }
+      if (this.value && typeof this.value === 'object' && Array.isArray(this.value.selectedRowIndices)) {
+        return this.value.selectedRowIndices.map(Number).filter((idx) => !isNaN(idx));
+      }
+      return [];
+    }
+
+    setSelectedRowIndices(indices) {
+      this.selectedRowIndices = (indices || []).map(Number).filter((idx) => !isNaN(idx));
+      this.selectedRowIndex = this.selectedRowIndices.length > 0 ? this.selectedRowIndices[0] : null;
+      return this;
+    }
+
+    getSelectedRows() {
+      const indices = this.getSelectedRowIndices();
+      if (indices.length > 0) {
+        return indices.map((idx) => this.data[idx]).filter(Boolean);
+      }
+      const singleIdx = this.getSelectedRowIndex();
+      if (singleIdx !== null && this.data[singleIdx]) {
+        return [this.data[singleIdx]];
+      }
+      return [];
+    }
+
+    getSelectedRow() {
+      const rows = this.getSelectedRows();
+      return rows.length > 0 ? rows[0] : null;
+    }
+
     render() {
-      return {
+      const out = {
         type: this.name,
         id: this.id,
         dataField: this.dataField,
         columns: this.columns,
         data: this.data,
         totalCount: this.totalCount,
-        selectedRowIndex: this.selectedRowIndex !== undefined && this.selectedRowIndex !== null ? Number(this.selectedRowIndex) : null,
+        selectedRowIndex: this.selectedRowIndices.length > 0 ? this.selectedRowIndices[0] : null,
+        selectedRowIndices: this.selectedRowIndices || [],
+        multiSelect: this.multiSelect !== false,
         pageSize: this.pageSize,
         currentPage: this.currentPage,
         pageSizeOptions: this.pageSizeOptions,
@@ -199,6 +335,7 @@
           value: f.value || '',
           hasHandler: !!(this._filterHandlers && Object.keys(this._filterHandlers).length > 0),
         })),
+        filterValuesCleared: !!this._filterValuesCleared,
         hasRowSelectHandler: true,
         hasClickHandler: !!this.onClick,
         hasHoverHandler: !!this.onHover,
@@ -206,6 +343,8 @@
         visible: this.visible,
         disabled: this.disabled,
       };
+      this._filterValuesCleared = false;
+      return out;
     }
 
     static renderElement(data, context) {
@@ -292,7 +431,7 @@
 
           const sel = document.createElement('select');
           sel.id = `${data.id}-filter-${filter.id}`;
-          sel.className = 'w-full cursor-pointer appearance-none rounded-lg border-0 bg-white py-1.5 pl-3 pr-8 text-sm text-slate-800 shadow-sm ring-1 ring-slate-900/10 outline-none transition focus:shadow-md focus:ring-2 focus:ring-[var(--accent)]';
+          sel.className = 'w-full cursor-pointer appearance-none rounded-md border border-slate-300 bg-white py-1.5 pl-3 pr-8 text-sm text-slate-800 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
           inputEls[filter.id] = sel;
 
           (filter.items || []).forEach((item) => {
@@ -305,7 +444,12 @@
             sel.appendChild(option);
           });
 
-          sel.addEventListener('change', () => fireFilterInput(filter.id, sel));
+          sel.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              fireFilterInput(filter.id, sel);
+            }
+          });
 
           const chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
           chevron.setAttribute('viewBox', '0 0 24 24');
@@ -336,15 +480,15 @@
           inp.id = `${data.id}-filter-${filter.id}`;
           inp.placeholder = filter.placeholder || '';
           inp.value = filter.value || '';
-          inp.className = 'w-full appearance-none rounded-lg border-0 bg-white py-1.5 pl-8 pr-3 text-sm text-slate-800 placeholder-slate-400 shadow-sm ring-1 ring-slate-900/10 outline-none transition focus:shadow-md focus:ring-2 focus:ring-[var(--accent)]';
+          inp.className = 'w-full appearance-none rounded-md border border-slate-300 bg-white py-1.5 pl-8 pr-3 text-sm text-slate-800 placeholder-slate-400 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
           inputEls[filter.id] = inp;
 
-          // Debounce text input so we don't fire a server round-trip on
-          // every keystroke -- 350 ms is short enough to feel responsive.
-          let debounceTimer = null;
-          inp.addEventListener('input', () => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => fireFilterInput(filter.id, inp), 350);
+          // Trigger on Enter key
+          inp.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              fireFilterInput(filter.id, inp);
+            }
           });
 
           inputWrap.appendChild(searchIcon);
@@ -354,6 +498,36 @@
 
         bar.appendChild(group);
       });
+
+      // Display Button
+      const btnGroup = document.createElement('div');
+      btnGroup.className = 'flex flex-col justify-end';
+
+      const displayBtn = document.createElement('button');
+      displayBtn.type = 'button';
+      displayBtn.id = `${data.id}-filter-btn-display`;
+      displayBtn.className = 'inline-flex items-center justify-center gap-1.5 rounded-lg border-0 bg-[var(--accent,#2563eb)] px-3.5 py-1.5 text-sm font-medium text-white shadow-none transition-all duration-150 ease-out hover:opacity-90 active:scale-95 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-[var(--accent,#2563eb)] focus:ring-offset-1 h-[34px]';
+
+      const filterIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      filterIcon.setAttribute('viewBox', '0 0 24 24');
+      filterIcon.setAttribute('fill', 'none');
+      filterIcon.setAttribute('stroke', 'currentColor');
+      filterIcon.setAttribute('stroke-width', '2');
+      filterIcon.setAttribute('class', 'h-4 w-4 text-white');
+      filterIcon.innerHTML = '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>';
+
+      const btnText = document.createElement('span');
+      btnText.textContent = 'Display';
+
+      displayBtn.appendChild(filterIcon);
+      displayBtn.appendChild(btnText);
+
+      displayBtn.addEventListener('click', () => {
+        fireFilterInput('displayBtn', displayBtn);
+      });
+
+      btnGroup.appendChild(displayBtn);
+      bar.appendChild(btnGroup);
 
       return bar;
     }
@@ -437,14 +611,19 @@
         tbody.appendChild(emptyRow);
       }
 
+      const selectedIndices = Array.isArray(data.selectedRowIndices)
+        ? data.selectedRowIndices.map(Number)
+        : (data.selectedRowIndex !== null && data.selectedRowIndex !== undefined ? [Number(data.selectedRowIndex)] : []);
+
       (data.data || []).forEach((row, rowIndex) => {
         const tr = document.createElement('tr');
         tr.dataset.rowIndex = String(rowIndex);
         const isOdd = rowIndex % 2 === 1;
 
-        const isSelected = data.selectedRowIndex !== null && data.selectedRowIndex !== undefined && Number(data.selectedRowIndex) === rowIndex;
+        const isSelected = selectedIndices.includes(rowIndex);
         if (isSelected) {
           tr.className = 'selected wise-dt-row-selected wise-dt-row cursor-pointer';
+          tr.style.setProperty('background-color', '#bfdbfe', 'important');
         } else if (isOdd) {
           tr.className = 'wise-dt-row-alt wise-dt-row cursor-pointer';
         } else {
@@ -454,28 +633,54 @@
         const selectRow = (e) => {
           if (e && e.target && e.target.closest && e.target.closest('[data-cell-interactive]')) return;
 
-          const tbodyEl = tr.closest('tbody');
-          if (tbodyEl) {
-            tbodyEl.querySelectorAll('tr').forEach((r, idx) => {
+          let nextSelected = [];
+          const isCtrlOrMeta = e && (e.ctrlKey || e.metaKey);
+          const isShift = e && e.shiftKey;
+
+          if (isCtrlOrMeta) {
+            // Toggle individual row in multiple selection
+            const currentSelected = Array.from(tbody.querySelectorAll('tr.selected')).map((r) => Number(r.dataset.rowIndex));
+            if (currentSelected.includes(rowIndex)) {
+              nextSelected = currentSelected.filter((idx) => idx !== rowIndex);
+            } else {
+              nextSelected = [...currentSelected, rowIndex];
+            }
+          } else if (isShift) {
+            // Range select
+            const currentSelected = Array.from(tbody.querySelectorAll('tr.selected')).map((r) => Number(r.dataset.rowIndex));
+            const lastIndex = currentSelected.length > 0 ? currentSelected[currentSelected.length - 1] : rowIndex;
+            const start = Math.min(lastIndex, rowIndex);
+            const end = Math.max(lastIndex, rowIndex);
+            const range = [];
+            for (let i = start; i <= end; i++) range.push(i);
+            nextSelected = Array.from(new Set([...currentSelected, ...range]));
+          } else {
+            // Normal single click (select just this row)
+            nextSelected = [rowIndex];
+          }
+
+          tbody.querySelectorAll('tr').forEach((r, idx) => {
+            const rowIdx = Number(r.dataset.rowIndex !== undefined ? r.dataset.rowIndex : idx);
+            if (nextSelected.includes(rowIdx)) {
+              r.classList.remove('wise-dt-row-alt');
+              r.classList.add('selected', 'wise-dt-row-selected');
+              r.style.setProperty('background-color', '#bfdbfe', 'important');
+              r.querySelectorAll('td').forEach((td) => {
+                td.style.setProperty('background-color', 'transparent', 'important');
+              });
+            } else {
               r.classList.remove('selected', 'wise-dt-row-selected');
               r.style.removeProperty('background-color');
-              if (idx % 2 === 1) {
+              if (rowIdx % 2 === 1) {
                 r.classList.add('wise-dt-row-alt');
               } else {
                 r.classList.remove('wise-dt-row-alt');
               }
-            });
-          }
-
-          tr.classList.remove('wise-dt-row-alt');
-          tr.classList.add('selected', 'wise-dt-row-selected');
-          tr.style.setProperty('background-color', '#bfdbfe', 'important');
-          tr.querySelectorAll('td').forEach((td) => {
-            td.style.setProperty('background-color', 'transparent', 'important');
+            }
           });
 
           context.desktop.sendControlEvent(context.appId, data.id, table, 'rowselect', {
-            [data.id]: { rowIndex },
+            [data.id]: { rowIndex, selectedRowIndices: nextSelected },
           });
         };
 
@@ -493,6 +698,9 @@
           const td = WiseDataTable.renderCell(data, context, col, row, rowIndex);
           if (col.type !== 'button' && col.type !== 'checkbox' && col.type !== 'combobox' && col.type !== 'radiobutton') {
             td.style.cursor = 'pointer';
+          }
+          if (isSelected) {
+            td.style.setProperty('background-color', 'transparent', 'important');
           }
           tr.appendChild(td);
         });
@@ -726,7 +934,7 @@
 
       if ((data.pageSizeOptions || []).length > 0) {
         const sizeSelect = document.createElement('select');
-        sizeSelect.className = 'wise-dt-page-size mr-1 cursor-pointer rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 outline-none transition hover:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/40';
+        sizeSelect.className = 'wise-dt-page-size mr-1 cursor-pointer rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 shadow-none outline-none transition hover:border-[var(--accent)]';
         data.pageSizeOptions.forEach((size) => {
           const option = document.createElement('option');
           option.value = size;
@@ -847,19 +1055,21 @@
       const scrollTop = existingScroll ? existingScroll.scrollTop : 0;
 
       // Snapshot current filter values from the live DOM so they survive
-      // the full rebuild (the server sends back the original default values,
-      // not whatever the user has typed since the last page load).
-      const filterSnapshot = {};
-      (data.filterControls || []).forEach((f) => {
-        const el = existing.querySelector(`#${data.id}-filter-${f.id}`);
-        if (el) filterSnapshot[f.id] = el.value;
-      });
+      // the full rebuild, UNLESS the server explicitly requested filter reset
+      // (e.g. via clearFilterValues() on Display All).
+      if (!data.filterValuesCleared) {
+        const filterSnapshot = {};
+        (data.filterControls || []).forEach((f) => {
+          const el = existing.querySelector(`#${data.id}-filter-${f.id}`);
+          if (el) filterSnapshot[f.id] = el.value;
+        });
 
-      // Merge live values into the descriptor array before rendering
-      if (data.filterControls) {
-        data.filterControls = data.filterControls.map((f) =>
-          filterSnapshot[f.id] !== undefined ? { ...f, value: filterSnapshot[f.id] } : f
-        );
+        // Merge live values into the descriptor array before rendering
+        if (data.filterControls) {
+          data.filterControls = data.filterControls.map((f) =>
+            filterSnapshot[f.id] !== undefined ? { ...f, value: filterSnapshot[f.id] } : f
+          );
+        }
       }
 
       const fresh = WiseDataTable.renderElement(data, context);
@@ -871,11 +1081,17 @@
       }
     }
 
-    // Every interaction sends its payload explicitly via overrideValues
-    // (see the fire* helpers above); there's nothing meaningful to read
-    // passively off this control's own DOM.
-    static gatherValue() {
-      return undefined;
+    static gatherValue(winEl, id) {
+      const dtWrapper = winEl.querySelector(`[data-control-id="${id}"]`);
+      if (!dtWrapper) return undefined;
+      const selectedTrs = Array.from(dtWrapper.querySelectorAll('tbody tr.selected'));
+      if (selectedTrs.length === 0) return undefined;
+      const selectedIndices = selectedTrs.map((tr) => Number(tr.dataset.rowIndex)).filter((idx) => !isNaN(idx));
+      if (selectedIndices.length === 0) return undefined;
+      return {
+        rowIndex: selectedIndices[0],
+        selectedRowIndices: selectedIndices,
+      };
     }
   }
 

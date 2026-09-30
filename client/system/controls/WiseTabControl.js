@@ -3,12 +3,12 @@
   const WiseControl = isBrowser ? window.WiseControlRegistry.WiseControl : require('./WiseControl');
 
   // Horizontal layout button styles
-  const TAB_BUTTON_BASE = 'appearance-none relative overflow-hidden flex items-center justify-center rounded-t-xl px-5 py-2.5 text-xs font-medium cursor-pointer transition-all duration-150 border border-transparent select-none';
+  const TAB_BUTTON_BASE = 'appearance-none relative overflow-hidden flex items-center justify-center rounded-t-xl px-5 py-2.5 text-sm font-medium cursor-pointer transition-all duration-150 border border-transparent select-none';
   const TAB_BUTTON_ACTIVE = `${TAB_BUTTON_BASE} bg-white text-slate-900 font-semibold border-slate-200/80 border-b-white shadow-2xs -mb-px z-10`;
   const TAB_BUTTON_INACTIVE = `${TAB_BUTTON_BASE} bg-slate-100/60 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900`;
 
   // Vertical layout button styles (sidebar navigation pills)
-  const SIDEBAR_BUTTON_BASE = 'appearance-none group relative flex items-center justify-between w-full rounded-lg px-3.5 py-2.5 text-xs font-medium cursor-pointer transition-all duration-150 border border-transparent select-none';
+  const SIDEBAR_BUTTON_BASE = 'appearance-none group relative flex items-center justify-between w-full rounded-lg px-3.5 py-2.5 text-sm font-medium cursor-pointer transition-all duration-150 border border-transparent select-none';
   const SIDEBAR_BUTTON_ACTIVE = `${SIDEBAR_BUTTON_BASE} bg-white text-slate-900 font-semibold shadow-xs ring-1 ring-slate-900/10 border-slate-200/60`;
   const SIDEBAR_BUTTON_INACTIVE = `${SIDEBAR_BUTTON_BASE} text-slate-600 hover:bg-slate-200/50 hover:text-slate-900`;
 

@@ -10,8 +10,10 @@ class WiseApplication {
     this.appStartPoint = appMetadata.appStartPoint || '';
     this.appParameter = appMetadata.appParameter || {};
     this.window = null;
+    this.windows = new Map();
     this.controls = [];
     this.system = null;
+    this.pendingOpenWindow = null;
   }
 
   run(appConfig = {}, appParameter = {}) {
@@ -36,14 +38,34 @@ class WiseApplication {
       appTitle: this.appTitle,
       appIcon: this.appIcon,
       system: this.system,
+      app: this,
       ...options,
     };
 
-    this.window = new WindowClass(windowOptions);
-    if (typeof this.window.onWindowInit === 'function') {
-      this.window.onWindowInit();
+    const win = new WindowClass(windowOptions);
+    if (!this.window) {
+      this.window = win;
     }
-    return this.window;
+    if (!this.windows) this.windows = new Map();
+    this.windows.set(win.windowId, win);
+    if (typeof win.onWindowInit === 'function') {
+      win.onWindowInit();
+    }
+    return win;
+  }
+
+  registerWindow(win) {
+    if (!this.windows) this.windows = new Map();
+    this.windows.set(win.windowId, win);
+  }
+
+  unregisterWindow(windowId) {
+    if (this.windows) this.windows.delete(windowId);
+  }
+
+  getWindow(windowId) {
+    if (!windowId || !this.windows) return this.window;
+    return this.windows.get(windowId) || this.window;
   }
 
   // Delegates to the main window's showInfo() (see WiseWindow) -- lets an

@@ -624,21 +624,27 @@ class WiseDesktop {
 
     const windowData = startupResult && startupResult.window;
 
-    const formatDimension = (val, defaultPx) => {
-      if (val === undefined || val === null || val === '') return `${defaultPx}px`;
+    const formatDimension = (val, defaultVal) => {
+      if (val === undefined || val === null || val === '') {
+        return typeof defaultVal === 'number' ? `${defaultVal}px` : defaultVal;
+      }
+      if (val === 'auto') return 'auto';
       if (typeof val === 'number') return `${val}px`;
       const trimmed = String(val).trim();
+      if (trimmed === 'auto') return 'auto';
       if (/^-?\d+(\.\d+)?$/.test(trimmed)) return `${trimmed}px`;
       return trimmed;
     };
 
     const widthVal = windowData?.width ?? 640;
-    const heightVal = windowData?.height ?? 420;
+    const heightVal = windowData?.height ?? 'auto';
     let positionXVal = windowData?.positionX ?? 330;
     let positionYVal = windowData?.positionY ?? 110;
     // These may be overridden to resolved pixel values when centering is active.
     let resolvedWidth  = widthVal;
     let resolvedHeight = heightVal;
+
+    const isAutoHeight = heightVal === 'auto' || heightVal === undefined || heightVal === null;
 
     // Center the window when explicitly requested (centered: true) OR when a
     // percentage size is used -- both cases mean "fill a fraction of the
@@ -662,14 +668,24 @@ class WiseDesktop {
       const winW = typeof widthVal === 'string' && widthVal.endsWith('%')
         ? Math.round(usableWidth  * parseFloat(widthVal)  / 100)
         : (parseFloat(widthVal) || 640);
-      const winH = typeof heightVal === 'string' && heightVal.endsWith('%')
-        ? Math.round(usableHeight * parseFloat(heightVal) / 100)
-        : (parseFloat(heightVal) || 420);
+      
+      let winH;
+      if (isAutoHeight) {
+        winH = 'auto';
+      } else if (typeof heightVal === 'string' && heightVal.endsWith('%')) {
+        winH = Math.round(usableHeight * parseFloat(heightVal) / 100);
+      } else {
+        winH = parseFloat(heightVal) || 420;
+      }
 
       resolvedWidth  = winW;
       resolvedHeight = winH;
       positionXVal = Math.round(TASKBAR_LEFT + (usableWidth  - winW)  / 2);
-      positionYVal = Math.round((usableHeight - winH) / 2);
+      if (typeof winH === 'number') {
+        positionYVal = Math.round((usableHeight - winH) / 2);
+      } else {
+        positionYVal = Math.max(40, Math.round((usableHeight - 350) / 2));
+      }
     }
 
     const title = (windowData && windowData.title) || application.appTitle;
@@ -681,7 +697,7 @@ class WiseDesktop {
     win.style.left = formatDimension(positionXVal, 330);
     win.style.top = formatDimension(positionYVal, 110);
     win.style.width = formatDimension(resolvedWidth, 640);
-    win.style.height = formatDimension(resolvedHeight, 420);
+    win.style.height = formatDimension(resolvedHeight, 'auto');
     win.style.opacity = '0';
     win.style.transform = 'scale(0.92)';
 
@@ -785,20 +801,20 @@ class WiseDesktop {
       }
     });
 
-    closeBtn.addEventListener('click', () => {
+    const closeWindow = () => {
       removeMinimizedItem();
       win.style.opacity = '0';
       win.style.transform = 'scale(0.92)';
-      // Fallback: if transitionend never fires (e.g. transition was blocked or
-      // the window was already at these values), force-remove after the
-      // transition duration + a small buffer.
       let removed = false;
       const doRemove = () => {
         if (!removed) { removed = true; win.remove(); }
       };
       win.addEventListener('transitionend', doRemove, { once: true });
       setTimeout(doRemove, 350);
-    });
+    };
+    win.__wiseClose = closeWindow;
+
+    closeBtn.addEventListener('click', closeWindow);
 
     minimizeBtn.addEventListener('click', () => {
       win.style.opacity = '0';
@@ -904,6 +920,16 @@ class WiseDesktop {
 
     desktop.appendChild(win);
     setActiveWindow();
+
+    if (wantsCentered && isAutoHeight) {
+      const actualH = win.offsetHeight;
+      if (actualH > 0) {
+        const desktopRect = desktop.getBoundingClientRect();
+        const centerY = Math.max(20, Math.round((desktopRect.height - actualH) / 2));
+        win.style.top = `${centerY}px`;
+      }
+    }
+
     void win.offsetWidth;
     win.style.opacity = '1';
     win.style.transform = 'scale(1)';
@@ -971,6 +997,7 @@ class WiseDesktop {
     const winEl = sourceEl.closest('.window');
     if (!winEl) return;
 
+    const windowId = winEl.dataset.windowId || null;
     const values = this.gatherControlValues(winEl);
     Object.assign(values, overrideValues);
 
@@ -983,7 +1010,7 @@ class WiseDesktop {
       const response = await fetch(`/api/applications/${appId}/events`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ controlId, event: eventName, values }),
+        body: JSON.stringify({ controlId, event: eventName, windowId, values }),
       });
 
       result = await response.json();
@@ -997,8 +1024,20 @@ class WiseDesktop {
       return;
     }
 
-    if (result.window && Array.isArray(result.window.controls)) {
-      this.patchWindowControls(winEl, result.window.controls);
+    if (result.window) {
+      if (result.window.visible === false && typeof winEl.__wiseClose === 'function') {
+        winEl.__wiseClose();
+      } else if (Array.isArray(result.window.controls)) {
+        this.patchWindowControls(winEl, result.window.controls);
+      }
+    }
+
+    if (result.openWindow) {
+      this.renderWindow({
+        appID: appId,
+        appTitle: result.openWindow.appTitle || result.openWindow.title,
+        icon: result.openWindow.icon || null,
+      }, { window: result.openWindow });
     }
 
     if (result.theme) {
