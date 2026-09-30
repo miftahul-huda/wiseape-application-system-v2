@@ -170,11 +170,11 @@ class WinEmployeeEdit extends WiseWindow {
     tblPayroll.setCell(0, 0, this.formGroup('Nama Bank', new WiseComboBox(BANKS.map(b => ({ value: b, label: b })), { id: 'cmbBankName', value: 'BCA' })));
     tblPayroll.setCell(0, 1, this.formGroup('Nomor Rekening Bank', new WiseTextBox('', { id: 'txtBankAccountNumber', placeholder: 'Nomor rekening untuk transfer gaji' })));
     tblPayroll.setCell(1, 0, this.formGroup('Nama Pemilik Rekening', new WiseTextBox('', { id: 'txtBankAccountHolder', placeholder: 'Harus sesuai buku tabungan' })));
-    tblPayroll.setCell(1, 1, this.formGroup('Gaji Pokok - Rp', new WiseNumericBox('0', { id: 'numBasicSalary', value: 0, prefix: 'Rp ' })));
-    tblPayroll.setCell(2, 0, this.formGroup('Tunjangan Jabatan - Rp', new WiseNumericBox('0', { id: 'numAllowancePosition', value: 0, prefix: 'Rp ' })));
-    tblPayroll.setCell(2, 1, this.formGroup('Tunjangan Transport - Rp', new WiseNumericBox('0', { id: 'numAllowanceTransport', value: 0, prefix: 'Rp ' })));
-    tblPayroll.setCell(3, 0, this.formGroup('Tunjangan Makan - Rp', new WiseNumericBox('0', { id: 'numAllowanceMeal', value: 0, prefix: 'Rp ' })));
-    tblPayroll.setCell(3, 1, this.formGroup('Tunjangan Lainnya - Rp', new WiseNumericBox('0', { id: 'numAllowanceOther', value: 0, prefix: 'Rp ' })));
+    tblPayroll.setCell(1, 1, this.formGroup('Gaji Pokok', new WiseNumericBox('0', { id: 'numBasicSalary', value: 0, prefix: 'Rp ' })));
+    tblPayroll.setCell(2, 0, this.formGroup('Tunjangan Jabatan', new WiseNumericBox('0', { id: 'numAllowancePosition', value: 0, prefix: 'Rp ' })));
+    tblPayroll.setCell(2, 1, this.formGroup('Tunjangan Transport', new WiseNumericBox('0', { id: 'numAllowanceTransport', value: 0, prefix: 'Rp ' })));
+    tblPayroll.setCell(3, 0, this.formGroup('Tunjangan Makan', new WiseNumericBox('0', { id: 'numAllowanceMeal', value: 0, prefix: 'Rp ' })));
+    tblPayroll.setCell(3, 1, this.formGroup('Tunjangan Lainnya', new WiseNumericBox('0', { id: 'numAllowanceOther', value: 0, prefix: 'Rp ' })));
     tblPayroll.setCell(4, 0, this.formGroup('Status Perpajakan (PTKP)', new WiseComboBox(TAX_STATUSES.map(t => ({ value: t, label: t })), { id: 'cmbTaxStatus', value: 'TK/0' })));
     tblPayroll.setCell(4, 1, this.formGroup('Nomor NPWP', new WiseTextBox('', { id: 'txtNpwp', placeholder: '00.000.000.0-000.000' })));
     tblPayroll.setCell(5, 0, this.formGroup('Nomor BPJS Kesehatan', new WiseTextBox('', { id: 'txtBpjsKesehatan', placeholder: '13 digit nomor BPJS Kesehatan' })));

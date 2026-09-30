@@ -31,7 +31,8 @@
     static renderElement(data, context) {
       const el = document.createElement('button');
       el.type = 'button';
-      el.textContent = data.value;
+      const labelText = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(data.value) : (data.value ?? '');
+      el.textContent = labelText;
       el.className = 'appearance-none border-0 justify-self-start inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white shadow-none transition hover:brightness-105 active:brightness-95 cursor-pointer';
       // hasHoverHandler wiring comes from applyCommon; hasHandler (click) is
       // this control's own primary event and stays wired here explicitly,
@@ -41,6 +42,13 @@
         el.addEventListener('click', () => context.desktop.sendControlEvent(context.appId, data.id, el, 'click'));
       }
       return el;
+    }
+
+    static patchElement(winEl, data) {
+      const el = winEl.querySelector(`[data-control-id="${data.id}"]`);
+      if (!el) return;
+      const labelText = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(data.value) : (data.value ?? '');
+      el.textContent = labelText;
     }
   }
 

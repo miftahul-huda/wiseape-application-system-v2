@@ -54,6 +54,11 @@ async function start() {
   });
   app.use(express.static(path.join(__dirname, 'public')));
 
+  app.get('/WiseI18n.js', (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    res.sendFile(path.join(__dirname, 'system', 'WiseI18n.js'));
+  });
+
   app.get('/WiseDesktop.js', (req, res) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
     res.sendFile(path.join(__dirname, 'system', 'WiseDesktop.js'));

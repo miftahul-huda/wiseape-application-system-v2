@@ -419,7 +419,7 @@
         if (filter.label) {
           const lbl = document.createElement('label');
           lbl.className = 'text-[11px] font-semibold uppercase tracking-wider text-slate-500 select-none';
-          lbl.textContent = filter.label;
+          lbl.textContent = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(filter.label) : filter.label;
           lbl.htmlFor = `${data.id}-filter-${filter.id}`;
           group.appendChild(lbl);
         }
@@ -574,7 +574,7 @@
         const label = document.createElement('span');
         label.className = 'inline-flex items-center gap-1';
         const labelText = document.createElement('span');
-        labelText.textContent = col.header || '';
+        labelText.textContent = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(col.header || '') : (col.header || '');
         label.appendChild(labelText);
 
         if (sortable) {
@@ -755,7 +755,7 @@
 
         const labelEl = document.createElement('span');
         labelEl.className = 'wise-dt-context-menu-label';
-        labelEl.textContent = item.label;
+        labelEl.textContent = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(item.label) : item.label;
         entry.appendChild(labelEl);
 
         entry.addEventListener('click', (event) => {

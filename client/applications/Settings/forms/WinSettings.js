@@ -3,6 +3,7 @@ const WiseLabel = require('../../../system/controls/WiseLabel');
 const WiseComboBox = require('../../../system/controls/WiseComboBox');
 const WiseFileUpload = require('../../../system/controls/WiseFileUpload');
 const WiseCardGroup = require('../../../system/controls/WiseCardGroup');
+const WiseI18n = require('../../../system/WiseI18n');
 const ApiAuthRepository = require('../../../system/ApiAuthRepository');
 const ApiBackgroundImageRepository = require('../repositories/ApiBackgroundImageRepository');
 
@@ -28,7 +29,46 @@ class WinSettings extends WiseWindow {
   onWindowInit() {
     this.controls = [];
 
-    this.addControl(new WiseLabel('Desktop Preset', { id: 'lblThemeHeading', icon: '🎨', style: { fontSize: 16, fontWeight: 700, color: '#111827' } }));
+    const sessionUser = (this.system && this.system.currentSession && this.system.currentSession.user) || {};
+    const activeLang = sessionUser.language || (this.system ? this.system.language : 'id') || 'id';
+    const activeCurr = sessionUser.currency || (this.system ? this.system.currency : 'IDR') || 'IDR';
+
+    // ── Language Selection ──
+    this.addControl(new WiseLabel('Language', { id: 'lblLanguageHeading', icon: '🌐', style: { fontSize: 16, fontWeight: 700, color: '#111827' } }));
+    this.addControl(new WiseComboBox(
+      [
+        { value: 'id', label: 'Bahasa Indonesia' },
+        { value: 'en', label: 'English' },
+        { value: 'de', label: 'Deutsch (German)' },
+        { value: 'es', label: 'Español (Spanish)' },
+        { value: 'fr', label: 'Français (French)' },
+        { value: 'ar', label: 'العربية (Arabic)' }
+      ],
+      {
+        id: 'cmbLanguage',
+        value: activeLang,
+        onChange: this.onLanguageChange.bind(this),
+      }
+    ));
+
+    // ── Currency Selection (All World Currencies) ──
+    const currencyOptions = WiseI18n.getCurrencyList().map(c => ({
+      value: c.code,
+      label: `${c.code} — ${c.name} (${c.symbol})`
+    }));
+
+    this.addControl(new WiseLabel('Currency', { id: 'lblCurrencyHeading', icon: '💵', style: { fontSize: 16, fontWeight: 700, marginTop: '12px', color: '#111827' } }));
+    this.addControl(new WiseComboBox(
+      currencyOptions,
+      {
+        id: 'cmbCurrency',
+        value: activeCurr,
+        onChange: this.onCurrencyChange.bind(this),
+      }
+    ));
+
+    // ── Theme / Preset ──
+    this.addControl(new WiseLabel('Desktop Preset', { id: 'lblThemeHeading', icon: '🎨', style: { fontSize: 16, fontWeight: 700, marginTop: '12px', color: '#111827' } }));
     this.addControl(new WiseComboBox(
       this.themes.map((theme) => ({ value: theme.id, label: theme.name })),
       {
@@ -38,6 +78,7 @@ class WinSettings extends WiseWindow {
       }
     ));
 
+    // ── Background Image ──
     this.addControl(new WiseLabel('Background Image', { id: 'lblBackgroundHeading', icon: '🖼️', style: { fontSize: 16, fontWeight: 700, marginTop: '12px', color: '#111827' } }));
     this.addControl(new WiseFileUpload('Choose Image...', {
       id: 'uploadBackground',
@@ -57,6 +98,20 @@ class WinSettings extends WiseWindow {
     }));
 
     return this;
+  }
+
+  onLanguageChange() {
+    if (!this.system) return;
+    const lang = this.cmbLanguage.value;
+    this.system.setLanguage(lang);
+    this.persistPreferences({ language: lang });
+  }
+
+  onCurrencyChange() {
+    if (!this.system) return;
+    const curr = this.cmbCurrency.value;
+    this.system.setCurrency(curr);
+    this.persistPreferences({ currency: curr });
   }
 
   onThemeChange() {
@@ -128,13 +183,14 @@ class WinSettings extends WiseWindow {
 
     // Mutate the in-memory session user immediately (not just after the
     // async save resolves) -- dispatchControlEvent echoes this same object
-    // back as `theme`/`backgroundImage` on every event, including this one,
-    // so without this the change would appear to "not take" until the
-    // request-scoped session is next re-resolved from the DB. See
-    // docs/DEVELOPMENT_GUIDE.md §8.
+    // back as `theme`/`backgroundImage`/`language`/`currency` on every event,
+    // including this one, so without this the change would appear to "not take"
+    // until the request-scoped session is next re-resolved from the DB.
     if (session.user) {
       if (prefs.themeId !== undefined) session.user.themeId = prefs.themeId;
       if (prefs.backgroundImage !== undefined) session.user.backgroundImage = prefs.backgroundImage;
+      if (prefs.language !== undefined) session.user.language = prefs.language;
+      if (prefs.currency !== undefined) session.user.currency = prefs.currency;
     }
 
     authRepository.updatePreferences(session.token, prefs)

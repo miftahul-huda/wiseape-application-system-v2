@@ -7,6 +7,7 @@ const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
 const WiseFrame = require('../../../../system/controls/WiseFrame');
 
 const HrisApiRepository = require('../services/HrisApiRepository');
+const WiseI18n = require('../../../../system/WiseI18n');
 const api = new HrisApiRepository();
 
 class WinEmployeeDetail extends WiseWindow {
@@ -306,8 +307,11 @@ class WinEmployeeDetail extends WiseWindow {
   }
 
   formatCurrency(amount) {
-    if (amount === undefined || amount === null || isNaN(amount)) return 'Rp 0';
-    return `Rp ${Number(amount).toLocaleString('id-ID')}`;
+    const curr = (this.system && typeof this.system.getCurrency === 'function') ? this.system.getCurrency() : 'IDR';
+    if (amount === undefined || amount === null || isNaN(amount)) {
+      return WiseI18n.formatCurrency(0, curr);
+    }
+    return WiseI18n.formatCurrency(Number(amount), curr);
   }
 
   async onShow(options = {}) {

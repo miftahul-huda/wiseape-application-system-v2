@@ -6,6 +6,7 @@ let ApiThemeRepository;
 let ApiMenuRepository;
 let WiseApplication;
 let ServerWiseDesktop;
+let WiseI18n;
 
 if (isServer) {
   path = require('path');
@@ -14,6 +15,7 @@ if (isServer) {
   ApiMenuRepository = require('./ApiMenuRepository');
   WiseApplication = require('./WiseApplication');
   ServerWiseDesktop = require('./WiseDesktop');
+  WiseI18n = require('./WiseI18n');
 }
 
 class WiseApplicationSystem {
@@ -25,10 +27,14 @@ class WiseApplicationSystem {
     this.themes = [];
     this.activeThemeId = null;
     this.backgroundImage = null;
+    this.language = 'id';
+    this.currency = 'IDR';
     this.systemConfig = {
       name: 'Wiseape Application System',
       version: '1.0.0',
       theme: 'macos',
+      language: 'id',
+      currency: 'IDR',
     };
 
     if (isServer) {
@@ -154,6 +160,36 @@ class WiseApplicationSystem {
     }
 
     return this.backgroundImage;
+  }
+
+  setLanguage(lang) {
+    if (lang === 'id' || lang === 'en') {
+      this.language = lang;
+      this.systemConfig.language = lang;
+      if (WiseI18n) WiseI18n.setLanguage(lang);
+      if (this.desktop && typeof this.desktop.setLanguage === 'function') {
+        this.desktop.setLanguage(lang);
+      }
+    }
+    return this.language;
+  }
+
+  getLanguage() {
+    return this.language || 'id';
+  }
+
+  setCurrency(curr) {
+    this.currency = curr || 'IDR';
+    this.systemConfig.currency = this.currency;
+    if (WiseI18n) WiseI18n.setCurrency(this.currency);
+    if (this.desktop && typeof this.desktop.setCurrency === 'function') {
+      this.desktop.setCurrency(this.currency);
+    }
+    return this.currency;
+  }
+
+  getCurrency() {
+    return this.currency || 'IDR';
   }
 
   async loadApplications() {
@@ -337,12 +373,17 @@ class WiseApplicationSystem {
       });
     }
 
+    const userLanguage = (user && user.language) || this.language || 'id';
+    const userCurrency = (user && user.currency) || this.currency || 'IDR';
+
     return {
       window: windowData,
       updatedWindows,
       openWindow,
       theme: userTheme || this.getActiveTheme(),
       backgroundImage: user ? user.backgroundImage : this.backgroundImage,
+      language: userLanguage,
+      currency: userCurrency,
     };
   }
 

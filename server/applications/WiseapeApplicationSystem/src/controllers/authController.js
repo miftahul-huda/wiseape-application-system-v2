@@ -60,8 +60,8 @@ async function putSettings(req, res, next) {
 
 async function updatePreferences(req, res, next) {
   try {
-    const { themeId, backgroundImage } = req.body || {};
-    const user = await authService.updateUserPreferences(req.user.id, { themeId, backgroundImage });
+    const { themeId, backgroundImage, language, currency } = req.body || {};
+    const user = await authService.updateUserPreferences(req.user.id, { themeId, backgroundImage, language, currency });
     res.json({ user });
   } catch (error) {
     next(error);

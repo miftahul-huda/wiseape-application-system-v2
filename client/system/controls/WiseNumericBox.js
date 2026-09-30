@@ -2,16 +2,29 @@
   const isBrowser = typeof window !== 'undefined';
   const WiseControl = isBrowser ? window.WiseControlRegistry.WiseControl : require('./WiseControl');
 
-  // Decimal point and thousands/digit-grouping separator, detected together
-  // from the same locale (which reflects the OS locale on every mainstream
-  // browser/OS) so they're always a consistent pair -- e.g. en-US is "."
-  // decimal / "," group, id-ID is "," decimal / "." group.
-  function getSeparators() {
+  function getSeparators(context) {
+    if (typeof window !== 'undefined' && window.WiseI18n) {
+      const desktopCurrency = (context && context.desktop && context.desktop.currency) || window.WiseI18n.currentCurrency;
+      const curr = window.WiseI18n.getCurrency(desktopCurrency);
+      if (curr) {
+        return { decimal: curr.decimal, group: curr.group };
+      }
+    }
     if (!isBrowser) return { decimal: '.', group: ',' };
     const parts = new Intl.NumberFormat(undefined, { useGrouping: true }).formatToParts(1234.5);
     const decimal = (parts.find((part) => part.type === 'decimal') || {}).value || '.';
     const group = (parts.find((part) => part.type === 'group') || {}).value || ',';
     return { decimal, group };
+  }
+
+  function resolvePrefix(data, context) {
+    if (!data.prefix) return '';
+    const isCurrency = data.isCurrency || /^(Rp|\$|€|S\$|¥|IDR|USD|EUR|SGD|JPY)\s*$/i.test(data.prefix.trim());
+    if (isCurrency && typeof window !== 'undefined' && window.WiseI18n) {
+      const desktopCurrency = (context && context.desktop && context.desktop.currency) || window.WiseI18n.currentCurrency;
+      return window.WiseI18n.getCurrencyPrefix(desktopCurrency);
+    }
+    return data.prefix;
   }
 
   // Grouping separators shift position as they're added/removed mid-edit,
@@ -119,17 +132,18 @@
     // patchElement below for the matching lookup, the same two-level
     // pattern WiseDateRange already uses for its own multi-element layout.
     static renderElement(data, context) {
-      const { decimal, group } = getSeparators();
+      const { decimal, group } = getSeparators(context);
       const raw = WiseNumericBox.toRaw(data.value, decimal);
 
       const wrapper = document.createElement('div');
       wrapper.className = 'wise-numericbox-wrapper flex w-full items-center overflow-hidden rounded-md border border-slate-300 bg-white shadow-none transition focus-within:border-[var(--accent)]';
       WiseControl.applyCommon(wrapper, data, context);
 
-      if (data.prefix) {
+      const effectivePrefix = resolvePrefix(data, context);
+      if (effectivePrefix || data.prefix) {
         const prefixEl = document.createElement('span');
-        prefixEl.className = 'select-none pl-3 text-sm text-slate-500';
-        prefixEl.textContent = data.prefix;
+        prefixEl.className = 'wise-numeric-prefix select-none pl-3 text-sm text-slate-500';
+        prefixEl.textContent = effectivePrefix;
         wrapper.appendChild(prefixEl);
       }
 
@@ -145,7 +159,7 @@
 
       if (data.suffix) {
         const suffixEl = document.createElement('span');
-        suffixEl.className = 'select-none pr-3 text-sm text-slate-500';
+        suffixEl.className = 'wise-numeric-suffix select-none pr-3 text-sm text-slate-500';
         suffixEl.textContent = data.suffix;
         wrapper.appendChild(suffixEl);
       }
@@ -223,12 +237,21 @@
       return WiseNumericBox.parseValue(node.value, decimal, group);
     }
 
-    static patchElement(winEl, data) {
+    static patchElement(winEl, data, context) {
       const wrapper = winEl.querySelector(`[data-control-id="${data.id}"]`);
-      const node = wrapper && wrapper.querySelector('input');
+      if (!wrapper) return;
+      const node = wrapper.querySelector('input');
       if (!node) return;
-      const decimal = node.dataset.decimal || getSeparators().decimal;
-      const group = node.dataset.group || getSeparators().group;
+
+      const effectivePrefix = resolvePrefix(data, context);
+      const prefixEl = wrapper.querySelector('.wise-numeric-prefix');
+      if (prefixEl) {
+        prefixEl.textContent = effectivePrefix;
+      }
+
+      const { decimal, group } = getSeparators(context);
+      node.dataset.decimal = decimal;
+      node.dataset.group = group;
       node.value = WiseNumericBox.toDisplay(WiseNumericBox.toRaw(data.value, decimal), decimal, group);
     }
   }

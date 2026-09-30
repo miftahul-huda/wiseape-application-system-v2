@@ -35,11 +35,12 @@
     const chevron = isActive
       ? '<svg class="w-3.5 h-3.5 text-[var(--accent,#2563eb)] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>'
       : '<svg class="w-3.5 h-3.5 text-slate-400 opacity-0 group-hover:opacity-100 shrink-0 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>';
+    const transLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(label) : label;
     return `
       ${activePill}
       <span class="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap ${isActive ? 'pl-2' : 'pl-0'} transition-all">
         ${iconHtml}
-        <span>${label}</span>
+        <span>${transLabel}</span>
       </span>
       ${chevron}
     `;
@@ -50,11 +51,12 @@
       ? '<span class="absolute top-0 left-0 right-0 h-[2.5px] rounded-t-full bg-[var(--accent,#2563eb)]"></span>'
       : '';
     const iconHtml = formatTabIcon(icon);
+    const transLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(label) : label;
     return `
       ${activeLine}
       <span class="inline-flex items-center gap-2 relative z-10">
         ${iconHtml}
-        <span>${label}</span>
+        <span>${transLabel}</span>
       </span>
     `;
   }

@@ -4,14 +4,25 @@ class WiseDesktop {
     this.menus = [];
 
     let displayName = 'User';
+    let userLang = 'id';
+    let userCurr = 'IDR';
     try {
       const userData = localStorage.getItem('was_user');
       if (userData) {
         const parsed = JSON.parse(userData);
         displayName = parsed.name || parsed.username || 'User';
+        if (parsed.language) userLang = parsed.language;
+        if (parsed.currency) userCurr = parsed.currency;
       }
     } catch (e) {
       // fallback
+    }
+
+    this.language = userLang;
+    this.currency = userCurr;
+    if (typeof window !== 'undefined' && window.WiseI18n) {
+      window.WiseI18n.setLanguage(userLang);
+      window.WiseI18n.setCurrency(userCurr);
     }
 
     this.topBar = {
@@ -26,6 +37,102 @@ class WiseDesktop {
     this.windowStack = [];
     this.onIconClick = null;
     this.clockInterval = null;
+  }
+
+  setLanguage(lang) {
+    if (!lang) return;
+    this.language = lang;
+    if (typeof window !== 'undefined' && window.WiseI18n) {
+      window.WiseI18n.setLanguage(lang);
+    }
+    try {
+      const userData = localStorage.getItem('was_user');
+      if (userData) {
+        const parsed = JSON.parse(userData);
+        parsed.language = lang;
+        localStorage.setItem('was_user', JSON.stringify(parsed));
+      }
+    } catch (e) { }
+
+    if (this.root) {
+      this.refreshDesktopLocalization();
+    }
+  }
+
+  setCurrency(curr) {
+    if (!curr) return;
+    this.currency = curr;
+    if (typeof window !== 'undefined' && window.WiseI18n) {
+      window.WiseI18n.setCurrency(curr);
+    }
+    try {
+      const userData = localStorage.getItem('was_user');
+      if (userData) {
+        const parsed = JSON.parse(userData);
+        parsed.currency = curr;
+        localStorage.setItem('was_user', JSON.stringify(parsed));
+      }
+    } catch (e) { }
+
+    if (this.root) {
+      this.refreshDesktopLocalization();
+    }
+  }
+
+  refreshDesktopLocalization() {
+    if (!this.root) return;
+    const t = (text) => (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(text) : text;
+
+    // Update Dock item labels
+    this.root.querySelectorAll('.taskbar .dock-item').forEach((item) => {
+      const rawLabel = item.dataset.rawLabel || item.dataset.label;
+      if (rawLabel) {
+        item.dataset.rawLabel = rawLabel;
+        item.dataset.label = t(rawLabel);
+      }
+    });
+
+    // Update Windows menu label
+    const winMenuLabel = this.root.querySelector('.windows-menu-label');
+    if (winMenuLabel) {
+      winMenuLabel.textContent = `🗔 ${t('Windows')}`;
+    }
+
+    // Update Logout label
+    const logoutItem = this.root.querySelector('.logout-item');
+    if (logoutItem) {
+      logoutItem.textContent = t('Logout');
+    }
+
+    // Update open window titles and controls
+    const registry = (typeof window !== 'undefined') ? window.WiseControlRegistry : null;
+    this.root.querySelectorAll('.window').forEach((winEl) => {
+      const titleEl = winEl.querySelector('.window-title');
+      if (titleEl) {
+        const rawTitle = titleEl.dataset.rawTitle || titleEl.textContent.trim();
+        titleEl.dataset.rawTitle = rawTitle;
+        const imgOrSvg = titleEl.querySelector('img, svg');
+        if (imgOrSvg) {
+          const iconMarkup = imgOrSvg.outerHTML;
+          titleEl.innerHTML = `${iconMarkup} ${t(rawTitle.replace(/^[^\w\s]+/, '').trim())}`;
+        }
+      }
+
+      if (registry) {
+        winEl.querySelectorAll('[data-control-id]').forEach((controlEl) => {
+          const labelSpan = controlEl.querySelector('.wise-label-text');
+          if (labelSpan) {
+            const raw = labelSpan.dataset.rawText || labelSpan.textContent;
+            labelSpan.dataset.rawText = raw;
+            labelSpan.textContent = t(raw);
+          }
+          const prefixEl = controlEl.querySelector('.wise-numeric-prefix');
+          if (prefixEl && typeof window !== 'undefined' && window.WiseI18n) {
+            prefixEl.textContent = window.WiseI18n.getCurrencyPrefix(this.currency);
+          }
+        });
+      }
+    });
   }
 
   // Builds the desktop snapshot and, in the browser (when a DOM `root` is
@@ -412,7 +519,8 @@ class WiseDesktop {
       dockItem.className = 'dock-item';
       dockItem.dataset.appId = item.appId;
       dockItem.innerHTML = this.getIconMarkup(item);
-      dockItem.dataset.label = item.label;
+      dockItem.dataset.rawLabel = item.label;
+      dockItem.dataset.label = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(item.label) : item.label;
       dockItem.addEventListener('click', handleClick);
       dock.appendChild(dockItem);
       this.upgradeIcon(dockItem, item);
@@ -507,7 +615,7 @@ class WiseDesktop {
     if (title) {
       const heading = document.createElement('div');
       heading.className = 'launchpad-title';
-      heading.textContent = title;
+      heading.textContent = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(title) : title;
       overlay.appendChild(heading);
     }
 
@@ -517,9 +625,10 @@ class WiseDesktop {
     (items || []).forEach((node) => {
       const item = document.createElement('div');
       item.className = 'launchpad-app';
+      const labelText = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(node.label) : node.label;
       item.innerHTML = `
         <div class="glyph">${this.getIconMarkup(node)}</div>
-        <div class="label">${node.label}</div>
+        <div class="label">${labelText}</div>
       `;
       this.upgradeIcon(item.querySelector('.glyph'), node);
       item.addEventListener('click', (event) => {
@@ -641,7 +750,7 @@ class WiseDesktop {
     let positionXVal = windowData?.positionX ?? 330;
     let positionYVal = windowData?.positionY ?? 110;
     // These may be overridden to resolved pixel values when centering is active.
-    let resolvedWidth  = widthVal;
+    let resolvedWidth = widthVal;
     let resolvedHeight = heightVal;
 
     const isAutoHeight = heightVal === 'auto' || heightVal === undefined || heightVal === null;
@@ -658,7 +767,7 @@ class WiseDesktop {
       //   left: 14px, width: 68px  →  usable area starts at ~82px from the left.
       const TASKBAR_LEFT = 82;
       const desktopRect = desktop.getBoundingClientRect();
-      const usableWidth  = desktopRect.width  - TASKBAR_LEFT;
+      const usableWidth = desktopRect.width - TASKBAR_LEFT;
       const usableHeight = desktopRect.height;
 
       // Resolve window width/height to pixels so we can compute the offset.
@@ -666,9 +775,9 @@ class WiseDesktop {
       // a "90%" window doesn't accidentally overflow by being 90% of 100vw
       // instead of 90% of the usable (taskbar-excluded) area.
       const winW = typeof widthVal === 'string' && widthVal.endsWith('%')
-        ? Math.round(usableWidth  * parseFloat(widthVal)  / 100)
+        ? Math.round(usableWidth * parseFloat(widthVal) / 100)
         : (parseFloat(widthVal) || 640);
-      
+
       let winH;
       if (isAutoHeight) {
         winH = 'auto';
@@ -678,9 +787,9 @@ class WiseDesktop {
         winH = parseFloat(heightVal) || 420;
       }
 
-      resolvedWidth  = winW;
+      resolvedWidth = winW;
       resolvedHeight = winH;
-      positionXVal = Math.round(TASKBAR_LEFT + (usableWidth  - winW)  / 2);
+      positionXVal = Math.round(TASKBAR_LEFT + (usableWidth - winW) / 2);
       if (typeof winH === 'number') {
         positionYVal = Math.round((usableHeight - winH) / 2);
       } else {
@@ -1060,6 +1169,14 @@ class WiseDesktop {
 
     if (result.backgroundImage !== undefined) {
       this.applyBackgroundImage(result.backgroundImage);
+    }
+
+    if (result.language) {
+      this.setLanguage(result.language);
+    }
+
+    if (result.currency) {
+      this.setCurrency(result.currency);
     }
 
     if (result.window && result.window.info) {

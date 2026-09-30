@@ -44,6 +44,8 @@ async function login({ email, password: plainPassword }) {
   const user = {
     id: row.id, name: row.name, email: row.email, role: row.role,
     status: row.status, themeId: row.themeId, backgroundImage: row.backgroundImage,
+    language: row.language || 'id',
+    currency: row.currency || 'IDR',
   };
   const session = await authModel.createSession(user.id);
   return { user, token: session.token, expiresAt: session.expiresAt };

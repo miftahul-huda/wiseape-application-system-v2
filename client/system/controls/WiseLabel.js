@@ -45,6 +45,7 @@
 
     static buildContent(el, data) {
       el.innerHTML = '';
+      const textVal = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(data.value) : (data.value ?? '');
       if (data.icon) {
         el.className = 'inline-flex items-center gap-1.5 whitespace-pre-wrap text-sm text-slate-800';
         const iconSpan = document.createElement('span');
@@ -61,12 +62,12 @@
         }
         const textSpan = document.createElement('span');
         textSpan.className = 'wise-label-text';
-        textSpan.textContent = data.value ?? '';
+        textSpan.textContent = textVal;
         el.appendChild(iconSpan);
         el.appendChild(textSpan);
       } else {
         el.className = 'whitespace-pre-wrap text-sm text-slate-800';
-        el.textContent = data.value ?? '';
+        el.textContent = textVal;
       }
     }
 

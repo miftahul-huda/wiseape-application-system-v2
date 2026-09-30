@@ -19,6 +19,8 @@ function toUserJson(row) {
     status: row.status,
     themeId: row.themeId,
     backgroundImage: row.backgroundImage,
+    language: row.language || 'id',
+    currency: row.currency || 'IDR',
   };
 }
 
@@ -36,8 +38,15 @@ async function ensureSchema() {
       status TEXT NOT NULL DEFAULT 'active',
       theme_id TEXT,
       background_image TEXT,
+      language TEXT DEFAULT 'id',
+      currency TEXT DEFAULT 'IDR',
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
+  `);
+
+  await db.query(`
+    ALTER TABLE wiseape_users ADD COLUMN IF NOT EXISTS language TEXT DEFAULT 'id';
+    ALTER TABLE wiseape_users ADD COLUMN IF NOT EXISTS currency TEXT DEFAULT 'IDR';
   `);
 
   await db.query(`
@@ -94,7 +103,8 @@ async function findUserByEmail(email) {
   await ensureSchema();
   const result = await db.query(
     `SELECT user_id AS id, name, email, password_hash AS "passwordHash", password_salt AS "passwordSalt",
-            role, status, theme_id AS "themeId", background_image AS "backgroundImage"
+            role, status, theme_id AS "themeId", background_image AS "backgroundImage",
+            language, currency
      FROM wiseape_users WHERE email = $1`,
     [String(email).toLowerCase()]
   );
@@ -104,7 +114,8 @@ async function findUserByEmail(email) {
 async function findUserById(id) {
   await ensureSchema();
   const result = await db.query(
-    `SELECT user_id AS id, name, email, role, status, theme_id AS "themeId", background_image AS "backgroundImage"
+    `SELECT user_id AS id, name, email, role, status, theme_id AS "themeId", background_image AS "backgroundImage",
+            language, currency
      FROM wiseape_users WHERE user_id = $1`,
     [id]
   );
@@ -127,9 +138,10 @@ async function createUser({ name, email, password: plainPassword }) {
   const status = requiresApproval ? 'pending' : 'active';
 
   const result = await db.query(
-    `INSERT INTO wiseape_users (name, email, password_hash, password_salt, role, status)
-     VALUES ($1, $2, $3, $4, 'user', $5)
-     RETURNING user_id AS id, name, email, role, status, theme_id AS "themeId", background_image AS "backgroundImage"`,
+    `INSERT INTO wiseape_users (name, email, password_hash, password_salt, role, status, language, currency)
+     VALUES ($1, $2, $3, $4, 'user', $5, 'id', 'IDR')
+     RETURNING user_id AS id, name, email, role, status, theme_id AS "themeId", background_image AS "backgroundImage",
+               language, currency`,
     [name, normalizedEmail, password.hash(plainPassword, salt), salt, status]
   );
 
@@ -149,7 +161,8 @@ async function findValidSession(token) {
   await ensureSchema();
   const result = await db.query(
     `SELECT u.user_id AS id, u.name, u.email, u.role, u.status,
-            u.theme_id AS "themeId", u.background_image AS "backgroundImage"
+            u.theme_id AS "themeId", u.background_image AS "backgroundImage",
+            u.language, u.currency
      FROM wiseape_sessions s
      JOIN wiseape_users u ON u.user_id = s.user_id
      WHERE s.token = $1 AND s.expires_at > now()`,
@@ -163,7 +176,7 @@ async function deleteSession(token) {
   await db.query('DELETE FROM wiseape_sessions WHERE token = $1', [token]);
 }
 
-async function updateUserPreferences(userId, { themeId, backgroundImage } = {}) {
+async function updateUserPreferences(userId, { themeId, backgroundImage, language, currency } = {}) {
   const sets = [];
   const values = [];
   let index = 1;
@@ -178,13 +191,24 @@ async function updateUserPreferences(userId, { themeId, backgroundImage } = {}) 
     values.push(backgroundImage);
     index += 1;
   }
+  if (language !== undefined) {
+    sets.push(`language = $${index}`);
+    values.push(language);
+    index += 1;
+  }
+  if (currency !== undefined) {
+    sets.push(`currency = $${index}`);
+    values.push(currency);
+    index += 1;
+  }
   if (sets.length === 0) return null;
 
   await ensureSchema();
   values.push(userId);
   const result = await db.query(
     `UPDATE wiseape_users SET ${sets.join(', ')} WHERE user_id = $${index}
-     RETURNING user_id AS id, name, email, role, status, theme_id AS "themeId", background_image AS "backgroundImage"`,
+     RETURNING user_id AS id, name, email, role, status, theme_id AS "themeId", background_image AS "backgroundImage",
+               language, currency`,
     values
   );
   return toUserJson(result.rows[0]);
