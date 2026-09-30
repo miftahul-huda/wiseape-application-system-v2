@@ -439,7 +439,7 @@
             const v = typeof item === 'object' ? item.value : item;
             const l = typeof item === 'object' ? item.label : item;
             option.value = v;
-            option.textContent = l;
+            option.textContent = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(l) : l;
             if (v === (filter.value || '')) option.selected = true;
             sel.appendChild(option);
           });
@@ -478,7 +478,7 @@
           const inp = document.createElement('input');
           inp.type = 'text';
           inp.id = `${data.id}-filter-${filter.id}`;
-          inp.placeholder = filter.placeholder || '';
+          inp.placeholder = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(filter.placeholder || '') : (filter.placeholder || '');
           inp.value = filter.value || '';
           inp.className = 'w-full appearance-none rounded-md border border-slate-300 bg-white py-1.5 pl-8 pr-3 text-sm text-slate-800 placeholder-slate-400 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
           inputEls[filter.id] = inp;
@@ -517,7 +517,7 @@
       filterIcon.innerHTML = '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>';
 
       const btnText = document.createElement('span');
-      btnText.textContent = 'Display';
+      btnText.textContent = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('Display') : 'Display';
 
       displayBtn.appendChild(filterIcon);
       displayBtn.appendChild(btnText);
@@ -925,8 +925,9 @@
       const countStrong = document.createElement('strong');
       countStrong.className = 'font-semibold text-slate-700';
       countStrong.textContent = String(totalCount);
+      const rowsLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('baris') : 'baris';
       info.appendChild(countStrong);
-      info.appendChild(document.createTextNode(totalCount === 1 ? ' baris' : ' baris'));
+      info.appendChild(document.createTextNode(` ${rowsLabel}`));
       pager.appendChild(info);
 
       const controls = document.createElement('div');
@@ -935,10 +936,11 @@
       if ((data.pageSizeOptions || []).length > 0) {
         const sizeSelect = document.createElement('select');
         sizeSelect.className = 'wise-dt-page-size mr-1 cursor-pointer rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 shadow-none outline-none transition hover:border-[var(--accent)]';
+        const pageLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('halaman') : 'halaman';
         data.pageSizeOptions.forEach((size) => {
           const option = document.createElement('option');
           option.value = size;
-          option.textContent = `${size} / halaman`;
+          option.textContent = `${size} / ${pageLabel}`;
           if (size === pageSize) option.selected = true;
           sizeSelect.appendChild(option);
         });
@@ -984,9 +986,10 @@
         return btn;
       };
 
+      const prevLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('Halaman sebelumnya') : 'Halaman sebelumnya';
       controls.appendChild(navButton(chevron('prev'), {
         disabled: currentPage <= 1,
-        ariaLabel: 'Halaman sebelumnya',
+        ariaLabel: prevLabel,
         onClick: () => fireFilterChange({ currentPage: currentPage - 1 }),
       }));
 
@@ -1004,9 +1007,10 @@
         }));
       });
 
+      const nextLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('Halaman berikutnya') : 'Halaman berikutnya';
       controls.appendChild(navButton(chevron('next'), {
         disabled: currentPage >= totalPages,
-        ariaLabel: 'Halaman berikutnya',
+        ariaLabel: nextLabel,
         onClick: () => fireFilterChange({ currentPage: currentPage + 1 }),
       }));
 

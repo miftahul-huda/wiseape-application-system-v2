@@ -9,8 +9,11 @@
   - `var(--bg1)`, `var(--bg2)` (warna latar belakang)
   - `color-mix(in srgb, var(--accent) 12%, white)` (untuk aksen lembut)
 - **Ukuran Font Default**: Dilarang memperkecil ukuran font (`fontSize: 11`, `fontSize: 12`, `text-xs`). Semua tab, button, label, field header, dan input harus menggunakan ukuran font standar default (14px / `text-sm`).
-- **Flat Button & Flat Controls**: Buat button berpenampilan flat dan bersih tanpa border dan tanpa shadow sama sekali.
-- **Flat Input Controls (Dilarang 3D / Shadow)**: DILARANG KERAS membuat input controls (WiseTextBox, WiseComboBox, WiseTextArea, WiseDate, WiseNumericBox, dll.) dengan efek 3D, inset shadow, drop shadow, atau bevel. Semua control input WAJIB dibuat flat dan bersih dengan border 1px yang jelas (solid flat border) tanpa shadow sama sekali (`shadow-none` / `boxShadow: 'none'`).
+- **Flat Button**: Buat button berpenampilan flat dan bersih tanpa border dan tanpa shadow sama sekali.
+- **WAJIB Border pada Semua Input Controls (DILARANG MENGHILANGKAN BORDER)**:
+  - **DILARANG KERAS MENGHILANGKAN BORDER** (`border: none`, `border: 0`, `border-none`, `border-transparent`, `outline: none` tanpa border) pada seluruh input controls (`WiseTextBox`, `WiseComboBox`, `WiseDate`, `WiseDateRange`, `WiseNumericBox`, `WiseTextArea`, search input, dll.).
+  - Seluruh input controls **WAJIB** memiliki border 1px solid yang jelas, tegas, dan kontras (`border: 1px solid #94a3b8` / `border border-slate-300`). Jangan pernah membuat input tanpa border/borderless.
+  - **Flat Input Controls (Dilarang 3D / Shadow)**: DILARANG KERAS membuat input controls dengan efek 3D, inset shadow, drop shadow, atau bevel. Semua control input WAJIB dibuat flat dan bersih dengan border 1px yang jelas (solid flat border) tanpa shadow sama sekali (`shadow-none` / `boxShadow: 'none'`).
 
 ## 2. Form & Window Architecture
 - Sub-window / dialog form (seperti detail, edit, tambah) harus dipanggil langsung via `this.openWindow(ChildWindowClass, params)` dari window induk, bukan membuat aplikasi terpisah `WiseApplication` kecuali diminta secara eksplisit.

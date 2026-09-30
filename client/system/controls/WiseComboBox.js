@@ -89,7 +89,7 @@
 
       // Trigger button
       const trigger = document.createElement('div');
-      trigger.className = 'wise-combobox-trigger w-full cursor-pointer flex items-center justify-between rounded border border-slate-300 bg-white py-1.5 pl-3 pr-3 text-sm text-slate-800 shadow-none outline-none transition hover:border-slate-400 focus:border-[var(--accent)] select-none';
+      trigger.className = 'wise-combobox-trigger w-full cursor-pointer flex items-center justify-between rounded-md border border-slate-300 bg-white py-1.5 pl-3 pr-3 text-sm text-slate-800 shadow-none outline-none transition select-none';
       trigger.setAttribute('tabindex', '0');
 
       const labelSpan = document.createElement('span');
@@ -105,7 +105,7 @@
 
       // Dropdown Panel
       const dropdown = document.createElement('div');
-      dropdown.className = 'wise-combobox-dropdown hidden absolute left-0 right-0 z-[100] mt-1 rounded border border-slate-300 bg-white shadow-lg flex flex-col overflow-hidden';
+      dropdown.className = 'wise-combobox-dropdown hidden absolute left-0 right-0 z-[100] mt-1 rounded-md border border-slate-300 bg-white shadow-lg flex flex-col overflow-hidden';
       dropdown.style.minWidth = '100%';
 
       // Search Box
@@ -119,7 +119,7 @@
 
       const searchInput = document.createElement('input');
       searchInput.type = 'text';
-      searchInput.className = 'w-full text-sm bg-white border border-slate-200 rounded px-2 py-1 text-slate-800 outline-none shadow-none focus:border-[var(--accent)] focus:bg-white placeholder-slate-400';
+      searchInput.className = 'wise-combobox-search-input';
       searchInput.placeholder = 'Cari / Search...';
       searchContainer.appendChild(searchInput);
       dropdown.appendChild(searchContainer);
@@ -191,9 +191,9 @@
 
       function openDropdown() {
         if (data.disabled || wrapper.classList.contains('disabled')) return;
+        wrapper.classList.add('is-open');
         dropdown.classList.remove('hidden');
         chevronSpan.style.transform = 'rotate(180deg)';
-        trigger.classList.add('border-[var(--accent)]');
         searchInput.value = '';
         renderOptions('');
         setTimeout(() => {
@@ -206,9 +206,9 @@
       }
 
       function closeDropdown() {
+        wrapper.classList.remove('is-open');
         dropdown.classList.add('hidden');
         chevronSpan.style.transform = '';
-        trigger.classList.remove('border-[var(--accent)]');
       }
 
       function toggleDropdown() {

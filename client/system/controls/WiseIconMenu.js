@@ -54,8 +54,11 @@
         btn.classList.add('bg-[var(--accent)]/15', 'text-[var(--accent)]');
       }
 
+      const valText = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(data.value || '') : (data.value || '');
+      const descText = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(data.description || '') : (data.description || '');
+
       // Native browser tooltip fallback
-      btn.title = data.description ? `${data.value || ''} — ${data.description}` : (data.value || '');
+      btn.title = descText ? `${valText} — ${descText}` : valText;
 
       // Icon container
       const iconWrapper = document.createElement('div');
@@ -72,7 +75,7 @@
       if (isImgUrl) {
         const img = document.createElement('img');
         img.src = iconSrc;
-        img.alt = data.value || '';
+        img.alt = valText;
         img.className = 'w-full h-full object-contain pointer-events-none select-none';
         img.onerror = () => {
           img.style.display = 'none';
@@ -142,14 +145,14 @@
           if (data.value) {
             const titleSpan = document.createElement('span');
             titleSpan.className = 'text-xs font-semibold leading-tight tracking-wide text-white';
-            titleSpan.textContent = data.value;
+            titleSpan.textContent = valText;
             bubble.appendChild(titleSpan);
           }
 
           if (data.description) {
             const descSpan = document.createElement('span');
             descSpan.className = 'text-[10px] text-slate-300 leading-tight mt-0.5 font-normal';
-            descSpan.textContent = data.description;
+            descSpan.textContent = descText;
             bubble.appendChild(descSpan);
           }
 
