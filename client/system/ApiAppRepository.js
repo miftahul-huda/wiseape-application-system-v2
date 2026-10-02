@@ -54,6 +54,28 @@ const fallbackApps = [
     appStartPoint: 'applications/HRIS/EmployeeManagement/AppEmployeeManagement.js:AppEmployeeManagement',
     appParameter: {},
   },
+  {
+    appID: 'organizationManagement',
+    appTitle: 'Organization Management',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '🏛️',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/HRIS/OrganizationManagement/AppOrganizationManagement.js:AppOrganizationManagement',
+    appParameter: {},
+  },
+  {
+    appID: 'masterDataManagement',
+    appTitle: 'Master Data Management',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '🗂️',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/HRIS/MasterDataManagement/AppMasterDataManagement.js:AppMasterDataManagement',
+    appParameter: {},
+  },
 ];
 
 class ApiAppRepository {

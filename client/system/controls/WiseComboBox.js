@@ -4,8 +4,20 @@
 
   class WiseComboBox extends WiseControl {
     constructor(items = [], options = {}) {
-      const normalizedItems = (items || []).map((it) => (typeof it === 'object' && it !== null ? it : { value: it, label: String(it) }));
-      super(options.value ?? (normalizedItems[0] && normalizedItems[0].value) ?? '', options);
+      const normalizedItems = (items || []).map((it) => (typeof it === 'object' && it !== null ? { value: it.value !== undefined ? it.value : it.label, label: it.label !== undefined ? it.label : String(it.value) } : { value: it, label: String(it) }));
+      
+      let initialValue = '';
+      if (options.value !== undefined && options.value !== null) {
+        initialValue = options.value;
+      } else if (options.selectedValue !== undefined && options.selectedValue !== null) {
+        initialValue = options.selectedValue;
+      } else if (options.selectedIndex !== undefined && options.selectedIndex >= 0 && normalizedItems[options.selectedIndex]) {
+        initialValue = normalizedItems[options.selectedIndex].value;
+      } else if (normalizedItems[0]) {
+        initialValue = normalizedItems[0].value;
+      }
+
+      super(initialValue, options);
       this.name = 'WiseComboBox';
       this.items = normalizedItems;
       this.placeholder = options.placeholder || 'Pilih opsi...';
@@ -15,14 +27,51 @@
 
       const publicOnChange = typeof options.onChange === 'function' ? options.onChange : null;
       this.onItemChanged = typeof options.onItemChanged === 'function' ? options.onItemChanged : null;
-      this._lastItem = this.items.find((item) => item.value === this.value) || null;
+      this._lastItem = this.items.find((item) => String(item.value) === String(this.value)) || null;
       this.onChange = (publicOnChange || this.onItemChanged) ? () => {
         const previousItem = this._lastItem;
-        const currentItem = this.items.find((item) => item.value === this.value) || null;
+        const currentItem = this.items.find((item) => String(item.value) === String(this.value)) || null;
         this._lastItem = currentItem;
         if (this.onItemChanged) this.onItemChanged(previousItem, currentItem);
         if (publicOnChange) return publicOnChange();
       } : null;
+    }
+
+    get selectedIndex() {
+      return this.items.findIndex((item) => String(item.value) === String(this.value));
+    }
+
+    set selectedIndex(index) {
+      const idx = parseInt(index, 10);
+      if (!isNaN(idx) && idx >= 0 && this.items[idx]) {
+        this.value = this.items[idx].value;
+        this._lastItem = this.items[idx];
+      }
+    }
+
+    get selectedValue() {
+      return this.value;
+    }
+
+    set selectedValue(val) {
+      this.setValue(val);
+    }
+
+    get selectedItem() {
+      const idx = this.selectedIndex;
+      return idx >= 0 ? this.items[idx] : null;
+    }
+
+    set selectedItem(item) {
+      if (item && item.value !== undefined) {
+        this.setValue(item.value);
+      }
+    }
+
+    setValue(value) {
+      this.value = value;
+      this._lastItem = this.items.find((item) => String(item.value) === String(value)) || null;
+      return this;
     }
 
     getItems() {
@@ -30,7 +79,7 @@
     }
 
     setItems(items) {
-      this.items = (items || []).map((it) => (typeof it === 'object' && it !== null ? it : { value: it, label: String(it) }));
+      this.items = (items || []).map((it) => (typeof it === 'object' && it !== null ? { value: it.value !== undefined ? it.value : it.label, label: it.label !== undefined ? it.label : String(it.value) } : { value: it, label: String(it) }));
       return this;
     }
 
@@ -40,6 +89,7 @@
         id: this.id,
         dataField: this.dataField,
         value: this.value,
+        selectedIndex: this.selectedIndex,
         items: this.items,
         placeholder: this.placeholder,
         hasHandler: !!this.onChange,
@@ -267,18 +317,31 @@
       const wrapper = winEl.querySelector(`[data-control-id="${data.id}"]`);
       if (!wrapper) return;
 
-      const items = (data.items || []).map((it) => (typeof it === 'object' && it !== null ? it : { value: it, label: String(it) }));
-      const currentValue = data.value !== undefined && data.value !== null ? data.value : wrapper.dataset.value;
-      const currentItem = items.find((it) => String(it.value) === String(currentValue)) || items[0] || null;
+      const items = (data.items || []).map((it) => (typeof it === 'object' && it !== null ? { value: it.value !== undefined ? it.value : it.label, label: it.label !== undefined ? it.label : String(it.value) } : { value: it, label: String(it) }));
+      let currentValue = data.value !== undefined && data.value !== null ? data.value : wrapper.dataset.value;
+      let currentItem = items.find((it) => String(it.value) === String(currentValue));
 
-      wrapper.dataset.value = currentValue;
+      if (!currentItem && data.selectedIndex !== undefined && data.selectedIndex >= 0 && items[data.selectedIndex]) {
+        currentItem = items[data.selectedIndex];
+        currentValue = currentItem.value;
+      }
+      if (!currentItem && items.length > 0) {
+        if (!data.placeholder || (currentValue !== '' && currentValue !== undefined && currentValue !== null)) {
+          currentItem = items[0];
+          currentValue = currentItem.value;
+        }
+      }
+
+      wrapper.dataset.value = currentValue !== undefined && currentValue !== null ? currentValue : '';
       const hiddenInput = wrapper.querySelector('.wise-combobox-value') || wrapper.querySelector('input[type="hidden"]');
-      if (hiddenInput) hiddenInput.value = currentValue;
+      if (hiddenInput) hiddenInput.value = wrapper.dataset.value;
 
       const labelSpan = wrapper.querySelector('.wise-combobox-label');
-      if (labelSpan && currentItem) {
-        labelSpan.textContent = currentItem.label;
+      if (labelSpan) {
+        labelSpan.textContent = currentItem ? currentItem.label : (data.placeholder || 'Pilih opsi...');
       }
+
+      WiseControl.patchElement(winEl, data);
     }
   }
 

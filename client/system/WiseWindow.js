@@ -96,6 +96,25 @@ class WiseWindow {
     }
   }
 
+  findControl(id) {
+    if (this[id]) return this[id];
+    const search = (controls) => {
+      for (const ctrl of controls) {
+        if (ctrl.id === id) return ctrl;
+        if (typeof ctrl.getChildControls === 'function') {
+          const found = search(ctrl.getChildControls());
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    return search(this.controls);
+  }
+
+  getControl(id) {
+    return this.findControl(id);
+  }
+
   onWindowInit() {
     return this;
   }

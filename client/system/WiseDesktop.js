@@ -111,25 +111,71 @@ class WiseDesktop {
       if (titleEl) {
         const rawTitle = titleEl.dataset.rawTitle || titleEl.textContent.trim();
         titleEl.dataset.rawTitle = rawTitle;
-        const imgOrSvg = titleEl.querySelector('img, svg');
-        if (imgOrSvg) {
-          const iconMarkup = imgOrSvg.outerHTML;
-          titleEl.innerHTML = `${iconMarkup} ${t(rawTitle.replace(/^[^\w\s]+/, '').trim())}`;
+        const iconSpan = titleEl.querySelector('span:first-child');
+        const iconText = iconSpan ? iconSpan.textContent.trim() : '';
+        const cleanTitle = rawTitle.replace(/^[^\w\s]+/, '').trim();
+        if (iconSpan) {
+          titleEl.innerHTML = `<span>${iconText}</span> <span>${t(cleanTitle)}</span>`;
+        } else {
+          titleEl.textContent = t(rawTitle);
         }
       }
 
       if (registry) {
         winEl.querySelectorAll('[data-control-id]').forEach((controlEl) => {
+          // 1. WiseLabel with icon
           const labelSpan = controlEl.querySelector('.wise-label-text');
           if (labelSpan) {
             const raw = labelSpan.dataset.rawText || labelSpan.textContent;
             labelSpan.dataset.rawText = raw;
             labelSpan.textContent = t(raw);
+          } else if (controlEl.dataset.controlType === 'WiseLabel' || controlEl.classList.contains('whitespace-pre-wrap')) {
+            const raw = controlEl.dataset.rawText || controlEl.textContent;
+            controlEl.dataset.rawText = raw;
+            controlEl.textContent = t(raw);
           }
+
+          // 2. WiseButton
+          if (controlEl.tagName === 'BUTTON' || controlEl.dataset.controlType === 'WiseButton') {
+            const raw = controlEl.dataset.rawLabel || controlEl.textContent;
+            controlEl.dataset.rawLabel = raw;
+            controlEl.textContent = t(raw);
+          }
+
+          // 3. WiseComboBox label
+          const cmbLabel = controlEl.querySelector('.wise-combobox-label');
+          if (cmbLabel) {
+            const raw = cmbLabel.dataset.rawLabel || cmbLabel.textContent;
+            cmbLabel.dataset.rawLabel = raw;
+            cmbLabel.textContent = t(raw);
+          }
+
+          // 4. Currency prefix
           const prefixEl = controlEl.querySelector('.wise-numeric-prefix');
           if (prefixEl && typeof window !== 'undefined' && window.WiseI18n) {
             prefixEl.textContent = window.WiseI18n.getCurrencyPrefix(this.currency);
           }
+        });
+
+        // 5. WiseDataTable filter labels and display button
+        winEl.querySelectorAll('.wise-datatable-wrapper').forEach((dtEl) => {
+          dtEl.querySelectorAll('.filter-item label').forEach((lbl) => {
+            const raw = lbl.dataset.rawText || lbl.textContent;
+            lbl.dataset.rawText = raw;
+            lbl.textContent = t(raw);
+          });
+          const dispBtn = dtEl.querySelector('.wise-datatable-display-btn span');
+          if (dispBtn) {
+            dispBtn.textContent = t('Display');
+          }
+          dtEl.querySelectorAll('thead th').forEach((th) => {
+            const labelSpan = th.querySelector('.header-label');
+            if (labelSpan) {
+              const raw = labelSpan.dataset.rawText || labelSpan.textContent;
+              labelSpan.dataset.rawText = raw;
+              labelSpan.textContent = t(raw);
+            }
+          });
         });
       }
     });

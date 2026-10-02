@@ -16,10 +16,10 @@
   - **Flat Input Controls (Dilarang 3D / Shadow)**: DILARANG KERAS membuat input controls dengan efek 3D, inset shadow, drop shadow, atau bevel. Semua control input WAJIB dibuat flat dan bersih dengan border 1px yang jelas (solid flat border) tanpa shadow sama sekali (`shadow-none` / `boxShadow: 'none'`).
 
 ## 2. Form & Window Architecture
-- Sub-window / dialog form (seperti detail, edit, tambah) harus dipanggil langsung via `this.openWindow(ChildWindowClass, params)` dari window induk, bukan membuat aplikasi terpisah `WiseApplication` kecuali diminta secara eksplisit.
-- Window detail data harus menggunakan kontrol display/read-only (`WiseLabel`) untuk nilai field, bukan kontrol input (`WiseTextBox`).
-- Window edit data menggunakan form input controls lengkap dengan tombol simpan & validasi.
 - **Sub-Records / Child Data Table Architecture**: Dilarang membuat form input inline di bawah data table untuk penambahan/pengeditan sub-records (misal: Dokumen, Pengalaman Kerja, Pendidikan, Riwayat Karir). Sediakan tombol aksi ("➕ Tambah", "✏️ Edit", "🗑️ Hapus") dan context menu di tabel yang memanggil form dialog terpisah melalui `this.openWindow(...)`.
-- Setiap membuat Window jangan ditambahkan Frame informasi jika tidak diminta.
+- **DILARANG MENAMBAHKAN FRAME / HERO BANNER DI ATAS FORM ATAU WINDOW**: DILARANG KERAS menambahkan frame dekoratif, hero header banner, atau frame informasi/deskripsi di bagian atas window atau form kecuali diminta secara eksplisit oleh user. Window dan form harus langsung dimulai dengan konten fungsional utama (toolbar aksi, tab, filter, data table, atau layout input controls).
 - **Input Tanggal**: Untuk seluruh input tanggal, WAJIB menggunakan kontrol `WiseDate` (bukan `WiseTextBox`).
 - **Dokumentasi Kontrol**: Untuk melihat panduan dan referensi lengkap penggunaan controls yang tersedia, selalu rujuk dokumentasi di root folder `/docs` (`docs/API_REFERENCE.md`, `docs/DEVELOPMENT_GUIDE.md`, dll.).
+
+## 3. Internationalization & Multi-Language (i18n) Compliance
+- **WAJIB Dukung Multi-Language (Current Active Language)**: Setiap membuat form, window, dialog, tombol aksi, label field, placeholder input, tab, filter table, atau pesan baru, seluruh teks/label **WAJIB** terdaftar dan didukung dalam kamus terjemahan `WiseI18n.js` (mendukung `id`, `en`, `de`, `es`, `fr`, `ar`) agar UI selalu otomatis menyesuaikan dengan bahasa aktif (`currentLanguage`) yang dipilih pengguna di Pengaturan Desktop.

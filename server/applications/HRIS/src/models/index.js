@@ -5,6 +5,10 @@ const WorkExperience = require('./WorkExperience');
 const EducationHistory = require('./EducationHistory');
 const CareerHistory = require('./CareerHistory');
 const EmployeeFamily = require('./EmployeeFamily');
+const MasterData = require('./MasterData');
+const Organization = require('./Organization');
+const JobLevel = require('./JobLevel');
+const JobPosition = require('./JobPosition');
 
 // ==========================================
 // Model Associations
@@ -75,6 +79,36 @@ Employee.hasMany(Employee, {
   as: 'subordinates'
 });
 
+// 7. Organization Self Association (Parent <-> Sub-units)
+Organization.belongsTo(Organization, {
+  foreignKey: 'parentId',
+  as: 'parent'
+});
+Organization.hasMany(Organization, {
+  foreignKey: 'parentId',
+  as: 'children'
+});
+
+// 8. Organization <-> JobPosition (1 : M)
+Organization.hasMany(JobPosition, {
+  foreignKey: 'organizationId',
+  as: 'positions'
+});
+JobPosition.belongsTo(Organization, {
+  foreignKey: 'organizationId',
+  as: 'organization'
+});
+
+// 9. JobLevel <-> JobPosition (1 : M)
+JobLevel.hasMany(JobPosition, {
+  foreignKey: 'jobLevelId',
+  as: 'positions'
+});
+JobPosition.belongsTo(JobLevel, {
+  foreignKey: 'jobLevelId',
+  as: 'jobLevel'
+});
+
 module.exports = {
   sequelize,
   Employee,
@@ -82,5 +116,9 @@ module.exports = {
   WorkExperience,
   EducationHistory,
   CareerHistory,
-  EmployeeFamily
+  EmployeeFamily,
+  MasterData,
+  Organization,
+  JobLevel,
+  JobPosition
 };

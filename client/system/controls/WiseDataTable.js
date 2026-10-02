@@ -570,11 +570,13 @@
           th.style.minWidth = w;
         }
 
-        const sortable = col.sortable !== false && !!col.dataField;
+        const dataField = col.dataField || col.key || col.field || col.name;
+        const sortable = col.sortable !== false && !!dataField;
         const label = document.createElement('span');
         label.className = 'inline-flex items-center gap-1';
+        const rawHeader = col.header || col.label || col.title || '';
         const labelText = document.createElement('span');
-        labelText.textContent = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(col.header || '') : (col.header || '');
+        labelText.textContent = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(rawHeader) : rawHeader;
         label.appendChild(labelText);
 
         if (sortable) {
@@ -815,11 +817,12 @@
         td.style.width = w;
         td.style.minWidth = w;
       }
-      const cellValue = row[col.dataField];
+      const dataField = col.dataField || col.key || col.field || col.name;
+      const cellValue = row[dataField];
 
       const fireCellChange = (newValue) => {
         context.desktop.sendControlEvent(context.appId, data.id, td, 'cellchange', {
-          [data.id]: { rowIndex, dataField: col.dataField, newValue },
+          [data.id]: { rowIndex, dataField, newValue },
         });
       };
 
@@ -827,12 +830,12 @@
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.dataset.cellInteractive = 'true';
-        btn.textContent = col.label || 'Action';
+        btn.textContent = col.label || col.header || 'Action';
         btn.className = 'appearance-none rounded-md border-0 bg-[var(--accent)] px-3 py-1 text-xs font-semibold text-white cursor-pointer';
         btn.addEventListener('click', (event) => {
           event.stopPropagation();
           context.desktop.sendControlEvent(context.appId, data.id, td, 'cellclick', {
-            [data.id]: { rowIndex, dataField: col.dataField },
+            [data.id]: { rowIndex, dataField },
           });
         });
         td.appendChild(btn);
@@ -877,7 +880,7 @@
           input.className = 'h-[16px] w-[16px] cursor-pointer';
           // Scoped per window instance too -- see WiseRadioGroup for why.
           const namePrefix = context.windowId ? `${context.windowId}-` : '';
-          input.name = `${namePrefix}${data.id}-${rowIndex}-${col.dataField}`;
+          input.name = `${namePrefix}${data.id}-${rowIndex}-${dataField}`;
           input.dataset.cellInteractive = 'true';
           input.checked = optValue === cellValue;
           input.addEventListener('click', (event) => event.stopPropagation());
@@ -905,7 +908,11 @@
           td.appendChild(placeholder);
         }
       } else {
-        td.textContent = cellValue === undefined || cellValue === null ? '' : String(cellValue);
+        if (typeof cellValue === 'string' && cellValue.trim().startsWith('<')) {
+          td.innerHTML = cellValue;
+        } else {
+          td.textContent = cellValue === undefined || cellValue === null ? '' : String(cellValue);
+        }
       }
 
       return td;

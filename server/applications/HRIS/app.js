@@ -50,6 +50,9 @@ async function startServer() {
     await sequelize.sync({ alter: true });
     console.log('[HRIS DB] Models synchronized with PostgreSQL database.');
 
+    const { seedMasterData } = require('./src/scripts/seedMasterData');
+    await seedMasterData();
+
     const server = app.listen(port, () => {
       console.log(`[HRIS Service] Wiseape HRIS REST API Microservice running on port ${port}`);
       console.log(`[HRIS Service] API Documentation: http://localhost:${port}/api`);

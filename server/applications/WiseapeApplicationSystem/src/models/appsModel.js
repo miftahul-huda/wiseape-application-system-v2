@@ -56,6 +56,28 @@ const FALLBACK_APPS = [
     appStartPoint: 'applications/HRIS/EmployeeManagement/AppEmployeeManagement.js:AppEmployeeManagement',
     appParameter: {},
   },
+  {
+    appID: 'organizationManagement',
+    appTitle: 'Organization Management',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '🏛️',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/HRIS/OrganizationManagement/AppOrganizationManagement.js:AppOrganizationManagement',
+    appParameter: {},
+  },
+  {
+    appID: 'masterDataManagement',
+    appTitle: 'Master Data Management',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '🗂️',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/HRIS/MasterDataManagement/AppMasterDataManagement.js:AppMasterDataManagement',
+    appParameter: {},
+  },
 ];
 
 function parseJsonField(value, fallback) {
@@ -126,6 +148,44 @@ async function ensureAdminAppSeeded() {
         JSON.stringify(['Wiseape WAS']),
         JSON.stringify({}),
         'applications/HRIS/EmployeeManagement/AppEmployeeManagement.js:AppEmployeeManagement',
+        JSON.stringify({}),
+      ]
+    );
+  }
+
+  const existingOrg = await db.query('SELECT 1 FROM wiseape_apps WHERE app_id = $1', ['organizationManagement']);
+  if (existingOrg.rowCount === 0) {
+    await db.query(
+      `INSERT INTO wiseape_apps (app_id, app_title, app_version, app_developer, app_icon, app_libraries, app_config, app_start_point, app_parameter)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [
+        'organizationManagement',
+        'Organization Management',
+        '1.0.0',
+        'Wiseape',
+        '🏛️',
+        JSON.stringify(['Wiseape WAS']),
+        JSON.stringify({}),
+        'applications/HRIS/OrganizationManagement/AppOrganizationManagement.js:AppOrganizationManagement',
+        JSON.stringify({}),
+      ]
+    );
+  }
+
+  const existingMaster = await db.query('SELECT 1 FROM wiseape_apps WHERE app_id = $1', ['masterDataManagement']);
+  if (existingMaster.rowCount === 0) {
+    await db.query(
+      `INSERT INTO wiseape_apps (app_id, app_title, app_version, app_developer, app_icon, app_libraries, app_config, app_start_point, app_parameter)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [
+        'masterDataManagement',
+        'Master Data Management',
+        '1.0.0',
+        'Wiseape',
+        '🗂️',
+        JSON.stringify(['Wiseape WAS']),
+        JSON.stringify({}),
+        'applications/HRIS/MasterDataManagement/AppMasterDataManagement.js:AppMasterDataManagement',
         JSON.stringify({}),
       ]
     );

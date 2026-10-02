@@ -189,6 +189,10 @@
     'Portal HRIS': { id: 'Portal HRIS', en: 'HRIS Portal', de: 'HRIS-Portal', es: 'Portal HRIS', fr: 'Portail SIRH', ar: 'بوابة الموارد البشرية' },
     'Employee Management': { id: 'Manajemen Karyawan', en: 'Employee Management', de: 'Mitarbeiterverwaltung', es: 'Gestión de Empleados', fr: 'Gestion des Employés', ar: 'إدارة الموظفين' },
     'Manajemen Karyawan': { id: 'Manajemen Karyawan', en: 'Employee Management', de: 'Mitarbeiterverwaltung', es: 'Gestión de Empleados', fr: 'Gestion des Employés', ar: 'إدارة الموظفين' },
+    'Organization Management': { id: 'Manajemen Organisasi', en: 'Organization Management', de: 'Organisationsverwaltung', es: 'Gestión de Organización', fr: 'Gestion de l\'Organisation', ar: 'إدارة الهيكل التنظيمي' },
+    'Manajemen Organisasi': { id: 'Manajemen Organisasi', en: 'Organization Management', de: 'Organisationsverwaltung', es: 'Gestión de Organización', fr: 'Gestion de l\'Organisation', ar: 'إدارة الهيكل التنظيمي' },
+    'Master Data Management': { id: 'Manajemen Master Data', en: 'Master Data Management', de: 'Stammdatenverwaltung', es: 'Gestión de Datos Maestros', fr: 'Gestion des Données de Référence', ar: 'إدارة البيانات الرئيسية' },
+    'Manajemen Master Data': { id: 'Manajemen Master Data', en: 'Master Data Management', de: 'Stammdatenverwaltung', es: 'Gestión de Datos Maestros', fr: 'Gestion des Données de Référence', ar: 'إدارة البيانات الرئيسية' },
     'Windows': { id: 'Jendela', en: 'Windows', de: 'Fenster', es: 'Ventanas', fr: 'Fenêtres', ar: 'النوافذ' },
     'Jendela': { id: 'Jendela', en: 'Windows', de: 'Fenster', es: 'Ventanas', fr: 'Fenêtres', ar: 'النوافذ' },
     'Logout': { id: 'Keluar', en: 'Logout', de: 'Abmelden', es: 'Cerrar sesión', fr: 'Déconnexion', ar: 'تسجيل الخروج' },
@@ -414,7 +418,146 @@
     'Nama Anggota Keluarga': { id: 'Nama Anggota Keluarga', en: 'Family Member Name', de: 'Name des Familienmitglieds', es: 'Nombre del familiar', fr: 'Nom du Membre de la Famille', ar: 'اسم فرد العائلة' },
     'Nama Anggota Keluarga *': { id: 'Nama Anggota Keluarga *', en: 'Family Member Name *', de: 'Name des Familienmitglieds *', es: 'Nombre del familiar *', fr: 'Nom du Membre de la Famille *', ar: 'اسم فرد العائلة *' },
     'Hubungan Keluarga *': { id: 'Hubungan Keluarga *', en: 'Family Relationship *', de: 'Verwandtschaftsverhältnis *', es: 'Parentesco familiar *', fr: 'Lien de Parenté *', ar: 'صلة القرابة العائلية *' },
-    'Nomor Kontak': { id: 'Nomor Kontak', en: 'Contact Number', de: 'Kontaktnummer', es: 'Número de contacto', fr: 'Numéro de Contact', ar: 'رقم الاتصال' }
+    'Nomor Kontak': { id: 'Nomor Kontak', en: 'Contact Number', de: 'Kontaktnummer', es: 'Número de contacto', fr: 'Numéro de Contact', ar: 'رقم الاتصال' },
+
+    // ── Master Data Management ────────────────────────────────────
+    'Master Data Management — Wise HRIS': { id: 'Manajemen Data Master — Wise HRIS', en: 'Master Data Management — Wise HRIS', de: 'Stammdatenverwaltung — Wise HRIS', es: 'Gestión de Datos Maestros — Wise HRIS', fr: 'Gestion des Données de Référence — Wise HRIS', ar: 'إدارة البيانات الرئيسية — Wise HRIS' },
+    'Tambah Data Master — Wise HRIS': { id: 'Tambah Data Master — Wise HRIS', en: 'Add Master Data — Wise HRIS', de: 'Stammdatum hinzufügen — Wise HRIS', es: 'Agregar dato maestro — Wise HRIS', fr: 'Ajouter une Donnée de Référence — Wise HRIS', ar: 'إضافة بيانات رئيسية — Wise HRIS' },
+    'Edit Data Master — Wise HRIS': { id: 'Edit Data Master — Wise HRIS', en: 'Edit Master Data — Wise HRIS', de: 'Stammdatum bearbeiten — Wise HRIS', es: 'Editar dato maestro — Wise HRIS', fr: 'Modifier la Donnée de Référence — Wise HRIS', ar: 'تعديل البيانات الرئيسية — Wise HRIS' },
+    'Tambah Data Master': { id: 'Tambah Data Master', en: 'Add Master Data', de: 'Stammdatum hinzufügen', es: 'Agregar dato maestro', fr: 'Ajouter une Donnée de Référence', ar: 'إضافة بيانات رئيسية' },
+    'Edit Data Master': { id: 'Edit Data Master', en: 'Edit Master Data', de: 'Stammdatum bearbeiten', es: 'Editar dato maestro', fr: 'Modifier la Donnée de Référence', ar: 'تعديل البيانات الرئيسية' },
+    'Simpan Data': { id: 'Simpan Data', en: 'Save Data', de: 'Daten speichern', es: 'Guardar datos', fr: 'Enregistrer les données', ar: 'حفظ البيانات' },
+    '💾 Simpan Data': { id: '💾 Simpan Data', en: '💾 Save Data', de: '💾 Daten speichern', es: '💾 Guardar datos', fr: '💾 Enregistrer les données', ar: '💾 حفظ البيانات' },
+    'Kategori Master': { id: 'Kategori Master', en: 'Master Category', de: 'Stammdatenkategorie', es: 'Categoría maestra', fr: 'Catégorie de Référence', ar: 'فئة البيانات الرئيسية' },
+    'Kategori Master *': { id: 'Kategori Master *', en: 'Master Category *', de: 'Stammdatenkategorie *', es: 'Categoría maestra *', fr: 'Catégorie de Référence *', ar: 'فئة البيانات الرئيسية *' },
+    '📁 Semua Kategori': { id: '📁 Semua Kategori', en: '📁 All Categories', de: '📁 Alle Kategorien', es: '📁 Todas las categorías', fr: '📁 Toutes les Catégories', ar: '📁 كل الفئات' },
+    'Semua Kategori': { id: 'Semua Kategori', en: 'All Categories', de: 'Alle Kategorien', es: 'Todas las categorías', fr: 'Toutes les Catégories', ar: 'كل الفئات' },
+    '👨‍👩‍👧‍👦 Hubungan Keluarga (Relationship)': { id: '👨‍👩‍👧‍👦 Hubungan Keluarga (Relationship)', en: '👨‍👩‍👧‍👦 Family Relationship', de: '👨‍👩‍👧‍👦 Verwandtschaftsverhältnis', es: '👨‍👩‍👧‍👦 Relación familiar', fr: '👨‍👩‍👧‍👦 Lien de Parenté', ar: '👨‍👩‍👧‍👦 صلة القرابة' },
+    '🕊️ Agama (Religion)': { id: '🕊️ Agama (Religion)', en: '🕊️ Religion', de: '🕊️ Religion', es: '🕊️ Religión', fr: '🕊️ Religion', ar: '🕊️ الديانة' },
+    '📋 Status Kepegawaian (Employment Status)': { id: '📋 Status Kepegawaian (Employment Status)', en: '📋 Employment Status', de: '📋 Beschäftigungsstatus', es: '📋 Estado laboral', fr: '📋 Statut d\'Emploi', ar: '📋 الحالة الوظيفية' },
+    '📍 Lokasi Kerja (Work Location)': { id: '📍 Lokasi Kerja (Work Location)', en: '📍 Work Location', de: '📍 Arbeitsort', es: '📍 Ubicación de trabajo', fr: '📍 Lieu de Travail', ar: '📍 موقع العمل' },
+    '🏦 Bank Payroll (Bank)': { id: '🏦 Bank Payroll (Bank)', en: '🏦 Payroll Bank', de: '🏦 Gehaltsbank', es: '🏦 Banco de nómina', fr: '🏦 Banque de Paie', ar: '🏦 بنك الرواتب' },
+    '📄 Jenis Dokumen (Document Type)': { id: '📄 Jenis Dokumen (Document Type)', en: '📄 Document Type', de: '📄 Dokumententyp', es: '📄 Tipo de documento', fr: '📄 Type de Document', ar: '📄 نوع الوثيقة' },
+    '🎓 Jenjang Pendidikan (Degree Level)': { id: '🎓 Jenjang Pendidikan (Degree Level)', en: '🎓 Education Degree Level', de: '🎓 Bildungsabschluss', es: '🎓 Nivel de educación', fr: '🎓 Niveau d\'Études', ar: '🎓 درجة التعليم' },
+    'Edit': { id: 'Edit', en: 'Edit', de: 'Bearbeiten', es: 'Editar', fr: 'Modifier', ar: 'تعديل' },
+    'Toggle Status': { id: 'Toggle Status', en: 'Toggle Status', de: 'Status umschalten', es: 'Cambiar estado', fr: 'Basculer le Statut', ar: 'تبديل الحالة' },
+    '🔄 Toggle Status': { id: '🔄 Toggle Status', en: '🔄 Toggle Status', de: '🔄 Status umschalten', es: '🔄 Cambiar estado', fr: '🔄 Basculer le Statut', ar: '🔄 تبديل الحالة' },
+    'Toggle Aktif/Nonaktif': { id: 'Toggle Aktif/Nonaktif', en: 'Toggle Active/Inactive', de: 'Status umschalten', es: 'Alternar Activo/Inactivo', fr: 'Basculer Actif/Inactif', ar: 'تبديل نشط/غير نشط' },
+    '🔄 Toggle Aktif/Nonaktif': { id: '🔄 Toggle Aktif/Nonaktif', en: '🔄 Toggle Active/Inactive', de: '🔄 Status umschalten', es: '🔄 Alternar Activo/Inactivo', fr: '🔄 Basculer Actif/Inactif', ar: '🔄 تبديل نشط/غير نشط' },
+    'Hapus': { id: 'Hapus', en: 'Delete', de: 'Löschen', es: 'Eliminar', fr: 'Supprimer', ar: 'حذف' },
+    '🗑️ Hapus': { id: '🗑️ Hapus', en: '🗑️ Delete', de: '🗑️ Löschen', es: '🗑️ Eliminar', fr: '🗑️ Supprimer', ar: '🗑️ حذف' },
+    'Segarkan': { id: 'Segarkan', en: 'Refresh', de: 'Aktualisieren', es: 'Actualizar', fr: 'Actualiser', ar: 'تحديث' },
+    'Refresh': { id: 'Segarkan', en: 'Refresh', de: 'Aktualisieren', es: 'Actualizar', fr: 'Actualiser', ar: 'تحديث' },
+    'Segarkan (Refresh)': { id: 'Segarkan (Refresh)', en: 'Refresh', de: 'Aktualisieren', es: 'Actualizar', fr: 'Actualiser', ar: 'تحديث' },
+    '🔄 Segarkan (Refresh)': { id: '🔄 Segarkan (Refresh)', en: '🔄 Refresh', de: '🔄 Aktualisieren', es: '🔄 Actualizar', fr: '🔄 Actualiser', ar: '🔄 تحديث' },
+    'Kategori': { id: 'Kategori', en: 'Category', de: 'Kategorie', es: 'Categoría', fr: 'Catégorie', ar: 'الفئة' },
+    'Category': { id: 'Kategori', en: 'Category', de: 'Kategorie', es: 'Categoría', fr: 'Catégorie', ar: 'الفئة' },
+    'Nama Master Data': { id: 'Nama Master Data', en: 'Master Data Name', de: 'Stammdatenname', es: 'Nombre de datos maestros', fr: 'Nom de la Donnée de Référence', ar: 'اسم البيانات الرئيسية' },
+    '📋 Status Pegawai': { id: '📋 Status Pegawai', en: '📋 Employment Status', de: '📋 Beschäftigungsstatus', es: '📋 Estado del empleado', fr: '📋 Statut d\'Emploi', ar: '📋 حالة الموظف' },
+    'Status Pegawai': { id: 'Status Pegawai', en: 'Employment Status', de: 'Beschäftigungsstatus', es: 'Estado del empleado', fr: 'Statut d\'Emploi', ar: 'حالة الموظف' },
+    'Hubungan Keluarga': { id: 'Hubungan Keluarga', en: 'Family Relationship', de: 'Verwandtschaftsverhältnis', es: 'Relación familiar', fr: 'Lien de Parenté', ar: 'صلة القرابة' },
+
+    // ── Organization & Position Management ────────────────────────
+    'Organization & Position Management — Wise HRIS': { id: 'Manajemen Organisasi & Jabatan — Wise HRIS', en: 'Organization & Position Management — Wise HRIS', de: 'Organisations- & Stellenverwaltung — Wise HRIS', es: 'Gestión de Organización y Puestos — Wise HRIS', fr: 'Gestion de l\'Organisation et des Postes — Wise HRIS', ar: 'إدارة الهيكل التنظيمي والوظائف — Wise HRIS' },
+    '🏛️ Unit Organisasi (Divisi & Dept)': { id: '🏛️ Unit Organisasi (Divisi & Dept)', en: '🏛️ Organizational Units (Divisions & Depts)', de: '🏛️ Organisationseinheiten (Bereiche & Abteilungen)', es: '🏛️ Unidades Organizativas (Divisiones y Dptos)', fr: '🏛️ Unités Organisationnelles (Divisions & Départements)', ar: '🏛️ الوحدات التنظيمية (الأقسام والإدارات)' },
+    '🎖️ Jenjang Jabatan (Job Levels)': { id: '🎖️ Jenjang Jabatan (Job Levels)', en: '🎖️ Job Levels / Grades', de: '🎖️ Positionsebenen / Grade', es: '🎖️ Niveles de Puesto / Grados', fr: '🎖️ Niveaux de Poste / Grades', ar: '🎖️ المستويات الوظيفية / الدرجات' },
+    '💼 Master Jabatan (Positions)': { id: '💼 Master Jabatan (Positions)', en: '💼 Master Positions', de: '💼 Stellenverzeichnis', es: '💼 Puestos Maestros', fr: '💼 Répertoire des Postes', ar: '💼 الوظائف والمسميات' },
+    'Tambah Unit Organisasi — Wise HRIS': { id: 'Tambah Unit Organisasi — Wise HRIS', en: 'Add Organizational Unit — Wise HRIS', de: 'Organisationseinheit hinzufügen — Wise HRIS', es: 'Agregar unidad organizativa — Wise HRIS', fr: 'Ajouter une Unité Organisationnelle — Wise HRIS', ar: 'إضافة وحدة تنظيمية — Wise HRIS' },
+    'Edit Unit Organisasi — Wise HRIS': { id: 'Edit Unit Organisasi — Wise HRIS', en: 'Edit Organizational Unit — Wise HRIS', de: 'Organisationseinheit bearbeiten — Wise HRIS', es: 'Editar unidad organizativa — Wise HRIS', fr: 'Modifier l\'Unité Organisationnelle — Wise HRIS', ar: 'تعديل الوحدة التنظيمية — Wise HRIS' },
+    'Tipe': { id: 'Tipe', en: 'Type', de: 'Typ', es: 'Tipo', fr: 'Type', ar: 'النوع' },
+    'Tipe Struktur *': { id: 'Tipe Struktur *', en: 'Structure Type *', de: 'Strukturtyp *', es: 'Tipo de estructura *', fr: 'Type de Structure *', ar: 'نوع الهيكل *' },
+    'Nama Unit Organisasi': { id: 'Nama Unit Organisasi', en: 'Organizational Unit Name', de: 'Name der Organisationseinheit', es: 'Nombre de la unidad organizativa', fr: 'Nom de l\'Unité Organisationnelle', ar: 'اسم الوحدة التنظيمية' },
+    'Induk Organisasi': { id: 'Induk Organisasi', en: 'Parent Organization', de: 'Übergeordnete Organisation', es: 'Organización matriz', fr: 'Organisation Parente', ar: 'الجهة التابعة لها' },
+    '(Tidak Ada / Unit Tingkat Atas)': { id: '(Tidak Ada / Unit Tingkat Atas)', en: '(None / Top Level Unit)', de: '(Keine / Oberste Ebene)', es: '(Ninguna / Nivel superior)', fr: '(Aucune / Niveau Supérieur)', ar: '(لا يوجد / المستوى الأعلى)' },
+    'Kode Organisasi *': { id: 'Kode Organisasi *', en: 'Organization Code *', de: 'Organisationscode *', es: 'Código de organización *', fr: 'Code Organisationnel *', ar: 'رمز المنظمة *' },
+    'Nama Organisasi *': { id: 'Nama Organisasi *', en: 'Organization Name *', de: 'Organisationsname *', es: 'Nombre de la organización *', fr: 'Nom de l\'Organisation *', ar: 'اسم المنظمة *' },
+    'Deskripsi': { id: 'Deskripsi', en: 'Description', de: 'Beschreibung', es: 'Descripción', fr: 'Description', ar: 'الوصف' },
+    'Deskripsi Fungsi': { id: 'Deskripsi Fungsi', en: 'Functional Description', de: 'Funktionsbeschreibung', es: 'Descripción funcional', fr: 'Description Fonctionnelle', ar: 'الوصف الوظيفي' },
+    '💾 Simpan Organisasi': { id: '💾 Simpan Organisasi', en: '💾 Save Organization', de: '💾 Organisation speichern', es: '💾 Guardar organización', fr: '💾 Enregistrer l\'Organisation', ar: '💾 حفظ المنظمة' },
+    'Memuat data organisasi...': { id: 'Memuat data organisasi...', en: 'Loading organization data...', de: 'Organisationsdaten werden geladen...', es: 'Cargando datos de organización...', fr: 'Chargement des données de l\'organisation...', ar: 'جاري تحميل بيانات المنظمة...' },
+
+    // Job Levels
+    'Tambah Jenjang Jabatan — Wise HRIS': { id: 'Tambah Jenjang Jabatan — Wise HRIS', en: 'Add Job Level — Wise HRIS', de: 'Positionsebene hinzufügen — Wise HRIS', es: 'Agregar nivel de puesto — Wise HRIS', fr: 'Ajouter un Niveau de Poste — Wise HRIS', ar: 'إضافة مستوى وظيفي — Wise HRIS' },
+    'Edit Jenjang Jabatan — Wise HRIS': { id: 'Edit Jenjang Jabatan — Wise HRIS', en: 'Edit Job Level — Wise HRIS', de: 'Positionsebene bearbeiten — Wise HRIS', es: 'Editar nivel de puesto — Wise HRIS', fr: 'Modifier le Niveau de Poste — Wise HRIS', ar: 'تعديل المستوى الوظيفI — Wise HRIS' },
+    'Nama Jenjang / Grade': { id: 'Nama Jenjang / Grade', en: 'Level / Grade Name', de: 'Stufen- / Gradbezeichnung', es: 'Nombre de nivel / grado', fr: 'Nom du Niveau / Grade', ar: 'اسم المستوى / الدرجة' },
+    'Nama Jenjang / Grade *': { id: 'Nama Jenjang / Grade *', en: 'Level / Grade Name *', de: 'Stufen- / Gradbezeichnung *', es: 'Nombre de nivel / grado *', fr: 'Nom du Niveau / Grade *', ar: 'اسم المستوى / الدرجة *' },
+    'Kode Jenjang *': { id: 'Kode Jenjang *', en: 'Level Code *', de: 'Stufencode *', es: 'Código de nivel *', fr: 'Code de Niveau *', ar: 'رمز المستوى *' },
+    'Tingkat Level': { id: 'Tingkat Level', en: 'Level Rank', de: 'Stufenrang', es: 'Rango de nivel', fr: 'Rang du Niveau', ar: 'الرتبة / المستوى' },
+    'Tingkat Level (1-9) *': { id: 'Tingkat Level (1-9) *', en: 'Level Rank (1-9) *', de: 'Stufenrang (1-9) *', es: 'Rango de nivel (1-9) *', fr: 'Rang du Niveau (1-9) *', ar: 'الرتبة / المستوى (1-9) *' },
+    'Cakupan Tanggung Jawab': { id: 'Cakupan Tanggung Jawab', en: 'Scope of Responsibility', de: 'Verantwortungsbereich', es: 'Alcance de responsabilidades', fr: 'Périmètre de Responsabilité', ar: 'نطاق المسؤوليات' },
+    'Deskripsi Tanggung Jawab': { id: 'Deskripsi Tanggung Jawab', en: 'Responsibility Description', de: 'Beschreibung der Verantwortung', es: 'Descripción de responsabilidades', fr: 'Description des Responsabilités', ar: 'وصف المسؤوليات' },
+    '💾 Simpan Jenjang': { id: '💾 Simpan Jenjang', en: '💾 Save Job Level', de: '💾 Positionsebene speichern', es: '💾 Guardar nivel de puesto', fr: '💾 Enregistrer le Niveau', ar: '💾 حفظ المستوى الوظيفي' },
+
+    // Job Positions
+    'Tambah Master Jabatan — Wise HRIS': { id: 'Tambah Master Jabatan — Wise HRIS', en: 'Add Position — Wise HRIS', de: 'Stelle hinzufügen — Wise HRIS', es: 'Agregar puesto — Wise HRIS', fr: 'Ajouter un Poste — Wise HRIS', ar: 'إضافة وظيفة جديدة — Wise HRIS' },
+    'Edit Master Jabatan — Wise HRIS': { id: 'Edit Master Jabatan — Wise HRIS', en: 'Edit Position — Wise HRIS', de: 'Stelle bearbeiten — Wise HRIS', es: 'Editar puesto — Wise HRIS', fr: 'Modifier le Poste — Wise HRIS', ar: 'تعديل الوظيفة — Wise HRIS' },
+    'Judul / Nama Jabatan': { id: 'Judul / Nama Jabatan', en: 'Position Title / Name', de: 'Stellentitel / Name', es: 'Título / Nombre del puesto', fr: 'Titre / Intitulé du Poste', ar: 'المسمى الوظيفي' },
+    'Judul / Nama Jabatan *': { id: 'Judul / Nama Jabatan *', en: 'Position Title / Name *', de: 'Stellentitel / Name *', es: 'Título / Nombre del puesto *', fr: 'Titre / Intitulé du Poste *', ar: 'المسمى الوظيفي *' },
+    'Kode Posisi / Jabatan *': { id: 'Kode Posisi / Jabatan *', en: 'Position Code *', de: 'Stellencode *', es: 'Código del puesto *', fr: 'Code du Poste *', ar: 'رمز الوظيفة *' },
+    'Unit / Departemen': { id: 'Unit / Departemen', en: 'Unit / Department', de: 'Einheit / Abteilung', es: 'Unidad / Departamento', fr: 'Unité / Département', ar: 'الوحدة / القسم' },
+    'Unit Organisasi / Dept': { id: 'Unit Organisasi / Dept', en: 'Organizational Unit / Dept', de: 'Organisationseinheit / Abt.', es: 'Unidad Organizativa / Dpto', fr: 'Unité Organisationnelle / Dép.', ar: 'الوحدة التنظيمية / القسم' },
+    'Jenjang / Grade': { id: 'Jenjang / Grade', en: 'Level / Grade', de: 'Stufe / Grad', es: 'Nivel / Grado', fr: 'Niveau / Grade', ar: 'المستوى / الدرجة' },
+    'Jenjang Jabatan / Grade': { id: 'Jenjang Jabatan / Grade', en: 'Job Level / Grade', de: 'Positionsebene / Grad', es: 'Nivel de puesto / Grado', fr: 'Niveau de Poste / Grade', ar: 'المستوى الوظيفي / الدرجة' },
+    '(Tidak Terikat Organisasi Spesifik)': { id: '(Tidak Terikat Organisasi Spesifik)', en: '(Not Bound to Specific Org)', de: '(Nicht organisationsgebunden)', es: '(No vinculado a organización específica)', fr: '(Non rattaché à une org. spécifique)', ar: '(غير مرتبط بمنظمة معينة)' },
+    '(Pilih Jenjang Jabatan)': { id: '(Pilih Jenjang Jabatan)', en: '(Select Job Level)', de: '(Positionsebene wählen)', es: '(Seleccionar nivel de puesto)', fr: '(Sélectionner le Niveau de Poste)', ar: '(اختر المستوى الوظيفي)' },
+    'Uraian Tugas': { id: 'Uraian Tugas', en: 'Job Summary', de: 'Aufgabenbeschreibung', es: 'Resumen de tareas', fr: 'Description des Tâches', ar: 'مهام الوظيفة' },
+    'Uraian Tugas Singkat': { id: 'Uraian Tugas Singkat', en: 'Brief Job Summary', de: 'Kurze Aufgabenbeschreibung', es: 'Resumen breve de tareas', fr: 'Bref Résumé des Tâches', ar: 'ملخص موجز للمهام' },
+    '💾 Simpan Jabatan': { id: '💾 Simpan Jabatan', en: '💾 Save Position', de: '💾 Stelle speichern', es: '💾 Guardar puesto', fr: '💾 Enregistrer le Poste', ar: '💾 حفظ الوظيفة' },
+
+    // Master Data Management — window titles & labels
+    'Master Data Management — Wise HRIS': { id: 'Master Data Management — Wise HRIS', en: 'Master Data Management — Wise HRIS', de: 'Stammdatenverwaltung — Wise HRIS', es: 'Gestión de Datos Maestros — Wise HRIS', fr: 'Gestion des Données de Référence — Wise HRIS', ar: 'إدارة البيانات الرئيسية — Wise HRIS' },
+    'Tambah Data': { id: 'Tambah Data', en: 'Add Data', de: 'Daten hinzufügen', es: 'Agregar datos', fr: 'Ajouter des données', ar: 'إضافة بيانات' },
+    '➕ Tambah Data': { id: '➕ Tambah Data', en: '➕ Add Data', de: '➕ Daten hinzufügen', es: '➕ Agregar datos', fr: '➕ Ajouter des données', ar: '➕ إضافة بيانات' },
+    'Edit Data': { id: 'Edit Data', en: 'Edit Data', de: 'Daten bearbeiten', es: 'Editar datos', fr: 'Modifier les données', ar: 'تعديل البيانات' },
+    '✏️ Edit Data': { id: '✏️ Edit Data', en: '✏️ Edit Data', de: '✏️ Daten bearbeiten', es: '✏️ Editar datos', fr: '✏️ Modifier les données', ar: '✏️ تعديل البيانات' },
+    'Kode': { id: 'Kode', en: 'Code', de: 'Code', es: 'Código', fr: 'Code', ar: 'الرمز' },
+    'Urutan': { id: 'Urutan', en: 'Order', de: 'Reihenfolge', es: 'Orden', fr: 'Ordre', ar: 'الترتيب' },
+    'Status': { id: 'Status', en: 'Status', de: 'Status', es: 'Estado', fr: 'Statut', ar: 'الحالة' },
+    'Pencarian': { id: 'Pencarian', en: 'Search', de: 'Suche', es: 'Búsqueda', fr: 'Recherche', ar: 'بحث' },
+    'Memuat data master...': { id: 'Memuat data master...', en: 'Loading master data...', de: 'Stammdaten werden geladen...', es: 'Cargando datos maestros...', fr: 'Chargement des données de référence...', ar: 'جارٍ تحميل البيانات الرئيسية...' },
+    'Kode Unik *': { id: 'Kode Unik *', en: 'Unique Code *', de: 'Eindeutiger Code *', es: 'Código único *', fr: 'Code unique *', ar: 'الرمز الفريد *' },
+    'Nama / Deskripsi Tampilan *': { id: 'Nama / Deskripsi Tampilan *', en: 'Display Name / Description *', de: 'Anzeigename / Beschreibung *', es: 'Nombre / Descripción de visualización *', fr: 'Nom / Description d\'affichage *', ar: 'الاسم / الوصف المعروض *' },
+    'Keterangan Tambahan': { id: 'Keterangan Tambahan', en: 'Additional Notes', de: 'Zusätzliche Hinweise', es: 'Notas adicionales', fr: 'Notes supplémentaires', ar: 'ملاحظات إضافية' },
+    'Urutan Tampilan': { id: 'Urutan Tampilan', en: 'Display Order', de: 'Anzeigereihenfolge', es: 'Orden de visualización', fr: 'Ordre d\'affichage', ar: 'ترتيب العرض' },
+    '🟢 Aktif (Bisa Dipilih)': { id: '🟢 Aktif (Bisa Dipilih)', en: '🟢 Active (Selectable)', de: '🟢 Aktiv (Auswählbar)', es: '🟢 Activo (Seleccionable)', fr: '🟢 Actif (Sélectionnable)', ar: '🟢 نشط (قابل للاختيار)' },
+
+    // Organization & Position Management — window titles & labels
+    'Organization & Position Management — Wise HRIS': { id: 'Organization & Position Management — Wise HRIS', en: 'Organization & Position Management — Wise HRIS', de: 'Organisations- & Stellenverwaltung — Wise HRIS', es: 'Gestión de Organización y Puestos — Wise HRIS', fr: 'Gestion des Organisations & Postes — Wise HRIS', ar: 'إدارة الهيكل التنظيمي والوظائف — Wise HRIS' },
+    '🏛️ Unit Organisasi (Divisi & Dept)': { id: '🏛️ Unit Organisasi (Divisi & Dept)', en: '🏛️ Org Units (Division & Dept)', de: '🏛️ Org.-Einheiten (Abt. & Dept.)', es: '🏛️ Unidades Org. (División y Dpto.)', fr: '🏛️ Unités Org. (Division & Dép.)', ar: '🏛️ الوحدات التنظيمية (الأقسام)' },
+    '🎖️ Jenjang Jabatan (Job Levels)': { id: '🎖️ Jenjang Jabatan (Job Levels)', en: '🎖️ Job Levels', de: '🎖️ Stellenebenen', es: '🎖️ Niveles de puesto', fr: '🎖️ Niveaux de Poste', ar: '🎖️ مستويات الوظيفة' },
+    '💼 Master Jabatan (Positions)': { id: '💼 Master Jabatan (Positions)', en: '💼 Positions', de: '💼 Stellenverzeichnis', es: '💼 Cargos', fr: '💼 Postes', ar: '💼 الوظائف' },
+    'Nama Unit Organisasi': { id: 'Nama Unit Organisasi', en: 'Org. Unit Name', de: 'Name der Org.-Einheit', es: 'Nombre de la Unidad Org.', fr: 'Nom de l\'Unité Org.', ar: 'اسم الوحدة التنظيمية' },
+    'Cakupan Tanggung Jawab': { id: 'Cakupan Tanggung Jawab', en: 'Scope of Responsibility', de: 'Verantwortungsbereich', es: 'Alcance de responsabilidades', fr: 'Périmètre de Responsabilité', ar: 'نطاق المسؤوليات' },
+    'Judul / Nama Jabatan': { id: 'Judul / Nama Jabatan', en: 'Position Title / Name', de: 'Stellentitel / Name', es: 'Título / Nombre del puesto', fr: 'Titre / Intitulé du Poste', ar: 'المسمى الوظيفي' },
+    '(Root / Tingkat Atas)': { id: '(Root / Tingkat Atas)', en: '(Root / Top Level)', de: '(Wurzel / Oberste Ebene)', es: '(Raíz / Nivel superior)', fr: '(Racine / Niveau supérieur)', ar: '(الجذر / المستوى الأعلى)' },
+    '(Tidak Ada / Unit Tingkat Atas)': { id: '(Tidak Ada / Unit Tingkat Atas)', en: '(None / Top-level Unit)', de: '(Keine / Übergeordnete Einheit)', es: '(Sin padre / Unidad de nivel superior)', fr: '(Aucun / Unité de niveau supérieur)', ar: '(لا يوجد / وحدة مستوى أعلى)' },
+
+    // Status & summary messages shared
+    'Memuat data organisasi...': { id: 'Memuat data organisasi...', en: 'Loading organization data...', de: 'Organisationsdaten werden geladen...', es: 'Cargando datos de organización...', fr: 'Chargement des données de l\'organisation...', ar: 'جارٍ تحميل بيانات التنظيم...' },
+    'Menampilkan': { id: 'Menampilkan', en: 'Showing', de: 'Anzeigen', es: 'Mostrando', fr: 'Affichage de', ar: 'عرض' },
+    'item data': { id: 'item data', en: 'data items', de: 'Datensätze', es: 'elementos de datos', fr: 'éléments de données', ar: 'عناصر البيانات' },
+    'unit organisasi': { id: 'unit organisasi', en: 'org. units', de: 'Org.-Einheiten', es: 'unidades org.', fr: 'unités org.', ar: 'وحدات تنظيمية' },
+    'jenjang jabatan': { id: 'jenjang jabatan', en: 'job levels', de: 'Stellenebenen', es: 'niveles de puesto', fr: 'niveaux de poste', ar: 'مستويات وظيفية' },
+    'master posisi jabatan': { id: 'master posisi jabatan', en: 'positions', de: 'Stelleneinträge', es: 'cargos', fr: 'postes', ar: 'وظائف' },
+    'Aktif': { id: 'Aktif', en: 'Active', de: 'Aktiv', es: 'Activo', fr: 'Actif', ar: 'نشط' },
+    'Nonaktif': { id: 'Nonaktif', en: 'Inactive', de: 'Inaktiv', es: 'Inactivo', fr: 'Inactif', ar: 'غير نشط' },
+    'Dipilih': { id: 'Dipilih', en: 'Selected', de: 'Ausgewählt', es: 'Seleccionado', fr: 'Sélectionné', ar: 'محدد' },
+
+    // Alert / validation messages
+    'Pilih salah satu baris master data yang ingin diedit terlebih dahulu.': { id: 'Pilih salah satu baris master data yang ingin diedit terlebih dahulu.', en: 'Please select a master data row to edit first.', de: 'Bitte zuerst eine Stammdatenzeile zum Bearbeiten auswählen.', es: 'Seleccione primero una fila de datos maestros para editar.', fr: 'Veuillez d\'abord sélectionner une ligne de données de référence à modifier.', ar: 'يرجى تحديد صف بيانات رئيسية للتعديل أولاً.' },
+    'Pilih salah satu baris master data terlebih dahulu.': { id: 'Pilih salah satu baris master data terlebih dahulu.', en: 'Please select a master data row first.', de: 'Bitte zuerst eine Stammdatenzeile auswählen.', es: 'Seleccione primero una fila de datos maestros.', fr: 'Veuillez d\'abord sélectionner une ligne de données de référence.', ar: 'يرجى تحديد صف بيانات رئيسية أولاً.' },
+    'Pilih baris master data yang ingin dihapus terlebih dahulu.': { id: 'Pilih baris master data yang ingin dihapus terlebih dahulu.', en: 'Please select a master data row to delete first.', de: 'Bitte zuerst eine zu löschende Stammdatenzeile auswählen.', es: 'Seleccione primero una fila de datos maestros para eliminar.', fr: 'Veuillez d\'abord sélectionner une ligne de données de référence à supprimer.', ar: 'يرجى تحديد صف بيانات رئيسية للحذف أولاً.' },
+    'Pilih salah satu baris data yang ingin diedit terlebih dahulu.': { id: 'Pilih salah satu baris data yang ingin diedit terlebih dahulu.', en: 'Please select a data row to edit first.', de: 'Bitte zuerst eine Datenzeile zum Bearbeiten auswählen.', es: 'Seleccione primero una fila de datos para editar.', fr: 'Veuillez d\'abord sélectionner une ligne de données à modifier.', ar: 'يرجى تحديد صف بيانات للتعديل أولاً.' },
+    'Pilih salah satu baris data terlebih dahulu.': { id: 'Pilih salah satu baris data terlebih dahulu.', en: 'Please select a data row first.', de: 'Bitte zuerst eine Datenzeile auswählen.', es: 'Seleccione primero una fila de datos.', fr: 'Veuillez d\'abord sélectionner une ligne de données.', ar: 'يرجى تحديد صف بيانات أولاً.' },
+    'Pilih baris data yang ingin dihapus terlebih dahulu.': { id: 'Pilih baris data yang ingin dihapus terlebih dahulu.', en: 'Please select a data row to delete first.', de: 'Bitte zuerst eine zu löschende Datenzeile auswählen.', es: 'Seleccione primero una fila de datos para eliminar.', fr: 'Veuillez d\'abord sélectionner une ligne de données à supprimer.', ar: 'يرجى تحديد صف بيانات للحذف أولاً.' },
+    'Kode master data wajib diisi.': { id: 'Kode master data wajib diisi.', en: 'Master data code is required.', de: 'Stammdaten-Code ist erforderlich.', es: 'El código de datos maestros es obligatorio.', fr: 'Le code de données de référence est requis.', ar: 'رمز البيانات الرئيسية مطلوب.' },
+    'Nama master data wajib diisi.': { id: 'Nama master data wajib diisi.', en: 'Master data name is required.', de: 'Stammdaten-Name ist erforderlich.', es: 'El nombre de datos maestros es obligatorio.', fr: 'Le nom de données de référence est requis.', ar: 'اسم البيانات الرئيسية مطلوب.' },
+    'Kode organisasi wajib diisi.': { id: 'Kode organisasi wajib diisi.', en: 'Organization code is required.', de: 'Organisations-Code ist erforderlich.', es: 'El código de organización es obligatorio.', fr: 'Le code d\'organisation est requis.', ar: 'رمز المنظمة مطلوب.' },
+    'Nama organisasi wajib diisi.': { id: 'Nama organisasi wajib diisi.', en: 'Organization name is required.', de: 'Organisationsname ist erforderlich.', es: 'El nombre de organización es obligatorio.', fr: 'Le nom d\'organisation est requis.', ar: 'اسم المنظمة مطلوب.' },
+    'Kode jenjang jabatan wajib diisi.': { id: 'Kode jenjang jabatan wajib diisi.', en: 'Job level code is required.', de: 'Stellenebenen-Code ist erforderlich.', es: 'El código de nivel de puesto es obligatorio.', fr: 'Le code du niveau de poste est requis.', ar: 'رمز مستوى الوظيفة مطلوب.' },
+    'Nama jenjang jabatan wajib diisi.': { id: 'Nama jenjang jabatan wajib diisi.', en: 'Job level name is required.', de: 'Stellenebenen-Name ist erforderlich.', es: 'El nombre de nivel de puesto es obligatorio.', fr: 'Le nom du niveau de poste est requis.', ar: 'اسم مستوى الوظيفة مطلوب.' },
+    'Kode jabatan wajib diisi.': { id: 'Kode jabatan wajib diisi.', en: 'Position code is required.', de: 'Stellen-Code ist erforderlich.', es: 'El código del cargo es obligatorio.', fr: 'Le code de poste est requis.', ar: 'رمز الوظيفة مطلوب.' },
+    'Judul / nama jabatan wajib diisi.': { id: 'Judul / nama jabatan wajib diisi.', en: 'Position title / name is required.', de: 'Stellentitel / Name ist erforderlich.', es: 'El título / nombre del cargo es obligatorio.', fr: 'Le titre / nom du poste est requis.', ar: 'المسمى الوظيفي مطلوب.' }
   };
 
   class WiseI18n {
@@ -464,16 +607,28 @@
       const targetLang = lang || this.currentLanguage || 'id';
       const clean = text.trim();
 
-      // Direct dictionary match
+      // 1. Direct dictionary match
       if (DICTIONARY[clean]) {
         const trans = DICTIONARY[clean][targetLang];
         if (trans) {
-          // Preserve leading/trailing whitespaces if any
           return text.replace(clean, trans);
         }
       }
 
-      // Handle strings with currency suffix/prefix like "Gaji Pokok - Rp" -> "Gaji Pokok - Rp" or "Basic Salary - $"
+      // 2. Check emoji/symbol prefix match: "🗑️ Hapus" -> emoji "🗑️ ", body "Hapus"
+      const emojiMatch = clean.match(/^([\p{Emoji}\u2000-\u3300\uD800-\uDFFF\uFE00-\uFE0F\s]+)\s+(.+)$/u);
+      if (emojiMatch) {
+        const emojiPrefix = emojiMatch[1].trim();
+        const body = emojiMatch[2].trim();
+        if (DICTIONARY[body]) {
+          const transBody = DICTIONARY[body][targetLang];
+          if (transBody) {
+            return `${emojiPrefix} ${transBody}`;
+          }
+        }
+      }
+
+      // 3. Handle strings with currency suffix/prefix like "Gaji Pokok - Rp" -> "Gaji Pokok - Rp" or "Basic Salary - $"
       const currencyPattern = /^(.*?)\s*-\s*(Rp|\$|€|£|¥|A\$|C\$|CHF|HK\$|S\$|NZ\$|₩|₹|R\$|₽|R|Mex\$|₺|SAR|AED|RM|฿|₱|₫|NT\$|B\$|៛|₭|K|MOP\$|₮|PKR|৳|Rs|NPR|Rf|Nu|؋|QR|KD|BD|OMR|JD|₪|IQD|IRR|LBP|SYP|YR|₸|soʻm|SM|TMT|с|₼|₾|֏|kr|zł|Kč|Ft|lei|лв|din|KM|ден|L|₴|Br|S\/\.|\$U|₲|Bs\.|₡|RD\$|Q|C\$|B\/\.|J\$|TT\$|Bds\$|BZ\$|G\$|Sr\$|G|EC\$|Afl\.|NAƒ|CI\$|BD\$|E£|₦|KSh|GH₵|MAD|DA|DT|LD|Br|TSh|USh|RF|P|N\$|ZK|MT|Kz|FC|₨|SR|MK|E|S|SDG|SSP|Fdj|Nfk|D|FG|Le|L\$|Esc|Db|CF|Ar|FBu|CFA|FCFA|FJ\$|SI\$|VT|WS\$|T\$)\s*$/i;
       const match = clean.match(currencyPattern);
       if (match) {

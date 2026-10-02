@@ -145,6 +145,15 @@
       const el = winEl.querySelector(`[data-control-id="${data.id}"]`);
       if (!el) return;
 
+      Object.entries(data.style || {}).forEach(([key, value]) => {
+        el.style[key] = typeof value === 'number' ? `${value}px` : value;
+      });
+      if (data.visible === false) {
+        el.style.display = 'none';
+      } else if (el.style.display === 'none' && data.visible !== false) {
+        el.style.display = data.style?.display || '';
+      }
+
       if (el.isContentEditable) {
         el.innerHTML = data.value ?? '';
       } else if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {

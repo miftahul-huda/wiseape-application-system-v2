@@ -49,6 +49,9 @@
       if (!el) return;
       const labelText = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(data.value) : (data.value ?? '');
       el.textContent = labelText;
+      Object.entries(data.style || {}).forEach(([key, value]) => {
+        el.style[key] = typeof value === 'number' ? `${value}px` : value;
+      });
     }
   }
 
