@@ -24,6 +24,10 @@ class WiseWindow {
     this.appTitle = options.appTitle || 'Application';
     this.width = options.width !== undefined ? options.width : 640;
     this.height = options.height !== undefined ? options.height : 'auto';
+    this.minWidth = options.minWidth || null;
+    this.maxWidth = options.maxWidth || null;
+    this.minHeight = options.minHeight || null;
+    this.maxHeight = options.maxHeight || null;
     this.positionX = options.positionX || 220;
     this.positionY = options.positionY || 120;
     this.centered = options.centered || false;
@@ -238,6 +242,10 @@ class WiseWindow {
       appIcon: this.appIcon,
       width: this.width,
       height: this.height,
+      minWidth: this.minWidth,
+      maxWidth: this.maxWidth,
+      minHeight: this.minHeight,
+      maxHeight: this.maxHeight,
       positionX: this.positionX,
       positionY: this.positionY,
       centered: this.centered,

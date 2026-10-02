@@ -37,6 +37,8 @@ class WiseDesktop {
     this.windowStack = [];
     this.onIconClick = null;
     this.clockInterval = null;
+    this._resizeListenerAttached = false;
+    this.setupWindowResizeListener();
   }
 
   setLanguage(lang) {
@@ -576,6 +578,7 @@ class WiseDesktop {
 
     this.root.innerHTML = '';
     this.root.appendChild(root);
+    this.setupWindowResizeListener();
   }
 
   // macOS-style dock magnification: icons grow the closer the pointer gets
@@ -771,6 +774,131 @@ class WiseDesktop {
     card.style.transform = 'scale(1)';
   }
 
+  setupWindowResizeListener() {
+    if (typeof window === 'undefined') return;
+    if (this._resizeListenerAttached) return;
+    this._resizeListenerAttached = true;
+
+    let resizeRaf = null;
+    window.addEventListener('resize', () => {
+      if (resizeRaf) cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(() => {
+        this.adjustAllWindowDimensions();
+      });
+    });
+  }
+
+  adjustAllWindowDimensions() {
+    const desktop = this.root ? (this.root.querySelector('.desktop') || this.root) : (typeof document !== 'undefined' ? document.querySelector('.desktop') : null);
+    if (!desktop) return;
+    const windows = desktop.querySelectorAll('.window');
+    windows.forEach((win) => {
+      if (typeof win.__wiseAdjust === 'function') {
+        win.__wiseAdjust();
+      } else {
+        this.adjustWindow(win);
+      }
+    });
+  }
+
+  adjustWindow(win) {
+    if (!win || !win.__wiseConfig) return;
+    const desktop = this.root ? (this.root.querySelector('.desktop') || this.root) : (win.closest('.desktop') || (typeof document !== 'undefined' ? document.querySelector('.desktop') : null));
+    if (!desktop) return;
+
+    const desktopRect = desktop.getBoundingClientRect();
+    if (!desktopRect || desktopRect.width === 0 || desktopRect.height === 0) return;
+
+    const TASKBAR_LEFT = 82;
+    const usableWidth = Math.max(280, desktopRect.width - TASKBAR_LEFT);
+    const usableHeight = desktopRect.height;
+
+    const cfg = win.__wiseConfig;
+    const isMax = win.dataset.maximized === 'true';
+
+    // If currently maximized, enforce full viewport bounds
+    if (isMax) {
+      win.style.left = '0';
+      win.style.top = '30px';
+      win.style.width = '100vw';
+      win.style.height = 'calc(100vh - 110px)';
+      return;
+    }
+
+    const minW = cfg.minWidth || 260;
+    const maxAllowedW = cfg.maxWidth || Math.max(minW, usableWidth - 24);
+    const minH = cfg.minHeight || 160;
+    const maxAllowedH = cfg.maxHeight || Math.max(minH, usableHeight - 48);
+
+    // 1. Calculate and adjust width
+    let targetW;
+    const isPercentW = typeof cfg.widthVal === 'string' && cfg.widthVal.endsWith('%');
+    if (isPercentW && !cfg.wasManuallyResized) {
+      targetW = Math.round(usableWidth * parseFloat(cfg.widthVal) / 100);
+      targetW = Math.min(targetW, maxAllowedW);
+    } else {
+      const currentW = parseFloat(win.style.width) || win.offsetWidth || (parseFloat(cfg.widthVal) || 640);
+      targetW = Math.min(currentW, maxAllowedW);
+      if (!cfg.wasManuallyResized && typeof cfg.widthVal === 'number' && cfg.widthVal <= maxAllowedW) {
+        targetW = cfg.widthVal;
+      }
+    }
+    targetW = Math.max(minW, targetW);
+    win.style.width = `${targetW}px`;
+
+    // 2. Calculate and adjust height
+    let targetH;
+    const isPercentH = typeof cfg.heightVal === 'string' && cfg.heightVal.endsWith('%');
+    if (cfg.isAutoHeight && !cfg.wasManuallyResized) {
+      win.style.height = 'auto';
+    } else if (isPercentH && !cfg.wasManuallyResized) {
+      targetH = Math.round(usableHeight * parseFloat(cfg.heightVal) / 100);
+      targetH = Math.max(minH, Math.min(targetH, maxAllowedH));
+      win.style.height = `${targetH}px`;
+    } else {
+      const currentH = parseFloat(win.style.height) || win.offsetHeight || (typeof cfg.heightVal === 'number' ? cfg.heightVal : 420);
+      targetH = Math.min(currentH, maxAllowedH);
+      if (!cfg.wasManuallyResized && typeof cfg.heightVal === 'number' && cfg.heightVal <= maxAllowedH) {
+        targetH = cfg.heightVal;
+      }
+      targetH = Math.max(minH, targetH);
+      win.style.height = `${targetH}px`;
+    }
+
+    // 3. Calculate and adjust position (left & top)
+    if (cfg.wantsCentered && !cfg.wasDragged) {
+      const posX = Math.round(TASKBAR_LEFT + (usableWidth - targetW) / 2);
+      win.style.left = `${Math.max(TASKBAR_LEFT + 8, posX)}px`;
+
+      if (cfg.isAutoHeight && !cfg.wasManuallyResized) {
+        const actualH = win.offsetHeight;
+        if (actualH > 0) {
+          const posY = Math.max(20, Math.round((usableHeight - actualH) / 2));
+          win.style.top = `${posY}px`;
+        }
+      } else {
+        const hVal = parseFloat(win.style.height) || win.offsetHeight || targetH || 400;
+        const posY = Math.max(20, Math.round((usableHeight - hVal) / 2));
+        win.style.top = `${posY}px`;
+      }
+    } else {
+      const currentLeft = parseFloat(win.style.left) || win.offsetLeft || cfg.positionXVal;
+      const currentTop = parseFloat(win.style.top) || win.offsetTop || cfg.positionYVal;
+      const currentW = targetW;
+      const currentH = win.offsetHeight || (parseFloat(win.style.height) || 400);
+
+      const minLeft = TASKBAR_LEFT + 8;
+      const maxLeft = Math.max(minLeft, desktopRect.width - currentW - 8);
+      const clampedLeft = Math.max(minLeft, Math.min(currentLeft, maxLeft));
+      win.style.left = `${clampedLeft}px`;
+
+      const minTop = 20;
+      const maxTop = Math.max(minTop, desktopRect.height - currentH - 10);
+      const clampedTop = Math.max(minTop, Math.min(currentTop, maxTop));
+      win.style.top = `${clampedTop}px`;
+    }
+  }
+
   renderWindow(application, startupResult = null) {
     const desktop = this.root.querySelector('.desktop');
     if (!desktop) return;
@@ -795,31 +923,21 @@ class WiseDesktop {
     const heightVal = windowData?.height ?? 'auto';
     let positionXVal = windowData?.positionX ?? 330;
     let positionYVal = windowData?.positionY ?? 110;
-    // These may be overridden to resolved pixel values when centering is active.
     let resolvedWidth = widthVal;
     let resolvedHeight = heightVal;
 
     const isAutoHeight = heightVal === 'auto' || heightVal === undefined || heightVal === null;
 
-    // Center the window when explicitly requested (centered: true) OR when a
-    // percentage size is used -- both cases mean "fill a fraction of the
-    // desktop and sit in the middle".
     const wantsCentered = windowData?.centered
       || (typeof widthVal === 'string' && widthVal.endsWith('%'))
       || (typeof heightVal === 'string' && heightVal.endsWith('%'));
 
     if (wantsCentered) {
-      // The taskbar is a vertical sidebar on the left:
-      //   left: 14px, width: 68px  →  usable area starts at ~82px from the left.
       const TASKBAR_LEFT = 82;
       const desktopRect = desktop.getBoundingClientRect();
       const usableWidth = desktopRect.width - TASKBAR_LEFT;
       const usableHeight = desktopRect.height;
 
-      // Resolve window width/height to pixels so we can compute the offset.
-      // We also use these resolved values for the actual CSS dimensions so that
-      // a "90%" window doesn't accidentally overflow by being 90% of 100vw
-      // instead of 90% of the usable (taskbar-excluded) area.
       const winW = typeof widthVal === 'string' && widthVal.endsWith('%')
         ? Math.round(usableWidth * parseFloat(widthVal) / 100)
         : (parseFloat(widthVal) || 640);
@@ -855,6 +973,22 @@ class WiseDesktop {
     win.style.height = formatDimension(resolvedHeight, 'auto');
     win.style.opacity = '0';
     win.style.transform = 'scale(0.92)';
+
+    win.__wiseConfig = {
+      widthVal,
+      heightVal,
+      positionXVal,
+      positionYVal,
+      minWidth: windowData?.minWidth || null,
+      maxWidth: windowData?.maxWidth || null,
+      minHeight: windowData?.minHeight || null,
+      maxHeight: windowData?.maxHeight || null,
+      wantsCentered,
+      isAutoHeight,
+      wasDragged: false,
+      wasManuallyResized: false,
+    };
+    win.__wiseAdjust = () => this.adjustWindow(win);
 
 
     win.innerHTML = `
@@ -914,10 +1048,13 @@ class WiseDesktop {
     const activateWindow = () => {
       if (win.style.display === 'none') {
         removeMinimizedItem();
-        win.style.display = 'block';
+        win.style.display = '';
         void win.offsetWidth;
         win.style.opacity = '1';
         win.style.transform = 'scale(1) translateY(0)';
+        if (typeof win.__wiseAdjust === 'function') {
+          win.__wiseAdjust();
+        }
       }
       // appendChild() detaches and reinserts win even when it's already the
       // last child (a no-op reorder) -- and that reattachment resets the
@@ -1025,6 +1162,7 @@ class WiseDesktop {
         win.style.top = win.dataset.preMaxTop;
         win.style.width = win.dataset.preMaxWidth;
         win.style.height = win.dataset.preMaxHeight;
+        this.adjustWindow(win);
         return;
       }
 
@@ -1054,6 +1192,7 @@ class WiseDesktop {
       const startTop = win.offsetTop;
 
       const onMouseMove = (moveEvent) => {
+        if (win.__wiseConfig) win.__wiseConfig.wasDragged = true;
         win.style.left = `${startLeft + (moveEvent.clientX - startX)}px`;
         win.style.top = `${startTop + (moveEvent.clientY - startY)}px`;
       };
@@ -1078,6 +1217,7 @@ class WiseDesktop {
       const startHeight = parseFloat(win.style.height) || win.offsetHeight;
 
       const onMouseMove = (moveEvent) => {
+        if (win.__wiseConfig) win.__wiseConfig.wasManuallyResized = true;
         win.style.width = `${Math.max(240, startWidth + (moveEvent.clientX - startX))}px`;
         win.style.height = `${Math.max(160, startHeight + (moveEvent.clientY - startY))}px`;
       };
@@ -1094,14 +1234,7 @@ class WiseDesktop {
     desktop.appendChild(win);
     setActiveWindow();
 
-    if (wantsCentered && isAutoHeight) {
-      const actualH = win.offsetHeight;
-      if (actualH > 0) {
-        const desktopRect = desktop.getBoundingClientRect();
-        const centerY = Math.max(20, Math.round((desktopRect.height - actualH) / 2));
-        win.style.top = `${centerY}px`;
-      }
-    }
+    this.adjustWindow(win);
 
     void win.offsetWidth;
     win.style.opacity = '1';
