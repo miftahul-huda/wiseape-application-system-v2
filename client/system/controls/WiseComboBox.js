@@ -147,7 +147,9 @@
 
       const labelSpan = document.createElement('span');
       labelSpan.className = 'wise-combobox-label truncate select-none text-left flex-1 mr-2';
-      labelSpan.textContent = currentItem ? currentItem.label : (data.placeholder || 'Pilih opsi...');
+      const initialText = currentItem ? currentItem.label : (data.placeholder || 'Pilih opsi...');
+      labelSpan.textContent = initialText;
+      labelSpan.dataset.rawLabel = initialText;
       trigger.appendChild(labelSpan);
 
       const chevronSpan = document.createElement('span');
@@ -236,6 +238,7 @@
         wrapper.dataset.value = it.value;
         hiddenInput.value = it.value;
         labelSpan.textContent = it.label;
+        labelSpan.dataset.rawLabel = it.label;
         closeDropdown();
         if (data.hasHandler && context && context.desktop) {
           context.desktop.sendControlEvent(context.appId, data.id, wrapper, 'change', { [data.id]: it.value });
@@ -347,7 +350,9 @@
 
       const labelSpan = wrapper.querySelector('.wise-combobox-label');
       if (labelSpan) {
-        labelSpan.textContent = currentItem ? currentItem.label : (data.placeholder || 'Pilih opsi...');
+        const displayLabel = currentItem ? currentItem.label : (data.placeholder || 'Pilih opsi...');
+        labelSpan.textContent = displayLabel;
+        labelSpan.dataset.rawLabel = displayLabel;
       }
 
       // Do NOT call WiseControl.patchElement here: the wrapper is a <div>, so

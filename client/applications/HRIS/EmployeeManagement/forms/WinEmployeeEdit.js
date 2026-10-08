@@ -481,51 +481,58 @@ class WinEmployeeEdit extends WiseWindow {
 
   // Re-populates the four dependent comboboxes for the given selection:
   //   Department  = root organizations (no parent)
-  //   Division    = child organizations of the selected Department
-  //   Job Title   = positions of the Division (or Department subtree), falling
-  //                 back to every active position when none are mapped
+  //   Division    = child organizations of selected Department (or all child orgs if no Dept selected)
+  //   Job Title   = positions of Division/Department, or all active positions
   //   Job Level   = all job levels
-  // `keepLegacy` keeps stored values missing from master data selectable.
-  applyOrgSelection({ department = '', division = '', jobTitle = '', jobLevel = '' }, keepLegacy = false) {
+  applyOrgSelection({ department = '', division = '', jobTitle = '', jobLevel = '' }) {
     const orgs = this.orgs || [];
     const positions = this.positions || [];
     const levels = this.jobLevels || [];
 
     const roots = orgs.filter((o) => !o.parentId);
     const deptObj = roots.find((o) => o.name === department) || null;
-    const divisions = deptObj ? orgs.filter((o) => o.parentId === deptObj.id) : [];
-    const divObj = divisions.find((o) => o.name === division) || null;
 
+    // If a parent department is selected, list its sub-departments/divisions.
+    // Otherwise list ALL sub-departments/divisions so the user can always pick a division.
+    let divisions;
+    if (deptObj) {
+      divisions = orgs.filter((o) => o.parentId === deptObj.id);
+    } else {
+      divisions = orgs.filter((o) => o.parentId);
+    }
+    const divObj = orgs.find((o) => o.name === division) || null;
+
+    // Filter candidate positions based on division or department
     let candidateOrgIds;
-    if (divObj) candidateOrgIds = new Set([divObj.id]);
-    else if (deptObj) candidateOrgIds = new Set([deptObj.id, ...divisions.map((o) => o.id)]);
-    else candidateOrgIds = null;
+    if (divObj) {
+      candidateOrgIds = new Set([divObj.id]);
+    } else if (deptObj) {
+      const childIds = orgs.filter((o) => o.parentId === deptObj.id).map((o) => o.id);
+      candidateOrgIds = new Set([deptObj.id, ...childIds]);
+    } else {
+      candidateOrgIds = null;
+    }
 
     let candidates = candidateOrgIds ? positions.filter((p) => candidateOrgIds.has(p.organizationId)) : [];
     if (candidates.length === 0) candidates = positions;
     const titles = candidates.map((p) => p.title);
-
-    const validDept = deptObj ? department : (keepLegacy ? department : '');
-    const validDiv = divObj ? division : (keepLegacy ? division : '');
-    const validTitle = (titles.includes(jobTitle) || keepLegacy) ? jobTitle : '';
     const levelNames = levels.map((l) => l.name);
-    const validLevel = (levelNames.includes(jobLevel) || keepLegacy) ? jobLevel : '';
 
     if (this.cmbDepartment) {
-      this.cmbDepartment.setItems(this.buildNameItems(roots.map((o) => o.name), validDept, '(Pilih Departemen)'));
-      this.cmbDepartment.setValue(validDept);
+      this.cmbDepartment.setItems(this.buildNameItems(roots.map((o) => o.name), department, '(Pilih Departemen)'));
+      this.cmbDepartment.setValue(department);
     }
     if (this.cmbDivision) {
-      this.cmbDivision.setItems(this.buildNameItems(divisions.map((o) => o.name), validDiv, '(Pilih Divisi / Sub-Departemen)'));
-      this.cmbDivision.setValue(validDiv);
+      this.cmbDivision.setItems(this.buildNameItems(divisions.map((o) => o.name), division, '(Pilih Divisi / Sub-Departemen)'));
+      this.cmbDivision.setValue(division);
     }
     if (this.cmbJobTitle) {
-      this.cmbJobTitle.setItems(this.buildNameItems(titles, validTitle, '(Pilih Jabatan)'));
-      this.cmbJobTitle.setValue(validTitle);
+      this.cmbJobTitle.setItems(this.buildNameItems(titles, jobTitle, '(Pilih Jabatan)'));
+      this.cmbJobTitle.setValue(jobTitle);
     }
     if (this.cmbJobLevel) {
-      this.cmbJobLevel.setItems(this.buildNameItems(levelNames, validLevel, '(Pilih Tingkat Jabatan)'));
-      this.cmbJobLevel.setValue(validLevel);
+      this.cmbJobLevel.setItems(this.buildNameItems(levelNames, jobLevel, '(Pilih Tingkat Jabatan)'));
+      this.cmbJobLevel.setValue(jobLevel);
     }
   }
 
@@ -539,20 +546,60 @@ class WinEmployeeEdit extends WiseWindow {
   }
 
   onDepartmentChanged() {
-    // A different department invalidates the division (and usually the title).
-    this.applyOrgSelection({ ...this.currentOrgSelection(), division: '' });
+    const sel = this.currentOrgSelection();
+    const orgs = this.orgs || [];
+    const deptObj = orgs.find((o) => !o.parentId && o.name === sel.department);
+    if (deptObj) {
+      const childOrgs = orgs.filter((o) => o.parentId === deptObj.id);
+      const isChild = childOrgs.some((o) => o.name === sel.division);
+      if (!isChild && sel.division) {
+        sel.division = '';
+        sel.jobTitle = '';
+      }
+    }
+    this.applyOrgSelection(sel);
   }
 
   onDivisionChanged() {
-    this.applyOrgSelection(this.currentOrgSelection());
+    const sel = this.currentOrgSelection();
+    const orgs = this.orgs || [];
+    const divObj = orgs.find((o) => o.name === sel.division && o.parentId) || orgs.find((o) => o.name === sel.division) || null;
+    if (divObj && divObj.parentId) {
+      const parentDept = orgs.find((o) => o.id === divObj.parentId);
+      if (parentDept) {
+        sel.department = parentDept.name;
+      }
+    }
+    if (sel.jobTitle && divObj) {
+      const pos = (this.positions || []).find((p) => p.title === sel.jobTitle);
+      if (pos && pos.organizationId && pos.organizationId !== divObj.id) {
+        sel.jobTitle = '';
+      }
+    }
+    this.applyOrgSelection(sel);
   }
 
   onJobTitleChanged() {
     const sel = this.currentOrgSelection();
     const pos = (this.positions || []).find((p) => p.title === sel.jobTitle);
-    if (pos && pos.jobLevelId) {
-      const level = (this.jobLevels || []).find((l) => l.id === pos.jobLevelId);
-      if (level) sel.jobLevel = level.name;
+    if (pos) {
+      if (pos.jobLevelId) {
+        const level = (this.jobLevels || []).find((l) => l.id === pos.jobLevelId);
+        if (level) sel.jobLevel = level.name;
+      }
+      if (pos.organizationId) {
+        const orgs = this.orgs || [];
+        const posOrg = orgs.find((o) => o.id === pos.organizationId);
+        if (posOrg) {
+          if (posOrg.parentId) {
+            sel.division = posOrg.name;
+            const parentDept = orgs.find((o) => o.id === posOrg.parentId);
+            if (parentDept) sel.department = parentDept.name;
+          } else {
+            sel.department = posOrg.name;
+          }
+        }
+      }
     }
     this.applyOrgSelection(sel);
   }

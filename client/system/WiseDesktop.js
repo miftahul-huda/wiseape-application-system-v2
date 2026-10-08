@@ -43,6 +43,9 @@ class WiseDesktop {
 
   setLanguage(lang) {
     if (!lang) return;
+    if (this.language === lang && (typeof window === 'undefined' || !window.WiseI18n || window.WiseI18n.currentLanguage === lang)) {
+      return;
+    }
     this.language = lang;
     if (typeof window !== 'undefined' && window.WiseI18n) {
       window.WiseI18n.setLanguage(lang);
@@ -151,9 +154,15 @@ class WiseDesktop {
           // 3. WiseComboBox label
           const cmbLabel = controlEl.querySelector('.wise-combobox-label');
           if (cmbLabel) {
+            const hasVal = controlEl.dataset.value !== undefined && controlEl.dataset.value !== '';
             const raw = cmbLabel.dataset.rawLabel || cmbLabel.textContent;
             cmbLabel.dataset.rawLabel = raw;
-            cmbLabel.textContent = t(raw);
+            if (!hasVal) {
+              cmbLabel.textContent = t(raw);
+            } else {
+              const trans = t(raw);
+              cmbLabel.textContent = (trans && trans !== raw) ? trans : raw;
+            }
           }
 
           // 4. Currency prefix
@@ -1372,11 +1381,11 @@ class WiseDesktop {
       this.applyBackgroundImage(result.backgroundImage);
     }
 
-    if (result.language) {
+    if (result.language && result.language !== this.language) {
       this.setLanguage(result.language);
     }
 
-    if (result.currency) {
+    if (result.currency && result.currency !== this.currency) {
       this.setCurrency(result.currency);
     }
 
