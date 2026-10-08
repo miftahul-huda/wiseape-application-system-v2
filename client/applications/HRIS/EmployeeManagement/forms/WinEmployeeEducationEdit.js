@@ -28,13 +28,22 @@ class WinEmployeeEducationEdit extends WiseWindow {
 
     // ── Form Content ────────────────────────────────────
     const tblEdu = new WiseTableLayout({ rows: 4, columns: 2, id: 'tblEduEdit', style: { marginBottom: '16px' } });
-    tblEdu.setCell(0, 0, this.formGroup('Nama Institusi / Universitas *', new WiseTextBox(this.record?.institutionName || '', { id: 'txtEduInst', placeholder: 'e.g. Institut Teknologi Bandung' })));
-    tblEdu.setCell(0, 1, this.formGroup('Jenjang Pendidikan', new WiseComboBox(EDU_DEGREES.map(d => ({ value: d, label: d })), { id: 'cmbEduDegree', value: this.record?.degree || 'S1' })));
-    tblEdu.setCell(1, 0, this.formGroup('Jurusan / Program Studi', new WiseTextBox(this.record?.major || '', { id: 'txtEduMajor', placeholder: 'e.g. Teknik Informatika' })));
-    tblEdu.setCell(1, 1, this.formGroup('IPK / Nilai Kelulusan', new WiseTextBox(this.record?.gpa || '', { id: 'txtEduGpa', placeholder: 'e.g. 3.85' })));
-    tblEdu.setCell(2, 0, this.formGroup('Tanggal Mulai', new WiseDate(this.record?.startDate || '', { id: 'dtEduStart' })));
-    tblEdu.setCell(2, 1, this.formGroup('Tanggal Lulus', new WiseDate(this.record?.graduationDate || '', { id: 'dtEduGrad' })));
-    tblEdu.setCell(3, 0, this.formGroup('Keterangan / Prestasi', new WiseTextBox(this.record?.description || '', { id: 'txtEduDesc', placeholder: 'Catatan prestasi atau predikat...' })), { colSpan: 2 });
+
+    this.txtEduInst = new WiseTextBox('e.g. Institut Teknologi Bandung', { id: 'txtEduInst', value: this.record?.institutionName || '', placeholder: 'e.g. Institut Teknologi Bandung' });
+    this.cmbEduDegree = new WiseComboBox(EDU_DEGREES.map(d => ({ value: d, label: d })), { id: 'cmbEduDegree', value: this.record?.degree || 'S1' });
+    this.txtEduMajor = new WiseTextBox('e.g. Teknik Informatika', { id: 'txtEduMajor', value: this.record?.major || '', placeholder: 'e.g. Teknik Informatika' });
+    this.txtEduGpa = new WiseTextBox('e.g. 3.85', { id: 'txtEduGpa', value: this.record?.gpa || '', placeholder: 'e.g. 3.85' });
+    this.dtEduStart = new WiseDate(this.record?.startDate || '', { id: 'dtEduStart', value: this.record?.startDate || '' });
+    this.dtEduGrad = new WiseDate(this.record?.graduationDate || '', { id: 'dtEduGrad', value: this.record?.graduationDate || '' });
+    this.txtEduDesc = new WiseTextBox('Catatan prestasi atau predikat...', { id: 'txtEduDesc', value: this.record?.description || '', placeholder: 'Catatan prestasi atau predikat...' });
+
+    tblEdu.setCell(0, 0, this.formGroup('Nama Institusi / Universitas *', this.txtEduInst));
+    tblEdu.setCell(0, 1, this.formGroup('Jenjang Pendidikan', this.cmbEduDegree));
+    tblEdu.setCell(1, 0, this.formGroup('Jurusan / Program Studi', this.txtEduMajor));
+    tblEdu.setCell(1, 1, this.formGroup('IPK / Nilai Kelulusan', this.txtEduGpa));
+    tblEdu.setCell(2, 0, this.formGroup('Tanggal Mulai', this.dtEduStart));
+    tblEdu.setCell(2, 1, this.formGroup('Tanggal Lulus', this.dtEduGrad));
+    tblEdu.setCell(3, 0, this.formGroup('Keterangan / Prestasi', this.txtEduDesc), { colSpan: 2 });
     this.addControl(tblEdu);
 
     // ── Action Buttons ──────────────────────────────────────────

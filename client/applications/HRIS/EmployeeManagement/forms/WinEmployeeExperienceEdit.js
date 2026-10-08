@@ -26,12 +26,20 @@ class WinEmployeeExperienceEdit extends WiseWindow {
 
     // ── Form Content ────────────────────────────────────────────
     const tblExp = new WiseTableLayout({ rows: 4, columns: 2, id: 'tblExpEdit', style: { marginBottom: '16px' } });
-    tblExp.setCell(0, 0, this.formGroup('Nama Perusahaan *', new WiseTextBox(this.record?.companyName || '', { id: 'txtExpCompany', placeholder: 'e.g. PT Telekomunikasi Indonesia' })));
-    tblExp.setCell(0, 1, this.formGroup('Posisi / Jabatan *', new WiseTextBox(this.record?.position || '', { id: 'txtExpPosition', placeholder: 'e.g. Senior Software Engineer' })));
-    tblExp.setCell(1, 0, this.formGroup('Tanggal Mulai', new WiseDate(this.record?.startDate || '', { id: 'dtExpStart' })));
-    tblExp.setCell(1, 1, this.formGroup('Tanggal Selesai', new WiseDate(this.record?.endDate || '', { id: 'dtExpEnd' })));
-    tblExp.setCell(2, 0, this.formGroup('Gaji Terakhir (Rp)', new WiseNumericBox(String(this.record?.lastSalary || 0), { id: 'numExpLastSalary', value: Number(this.record?.lastSalary || 0), prefix: 'Rp ' })));
-    tblExp.setCell(2, 1, this.formGroup('Keterangan / Tanggung Jawab', new WiseTextBox(this.record?.description || '', { id: 'txtExpDesc', placeholder: 'Tanggung jawab utama...' })));
+    
+    this.txtExpCompany = new WiseTextBox('e.g. PT Telekomunikasi Indonesia', { id: 'txtExpCompany', value: this.record?.companyName || '', placeholder: 'e.g. PT Telekomunikasi Indonesia' });
+    this.txtExpPosition = new WiseTextBox('e.g. Senior Software Engineer', { id: 'txtExpPosition', value: this.record?.position || '', placeholder: 'e.g. Senior Software Engineer' });
+    this.dtExpStart = new WiseDate(this.record?.startDate || '', { id: 'dtExpStart', value: this.record?.startDate || '' });
+    this.dtExpEnd = new WiseDate(this.record?.endDate || '', { id: 'dtExpEnd', value: this.record?.endDate || '' });
+    this.numExpLastSalary = new WiseNumericBox(String(this.record?.lastSalary || 0), { id: 'numExpLastSalary', value: Number(this.record?.lastSalary || 0), prefix: 'Rp ' });
+    this.txtExpDesc = new WiseTextBox('Tanggung jawab utama...', { id: 'txtExpDesc', value: this.record?.description || '', placeholder: 'Tanggung jawab utama...' });
+
+    tblExp.setCell(0, 0, this.formGroup('Nama Perusahaan *', this.txtExpCompany));
+    tblExp.setCell(0, 1, this.formGroup('Posisi / Jabatan *', this.txtExpPosition));
+    tblExp.setCell(1, 0, this.formGroup('Tanggal Mulai', this.dtExpStart));
+    tblExp.setCell(1, 1, this.formGroup('Tanggal Selesai', this.dtExpEnd));
+    tblExp.setCell(2, 0, this.formGroup('Gaji Terakhir (Rp)', this.numExpLastSalary));
+    tblExp.setCell(2, 1, this.formGroup('Keterangan / Tanggung Jawab', this.txtExpDesc));
     this.addControl(tblExp);
 
     // ── Action Buttons ──────────────────────────────────────────

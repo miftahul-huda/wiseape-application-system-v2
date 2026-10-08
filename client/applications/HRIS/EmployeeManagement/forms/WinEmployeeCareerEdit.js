@@ -29,13 +29,22 @@ class WinEmployeeCareerEdit extends WiseWindow {
 
     // ── Form Content ────────────────────────────────────────────
     const tblCar = new WiseTableLayout({ rows: 4, columns: 2, id: 'tblCareerEdit', style: { marginBottom: '16px' } });
-    tblCar.setCell(0, 0, this.formGroup('Jenis Perubahan *', new WiseComboBox(CAREER_TYPES.map(c => ({ value: c, label: c })), { id: 'cmbCareerType', value: this.record?.changeType || 'Promosi' })));
-    tblCar.setCell(0, 1, this.formGroup('Tanggal Efektif *', new WiseDate(this.record?.effectiveDate || new Date().toISOString().slice(0, 10), { id: 'dtCareerDate' })));
-    tblCar.setCell(1, 0, this.formGroup('Jabatan Baru', new WiseTextBox(this.record?.newJobTitle || '', { id: 'txtCareerTitle', placeholder: 'Posisi jabatan yang baru' })));
-    tblCar.setCell(1, 1, this.formGroup('Departemen Baru', new WiseTextBox(this.record?.newDepartment || '', { id: 'txtCareerDept', placeholder: 'Departemen baru' })));
-    tblCar.setCell(2, 0, this.formGroup('Gaji Baru (Rp)', new WiseNumericBox(String(this.record?.newSalary || 0), { id: 'numCareerSalary', value: Number(this.record?.newSalary || 0), prefix: 'Rp ' })));
-    tblCar.setCell(2, 1, this.formGroup('Nomor SK / Surat Keputusan', new WiseTextBox(this.record?.referenceNumber || '', { id: 'txtCareerRef', placeholder: 'SK/DIR/2024/001' })));
-    tblCar.setCell(3, 0, this.formGroup('Catatan / Alasan Perubahan', new WiseTextBox(this.record?.notes || '', { id: 'txtCareerNotes', placeholder: 'Keterangan prestasi / alasan promosi...' })), { colSpan: 2 });
+
+    this.cmbCareerType = new WiseComboBox(CAREER_TYPES.map(c => ({ value: c, label: c })), { id: 'cmbCareerType', value: this.record?.changeType || 'Promosi' });
+    this.dtCareerDate = new WiseDate(this.record?.effectiveDate || new Date().toISOString().slice(0, 10), { id: 'dtCareerDate', value: this.record?.effectiveDate || new Date().toISOString().slice(0, 10) });
+    this.txtCareerTitle = new WiseTextBox('Posisi jabatan yang baru', { id: 'txtCareerTitle', value: this.record?.newJobTitle || '', placeholder: 'Posisi jabatan yang baru' });
+    this.txtCareerDept = new WiseTextBox('Departemen baru', { id: 'txtCareerDept', value: this.record?.newDepartment || '', placeholder: 'Departemen baru' });
+    this.numCareerSalary = new WiseNumericBox(String(this.record?.newSalary || 0), { id: 'numCareerSalary', value: Number(this.record?.newSalary || 0), prefix: 'Rp ' });
+    this.txtCareerRef = new WiseTextBox('SK/DIR/2024/001', { id: 'txtCareerRef', value: this.record?.referenceNumber || '', placeholder: 'SK/DIR/2024/001' });
+    this.txtCareerNotes = new WiseTextBox('Keterangan prestasi / alasan promosi...', { id: 'txtCareerNotes', value: this.record?.notes || '', placeholder: 'Keterangan prestasi / alasan promosi...' });
+
+    tblCar.setCell(0, 0, this.formGroup('Jenis Perubahan *', this.cmbCareerType));
+    tblCar.setCell(0, 1, this.formGroup('Tanggal Efektif *', this.dtCareerDate));
+    tblCar.setCell(1, 0, this.formGroup('Jabatan Baru', this.txtCareerTitle));
+    tblCar.setCell(1, 1, this.formGroup('Departemen Baru', this.txtCareerDept));
+    tblCar.setCell(2, 0, this.formGroup('Gaji Baru (Rp)', this.numCareerSalary));
+    tblCar.setCell(2, 1, this.formGroup('Nomor SK / Surat Keputusan', this.txtCareerRef));
+    tblCar.setCell(3, 0, this.formGroup('Catatan / Alasan Perubahan', this.txtCareerNotes), { colSpan: 2 });
     this.addControl(tblCar);
 
     // ── Action Buttons ──────────────────────────────────────────

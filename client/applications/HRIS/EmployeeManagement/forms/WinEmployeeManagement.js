@@ -384,8 +384,8 @@ class WinEmployeeManagement extends WiseWindow {
   }
 
   async onEditEmployeeClick(row) {
-    const targetRow = row || (this.dtEmployees ? this.dtEmployees.getSelectedRow() : null) || this.currentEmployeeData;
-    if (!targetRow) {
+    const targetRow = (row && (row.id || row.nik) ? row : null) || (this.dtEmployees ? this.dtEmployees.getSelectedRow() : null) || this.currentEmployeeData || (this.selectedEmployeeId ? { id: this.selectedEmployeeId } : null);
+    if (!targetRow || (!targetRow.id && !targetRow.nik)) {
       return this.showInfo('Pilih Karyawan', 'Silakan pilih karyawan dari daftar terlebih dahulu untuk mengedit.', 'warning');
     }
     const empId = targetRow.id || targetRow.nik;

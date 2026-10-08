@@ -41,13 +41,18 @@ class WinEmployeeFamilyEdit extends WiseWindow {
     // ── Form Content (4 Fields Only) ────────────────────────────
     const tblFam = new WiseTableLayout({ rows: 2, columns: 2, id: 'tblFamilyEdit', style: { marginBottom: '16px' } });
 
+    this.txtFamName = new WiseTextBox('e.g. Siti Rahmawati', { id: 'txtFamName', value: this.record?.name || '', placeholder: 'e.g. Siti Rahmawati' });
+    this.cmbFamGender = new WiseComboBox(GENDERS, { id: 'cmbFamGender', value: this.record?.gender || 'Laki-laki' });
+    this.cmbFamRelation = new WiseComboBox(RELATIONSHIPS, { id: 'cmbFamRelation', value: this.record?.relationship || 'Anak' });
+    this.txtFamPhone = new WiseTextBox('0812xxxxxxxx', { id: 'txtFamPhone', value: this.record?.phone || '', placeholder: '0812xxxxxxxx' });
+
     // Row 0: Nama & Gender
-    tblFam.setCell(0, 0, this.formGroup('Nama Anggota Keluarga *', new WiseTextBox('e.g. Siti Rahmawati', { id: 'txtFamName', value: this.record?.name || '' })));
-    tblFam.setCell(0, 1, this.formGroup('Gender', new WiseComboBox(GENDERS, { id: 'cmbFamGender', value: this.record?.gender || 'Laki-laki' })));
+    tblFam.setCell(0, 0, this.formGroup('Nama Anggota Keluarga *', this.txtFamName));
+    tblFam.setCell(0, 1, this.formGroup('Gender', this.cmbFamGender));
 
     // Row 1: Hubungan & Nomor Kontak
-    tblFam.setCell(1, 0, this.formGroup('Hubungan Keluarga *', new WiseComboBox(RELATIONSHIPS, { id: 'cmbFamRelation', value: this.record?.relationship || 'Anak' })));
-    tblFam.setCell(1, 1, this.formGroup('Nomor Kontak', new WiseTextBox('0812xxxxxxxx', { id: 'txtFamPhone', value: this.record?.phone || '' })));
+    tblFam.setCell(1, 0, this.formGroup('Hubungan Keluarga *', this.cmbFamRelation));
+    tblFam.setCell(1, 1, this.formGroup('Nomor Kontak', this.txtFamPhone));
 
     this.addControl(tblFam);
 

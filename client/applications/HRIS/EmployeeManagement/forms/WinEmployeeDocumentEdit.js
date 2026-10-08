@@ -28,12 +28,20 @@ class WinEmployeeDocumentEdit extends WiseWindow {
 
     // ── Form Content ────────────────────────────────────────────
     const tblDoc = new WiseTableLayout({ rows: 4, columns: 2, id: 'tblDocEdit', style: { marginBottom: '16px' } });
-    tblDoc.setCell(0, 0, this.formGroup('Jenis Dokumen *', new WiseComboBox(DOC_TYPES.map(d => ({ value: d, label: d })), { id: 'cmbDocType', value: this.record?.documentType || 'KTP' })));
-    tblDoc.setCell(0, 1, this.formGroup('Nomor Dokumen', new WiseTextBox(this.record?.documentNumber || '', { id: 'txtDocNumber', placeholder: 'Nomor KTP/NPWP/No Kontrak' })));
-    tblDoc.setCell(1, 0, this.formGroup('Judul Dokumen *', new WiseTextBox(this.record?.title || '', { id: 'txtDocTitle', placeholder: 'e.g. Scan KTP Asli' })), { colSpan: 2 });
-    tblDoc.setCell(2, 0, this.formGroup('Tanggal Terbit', new WiseDate(this.record?.issueDate || '', { id: 'dtDocIssueDate' })));
-    tblDoc.setCell(2, 1, this.formGroup('Tanggal Berakhir', new WiseDate(this.record?.expiryDate || '', { id: 'dtDocExpiryDate' })));
-    tblDoc.setCell(3, 0, this.formGroup('Keterangan / Catatan', new WiseTextBox(this.record?.description || '', { id: 'txtDocDesc', placeholder: 'Keterangan dokumen...' })), { colSpan: 2 });
+    
+    this.cmbDocType = new WiseComboBox(DOC_TYPES.map(d => ({ value: d, label: d })), { id: 'cmbDocType', value: this.record?.documentType || 'KTP' });
+    this.txtDocNumber = new WiseTextBox('Nomor KTP/NPWP/No Kontrak', { id: 'txtDocNumber', value: this.record?.documentNumber || '', placeholder: 'Nomor KTP/NPWP/No Kontrak' });
+    this.txtDocTitle = new WiseTextBox('e.g. Scan KTP Asli', { id: 'txtDocTitle', value: this.record?.title || '', placeholder: 'e.g. Scan KTP Asli' });
+    this.dtDocIssueDate = new WiseDate(this.record?.issueDate || '', { id: 'dtDocIssueDate', value: this.record?.issueDate || '' });
+    this.dtDocExpiryDate = new WiseDate(this.record?.expiryDate || '', { id: 'dtDocExpiryDate', value: this.record?.expiryDate || '' });
+    this.txtDocDesc = new WiseTextBox('Keterangan dokumen...', { id: 'txtDocDesc', value: this.record?.description || '', placeholder: 'Keterangan dokumen...' });
+
+    tblDoc.setCell(0, 0, this.formGroup('Jenis Dokumen *', this.cmbDocType));
+    tblDoc.setCell(0, 1, this.formGroup('Nomor Dokumen', this.txtDocNumber));
+    tblDoc.setCell(1, 0, this.formGroup('Judul Dokumen *', this.txtDocTitle), { colSpan: 2 });
+    tblDoc.setCell(2, 0, this.formGroup('Tanggal Terbit', this.dtDocIssueDate));
+    tblDoc.setCell(2, 1, this.formGroup('Tanggal Berakhir', this.dtDocExpiryDate));
+    tblDoc.setCell(3, 0, this.formGroup('Keterangan / Catatan', this.txtDocDesc), { colSpan: 2 });
     this.addControl(tblDoc);
 
     // ── Action Buttons ──────────────────────────────────────────

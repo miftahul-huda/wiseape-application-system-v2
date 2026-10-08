@@ -4,9 +4,19 @@
 
   class WiseTextBox extends WiseControl {
     constructor(placeholder = '', options = {}) {
-      super(options.value || '', options);
+      let val = options.value !== undefined && options.value !== null ? String(options.value) : '';
+      let ph = options.placeholder !== undefined && options.placeholder !== null ? String(options.placeholder) : '';
+
+      if (options.placeholder !== undefined && options.value === undefined) {
+        val = placeholder !== undefined && placeholder !== null ? String(placeholder) : '';
+        ph = String(options.placeholder);
+      } else if (!ph && placeholder) {
+        ph = String(placeholder);
+      }
+
+      super(val, options);
       this.name = 'WiseTextBox';
-      this.placeholder = placeholder;
+      this.placeholder = ph;
       this.minLength = options.minLength;
       this.maxLength = options.maxLength;
       this.onChange = typeof options.onChange === 'function' ? options.onChange : null;

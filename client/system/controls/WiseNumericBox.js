@@ -53,9 +53,19 @@
 
   class WiseNumericBox extends WiseControl {
     constructor(placeholder = '', options = {}) {
-      super(options.value !== undefined ? options.value : '', options);
+      let val = options.value !== undefined ? options.value : '';
+      let ph = options.placeholder !== undefined ? options.placeholder : '';
+
+      if (options.placeholder !== undefined && options.value === undefined) {
+        val = placeholder !== undefined && placeholder !== '' ? placeholder : '';
+        ph = String(options.placeholder);
+      } else if (!ph && placeholder) {
+        ph = String(placeholder);
+      }
+
+      super(val, options);
       this.name = 'WiseNumericBox';
-      this.placeholder = placeholder;
+      this.placeholder = ph;
       this.min = options.min;
       this.max = options.max;
       this.step = options.step !== undefined ? options.step : 'any';
