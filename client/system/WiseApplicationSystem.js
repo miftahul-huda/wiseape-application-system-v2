@@ -363,6 +363,9 @@ class WiseApplicationSystem {
     if (win.visible === false && targetWindowId && instance.windows && instance.windows.has(targetWindowId) && targetWindowId !== (instance.window && instance.window.windowId)) {
       instance.windows.delete(targetWindowId);
     }
+    if (win.visible === false) {
+      this.unloadApplicationIfIdle(appId, instance);
+    }
 
     const updatedWindows = [];
     if (instance.windows) {
@@ -385,6 +388,49 @@ class WiseApplicationSystem {
       language: userLanguage,
       currency: userCurrency,
     };
+  }
+
+  // Marks a window closed when the client never went through
+  // dispatchControlEvent for it -- the titlebar "x" closes the window
+  // purely client-side (so its fade-out animation isn't blocked on a round
+  // trip), so this is how the server finds out at all. Same idle check as
+  // the dispatchControlEvent path: once the application has no window left
+  // with visible !== false, drop its instance.
+  closeApplicationWindow(appId, windowId) {
+    const instance = this.runningApplications.get(appId) || this.runningApplications.get(Number(appId));
+    if (!instance) return { status: 'not-found' };
+
+    const win = (instance.getWindow && windowId) ? instance.getWindow(windowId) : instance.window;
+    if (win) win.visible = false;
+    if (windowId && instance.windows && instance.windows.has(windowId) && windowId !== (instance.window && instance.window.windowId)) {
+      instance.windows.delete(windowId);
+    }
+
+    const unloaded = this.unloadApplicationIfIdle(appId, instance);
+    return { status: unloaded ? 'unloaded' : 'closed' };
+  }
+
+  // An application instance (every window it ever opened, each window's
+  // full control tree and cached data, ...) stays in runningApplications
+  // for as long as the process runs unless something removes it -- with no
+  // check like this, every app a user ever opened keeps its instance in
+  // memory forever, even long after every one of its windows is closed.
+  // `appId` is kept alongside `instance.appID` since callers may have
+  // looked the instance up by either the string route param or the
+  // catalog's (possibly numeric) id.
+  unloadApplicationIfIdle(appId, instance) {
+    if (!instance) return false;
+
+    const windows = instance.windows ? Array.from(instance.windows.values()) : [];
+    const hasActiveWindow = windows.length > 0
+      ? windows.some((w) => w && w.visible !== false)
+      : !!(instance.window && instance.window.visible !== false);
+    if (hasActiveWindow) return false;
+
+    this.runningApplications.delete(appId);
+    this.runningApplications.delete(Number(appId));
+    this.runningApplications.delete(instance.appID);
+    return true;
   }
 
   getSystemSnapshot() {

@@ -167,6 +167,23 @@ async function start() {
     }
   });
 
+  // Fired when a window is dismissed purely client-side (the titlebar "x",
+  // which never goes through dispatchControlEvent) -- lets the server mark
+  // it closed and, once an application has no window left at all, drop its
+  // instance from runningApplications so closed apps don't just pile up in
+  // memory for the lifetime of the process. Best-effort: the window is
+  // already gone from the screen either way, so a failure here only means
+  // that one instance lingers in memory a bit longer, not a user-visible bug.
+  app.post('/api/applications/:appId/windows/:windowId/close', (req, res) => {
+    try {
+      const { appId, windowId } = req.params;
+      const result = system.closeApplicationWindow(appId, windowId);
+      return res.json(result);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  });
+
   // ---- Auth: thin pass-throughs to the REST API server (see ApiAuthRepository) ----
 
   app.post('/api/auth/register', async (req, res) => {

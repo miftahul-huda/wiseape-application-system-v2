@@ -16,8 +16,8 @@ class WinPositionEdit extends WiseWindow {
   constructor(options = {}) {
     super(options);
     this.title = options.isNew
-      ? WiseI18n.t('Tambah Master Jabatan — Wise HRIS')
-      : WiseI18n.t('Edit Master Jabatan — Wise HRIS');
+      ? WiseI18n.t('TAMBAH_MASTER_JABATAN_WISE_HRIS')
+      : WiseI18n.t('EDIT_MASTER_JABATAN_WISE_HRIS');
     this.appIcon = options.isNew ? '➕' : '💼';
     this.width = options.width || '600';
     this.height = options.height || 'auto';
@@ -45,7 +45,7 @@ class WinPositionEdit extends WiseWindow {
     const lblStyle = { fontWeight: 600, color: '#334155', display: 'block', paddingTop: '6px' };
 
     // 1. Kode Jabatan
-    formLayout.setCell(0, 0, new WiseLabel(WiseI18n.t('Kode Posisi / Jabatan *'), { style: lblStyle }));
+    formLayout.setCell(0, 0, new WiseLabel(WiseI18n.t('KODE_POSISI_JABATAN'), { style: lblStyle }));
     const codeVal = this.initialData ? (this.initialData.code || '') : '';
     const txtCode = new WiseTextBox(codeVal, {
       id: 'txtPosCode',
@@ -56,7 +56,7 @@ class WinPositionEdit extends WiseWindow {
     formLayout.setCell(0, 1, txtCode);
 
     // 2. Judul / Nama Jabatan
-    formLayout.setCell(1, 0, new WiseLabel(WiseI18n.t('Judul / Nama Jabatan *'), { style: lblStyle }));
+    formLayout.setCell(1, 0, new WiseLabel(WiseI18n.t('JUDUL_NAMA_JABATAN_2'), { style: lblStyle }));
     const titleVal = this.initialData ? (this.initialData.title || '') : '';
     const txtTitle = new WiseTextBox(titleVal, {
       id: 'txtPosTitle',
@@ -67,9 +67,9 @@ class WinPositionEdit extends WiseWindow {
     formLayout.setCell(1, 1, txtTitle);
 
     // 3. Unit Organisasi / Departemen
-    formLayout.setCell(2, 0, new WiseLabel(WiseI18n.t('Unit Organisasi / Dept'), { style: lblStyle }));
+    formLayout.setCell(2, 0, new WiseLabel(WiseI18n.t('UNIT_ORGANISASI_DEPT'), { style: lblStyle }));
     const orgItems = [
-      { value: '', label: WiseI18n.t('(Tidak Terikat Organisasi Spesifik)') },
+      { value: '', label: WiseI18n.t('TIDAK_TERIKAT_ORGANISASI_SPESIFIK') },
       ...this.orgOptions.map((o) => ({ value: String(o.id), label: `[${o.type}] ${o.name}` }))
     ];
     const cmbOrg = new WiseComboBox(orgItems, {
@@ -80,9 +80,9 @@ class WinPositionEdit extends WiseWindow {
     formLayout.setCell(2, 1, cmbOrg);
 
     // 4. Jenjang Jabatan (Job Level)
-    formLayout.setCell(3, 0, new WiseLabel(WiseI18n.t('Jenjang Jabatan / Grade'), { style: lblStyle }));
+    formLayout.setCell(3, 0, new WiseLabel(WiseI18n.t('JENJANG_JABATAN_GRADE'), { style: lblStyle }));
     const levelItems = [
-      { value: '', label: WiseI18n.t('(Pilih Jenjang Jabatan)') },
+      { value: '', label: WiseI18n.t('PILIH_JENJANG_JABATAN') },
       ...this.levelOptions.map((l) => ({ value: String(l.id), label: `[Level ${l.levelNumber}] ${l.name}` }))
     ];
     const cmbLevel = new WiseComboBox(levelItems, {
@@ -93,18 +93,18 @@ class WinPositionEdit extends WiseWindow {
     formLayout.setCell(3, 1, cmbLevel);
 
     // 5. Deskripsi & Kualifikasi
-    formLayout.setCell(4, 0, new WiseLabel(WiseI18n.t('Uraian Tugas Singkat'), { style: lblStyle }));
+    formLayout.setCell(4, 0, new WiseLabel(WiseI18n.t('URAIAN_TUGAS_SINGKAT'), { style: lblStyle }));
     const descVal = this.initialData ? (this.initialData.description || '') : '';
     const txtDesc = new WiseTextBox(descVal, {
       id: 'txtPosDesc',
       value: descVal,
-      placeholder: WiseI18n.t('Uraian Tugas Singkat'),
+      placeholder: WiseI18n.t('URAIAN_TUGAS_SINGKAT'),
       style: { width: '100%' }
     });
     formLayout.setCell(4, 1, txtDesc);
 
     // 6. Urutan (Sort Order)
-    formLayout.setCell(5, 0, new WiseLabel(WiseI18n.t('Urutan Tampilan'), { style: lblStyle }));
+    formLayout.setCell(5, 0, new WiseLabel(WiseI18n.t('URUTAN_TAMPILAN'), { style: lblStyle }));
     const sortVal = this.initialData && this.initialData.sortOrder !== undefined ? Number(this.initialData.sortOrder) : 0;
     const numSort = new WiseNumericBox(String(sortVal), {
       id: 'numPosSortOrder',
@@ -134,7 +134,7 @@ class WinPositionEdit extends WiseWindow {
       }
     });
 
-    const btnCancel = new WiseButton(WiseI18n.t('✕ Batal'), {
+    const btnCancel = new WiseButton(WiseI18n.t('BATAL_3'), {
       id: 'btnPosCancel',
       onClick: () => this.close(),
       style: {
@@ -147,7 +147,7 @@ class WinPositionEdit extends WiseWindow {
       }
     });
 
-    const btnSave = new WiseButton(WiseI18n.t('💾 Simpan Jabatan'), {
+    const btnSave = new WiseButton(WiseI18n.t('SIMPAN_JABATAN'), {
       id: 'btnPosSave',
       onClick: this.onSave.bind(this),
       style: {
@@ -195,12 +195,12 @@ class WinPositionEdit extends WiseWindow {
       }
 
       if (!code) {
-        this.showError(WiseI18n.t('Kode jabatan wajib diisi.'));
+        this.showError(WiseI18n.t('KODE_JABATAN_WAJIB_DIISI'));
         return;
       }
 
       if (!title) {
-        this.showError(WiseI18n.t('Judul / nama jabatan wajib diisi.'));
+        this.showError(WiseI18n.t('JUDUL_NAMA_JABATAN_WAJIB_DIISI'));
         return;
       }
 
@@ -227,7 +227,7 @@ class WinPositionEdit extends WiseWindow {
 
       this.close();
     } catch (err) {
-      this.showError(err.message || WiseI18n.t('Gagal menyimpan data jabatan'));
+      this.showError(err.message || WiseI18n.t('GAGAL_MENYIMPAN_DATA_JABATAN'));
     }
   }
 

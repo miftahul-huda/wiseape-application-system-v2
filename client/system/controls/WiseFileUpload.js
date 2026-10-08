@@ -46,10 +46,10 @@
 
       const label = document.createElement('label');
       label.htmlFor = inputId;
-      label.className = 'w-full flex cursor-pointer items-center gap-3.5 rounded-md border-2 border-dashed border-slate-300 bg-white/50 px-4 py-3.5 shadow-none transition hover:border-[var(--accent)] hover:bg-white';
+      label.className = 'w-full flex cursor-pointer items-center gap-3.5 rounded-sm border-2 border-dashed border-slate-300 bg-white/50 px-4 py-3.5 shadow-none transition hover:border-[var(--accent)] hover:bg-white';
 
       const preview = document.createElement('div');
-      preview.className = 'wise-upload-preview flex h-14 w-14 flex-none items-center justify-center rounded-md bg-gradient-to-br from-slate-100 to-slate-200 bg-cover bg-center text-slate-400';
+      preview.className = 'wise-upload-preview flex h-14 w-14 flex-none items-center justify-center rounded-sm bg-gradient-to-br from-slate-100 to-slate-200 bg-cover bg-center text-slate-400';
 
       const icon = document.createElement('svg');
       icon.setAttribute('viewBox', '0 0 24 24');

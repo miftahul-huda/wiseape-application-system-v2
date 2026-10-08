@@ -48,7 +48,7 @@
       const wrapper = document.createElement('div');
       const hasTitle = Boolean(data.title && String(data.title).trim());
       wrapper.className = hasTitle
-        ? 'wise-frame rounded-lg border border-slate-900/10 bg-white/60 p-4 shadow-none'
+        ? 'wise-frame rounded-md border border-slate-900/10 bg-white/60 p-4 shadow-none'
         : 'wise-frame bg-transparent p-0 border-0 shadow-none';
       WiseControl.applyCommon(wrapper, data, context);
 

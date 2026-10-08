@@ -15,8 +15,8 @@ class WinJobLevelEdit extends WiseWindow {
   constructor(options = {}) {
     super(options);
     this.title = options.isNew
-      ? WiseI18n.t('Tambah Jenjang Jabatan — Wise HRIS')
-      : WiseI18n.t('Edit Jenjang Jabatan — Wise HRIS');
+      ? WiseI18n.t('TAMBAH_JENJANG_JABATAN_WISE_HRIS')
+      : WiseI18n.t('EDIT_JENJANG_JABATAN_WISE_HRIS');
     this.appIcon = options.isNew ? '➕' : '🎖️';
     this.width = options.width || '540';
     this.height = options.height || 'auto';
@@ -42,7 +42,7 @@ class WinJobLevelEdit extends WiseWindow {
     const lblStyle = { fontWeight: 600, color: '#334155', display: 'block', paddingTop: '6px' };
 
     // 1. Kode Jenjang
-    formLayout.setCell(0, 0, new WiseLabel(WiseI18n.t('Kode Jenjang *'), { style: lblStyle }));
+    formLayout.setCell(0, 0, new WiseLabel(WiseI18n.t('KODE_JENJANG'), { style: lblStyle }));
     const codeVal = this.initialData ? (this.initialData.code || '') : '';
     const txtCode = new WiseTextBox(codeVal, {
       id: 'txtJobLevelCode',
@@ -53,7 +53,7 @@ class WinJobLevelEdit extends WiseWindow {
     formLayout.setCell(0, 1, txtCode);
 
     // 2. Nama Jenjang
-    formLayout.setCell(1, 0, new WiseLabel(WiseI18n.t('Nama Jenjang / Grade *'), { style: lblStyle }));
+    formLayout.setCell(1, 0, new WiseLabel(WiseI18n.t('NAMA_JENJANG_GRADE_2'), { style: lblStyle }));
     const nameVal = this.initialData ? (this.initialData.name || '') : '';
     const txtName = new WiseTextBox(nameVal, {
       id: 'txtJobLevelName',
@@ -64,7 +64,7 @@ class WinJobLevelEdit extends WiseWindow {
     formLayout.setCell(1, 1, txtName);
 
     // 3. Level Ranking (Level Number)
-    formLayout.setCell(2, 0, new WiseLabel(WiseI18n.t('Tingkat Level (1-9) *'), { style: lblStyle }));
+    formLayout.setCell(2, 0, new WiseLabel(WiseI18n.t('TINGKAT_LEVEL_1_9'), { style: lblStyle }));
     const levelVal = this.initialData && this.initialData.levelNumber !== undefined ? Number(this.initialData.levelNumber) : 1;
     const numLevel = new WiseNumericBox(String(levelVal), {
       id: 'numJobLevelRanking',
@@ -74,18 +74,18 @@ class WinJobLevelEdit extends WiseWindow {
     formLayout.setCell(2, 1, numLevel);
 
     // 4. Deskripsi
-    formLayout.setCell(3, 0, new WiseLabel(WiseI18n.t('Deskripsi Tanggung Jawab'), { style: lblStyle }));
+    formLayout.setCell(3, 0, new WiseLabel(WiseI18n.t('DESKRIPSI_TANGGUNG_JAWAB'), { style: lblStyle }));
     const descVal = this.initialData ? (this.initialData.description || '') : '';
     const txtDesc = new WiseTextBox(descVal, {
       id: 'txtJobLevelDesc',
       value: descVal,
-      placeholder: WiseI18n.t('Cakupan Tanggung Jawab'),
+      placeholder: WiseI18n.t('CAKUPAN_TANGGUNG_JAWAB'),
       style: { width: '100%' }
     });
     formLayout.setCell(3, 1, txtDesc);
 
     // 5. Urutan
-    formLayout.setCell(4, 0, new WiseLabel(WiseI18n.t('Urutan Tampilan'), { style: lblStyle }));
+    formLayout.setCell(4, 0, new WiseLabel(WiseI18n.t('URUTAN_TAMPILAN'), { style: lblStyle }));
     const sortVal = this.initialData && this.initialData.sortOrder !== undefined ? Number(this.initialData.sortOrder) : 0;
     const numSort = new WiseNumericBox(String(sortVal), {
       id: 'numJobLevelSortOrder',
@@ -115,7 +115,7 @@ class WinJobLevelEdit extends WiseWindow {
       }
     });
 
-    const btnCancel = new WiseButton(WiseI18n.t('✕ Batal'), {
+    const btnCancel = new WiseButton(WiseI18n.t('BATAL_3'), {
       id: 'btnJobLevelCancel',
       onClick: () => this.close(),
       style: {
@@ -128,7 +128,7 @@ class WinJobLevelEdit extends WiseWindow {
       }
     });
 
-    const btnSave = new WiseButton(WiseI18n.t('💾 Simpan Jenjang'), {
+    const btnSave = new WiseButton(WiseI18n.t('SIMPAN_JENJANG'), {
       id: 'btnJobLevelSave',
       onClick: this.onSave.bind(this),
       style: {
@@ -161,12 +161,12 @@ class WinJobLevelEdit extends WiseWindow {
       const sortOrder = numSort ? parseInt(numSort.value, 10) || 0 : 0;
 
       if (!code) {
-        this.showError(WiseI18n.t('Kode jenjang jabatan wajib diisi.'));
+        this.showError(WiseI18n.t('KODE_JENJANG_JABATAN_WAJIB_DIISI'));
         return;
       }
 
       if (!name) {
-        this.showError(WiseI18n.t('Nama jenjang jabatan wajib diisi.'));
+        this.showError(WiseI18n.t('NAMA_JENJANG_JABATAN_WAJIB_DIISI'));
         return;
       }
 
@@ -191,7 +191,7 @@ class WinJobLevelEdit extends WiseWindow {
 
       this.close();
     } catch (err) {
-      this.showError(err.message || WiseI18n.t('Gagal menyimpan jenjang jabatan'));
+      this.showError(err.message || WiseI18n.t('GAGAL_MENYIMPAN_JENJANG_JABATAN'));
     }
   }
 

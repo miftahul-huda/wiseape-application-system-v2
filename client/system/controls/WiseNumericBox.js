@@ -159,7 +159,7 @@
       const raw = WiseNumericBox.toRaw(data.value, decimal);
 
       const wrapper = document.createElement('div');
-      wrapper.className = 'wise-numericbox-wrapper flex w-full items-center overflow-hidden rounded-md border border-slate-300 bg-white shadow-none transition focus-within:border-[var(--accent)]';
+      wrapper.className = 'wise-numericbox-wrapper flex w-full items-center overflow-hidden rounded-sm border border-slate-300 bg-white shadow-none transition focus-within:border-[var(--accent)]';
       WiseControl.applyCommon(wrapper, data, context);
 
       const effectivePrefix = resolvePrefix(data, context);

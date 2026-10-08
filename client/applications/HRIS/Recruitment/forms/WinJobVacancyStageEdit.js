@@ -12,7 +12,7 @@ const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI
 class WinJobVacancyStageEdit extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = options.data ? WiseI18n.t('Edit Tahapan Proses Seleksi') : WiseI18n.t('Tambah Tahapan Proses Seleksi');
+    this.title = options.data ? WiseI18n.t('EDIT_TAHAPAN_PROSES_SELEKSI') : WiseI18n.t('TAMBAH_TAHAPAN_PROSES_SELEKSI');
     this.appIcon = options.appIcon || '⚙️';
     this.width = options.width || '560';
     this.height = options.height || '440';
@@ -39,10 +39,10 @@ class WinJobVacancyStageEdit extends WiseWindow {
 
     // 1. Nama Tahapan
     const cellName = new WiseFrame('', { id: 'frmStageName', style: { marginBottom: '8px' } });
-    cellName.addControl(new WiseLabel(WiseI18n.t('Nama Tahapan Proses *'), { id: 'lblStageName', style: labelStyle }));
+    cellName.addControl(new WiseLabel(WiseI18n.t('NAMA_TAHAPAN_PROSES'), { id: 'lblStageName', style: labelStyle }));
     this.txtStageName = new WiseTextBox(this.stageData ? this.stageData.name : '', {
       id: 'txtStageName',
-      placeholder: WiseI18n.t('Contoh: Interview User, Interview HRD, Coding Test, dll.'),
+      placeholder: WiseI18n.t('CONTOH_INTERVIEW_USER_INTERVIEW_HRD_CODING_TEST_DLL'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellName.addControl(this.txtStageName);
@@ -50,7 +50,7 @@ class WinJobVacancyStageEdit extends WiseWindow {
 
     // 2. Urutan Tahapan
     const cellOrder = new WiseFrame('', { id: 'frmStageOrder', style: { marginBottom: '8px' } });
-    cellOrder.addControl(new WiseLabel(WiseI18n.t('Urutan Tahapan *'), { id: 'lblStageOrder', style: labelStyle }));
+    cellOrder.addControl(new WiseLabel(WiseI18n.t('URUTAN_TAHAPAN'), { id: 'lblStageOrder', style: labelStyle }));
     this.numStageOrder = new WiseNumericBox(this.stageData ? this.stageData.order : 1, {
       id: 'numStageOrder',
       min: 1,
@@ -62,9 +62,9 @@ class WinJobVacancyStageEdit extends WiseWindow {
 
     // 3. Template Matriks Penilaian
     const cellMatrix = new WiseFrame('', { id: 'frmStageMatrix', style: { marginBottom: '8px' } });
-    cellMatrix.addControl(new WiseLabel(WiseI18n.t('Template Matriks Penilaian (Opsional)'), { id: 'lblStageMatrix', style: labelStyle }));
+    cellMatrix.addControl(new WiseLabel(WiseI18n.t('TEMPLATE_MATRIKS_PENILAIAN_OPSIONAL'), { id: 'lblStageMatrix', style: labelStyle }));
     const matrixItems = [
-      { value: '', label: WiseI18n.t('(Tanpa Matriks Penilaian Khusus)') },
+      { value: '', label: WiseI18n.t('TANPA_MATRIKS_PENILAIAN_KHUSUS') },
       ...this.matrixTemplates.map((m) => ({ value: String(m.id), label: `${m.name} (${(m.criteria || []).length} kriteria)` }))
     ];
     this.cmbMatrixTemplate = new WiseComboBox(this.stageData && this.stageData.matrixTemplateId ? String(this.stageData.matrixTemplateId) : '', {
@@ -77,11 +77,11 @@ class WinJobVacancyStageEdit extends WiseWindow {
 
     // 4. Deskripsi
     const cellDesc = new WiseFrame('', { id: 'frmStageDesc', style: { marginBottom: '8px' } });
-    cellDesc.addControl(new WiseLabel(WiseI18n.t('Deskripsi / Panduan Tahapan'), { id: 'lblStageDesc', style: labelStyle }));
+    cellDesc.addControl(new WiseLabel(WiseI18n.t('DESKRIPSI_PANDUAN_TAHAPAN'), { id: 'lblStageDesc', style: labelStyle }));
     this.txtStageDesc = new WiseTextArea(this.stageData ? this.stageData.description : '', {
       id: 'txtStageDesc',
       rows: 3,
-      placeholder: WiseI18n.t('Tuliskan panduan atau ruang lingkup tahapan ini...'),
+      placeholder: WiseI18n.t('TULISKAN_PANDUAN_ATAU_RUANG_LINGKUP_TAHAPAN_INI'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellDesc.addControl(this.txtStageDesc);
@@ -95,7 +95,7 @@ class WinJobVacancyStageEdit extends WiseWindow {
       style: { display: 'flex', justifyContent: 'flex-end', gap: '8px' }
     });
 
-    btnContainer.addControl(new WiseButton(WiseI18n.t('Batal'), {
+    btnContainer.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnStageCancel',
       onClick: () => this.close(),
       style: {
@@ -110,7 +110,7 @@ class WinJobVacancyStageEdit extends WiseWindow {
       }
     }));
 
-    btnContainer.addControl(new WiseButton(WiseI18n.t('💾 Simpan Tahapan'), {
+    btnContainer.addControl(new WiseButton(WiseI18n.t('SIMPAN_TAHAPAN'), {
       id: 'btnStageSave',
       onClick: this.onSaveClick.bind(this),
       style: {
@@ -133,7 +133,7 @@ class WinJobVacancyStageEdit extends WiseWindow {
   onSaveClick() {
     const name = this.txtStageName ? this.txtStageName.value.trim() : '';
     if (!name) {
-      this.showInfo(WiseI18n.t('Validasi'), WiseI18n.t('Nama tahapan proses wajib diisi.'), 'warning');
+      this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('NAMA_TAHAPAN_PROSES_WAJIB_DIISI'), 'warning');
       return;
     }
 

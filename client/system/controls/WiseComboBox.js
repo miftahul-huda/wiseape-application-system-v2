@@ -140,7 +140,7 @@
       const isSearchable = data.searchable !== false;
 
       const wrapper = document.createElement('div');
-      wrapper.className = `wise-combobox-wrapper relative w-full text-slate-800 rounded-md border border-slate-300 bg-white shadow-none transition ${isSearchable ? 'wise-combobox-searchable' : ''}`;
+      wrapper.className = `wise-combobox-wrapper relative w-full text-slate-800 rounded-sm border border-slate-300 bg-white shadow-none transition ${isSearchable ? 'wise-combobox-searchable' : ''}`;
       wrapper.dataset.value = currentValue;
       wrapper.dataset.controlId = data.id || '';
       wrapper.dataset.controlType = 'WiseComboBox';
@@ -191,7 +191,7 @@
 
       // Dropdown Panel
       const dropdown = document.createElement('div');
-      dropdown.className = 'wise-combobox-dropdown hidden absolute left-0 right-0 z-[100] mt-1 rounded-md border border-slate-300 bg-white shadow-lg flex flex-col overflow-hidden';
+      dropdown.className = 'wise-combobox-dropdown hidden absolute left-0 right-0 z-[100] mt-1 rounded-sm border border-slate-300 bg-white shadow-lg flex flex-col overflow-hidden';
       dropdown.style.minWidth = '100%';
       dropdown.style.top = '100%';
 
@@ -210,7 +210,7 @@
       const searchInput = document.createElement('input');
       searchInput.type = 'text';
       searchInput.className = 'wise-combobox-search-input';
-      searchInput.placeholder = t('Cari / Search...');
+      searchInput.placeholder = t('CARI_SEARCH');
       searchContainer.appendChild(searchInput);
       dropdown.appendChild(searchContainer);
 
@@ -233,7 +233,7 @@
         if (filtered.length === 0) {
           const emptyDiv = document.createElement('div');
           emptyDiv.className = 'py-3 px-3 text-center text-xs text-slate-400 select-none';
-          emptyDiv.textContent = t('Tidak ada hasil / No results');
+          emptyDiv.textContent = t('TIDAK_ADA_HASIL_NO_RESULTS');
           optionsList.appendChild(emptyDiv);
           return;
         }

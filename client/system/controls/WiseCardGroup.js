@@ -127,7 +127,7 @@
         // z-index alone is enough here since grid items respect it without
         // needing position: relative for stacking, but it's set explicitly
         // for clarity.
-        card.className = 'relative flex flex-col overflow-hidden rounded-lg border border-slate-900/10 bg-white shadow-sm transition hover:z-10 hover:scale-105 hover:shadow-lg';
+        card.className = 'relative flex flex-col overflow-hidden rounded-md border border-slate-900/10 bg-white shadow-sm transition hover:z-10 hover:scale-105 hover:shadow-lg';
 
         if (data.hasRowSelectHandler) {
           card.classList.add('cursor-pointer');
@@ -176,7 +176,7 @@
           cardActions.forEach((act) => {
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = `px-2 py-1 text-xs font-semibold rounded-md cursor-pointer transition ${
+            btn.className = `px-2 py-1 text-xs font-semibold rounded-sm cursor-pointer transition ${
               act.variant === 'danger'
                 ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
@@ -231,7 +231,7 @@
 
       if ((data.pageSizeOptions || []).length > 0) {
         const sizeSelect = document.createElement('select');
-        sizeSelect.className = 'mr-2 cursor-pointer rounded-md border-0 bg-slate-100 px-2 py-1.5 text-xs text-slate-600 outline-none transition focus:ring-2 focus:ring-[var(--accent)]';
+        sizeSelect.className = 'mr-2 cursor-pointer rounded-sm border-0 bg-slate-100 px-2 py-1.5 text-xs text-slate-600 outline-none transition focus:ring-2 focus:ring-[var(--accent)]';
         data.pageSizeOptions.forEach((size) => {
           const option = document.createElement('option');
           option.value = size;
@@ -253,7 +253,7 @@
         const state = active
           ? 'bg-[var(--accent)] text-white font-semibold'
           : 'bg-transparent text-slate-600 hover:bg-slate-100';
-        btn.className = `min-w-[26px] cursor-pointer rounded-md border-0 px-2 py-1.5 text-xs transition disabled:cursor-default disabled:opacity-30 disabled:hover:bg-transparent ${state}`;
+        btn.className = `min-w-[26px] cursor-pointer rounded-sm border-0 px-2 py-1.5 text-xs transition disabled:cursor-default disabled:opacity-30 disabled:hover:bg-transparent ${state}`;
         if (!disabled && onClick) btn.addEventListener('click', onClick);
         return btn;
       };

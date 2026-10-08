@@ -124,7 +124,7 @@ textarea,
   width: 100%;
   box-sizing: border-box !important;
   border: 1px solid #94a3b8 !important; /* solid darker border, clearly visible */
-  border-radius: 6px !important;
+  border-radius: 4px !important;
   box-shadow: none !important;
   -webkit-box-shadow: none !important;
   outline: none !important;
@@ -223,7 +223,7 @@ textarea:focus,
 .wise-combobox-dropdown {
   box-sizing: border-box !important;
   border: 1px solid #94a3b8 !important;
-  border-radius: 6px !important;
+  border-radius: 4px !important;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1) !important;
   background-color: #ffffff !important;
 }
@@ -236,7 +236,7 @@ textarea:focus,
   font-size: 13px !important;
   box-sizing: border-box !important;
   border: 1px solid #cbd5e1 !important;
-  border-radius: 4px !important;
+  border-radius: 3px !important;
   background-color: #ffffff !important;
   color: #0f172a !important;
   box-shadow: none !important;
@@ -486,7 +486,7 @@ body {
   position: fixed;
   min-width: 150px;
   padding: 6px;
-  border-radius: 10px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(20px) saturate(1.4);
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
@@ -499,7 +499,7 @@ body {
   align-items: center;
   gap: 8px;
   padding: 7px 12px;
-  border-radius: 7px;
+  border-radius: 5px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;

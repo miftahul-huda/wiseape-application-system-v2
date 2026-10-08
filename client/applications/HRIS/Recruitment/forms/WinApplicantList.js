@@ -13,7 +13,7 @@ const api = new RecruitmentApiRepository();
 class WinApplicantList extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = WiseI18n.t('Applicant Management — Wise Recruitment');
+    this.title = WiseI18n.t('APPLICANT_MANAGEMENT_WISE_RECRUITMENT');
     this.appIcon = options.appIcon || '👥';
     this.width = options.width || '92%';
     this.height = options.height || '86%';
@@ -37,7 +37,7 @@ class WinApplicantList extends WiseWindow {
       style: { display: 'flex', gap: '8px', marginBottom: '10px' }
     });
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('➕ Tambah Pelamar'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('TAMBAH_PELAMAR_2'), {
       id: 'btnAppAdd',
       onClick: this.onAddClick.bind(this),
       style: {
@@ -52,7 +52,7 @@ class WinApplicantList extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('✏️ Edit Pelamar'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_PELAMAR'), {
       id: 'btnAppEdit',
       onClick: this.onEditClick.bind(this),
       style: {
@@ -67,7 +67,7 @@ class WinApplicantList extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('🔍 Detail & Proses Seleksi'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('DETAIL_PROSES_SELEKSI'), {
       id: 'btnAppViewDetail',
       onClick: this.onViewDetailClick.bind(this),
       style: {
@@ -82,7 +82,7 @@ class WinApplicantList extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('🗑️ Hapus Pelamar'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('HAPUS_PELAMAR_2'), {
       id: 'btnAppDelete',
       onClick: this.onDeleteClick.bind(this),
       style: {
@@ -97,7 +97,7 @@ class WinApplicantList extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('🔄 Segarkan'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('SEGARKAN_3'), {
       id: 'btnAppRefresh',
       onClick: () => this.loadTable(1, this.dtApplicants ? this.dtApplicants.pageSize : 10),
       style: {
@@ -127,51 +127,51 @@ class WinApplicantList extends WiseWindow {
     });
 
     this.dtApplicants.columns = [
-      { key: 'applicantNumber', title: WiseI18n.t('No. Pelamar'), width: '120px' },
-      { key: 'fullName', title: WiseI18n.t('Nama Lengkap Pelamar'), width: '220px' },
-      { key: 'vacancyTitle', title: WiseI18n.t('Lowongan Target'), width: '240px' },
-      { key: 'department', title: WiseI18n.t('Departemen'), width: '180px' },
-      { key: 'contact', title: WiseI18n.t('Kontak'), width: '200px' },
-      { key: 'lastEducation', title: WiseI18n.t('Pendidikan'), width: '110px' },
-      { key: 'appliedDate', title: WiseI18n.t('Tgl Lamar'), width: '110px' },
-      { key: 'processesSummary', title: WiseI18n.t('Progres Tahapan Seleksi'), width: '240px' },
-      { key: 'statusBadge', title: WiseI18n.t('Status'), width: '130px' }
+      { key: 'applicantNumber', title: WiseI18n.t('NO_PELAMAR'), width: '120px' },
+      { key: 'fullName', title: WiseI18n.t('NAMA_LENGKAP_PELAMAR_2'), width: '220px' },
+      { key: 'vacancyTitle', title: WiseI18n.t('LOWONGAN_TARGET'), width: '240px' },
+      { key: 'department', title: WiseI18n.t('DEPARTEMEN'), width: '180px' },
+      { key: 'contact', title: WiseI18n.t('KONTAK'), width: '200px' },
+      { key: 'lastEducation', title: WiseI18n.t('PENDIDIKAN'), width: '110px' },
+      { key: 'appliedDate', title: WiseI18n.t('TGL_LAMAR'), width: '110px' },
+      { key: 'processesSummary', title: WiseI18n.t('PROGRES_TAHAPAN_SELEKSI'), width: '240px' },
+      { key: 'statusBadge', title: WiseI18n.t('STATUS'), width: '130px' }
     ];
 
     this.dtApplicants.filterControls = [
       {
         id: 'search',
         type: 'text',
-        label: WiseI18n.t('Pencarian'),
-        placeholder: WiseI18n.t('Cari nama, email, nomor...'),
+        label: WiseI18n.t('PENCARIAN'),
+        placeholder: WiseI18n.t('CARI_NAMA_EMAIL_NOMOR'),
         onChange: this.onTableFilterInputChanged.bind(this)
       },
       {
         id: 'status',
         type: 'select',
-        label: WiseI18n.t('Status Pelamar'),
+        label: WiseI18n.t('STATUS_PELAMAR'),
         items: [
-          { value: '', label: WiseI18n.t('Semua Status') },
-          { value: 'APPLIED', label: WiseI18n.t('🟡 Melamar') },
-          { value: 'IN_PROCESS', label: WiseI18n.t('🔵 Proses') },
-          { value: 'OFFERED', label: WiseI18n.t('🟣 Ditawarkan') },
-          { value: 'HIRED', label: WiseI18n.t('🟢 Diterima') },
-          { value: 'REJECTED', label: WiseI18n.t('🔴 Ditolak') }
+          { value: '', label: WiseI18n.t('SEMUA_STATUS') },
+          { value: 'APPLIED', label: WiseI18n.t('MELAMAR') },
+          { value: 'IN_PROCESS', label: WiseI18n.t('PROSES') },
+          { value: 'OFFERED', label: WiseI18n.t('DITAWARKAN') },
+          { value: 'HIRED', label: WiseI18n.t('DITERIMA') },
+          { value: 'REJECTED', label: WiseI18n.t('DITOLAK') }
         ],
         onChange: this.onTableFilterInputChanged.bind(this)
       }
     ];
 
     this.dtApplicants.contextMenuItems = [
-      { id: 'viewDetail', label: WiseI18n.t('Detail & Proses Seleksi'), icon: '🔍', onClick: this.onViewDetailClick.bind(this) },
-      { id: 'edit', label: WiseI18n.t('Edit Pelamar'), icon: '✏️', onClick: this.onEditClick.bind(this) },
-      { id: 'delete', label: WiseI18n.t('Hapus Pelamar'), icon: '🗑️', onClick: this.onDeleteClick.bind(this) }
+      { id: 'viewDetail', label: WiseI18n.t('DETAIL_PROSES_SELEKSI_2'), icon: '🔍', onClick: this.onViewDetailClick.bind(this) },
+      { id: 'edit', label: WiseI18n.t('EDIT_PELAMAR_2'), icon: '✏️', onClick: this.onEditClick.bind(this) },
+      { id: 'delete', label: WiseI18n.t('HAPUS_PELAMAR'), icon: '🗑️', onClick: this.onDeleteClick.bind(this) }
     ];
 
     this.addControl(this.dtApplicants);
 
     // 3. Status Bar
-    this.lblStatus = new WiseLabel(WiseI18n.t('Memuat data pelamar...'), {
+    this.lblStatus = new WiseLabel(WiseI18n.t('MEMUAT_DATA_PELAMAR'), {
       id: 'lblApplicantStatus',
       style: { color: '#64748b', display: 'block', marginTop: '8px' }
     });
@@ -189,9 +189,9 @@ class WinApplicantList extends WiseWindow {
       const vacFilter = {
         id: 'jobVacancyId',
         type: 'select',
-        label: WiseI18n.t('Filter Lowongan'),
+        label: WiseI18n.t('FILTER_LOWONGAN'),
         items: [
-          { value: '', label: WiseI18n.t('Semua Lowongan') },
+          { value: '', label: WiseI18n.t('SEMUA_LOWONGAN') },
           ...this.vacanciesList.map((v) => ({ value: String(v.id), label: v.title }))
         ],
         onChange: this.onTableFilterInputChanged.bind(this)
@@ -216,7 +216,7 @@ class WinApplicantList extends WiseWindow {
 
   async loadTable(page = 1, limit = 10) {
     try {
-      if (this.lblStatus) this.lblStatus.setText(WiseI18n.t('Memuat data pelamar...'));
+      if (this.lblStatus) this.lblStatus.setText(WiseI18n.t('MEMUAT_DATA_PELAMAR'));
       const filters = { page, limit, ...this._currentFilters };
       const res = await api.listApplicants(filters);
 
@@ -225,19 +225,19 @@ class WinApplicantList extends WiseWindow {
 
       this.dtApplicants.data = rows.map((app) => {
         let stBadge = app.status;
-        if (stBadge === 'APPLIED') stBadge = WiseI18n.t('🟡 Melamar');
-        else if (stBadge === 'IN_PROCESS') stBadge = WiseI18n.t('🔵 Proses');
-        else if (stBadge === 'OFFERED') stBadge = WiseI18n.t('🟣 Ditawarkan');
-        else if (stBadge === 'HIRED') stBadge = WiseI18n.t('🟢 Diterima');
-        else if (stBadge === 'REJECTED') stBadge = WiseI18n.t('🔴 Ditolak');
-        else if (stBadge === 'WITHDRAWN') stBadge = WiseI18n.t('⚪ Mengundurkan');
+        if (stBadge === 'APPLIED') stBadge = WiseI18n.t('MELAMAR');
+        else if (stBadge === 'IN_PROCESS') stBadge = WiseI18n.t('PROSES');
+        else if (stBadge === 'OFFERED') stBadge = WiseI18n.t('DITAWARKAN');
+        else if (stBadge === 'HIRED') stBadge = WiseI18n.t('DITERIMA');
+        else if (stBadge === 'REJECTED') stBadge = WiseI18n.t('DITOLAK');
+        else if (stBadge === 'WITHDRAWN') stBadge = WiseI18n.t('MENGUNDURKAN');
 
         const processes = Array.isArray(app.processes) ? app.processes : [];
         const doneCount = processes.filter((p) => p.status === 'Done').length;
         const currentActive = processes.find((p) => p.status === 'Ongoing');
-        let procSummary = `${doneCount}/${processes.length} ${WiseI18n.t('Tahapan Selesai')}`;
+        let procSummary = `${doneCount}/${processes.length} ${WiseI18n.t('TAHAPAN_SELESAI')}`;
         if (currentActive) {
-          procSummary += ` (${WiseI18n.t('Aktif')}: ${currentActive.stageName})`;
+          procSummary += ` (${WiseI18n.t('AKTIF_2')}: ${currentActive.stageName})`;
         }
 
         return {
@@ -260,11 +260,11 @@ class WinApplicantList extends WiseWindow {
       this.dtApplicants.pageSize = limit;
 
       if (this.lblStatus) {
-        this.lblStatus.setText(`${WiseI18n.t('Menampilkan')} ${rows.length} ${WiseI18n.t('dari total')} ${res.total || rows.length} ${WiseI18n.t('pelamar.')}`);
+        this.lblStatus.setText(`${WiseI18n.t('MENAMPILKAN')} ${rows.length} ${WiseI18n.t('DARI_TOTAL')} ${res.total || rows.length} ${WiseI18n.t('PELAMAR_2')}`);
       }
     } catch (err) {
-      if (this.lblStatus) this.lblStatus.setText(`${WiseI18n.t('Gagal memuat pelamar')}: ${err.message}`);
-      this.showInfo(WiseI18n.t('Error'), err.message, 'error');
+      if (this.lblStatus) this.lblStatus.setText(`${WiseI18n.t('GAGAL_MEMUAT_PELAMAR')}: ${err.message}`);
+      this.showInfo(WiseI18n.t('ERROR'), err.message, 'error');
     }
   }
 
@@ -304,7 +304,7 @@ class WinApplicantList extends WiseWindow {
 
   async onEditClick() {
     if (!this.selectedApplicant) {
-      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu baris pelamar terlebih dahulu.'), 'warning');
+      this.showInfo(WiseI18n.t('PEMBERITAHUAN'), WiseI18n.t('PILIH_SALAH_SATU_BARIS_PELAMAR_TERLEBIH_DAHULU'), 'warning');
       return;
     }
 
@@ -316,7 +316,7 @@ class WinApplicantList extends WiseWindow {
 
   async onViewDetailClick() {
     if (!this.selectedApplicant) {
-      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu baris pelamar terlebih dahulu.'), 'warning');
+      this.showInfo(WiseI18n.t('PEMBERITAHUAN'), WiseI18n.t('PILIH_SALAH_SATU_BARIS_PELAMAR_TERLEBIH_DAHULU'), 'warning');
       return;
     }
 
@@ -327,23 +327,23 @@ class WinApplicantList extends WiseWindow {
 
   async onDeleteClick() {
     if (!this.selectedApplicant) {
-      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu baris pelamar yang ingin dihapus.'), 'warning');
+      this.showInfo(WiseI18n.t('PEMBERITAHUAN'), WiseI18n.t('PILIH_SALAH_SATU_BARIS_PELAMAR_YANG_INGIN_DIHAPUS'), 'warning');
       return;
     }
 
     const conf = await this.confirm(
-      WiseI18n.t('Konfirmasi Hapus'),
-      `${WiseI18n.t('Apakah Anda yakin ingin menghapus data pelamar')} "${this.selectedApplicant.fullName}" ${WiseI18n.t('beserta seluruh riwayat proses seleksinya?')}`
+      WiseI18n.t('KONFIRMASI_HAPUS'),
+      `${WiseI18n.t('APAKAH_ANDA_YAKIN_INGIN_MENGHAPUS_DATA_PELAMAR')} "${this.selectedApplicant.fullName}" ${WiseI18n.t('BESERTA_SELURUH_RIWAYAT_PROSES_SELEKSINYA')}`
     );
     if (!conf) return;
 
     try {
       await api.deleteApplicant(this.selectedApplicant.id);
-      this.showInfo(WiseI18n.t('Sukses'), WiseI18n.t('Data pelamar berhasil dihapus.'), 'success');
+      this.showInfo(WiseI18n.t('SUKSES'), WiseI18n.t('DATA_PELAMAR_BERHASIL_DIHAPUS'), 'success');
       this.selectedApplicant = null;
       await this.loadTable(1, this.dtApplicants.pageSize);
     } catch (err) {
-      this.showInfo(WiseI18n.t('Gagal Menghapus'), err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MENGHAPUS'), err.message, 'error');
     }
   }
 

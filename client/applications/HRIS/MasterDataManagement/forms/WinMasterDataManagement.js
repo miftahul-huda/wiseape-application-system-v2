@@ -13,37 +13,37 @@ const WiseI18n = typeof window !== 'undefined' ? window.WiseI18n : require('../.
 const CATEGORIES = () => {
   const t = (k) => WiseI18n.t(k);
   return [
-    { value: 'ALL', label: t('📁 Semua Kategori') },
-    { value: 'RELATIONSHIP', label: t('👨‍👩‍👧‍👦 Hubungan Keluarga (Relationship)') },
-    { value: 'RELIGION', label: t('🕊️ Agama (Religion)') },
-    { value: 'EMPLOYMENT_STATUS', label: t('📋 Status Kepegawaian (Employment Status)') },
-    { value: 'WORK_LOCATION', label: t('📍 Lokasi Kerja (Work Location)') },
-    { value: 'BANK', label: t('🏦 Bank Payroll (Bank)') },
-    { value: 'DOCUMENT_TYPE', label: t('📄 Jenis Dokumen (Document Type)') },
-    { value: 'DEGREE_LEVEL', label: t('🎓 Jenjang Pendidikan (Degree Level)') },
-    { value: 'GENDER', label: t('🚻 Jenis Kelamin (Gender)') }
+    { value: 'ALL', label: t('SEMUA_KATEGORI') },
+    { value: 'RELATIONSHIP', label: t('HUBUNGAN_KELUARGA_RELATIONSHIP') },
+    { value: 'RELIGION', label: t('AGAMA_RELIGION') },
+    { value: 'EMPLOYMENT_STATUS', label: t('STATUS_KEPEGAWAIAN_EMPLOYMENT_STATUS') },
+    { value: 'WORK_LOCATION', label: t('LOKASI_KERJA_WORK_LOCATION') },
+    { value: 'BANK', label: t('BANK_PAYROLL_BANK') },
+    { value: 'DOCUMENT_TYPE', label: t('JENIS_DOKUMEN_DOCUMENT_TYPE') },
+    { value: 'DEGREE_LEVEL', label: t('JENJANG_PENDIDIKAN_DEGREE_LEVEL') },
+    { value: 'GENDER', label: t('JENIS_KELAMIN_GENDER') }
   ];
 };
 
 const CAT_MAP = () => {
   const t = (k) => WiseI18n.t(k);
   return {
-    RELATIONSHIP: t('👨‍👩‍👧‍👦 Hubungan Keluarga (Relationship)'),
-    RELIGION: t('🕊️ Agama (Religion)'),
-    EMPLOYMENT_STATUS: t('📋 Status Kepegawaian (Employment Status)'),
-    WORK_LOCATION: t('📍 Lokasi Kerja (Work Location)'),
-    BANK: t('🏦 Bank Payroll (Bank)'),
-    DOCUMENT_TYPE: t('📄 Jenis Dokumen (Document Type)'),
-    DEGREE_LEVEL: t('🎓 Jenjang Pendidikan (Degree Level)'),
-    GENDER: t('🚻 Jenis Kelamin (Gender)')
+    RELATIONSHIP: t('HUBUNGAN_KELUARGA_RELATIONSHIP'),
+    RELIGION: t('AGAMA_RELIGION'),
+    EMPLOYMENT_STATUS: t('STATUS_KEPEGAWAIAN_EMPLOYMENT_STATUS'),
+    WORK_LOCATION: t('LOKASI_KERJA_WORK_LOCATION'),
+    BANK: t('BANK_PAYROLL_BANK'),
+    DOCUMENT_TYPE: t('JENIS_DOKUMEN_DOCUMENT_TYPE'),
+    DEGREE_LEVEL: t('JENJANG_PENDIDIKAN_DEGREE_LEVEL'),
+    GENDER: t('JENIS_KELAMIN_GENDER')
   };
 };
 
 class WinMasterDataManagement extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = WiseI18n.t('Master Data Management — Wise HRIS');
-    this.appTitle = options.appTitle || WiseI18n.t('Master Data Management — Wise HRIS');
+    this.title = WiseI18n.t('MANAJEMEN_DATA_MASTER_WISE_HRIS');
+    this.appTitle = options.appTitle || WiseI18n.t('MANAJEMEN_DATA_MASTER_WISE_HRIS');
     this.appIcon = options.appIcon || '🗂️';
     this.width = options.width || '88%';
     this.height = options.height || 700;
@@ -69,7 +69,7 @@ class WinMasterDataManagement extends WiseWindow {
       }
     });
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('➕ Tambah Data'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('TAMBAH_DATA_2'), {
       id: 'btnMasterAdd',
       onClick: this.onAddClick.bind(this),
       style: {
@@ -82,7 +82,7 @@ class WinMasterDataManagement extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('✏️ Edit Data'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_DATA_2'), {
       id: 'btnMasterEdit',
       onClick: this.onEditClick.bind(this),
       style: {
@@ -95,7 +95,7 @@ class WinMasterDataManagement extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('🔄 Toggle Aktif/Nonaktif'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('TOGGLE_AKTIF_NONAKTIF_2'), {
       id: 'btnMasterToggle',
       onClick: this.onToggleActiveClick.bind(this),
       style: {
@@ -108,7 +108,7 @@ class WinMasterDataManagement extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('🗑️ Hapus'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('HAPUS_3'), {
       id: 'btnMasterDelete',
       onClick: this.onDeleteClick.bind(this),
       style: {
@@ -121,7 +121,7 @@ class WinMasterDataManagement extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('🔄 Segarkan (Refresh)'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('SEGARKAN_REFRESH_2'), {
       id: 'btnMasterRefresh',
       onClick: () => this.loadMasterTable(1, 15, this._currentFilters),
       style: {
@@ -148,52 +148,52 @@ class WinMasterDataManagement extends WiseWindow {
 
     this.dtMaster.setColumns([
       { dataField: 'no', header: '#', width: 50 },
-      { dataField: 'dataTypeLabel', header: WiseI18n.t('Kategori'), width: 180 },
-      { dataField: 'code', header: WiseI18n.t('Kode'), width: 130 },
-      { dataField: 'name', header: WiseI18n.t('Nama Master Data'), width: 230 },
-      { dataField: 'description', header: WiseI18n.t('Keterangan'), width: 'auto' },
-      { dataField: 'sortOrder', header: WiseI18n.t('Urutan'), width: 70 },
-      { dataField: 'statusBadge', header: WiseI18n.t('Status'), width: 110 }
+      { dataField: 'dataTypeLabel', header: WiseI18n.t('KATEGORI'), width: 180 },
+      { dataField: 'code', header: WiseI18n.t('KODE'), width: 130 },
+      { dataField: 'name', header: WiseI18n.t('NAMA_MASTER_DATA'), width: 230 },
+      { dataField: 'description', header: WiseI18n.t('KETERANGAN'), width: 'auto' },
+      { dataField: 'sortOrder', header: WiseI18n.t('URUTAN'), width: 70 },
+      { dataField: 'statusBadge', header: WiseI18n.t('STATUS'), width: 110 }
     ]);
 
     this.dtMaster.addFilters([
       {
         id: 'category',
         type: 'select',
-        label: WiseI18n.t('Kategori Master'),
+        label: WiseI18n.t('KATEGORI_MASTER'),
         items: CATEGORIES().map((c) => ({ value: c.value, label: c.label })),
         onChange: this.onTableFilterInputChanged.bind(this)
       },
       {
         id: 'search',
         type: 'text',
-        label: WiseI18n.t('Pencarian'),
-        placeholder: WiseI18n.t('Cari kode, nama, atau keterangan...'),
+        label: WiseI18n.t('PENCARIAN'),
+        placeholder: WiseI18n.t('CARI_KODE_NAMA_ATAU_KETERANGAN'),
         onChange: this.onTableFilterInputChanged.bind(this)
       },
       {
         id: 'isActive',
         type: 'select',
-        label: WiseI18n.t('Status'),
+        label: WiseI18n.t('STATUS'),
         items: [
-          { value: '', label: WiseI18n.t('Semua Status') },
-          { value: 'true', label: '🟢 ' + WiseI18n.t('Aktif') },
-          { value: 'false', label: '🔴 ' + WiseI18n.t('Nonaktif') }
+          { value: '', label: WiseI18n.t('SEMUA_STATUS') },
+          { value: 'true', label: '🟢 ' + WiseI18n.t('AKTIF_2') },
+          { value: 'false', label: '🔴 ' + WiseI18n.t('NONAKTIF_2') }
         ],
         onChange: this.onTableFilterInputChanged.bind(this)
       }
     ]);
 
     this.dtMaster.addContextMenu([
-      { id: 'edit', label: WiseI18n.t('Edit'), onClick: (row) => this.onEditClick(row) },
-      { id: 'toggle', label: WiseI18n.t('Toggle Status'), onClick: (row) => this.onToggleActiveClick(row) },
-      { id: 'delete', label: WiseI18n.t('Hapus'), onClick: (row) => this.onDeleteClick(row) }
+      { id: 'edit', label: WiseI18n.t('EDIT'), onClick: (row) => this.onEditClick(row) },
+      { id: 'toggle', label: WiseI18n.t('TOGGLE_STATUS'), onClick: (row) => this.onToggleActiveClick(row) },
+      { id: 'delete', label: WiseI18n.t('HAPUS'), onClick: (row) => this.onDeleteClick(row) }
     ]);
 
     this.addControl(this.dtMaster);
 
     // 4. Status Bar / Selection Info
-    this.lblSummary = new WiseLabel(WiseI18n.t('Memuat data master...'), {
+    this.lblSummary = new WiseLabel(WiseI18n.t('MEMUAT_DATA_MASTER'), {
       id: 'lblMasterSummary',
       style: { color: '#64748b', fontWeight: 500, display: 'block', marginTop: '8px' }
     });
@@ -228,7 +228,7 @@ class WinMasterDataManagement extends WiseWindow {
         ...item,
         no: idx + 1,
         dataTypeLabel: catMap[item.dataType] || item.dataType,
-        statusBadge: item.isActive ? ('🟢 ' + WiseI18n.t('Aktif')) : ('🔴 ' + WiseI18n.t('Nonaktif'))
+        statusBadge: item.isActive ? ('🟢 ' + WiseI18n.t('AKTIF_2')) : ('🔴 ' + WiseI18n.t('NONAKTIF_2'))
       }));
 
       this.dtMaster.pageSize = limit;
@@ -240,7 +240,7 @@ class WinMasterDataManagement extends WiseWindow {
       const activeCount = this.cachedData.filter((i) => i.isActive).length;
       const inactiveCount = this.cachedData.length - activeCount;
       if (this.lblSummary) {
-        this.lblSummary.text = `${WiseI18n.t('Menampilkan')} ${this.cachedData.length} ${WiseI18n.t('item data')} (${activeCount} ${WiseI18n.t('Aktif')}, ${inactiveCount} ${WiseI18n.t('Nonaktif')}).`;
+        this.lblSummary.text = `${WiseI18n.t('MENAMPILKAN')} ${this.cachedData.length} ${WiseI18n.t('ITEM_DATA')} (${activeCount} ${WiseI18n.t('AKTIF_2')}, ${inactiveCount} ${WiseI18n.t('NONAKTIF_2')}).`;
       }
     } catch (err) {
       console.error('Error loading master table:', err);
@@ -268,7 +268,7 @@ class WinMasterDataManagement extends WiseWindow {
     this.selectedItem = rows[0];
     const catMap = CAT_MAP();
     if (this.lblSummary && this.selectedItem) {
-      this.lblSummary.text = `${WiseI18n.t('Dipilih')}: [${this.selectedItem.code}] ${this.selectedItem.name} (${catMap[this.selectedItem.dataType] || this.selectedItem.dataType})`;
+      this.lblSummary.text = `${WiseI18n.t('DIPILIH')}: [${this.selectedItem.code}] ${this.selectedItem.name} (${catMap[this.selectedItem.dataType] || this.selectedItem.dataType})`;
     }
   }
 
@@ -289,7 +289,7 @@ class WinMasterDataManagement extends WiseWindow {
   onEditClick(targetRow = null) {
     const item = targetRow || this.selectedItem;
     if (!item) {
-      alert(WiseI18n.t('Pilih salah satu baris master data yang ingin diedit terlebih dahulu.'));
+      alert(WiseI18n.t('PILIH_SALAH_SATU_BARIS_MASTER_DATA_YANG_INGIN_DIEDIT'));
       return;
     }
 
@@ -307,7 +307,7 @@ class WinMasterDataManagement extends WiseWindow {
   async onToggleActiveClick(targetRow = null) {
     const item = targetRow || this.selectedItem;
     if (!item) {
-      alert(WiseI18n.t('Pilih salah satu baris master data terlebih dahulu.'));
+      alert(WiseI18n.t('PILIH_SALAH_SATU_BARIS_MASTER_DATA_TERLEBIH_DAHULU'));
       return;
     }
 
@@ -326,7 +326,7 @@ class WinMasterDataManagement extends WiseWindow {
   async onDeleteClick(targetRow = null) {
     const item = targetRow || this.selectedItem;
     if (!item) {
-      alert(WiseI18n.t('Pilih baris master data yang ingin dihapus terlebih dahulu.'));
+      alert(WiseI18n.t('PILIH_BARIS_MASTER_DATA_YANG_INGIN_DIHAPUS_TERLEBIH_DAHULU'));
       return;
     }
 

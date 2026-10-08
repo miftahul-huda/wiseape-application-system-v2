@@ -33,7 +33,7 @@
       el.type = 'button';
       const labelText = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(data.value) : (data.value ?? '');
       el.textContent = labelText;
-      el.className = 'appearance-none border-0 justify-self-start inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white shadow-none transition hover:brightness-105 active:brightness-95 cursor-pointer';
+      el.className = 'appearance-none border-0 justify-self-start inline-flex items-center justify-center gap-2 rounded-sm bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white shadow-none transition hover:brightness-105 active:brightness-95 cursor-pointer';
       // hasHoverHandler wiring comes from applyCommon; hasHandler (click) is
       // this control's own primary event and stays wired here explicitly,
       // unchanged from before.

@@ -12,7 +12,7 @@ const api = new RecruitmentApiRepository();
 class WinMatrixTemplateList extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = WiseI18n.t('Template Matriks Penilaian — Wise Recruitment');
+    this.title = WiseI18n.t('TEMPLATE_MATRIKS_PENILAIAN_WISE_RECRUITMENT');
     this.appIcon = options.appIcon || '📊';
     this.width = options.width || '86%';
     this.height = options.height || '82%';
@@ -31,7 +31,7 @@ class WinMatrixTemplateList extends WiseWindow {
       style: { display: 'flex', gap: '8px', marginBottom: '10px' }
     });
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('➕ Tambah Matriks'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('TAMBAH_MATRIKS_2'), {
       id: 'btnMatrixTplAdd',
       onClick: this.onAddClick.bind(this),
       style: {
@@ -46,7 +46,7 @@ class WinMatrixTemplateList extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('✏️ Edit Matriks'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_MATRIKS_2'), {
       id: 'btnMatrixTplEdit',
       onClick: this.onEditClick.bind(this),
       style: {
@@ -61,7 +61,7 @@ class WinMatrixTemplateList extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('🗑️ Hapus Matriks'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('HAPUS_MATRIKS_2'), {
       id: 'btnMatrixTplDelete',
       onClick: this.onDeleteClick.bind(this),
       style: {
@@ -76,7 +76,7 @@ class WinMatrixTemplateList extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('🔄 Segarkan'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('SEGARKAN_3'), {
       id: 'btnMatrixTplRefresh',
       onClick: () => this.loadTable(),
       style: {
@@ -104,33 +104,33 @@ class WinMatrixTemplateList extends WiseWindow {
     });
 
     this.dtTemplates.columns = [
-      { key: 'code', title: WiseI18n.t('Kode'), width: '130px' },
-      { key: 'name', title: WiseI18n.t('Nama Template Matriks Penilaian'), width: '340px' },
-      { key: 'passScoreBadge', title: WiseI18n.t('Passing Score'), width: '130px' },
-      { key: 'criteriaCount', title: WiseI18n.t('Jumlah Kriteria'), width: '130px' },
-      { key: 'description', title: WiseI18n.t('Deskripsi / Panduan'), width: '340px' },
-      { key: 'statusBadge', title: WiseI18n.t('Status'), width: '110px' }
+      { key: 'code', title: WiseI18n.t('KODE'), width: '130px' },
+      { key: 'name', title: WiseI18n.t('NAMA_TEMPLATE_MATRIKS_PENILAIAN'), width: '340px' },
+      { key: 'passScoreBadge', title: WiseI18n.t('PASSING_SCORE'), width: '130px' },
+      { key: 'criteriaCount', title: WiseI18n.t('JUMLAH_KRITERIA'), width: '130px' },
+      { key: 'description', title: WiseI18n.t('DESKRIPSI_PANDUAN'), width: '340px' },
+      { key: 'statusBadge', title: WiseI18n.t('STATUS'), width: '110px' }
     ];
 
     this.dtTemplates.filterControls = [
       {
         id: 'search',
         type: 'text',
-        label: WiseI18n.t('Pencarian'),
-        placeholder: WiseI18n.t('Cari nama template matriks...'),
+        label: WiseI18n.t('PENCARIAN'),
+        placeholder: WiseI18n.t('CARI_NAMA_TEMPLATE_MATRIKS'),
         onChange: this.onSearchChanged.bind(this)
       }
     ];
 
     this.dtTemplates.contextMenuItems = [
-      { id: 'edit', label: WiseI18n.t('Edit Matriks'), icon: '✏️', onClick: this.onEditClick.bind(this) },
-      { id: 'delete', label: WiseI18n.t('Hapus Matriks'), icon: '🗑️', onClick: this.onDeleteClick.bind(this) }
+      { id: 'edit', label: WiseI18n.t('EDIT_MATRIKS'), icon: '✏️', onClick: this.onEditClick.bind(this) },
+      { id: 'delete', label: WiseI18n.t('HAPUS_MATRIKS'), icon: '🗑️', onClick: this.onDeleteClick.bind(this) }
     ];
 
     this.addControl(this.dtTemplates);
 
     // 3. Status Bar
-    this.lblStatus = new WiseLabel(WiseI18n.t('Memuat matriks...'), {
+    this.lblStatus = new WiseLabel(WiseI18n.t('MEMUAT_MATRIKS'), {
       id: 'lblMatrixTplStatus',
       style: { color: '#64748b', display: 'block', marginTop: '8px' }
     });
@@ -145,7 +145,7 @@ class WinMatrixTemplateList extends WiseWindow {
 
   async loadTable(searchQuery = '') {
     try {
-      if (this.lblStatus) this.lblStatus.setText(WiseI18n.t('Memuat template matriks...'));
+      if (this.lblStatus) this.lblStatus.setText(WiseI18n.t('MEMUAT_TEMPLATE_MATRIKS'));
       const res = await api.listMatrixTemplates({ search: searchQuery });
       const rows = res.rows || [];
       this.cachedTemplates = rows;
@@ -157,20 +157,20 @@ class WinMatrixTemplateList extends WiseWindow {
           code: tpl.code || `MTX-${tpl.id}`,
           name: tpl.name || '-',
           passScoreBadge: `🎯 ≥ ${tpl.passScore || 75}`,
-          criteriaCount: `📊 ${criteria.length} ${WiseI18n.t('Butir')}`,
+          criteriaCount: `📊 ${criteria.length} ${WiseI18n.t('BUTIR')}`,
           description: tpl.description || '-',
-          statusBadge: tpl.isActive ? WiseI18n.t('🟢 Aktif') : WiseI18n.t('🔴 Nonaktif'),
+          statusBadge: tpl.isActive ? WiseI18n.t('AKTIF') : WiseI18n.t('NONAKTIF'),
           _raw: tpl
         };
       });
       this.dtTemplates.totalCount = rows.length;
 
       if (this.lblStatus) {
-        this.lblStatus.setText(`${WiseI18n.t('Menampilkan')} ${rows.length} ${WiseI18n.t('template matriks penilaian.')}`);
+        this.lblStatus.setText(`${WiseI18n.t('MENAMPILKAN')} ${rows.length} ${WiseI18n.t('TEMPLATE_MATRIKS_PENILAIAN_3')}`);
       }
     } catch (err) {
-      if (this.lblStatus) this.lblStatus.setText(`${WiseI18n.t('Gagal memuat matriks:')} ${err.message}`);
-      this.showInfo(WiseI18n.t('Error'), err.message, 'error');
+      if (this.lblStatus) this.lblStatus.setText(`${WiseI18n.t('GAGAL_MEMUAT_MATRIKS')} ${err.message}`);
+      this.showInfo(WiseI18n.t('ERROR'), err.message, 'error');
     }
   }
 
@@ -197,7 +197,7 @@ class WinMatrixTemplateList extends WiseWindow {
 
   async onEditClick() {
     if (!this.selectedTemplate) {
-      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu baris matriks yang ingin diedit.'), 'warning');
+      this.showInfo(WiseI18n.t('PEMBERITAHUAN'), WiseI18n.t('PILIH_SALAH_SATU_BARIS_MATRIKS_YANG_INGIN_DIEDIT'), 'warning');
       return;
     }
     await this.openWindow(WinMatrixTemplateEdit, {
@@ -208,23 +208,23 @@ class WinMatrixTemplateList extends WiseWindow {
 
   async onDeleteClick() {
     if (!this.selectedTemplate) {
-      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu baris matriks yang ingin dihapus.'), 'warning');
+      this.showInfo(WiseI18n.t('PEMBERITAHUAN'), WiseI18n.t('PILIH_SALAH_SATU_BARIS_MATRIKS_YANG_INGIN_DIHAPUS'), 'warning');
       return;
     }
 
     const conf = await this.confirm(
-      WiseI18n.t('Konfirmasi Hapus'),
-      `${WiseI18n.t('Apakah Anda yakin ingin menghapus template matriks')} "${this.selectedTemplate.name}"?`
+      WiseI18n.t('KONFIRMASI_HAPUS'),
+      `${WiseI18n.t('APAKAH_ANDA_YAKIN_INGIN_MENGHAPUS_TEMPLATE_MATRIKS')} "${this.selectedTemplate.name}"?`
     );
     if (!conf) return;
 
     try {
       await api.deleteMatrixTemplate(this.selectedTemplate.id);
-      this.showInfo(WiseI18n.t('Sukses'), WiseI18n.t('Template matriks berhasil dihapus.'), 'success');
+      this.showInfo(WiseI18n.t('SUKSES'), WiseI18n.t('TEMPLATE_MATRIKS_BERHASIL_DIHAPUS'), 'success');
       this.selectedTemplate = null;
       await this.loadTable();
     } catch (err) {
-      this.showInfo(WiseI18n.t('Gagal Menghapus'), err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MENGHAPUS'), err.message, 'error');
     }
   }
 

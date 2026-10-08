@@ -48,7 +48,7 @@
       const isVertical = data.layout !== 'horizontal';
 
       // Borderless button styling with clean hover effect
-      btn.className = 'wise-icon-menu group relative inline-flex items-center justify-center p-1 rounded-lg border-0 bg-transparent transition-all duration-150 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-95 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]';
+      btn.className = 'wise-icon-menu group relative inline-flex items-center justify-center p-1 rounded-md border-0 bg-transparent transition-all duration-150 ease-out hover:-translate-y-0.5 active:translate-y-0 active:scale-95 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]';
 
       if (data.active) {
         btn.classList.add('bg-[var(--accent)]/15', 'text-[var(--accent)]');
@@ -140,7 +140,7 @@
           caret.className = 'w-2 h-2 bg-slate-950 border-t border-l border-slate-700/80 rotate-45 -mb-1 z-10';
 
           const bubble = document.createElement('div');
-          bubble.className = 'flex flex-col items-center rounded-lg bg-slate-950 px-3 py-1.5 text-center text-white border border-slate-700/80 shadow-2xl min-w-max';
+          bubble.className = 'flex flex-col items-center rounded-md bg-slate-950 px-3 py-1.5 text-center text-white border border-slate-700/80 shadow-2xl min-w-max';
 
           if (data.value) {
             const titleSpan = document.createElement('span');

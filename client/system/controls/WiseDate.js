@@ -31,7 +31,7 @@
       const el = document.createElement('input');
       el.type = 'date';
       el.value = data.value || '';
-      el.className = 'w-full appearance-none rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-800 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
+      el.className = 'w-full appearance-none rounded-sm border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-800 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
       WiseControl.applyCommon(el, data, context);
       if (data.hasHandler) {
         el.addEventListener('change', () => context.desktop.sendControlEvent(context.appId, data.id, el, 'change'));

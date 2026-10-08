@@ -3,12 +3,12 @@
   const WiseControl = isBrowser ? window.WiseControlRegistry.WiseControl : require('./WiseControl');
 
   // Horizontal layout button styles
-  const TAB_BUTTON_BASE = 'appearance-none relative overflow-hidden flex items-center justify-center rounded-t-xl px-5 py-2.5 text-sm font-medium cursor-pointer transition-all duration-150 border border-transparent select-none';
+  const TAB_BUTTON_BASE = 'appearance-none relative overflow-hidden flex items-center justify-center rounded-t-lg px-5 py-2.5 text-sm font-medium cursor-pointer transition-all duration-150 border border-transparent select-none';
   const TAB_BUTTON_ACTIVE = `${TAB_BUTTON_BASE} bg-white text-slate-900 font-semibold border-slate-200/80 border-b-white shadow-2xs -mb-px z-10`;
   const TAB_BUTTON_INACTIVE = `${TAB_BUTTON_BASE} bg-slate-100/60 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900`;
 
   // Vertical layout button styles (sidebar navigation pills)
-  const SIDEBAR_BUTTON_BASE = 'appearance-none group relative flex items-center justify-between w-full rounded-lg px-3.5 py-2.5 text-sm font-medium cursor-pointer transition-all duration-150 border border-transparent select-none';
+  const SIDEBAR_BUTTON_BASE = 'appearance-none group relative flex items-center justify-between w-full rounded-md px-3.5 py-2.5 text-sm font-medium cursor-pointer transition-all duration-150 border border-transparent select-none';
   const SIDEBAR_BUTTON_ACTIVE = `${SIDEBAR_BUTTON_BASE} bg-white text-slate-900 font-semibold shadow-xs ring-1 ring-slate-900/10 border-slate-200/60`;
   const SIDEBAR_BUTTON_INACTIVE = `${SIDEBAR_BUTTON_BASE} text-slate-600 hover:bg-slate-200/50 hover:text-slate-900`;
 
@@ -169,13 +169,13 @@
 
       const tabBar = document.createElement('div');
       tabBar.className = isVertical
-        ? 'flex w-52 flex-none flex-col gap-1.5 rounded-xl border border-slate-200/80 bg-slate-50/70 p-2 shadow-2xs backdrop-blur-xs'
+        ? 'flex w-52 flex-none flex-col gap-1.5 rounded-lg border border-slate-200/80 bg-slate-50/70 p-2 shadow-2xs backdrop-blur-xs'
         : 'flex items-center gap-1.5 border-b border-slate-200/80 pl-1 z-10';
 
       const panels = document.createElement('div');
       panels.className = isVertical
-        ? 'min-w-0 flex-1 rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs'
-        : 'rounded-b-xl rounded-tr-xl border border-slate-200/80 bg-white p-5 shadow-xs';
+        ? 'min-w-0 flex-1 rounded-lg border border-slate-200/80 bg-white p-5 shadow-xs'
+        : 'rounded-b-lg rounded-tr-lg border border-slate-200/80 bg-white p-5 shadow-xs';
 
       (data.tabs || []).forEach((tab, index) => {
         const isActive = index === activeIndex;

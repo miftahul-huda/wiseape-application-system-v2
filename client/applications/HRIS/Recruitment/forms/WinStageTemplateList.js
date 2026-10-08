@@ -12,7 +12,7 @@ const api = new RecruitmentApiRepository();
 class WinStageTemplateList extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = WiseI18n.t('Template Proses Recruitment — Wise Recruitment');
+    this.title = WiseI18n.t('TEMPLATE_PROSES_RECRUITMENT_WISE_RECRUITMENT');
     this.appIcon = options.appIcon || '⚙️';
     this.width = options.width || '86%';
     this.height = options.height || '82%';
@@ -31,7 +31,7 @@ class WinStageTemplateList extends WiseWindow {
       style: { display: 'flex', gap: '8px', marginBottom: '10px' }
     });
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('➕ Tambah Template'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('TAMBAH_TEMPLATE'), {
       id: 'btnStageTplAdd',
       onClick: this.onAddClick.bind(this),
       style: {
@@ -46,7 +46,7 @@ class WinStageTemplateList extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('✏️ Edit Template'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_TEMPLATE'), {
       id: 'btnStageTplEdit',
       onClick: this.onEditClick.bind(this),
       style: {
@@ -61,7 +61,7 @@ class WinStageTemplateList extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('🗑️ Hapus Template'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('HAPUS_TEMPLATE'), {
       id: 'btnStageTplDelete',
       onClick: this.onDeleteClick.bind(this),
       style: {
@@ -76,7 +76,7 @@ class WinStageTemplateList extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(WiseI18n.t('🔄 Segarkan'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('SEGARKAN_3'), {
       id: 'btnStageTplRefresh',
       onClick: () => this.loadTable(),
       style: {
@@ -104,32 +104,32 @@ class WinStageTemplateList extends WiseWindow {
     });
 
     this.dtTemplates.columns = [
-      { key: 'code', title: WiseI18n.t('Kode'), width: '130px' },
-      { key: 'name', title: WiseI18n.t('Nama Template Alur Proses'), width: '320px' },
-      { key: 'stagesSummary', title: WiseI18n.t('Tahapan Proses Terdaftar'), width: '320px' },
-      { key: 'description', title: WiseI18n.t('Deskripsi / Panduan'), width: '340px' },
-      { key: 'statusBadge', title: WiseI18n.t('Status'), width: '110px' }
+      { key: 'code', title: WiseI18n.t('KODE'), width: '130px' },
+      { key: 'name', title: WiseI18n.t('NAMA_TEMPLATE_ALUR_PROSES'), width: '320px' },
+      { key: 'stagesSummary', title: WiseI18n.t('TAHAPAN_PROSES_TERDAFTAR'), width: '320px' },
+      { key: 'description', title: WiseI18n.t('DESKRIPSI_PANDUAN'), width: '340px' },
+      { key: 'statusBadge', title: WiseI18n.t('STATUS'), width: '110px' }
     ];
 
     this.dtTemplates.filterControls = [
       {
         id: 'search',
         type: 'text',
-        label: WiseI18n.t('Pencarian'),
-        placeholder: WiseI18n.t('Cari nama template proses...'),
+        label: WiseI18n.t('PENCARIAN'),
+        placeholder: WiseI18n.t('CARI_NAMA_TEMPLATE_PROSES'),
         onChange: this.onSearchChanged.bind(this)
       }
     ];
 
     this.dtTemplates.contextMenuItems = [
-      { id: 'edit', label: WiseI18n.t('Edit Template'), icon: '✏️', onClick: this.onEditClick.bind(this) },
-      { id: 'delete', label: WiseI18n.t('Hapus Template'), icon: '🗑️', onClick: this.onDeleteClick.bind(this) }
+      { id: 'edit', label: WiseI18n.t('EDIT_TEMPLATE_2'), icon: '✏️', onClick: this.onEditClick.bind(this) },
+      { id: 'delete', label: WiseI18n.t('HAPUS_TEMPLATE_2'), icon: '🗑️', onClick: this.onDeleteClick.bind(this) }
     ];
 
     this.addControl(this.dtTemplates);
 
     // 3. Status Bar
-    this.lblStatus = new WiseLabel(WiseI18n.t('Memuat template...'), {
+    this.lblStatus = new WiseLabel(WiseI18n.t('MEMUAT_TEMPLATE'), {
       id: 'lblStageTplStatus',
       style: { color: '#64748b', display: 'block', marginTop: '8px' }
     });
@@ -144,7 +144,7 @@ class WinStageTemplateList extends WiseWindow {
 
   async loadTable(searchQuery = '') {
     try {
-      if (this.lblStatus) this.lblStatus.setText(WiseI18n.t('Memuat template proses...'));
+      if (this.lblStatus) this.lblStatus.setText(WiseI18n.t('MEMUAT_TEMPLATE_PROSES'));
       const res = await api.listStageTemplates({ search: searchQuery });
       const rows = res.rows || [];
       this.cachedTemplates = rows;
@@ -156,20 +156,20 @@ class WinStageTemplateList extends WiseWindow {
           id: tpl.id,
           code: tpl.code || `STG-${tpl.id}`,
           name: tpl.name || '-',
-          stagesSummary: stages.length > 0 ? `${stages.length} ${WiseI18n.t('Tahapan')} (${stageNames})` : WiseI18n.t('(Belum ada tahapan)'),
+          stagesSummary: stages.length > 0 ? `${stages.length} ${WiseI18n.t('TAHAPAN')} (${stageNames})` : WiseI18n.t('BELUM_ADA_TAHAPAN'),
           description: tpl.description || '-',
-          statusBadge: tpl.isActive ? WiseI18n.t('🟢 Aktif') : WiseI18n.t('🔴 Nonaktif'),
+          statusBadge: tpl.isActive ? WiseI18n.t('AKTIF') : WiseI18n.t('NONAKTIF'),
           _raw: tpl
         };
       });
       this.dtTemplates.totalCount = rows.length;
 
       if (this.lblStatus) {
-        this.lblStatus.setText(`${WiseI18n.t('Menampilkan')} ${rows.length} ${WiseI18n.t('template proses recruitment.')}`);
+        this.lblStatus.setText(`${WiseI18n.t('MENAMPILKAN')} ${rows.length} ${WiseI18n.t('TEMPLATE_PROSES_RECRUITMENT')}`);
       }
     } catch (err) {
-      if (this.lblStatus) this.lblStatus.setText(`${WiseI18n.t('Gagal memuat template')}: ${err.message}`);
-      this.showInfo(WiseI18n.t('Error'), err.message, 'error');
+      if (this.lblStatus) this.lblStatus.setText(`${WiseI18n.t('GAGAL_MEMUAT_TEMPLATE_2')}: ${err.message}`);
+      this.showInfo(WiseI18n.t('ERROR'), err.message, 'error');
     }
   }
 
@@ -196,7 +196,7 @@ class WinStageTemplateList extends WiseWindow {
 
   async onEditClick() {
     if (!this.selectedTemplate) {
-      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu baris template yang ingin diedit.'), 'warning');
+      this.showInfo(WiseI18n.t('PEMBERITAHUAN'), WiseI18n.t('PILIH_SALAH_SATU_BARIS_TEMPLATE_YANG_INGIN_DIEDIT'), 'warning');
       return;
     }
     await this.openWindow(WinStageTemplateEdit, {
@@ -207,23 +207,23 @@ class WinStageTemplateList extends WiseWindow {
 
   async onDeleteClick() {
     if (!this.selectedTemplate) {
-      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu baris template yang ingin dihapus.'), 'warning');
+      this.showInfo(WiseI18n.t('PEMBERITAHUAN'), WiseI18n.t('PILIH_SALAH_SATU_BARIS_TEMPLATE_YANG_INGIN_DIHAPUS'), 'warning');
       return;
     }
 
     const conf = await this.confirm(
-      WiseI18n.t('Konfirmasi Hapus'),
-      `${WiseI18n.t('Apakah Anda yakin ingin menghapus template alur')} "${this.selectedTemplate.name}"?`
+      WiseI18n.t('KONFIRMASI_HAPUS'),
+      `${WiseI18n.t('APAKAH_ANDA_YAKIN_INGIN_MENGHAPUS_TEMPLATE_ALUR')} "${this.selectedTemplate.name}"?`
     );
     if (!conf) return;
 
     try {
       await api.deleteStageTemplate(this.selectedTemplate.id);
-      this.showInfo(WiseI18n.t('Sukses'), WiseI18n.t('Template proses berhasil dihapus.'), 'success');
+      this.showInfo(WiseI18n.t('SUKSES'), WiseI18n.t('TEMPLATE_PROSES_BERHASIL_DIHAPUS'), 'success');
       this.selectedTemplate = null;
       await this.loadTable();
     } catch (err) {
-      this.showInfo(WiseI18n.t('Gagal Menghapus'), err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MENGHAPUS'), err.message, 'error');
     }
   }
 

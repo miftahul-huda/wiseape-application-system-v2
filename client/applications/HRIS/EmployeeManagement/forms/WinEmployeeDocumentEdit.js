@@ -19,7 +19,7 @@ class WinEmployeeDocumentEdit extends WiseWindow {
     this.record = options.data || null;
     this.employeeId = options.employeeId || (this.record && this.record.employeeId) || (options.parentWindow && (options.parentWindow.selectedEmployeeId || options.parentWindow.employeeId)) || null;
     this.recordId = (this.record && this.record.id) || null;
-    this.title = this.recordId ? WiseI18n.t('Edit Dokumen Karyawan') : WiseI18n.t('Tambah Dokumen Baru');
+    this.title = this.recordId ? WiseI18n.t('EDIT_DOKUMEN_KARYAWAN') : WiseI18n.t('TAMBAH_DOKUMEN_BARU');
     this.width = 620;
     this.centered = true;
   }
@@ -31,18 +31,18 @@ class WinEmployeeDocumentEdit extends WiseWindow {
     const tblDoc = new WiseTableLayout({ rows: 4, columns: 2, id: 'tblDocEdit', style: { marginBottom: '16px' } });
     
     this.cmbDocType = new WiseComboBox(DOC_TYPES.map(d => ({ value: d, label: WiseI18n.t(d) })), { id: 'cmbDocType', value: this.record?.documentType || 'KTP' });
-    this.txtDocNumber = new WiseTextBox(WiseI18n.t('Nomor KTP/NPWP/No Kontrak'), { id: 'txtDocNumber', value: this.record?.documentNumber || '', placeholder: WiseI18n.t('Nomor KTP/NPWP/No Kontrak') });
-    this.txtDocTitle = new WiseTextBox(WiseI18n.t('e.g. Scan KTP Asli'), { id: 'txtDocTitle', value: this.record?.title || '', placeholder: WiseI18n.t('e.g. Scan KTP Asli') });
+    this.txtDocNumber = new WiseTextBox(WiseI18n.t('NOMOR_KTP_NPWP_NO_KONTRAK'), { id: 'txtDocNumber', value: this.record?.documentNumber || '', placeholder: WiseI18n.t('NOMOR_KTP_NPWP_NO_KONTRAK') });
+    this.txtDocTitle = new WiseTextBox(WiseI18n.t('E_G_SCAN_KTP_ASLI'), { id: 'txtDocTitle', value: this.record?.title || '', placeholder: WiseI18n.t('E_G_SCAN_KTP_ASLI') });
     this.dtDocIssueDate = new WiseDate(this.record?.issueDate || '', { id: 'dtDocIssueDate', value: this.record?.issueDate || '' });
     this.dtDocExpiryDate = new WiseDate(this.record?.expiryDate || '', { id: 'dtDocExpiryDate', value: this.record?.expiryDate || '' });
-    this.txtDocDesc = new WiseTextBox(WiseI18n.t('Keterangan dokumen...'), { id: 'txtDocDesc', value: this.record?.description || '', placeholder: WiseI18n.t('Keterangan dokumen...') });
+    this.txtDocDesc = new WiseTextBox(WiseI18n.t('KETERANGAN_DOKUMEN_2'), { id: 'txtDocDesc', value: this.record?.description || '', placeholder: WiseI18n.t('KETERANGAN_DOKUMEN_2') });
 
-    tblDoc.setCell(0, 0, this.formGroup(WiseI18n.t('Jenis Dokumen *'), this.cmbDocType));
-    tblDoc.setCell(0, 1, this.formGroup(WiseI18n.t('Nomor Dokumen'), this.txtDocNumber));
-    tblDoc.setCell(1, 0, this.formGroup(WiseI18n.t('Judul Dokumen *'), this.txtDocTitle), { colSpan: 2 });
-    tblDoc.setCell(2, 0, this.formGroup(WiseI18n.t('Tanggal Terbit'), this.dtDocIssueDate));
-    tblDoc.setCell(2, 1, this.formGroup(WiseI18n.t('Tanggal Berakhir'), this.dtDocExpiryDate));
-    tblDoc.setCell(3, 0, this.formGroup(WiseI18n.t('Keterangan / Catatan'), this.txtDocDesc), { colSpan: 2 });
+    tblDoc.setCell(0, 0, this.formGroup(WiseI18n.t('JENIS_DOKUMEN_2'), this.cmbDocType));
+    tblDoc.setCell(0, 1, this.formGroup(WiseI18n.t('NOMOR_DOKUMEN'), this.txtDocNumber));
+    tblDoc.setCell(1, 0, this.formGroup(WiseI18n.t('JUDUL_DOKUMEN'), this.txtDocTitle), { colSpan: 2 });
+    tblDoc.setCell(2, 0, this.formGroup(WiseI18n.t('TANGGAL_TERBIT'), this.dtDocIssueDate));
+    tblDoc.setCell(2, 1, this.formGroup(WiseI18n.t('TANGGAL_BERAKHIR'), this.dtDocExpiryDate));
+    tblDoc.setCell(3, 0, this.formGroup(WiseI18n.t('KETERANGAN_CATATAN'), this.txtDocDesc), { colSpan: 2 });
     this.addControl(tblDoc);
 
     // ── Action Buttons ──────────────────────────────────────────
@@ -50,7 +50,7 @@ class WinEmployeeDocumentEdit extends WiseWindow {
       id: 'frameDocActions',
       style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' }
     });
-    actionFrame.addControl(new WiseButton(WiseI18n.t('💾 Simpan Dokumen'), {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('SIMPAN_DOKUMEN_2'), {
       id: 'btnSaveDoc',
       onClick: this.onSaveClick.bind(this),
       style: {
@@ -65,7 +65,7 @@ class WinEmployeeDocumentEdit extends WiseWindow {
         cursor: 'pointer'
       }
     }));
-    actionFrame.addControl(new WiseButton(WiseI18n.t('✕ Batal'), {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('BATAL_3'), {
       id: 'btnCancelDoc',
       onClick: this.onCancelClick.bind(this),
       style: {
@@ -94,12 +94,12 @@ class WinEmployeeDocumentEdit extends WiseWindow {
   async onSaveClick() {
     const empId = this.employeeId || (this.record && this.record.employeeId) || (this.parentWindow && (this.parentWindow.selectedEmployeeId || this.parentWindow.employeeId));
     if (!empId) {
-      return this.showInfo(WiseI18n.t('Peringatan'), WiseI18n.t('Data karyawan belum ditentukan.'), 'warning');
+      return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('DATA_KARYAWAN_BELUM_DITENTUKAN'), 'warning');
     }
     this.employeeId = empId;
     const title = this.txtDocTitle ? this.txtDocTitle.value : '';
     if (!title) {
-      return this.showInfo(WiseI18n.t('Validasi'), WiseI18n.t('Judul dokumen wajib diisi.'), 'warning');
+      return this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('JUDUL_DOKUMEN_WAJIB_DIISI'), 'warning');
     }
 
     const payload = {
@@ -114,10 +114,10 @@ class WinEmployeeDocumentEdit extends WiseWindow {
     try {
       if (this.recordId) {
         await api.updateDocument(this.recordId, payload);
-        this.showInfo(WiseI18n.t('Berhasil'), WiseI18n.t('Data dokumen berhasil diperbarui.'), 'success');
+        this.showInfo(WiseI18n.t('BERHASIL'), WiseI18n.t('DATA_DOKUMEN_BERHASIL_DIPERBARUI'), 'success');
       } else {
         await api.addDocument(this.employeeId, payload);
-        this.showInfo(WiseI18n.t('Berhasil'), WiseI18n.t('Dokumen baru berhasil ditambahkan.'), 'success');
+        this.showInfo(WiseI18n.t('BERHASIL'), WiseI18n.t('DOKUMEN_BARU_BERHASIL_DITAMBAHKAN'), 'success');
       }
 
       if (this.parentWindow && typeof this.parentWindow.loadEmployee === 'function') {
@@ -125,7 +125,7 @@ class WinEmployeeDocumentEdit extends WiseWindow {
       }
       this.close();
     } catch (err) {
-      this.showInfo(WiseI18n.t('Gagal Menyimpan'), err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MENYIMPAN'), err.message, 'error');
     }
   }
 

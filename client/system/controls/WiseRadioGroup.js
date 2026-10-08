@@ -63,7 +63,7 @@
 
       (data.items || []).forEach((item) => {
         const label = document.createElement('label');
-        label.className = 'flex items-center gap-3 rounded-md px-2 py-1 text-sm text-slate-800 transition hover:bg-slate-900/5 cursor-pointer';
+        label.className = 'flex items-center gap-3 rounded-sm px-2 py-1 text-sm text-slate-800 transition hover:bg-slate-900/5 cursor-pointer';
 
         const input = document.createElement('input');
         input.type = 'radio';

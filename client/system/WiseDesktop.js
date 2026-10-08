@@ -100,13 +100,13 @@ class WiseDesktop {
     // Update Windows menu label
     const winMenuLabel = this.root.querySelector('.windows-menu-label');
     if (winMenuLabel) {
-      winMenuLabel.textContent = `🗔 ${t('Windows')}`;
+      winMenuLabel.textContent = `🗔 ${t('JENDELA')}`;
     }
 
     // Update Logout label
     const logoutItem = this.root.querySelector('.logout-item');
     if (logoutItem) {
-      logoutItem.textContent = t('Logout');
+      logoutItem.textContent = t('KELUAR');
     }
 
     // Update open window titles and controls
@@ -190,7 +190,7 @@ class WiseDesktop {
           });
           const dispBtn = dtEl.querySelector('.wise-datatable-display-btn span');
           if (dispBtn) {
-            dispBtn.textContent = t('Display');
+            dispBtn.textContent = t('TAMPILKAN');
           }
           dtEl.querySelectorAll('thead th').forEach((th) => {
             const labelSpan = th.querySelector('.header-label');
@@ -1138,30 +1138,58 @@ class WiseDesktop {
       }
     };
 
-    const closeWindow = () => {
+    // `notifyServer` is only true for the titlebar "x" (see closeBtn below):
+    // that close happens purely client-side, so the server never otherwise
+    // learns the window is gone. The other caller of __wiseClose (a
+    // server-driven close, e.g. the window's own in-app "Tutup"/"Close"
+    // control) already told the server via its own control event, so
+    // notifying again there would just be a redundant request.
+    const closeWindow = (notifyServer = false) => {
       win.classList.add('window-closing');
       removeMinimizedItem();
       win.style.opacity = '0';
       win.style.transform = 'scale(0.92)';
-      activatePreviousWindow();
+      // Activating the window behind this one re-stacks it to the front
+      // (appendChild in activateWindow) -- doing that immediately would
+      // place it ABOVE this window while it's still fading out, hiding the
+      // close animation entirely. Deferring it to doRemove (closing
+      // animation actually finished) keeps this window on top, visibly
+      // fading out, until there's nothing left to cover.
       let removed = false;
       const doRemove = () => {
-        if (!removed) { removed = true; win.remove(); }
+        if (!removed) {
+          removed = true;
+          win.remove();
+          activatePreviousWindow();
+          if (notifyServer) {
+            const appId = win.dataset.appId;
+            const windowId = win.dataset.windowId;
+            if (appId && windowId) {
+              fetch(`/api/applications/${appId}/windows/${windowId}/close`, { method: 'POST' }).catch(() => { });
+            }
+          }
+        }
       };
       win.addEventListener('transitionend', doRemove, { once: true });
       setTimeout(doRemove, 350);
     };
     win.__wiseClose = closeWindow;
 
-    closeBtn.addEventListener('click', closeWindow);
+    closeBtn.addEventListener('click', () => closeWindow(true));
 
     minimizeBtn.addEventListener('click', () => {
       win.style.opacity = '0';
       win.style.transform = 'scale(0.92) translateY(40px)';
-      activatePreviousWindow();
+      // Same reasoning as closeWindow() above: defer activating the window
+      // behind this one until the minimize animation has actually finished,
+      // so it doesn't get re-stacked to the front and cover this one mid-fade.
       let hidden = false;
       const doHide = () => {
-        if (!hidden) { hidden = true; win.style.display = 'none'; }
+        if (!hidden) {
+          hidden = true;
+          win.style.display = 'none';
+          activatePreviousWindow();
+        }
       };
       win.addEventListener('transitionend', doHide, { once: true });
       setTimeout(doHide, 350);

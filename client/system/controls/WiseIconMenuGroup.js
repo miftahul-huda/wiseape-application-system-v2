@@ -72,7 +72,7 @@
 
     static renderElement(data, context) {
       const groupEl = document.createElement('div');
-      groupEl.className = 'wise-icon-menu-group relative z-40 rounded-xl border border-slate-900/10 bg-white/70 px-2.5 py-1.5 shadow-xs backdrop-blur-md transition';
+      groupEl.className = 'wise-icon-menu-group relative z-40 rounded-lg border border-slate-900/10 bg-white/70 px-2.5 py-1.5 shadow-xs backdrop-blur-md transition';
       groupEl.style.position = 'relative';
       groupEl.style.zIndex = '40';
 

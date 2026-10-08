@@ -12,7 +12,7 @@ const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI
 class WinMatrixCriterionEdit extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = options.data ? WiseI18n.t('Edit Kriteria Penilaian Matriks') : WiseI18n.t('Tambah Kriteria Penilaian Matriks');
+    this.title = options.data ? WiseI18n.t('EDIT_KRITERIA_PENILAIAN_MATRIKS') : WiseI18n.t('TAMBAH_KRITERIA_PENILAIAN_MATRIKS');
     this.appIcon = options.appIcon || '📊';
     this.width = options.width || '540';
     this.height = options.height || '440';
@@ -37,10 +37,10 @@ class WinMatrixCriterionEdit extends WiseWindow {
 
     // 1. Nama Kriteria
     const cellName = new WiseFrame('', { id: 'frmCritName' });
-    cellName.addControl(new WiseLabel(WiseI18n.t('Kriteria Penilaian / Kompetensi *'), { id: 'lblCritName', style: labelStyle }));
+    cellName.addControl(new WiseLabel(WiseI18n.t('KRITERIA_PENILAIAN_KOMPETENSI_2'), { id: 'lblCritName', style: labelStyle }));
     this.txtCriterion = new WiseTextBox(this.criterionData ? this.criterionData.criterion : '', {
       id: 'txtCriterionName',
-      placeholder: WiseI18n.t('Contoh: Kemampuan Analisis & Problem Solving, Communication Skill'),
+      placeholder: WiseI18n.t('CONTOH_KEMAMPUAN_ANALISIS_PROBLEM_SOLVING_COMMUNICATION'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellName.addControl(this.txtCriterion);
@@ -48,7 +48,7 @@ class WinMatrixCriterionEdit extends WiseWindow {
 
     // 2. Bobot Persentase
     const cellWeight = new WiseFrame('', { id: 'frmCritWeight' });
-    cellWeight.addControl(new WiseLabel(WiseI18n.t('Bobot Penilaian (%) *'), { id: 'lblCritWeight', style: labelStyle }));
+    cellWeight.addControl(new WiseLabel(WiseI18n.t('BOBOT_PENILAIAN'), { id: 'lblCritWeight', style: labelStyle }));
     this.numWeight = new WiseNumericBox(this.criterionData && this.criterionData.weight !== undefined ? this.criterionData.weight : 20, {
       id: 'numCritWeight',
       min: 1,
@@ -60,13 +60,13 @@ class WinMatrixCriterionEdit extends WiseWindow {
 
     // 3. Skala Penilaian
     const cellScale = new WiseFrame('', { id: 'frmCritScale' });
-    cellScale.addControl(new WiseLabel(WiseI18n.t('Skala Nilai'), { id: 'lblCritScale', style: labelStyle }));
+    cellScale.addControl(new WiseLabel(WiseI18n.t('SKALA_NILAI'), { id: 'lblCritScale', style: labelStyle }));
     this.cmbScale = new WiseComboBox(this.criterionData && this.criterionData.scaleType ? this.criterionData.scaleType : '1-100', {
       id: 'cmbCritScale',
       items: [
-        { value: '1-100', label: WiseI18n.t('Skala 1 - 100 (Persentil / Poin Standar)') },
-        { value: '1-10', label: WiseI18n.t('Skala 1 - 10 (Peringkat Menengah)') },
-        { value: '1-5', label: WiseI18n.t('Skala 1 - 5 (Likert / Rating Bintang)') }
+        { value: '1-100', label: WiseI18n.t('SKALA_1_100_PERSENTIL_POIN_STANDAR') },
+        { value: '1-10', label: WiseI18n.t('SKALA_1_10_PERINGKAT_MENENGAH') },
+        { value: '1-5', label: WiseI18n.t('SKALA_1_5_LIKERT_RATING_BINTANG') }
       ],
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -75,11 +75,11 @@ class WinMatrixCriterionEdit extends WiseWindow {
 
     // 4. Panduan Penilaian / Deskripsi
     const cellDesc = new WiseFrame('', { id: 'frmCritDesc' });
-    cellDesc.addControl(new WiseLabel(WiseI18n.t('Panduan Penilaian Evaluator'), { id: 'lblCritDesc', style: labelStyle }));
+    cellDesc.addControl(new WiseLabel(WiseI18n.t('PANDUAN_PENILAIAN_EVALUATOR'), { id: 'lblCritDesc', style: labelStyle }));
     this.txtDesc = new WiseTextArea(this.criterionData ? this.criterionData.description : '', {
       id: 'txtCritDesc',
       rows: 3,
-      placeholder: WiseI18n.t('Tuliskan indikator perilaku atau tolok ukur nilai yang diharapkan...'),
+      placeholder: WiseI18n.t('TULISKAN_INDIKATOR_PERILAKU_ATAU_TOLOK_UKUR_NILAI_YANG'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellDesc.addControl(this.txtDesc);
@@ -93,7 +93,7 @@ class WinMatrixCriterionEdit extends WiseWindow {
       style: { display: 'flex', justifyContent: 'flex-end', gap: '8px' }
     });
 
-    btnContainer.addControl(new WiseButton(WiseI18n.t('Batal'), {
+    btnContainer.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnCritCancel',
       onClick: () => this.close(),
       style: {
@@ -108,7 +108,7 @@ class WinMatrixCriterionEdit extends WiseWindow {
       }
     }));
 
-    btnContainer.addControl(new WiseButton(WiseI18n.t('💾 Simpan Kriteria'), {
+    btnContainer.addControl(new WiseButton(WiseI18n.t('SIMPAN_KRITERIA'), {
       id: 'btnCritSave',
       onClick: this.onSaveClick.bind(this),
       style: {
@@ -131,7 +131,7 @@ class WinMatrixCriterionEdit extends WiseWindow {
   onSaveClick() {
     const criterion = this.txtCriterion ? this.txtCriterion.value.trim() : '';
     if (!criterion) {
-      this.showInfo(WiseI18n.t('Validasi'), WiseI18n.t('Nama kriteria penilaian wajib diisi.'), 'warning');
+      this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('NAMA_KRITERIA_PENILAIAN_WAJIB_DIISI'), 'warning');
       return;
     }
 

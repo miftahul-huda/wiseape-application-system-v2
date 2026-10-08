@@ -18,7 +18,7 @@ const api = new RecruitmentApiRepository();
 class WinApplicantProcessEdit extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = options.processId ? WiseI18n.t('Evaluasi & Update Proses Seleksi') : WiseI18n.t('Tambah Tahapan Seleksi Pelamar');
+    this.title = options.processId ? WiseI18n.t('EVALUASI_UPDATE_PROSES_SELEKSI') : WiseI18n.t('TAMBAH_TAHAPAN_SELEKSI_PELAMAR');
     this.appIcon = options.appIcon || '📝';
     this.width = options.width || '84%';
     this.height = options.height || '86%';
@@ -51,10 +51,10 @@ class WinApplicantProcessEdit extends WiseWindow {
 
     // Col 0, Row 0: Nama Tahapan
     const cellName = new WiseFrame('', { id: 'frmProcName' });
-    cellName.addControl(new WiseLabel(WiseI18n.t('Nama Tahapan Proses *'), { id: 'lblProcName', style: labelStyle }));
+    cellName.addControl(new WiseLabel(WiseI18n.t('NAMA_TAHAPAN_PROSES'), { id: 'lblProcName', style: labelStyle }));
     this.txtStageName = new WiseTextBox('', {
       id: 'txtProcStageName',
-      placeholder: WiseI18n.t('Contoh: Interview User, Interview HRD, Coding Test'),
+      placeholder: WiseI18n.t('CONTOH_INTERVIEW_USER_INTERVIEW_HRD_CODING_TEST'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellName.addControl(this.txtStageName);
@@ -62,14 +62,14 @@ class WinApplicantProcessEdit extends WiseWindow {
 
     // Col 1, Row 0: Status Proses (Not Starting, Ongoing, Done, Canceled)
     const cellStatus = new WiseFrame('', { id: 'frmProcStatus' });
-    cellStatus.addControl(new WiseLabel(WiseI18n.t('Status Proses *'), { id: 'lblProcStatus', style: labelStyle }));
+    cellStatus.addControl(new WiseLabel(WiseI18n.t('STATUS_PROSES_2'), { id: 'lblProcStatus', style: labelStyle }));
     this.cmbStatus = new WiseComboBox('Not Starting', {
       id: 'cmbProcStatus',
       items: [
-        { value: 'Not Starting', label: WiseI18n.t('⚪ Not Starting (Belum Dimulai)') },
-        { value: 'Ongoing', label: WiseI18n.t('🟡 Ongoing (Berlangsung)') },
-        { value: 'Done', label: WiseI18n.t('🟢 Done (Selesai)') },
-        { value: 'Canceled', label: WiseI18n.t('🔴 Canceled (Dibatalkan)') }
+        { value: 'Not Starting', label: WiseI18n.t('NOT_STARTING_BELUM_DIMULAI') },
+        { value: 'Ongoing', label: WiseI18n.t('ONGOING_BERLANGSUNG') },
+        { value: 'Done', label: WiseI18n.t('DONE_SELESAI') },
+        { value: 'Canceled', label: WiseI18n.t('CANCELED_DIBATALKAN') }
       ],
       style: { ...inputBorderStyle, width: '100%' }
     });
@@ -78,14 +78,14 @@ class WinApplicantProcessEdit extends WiseWindow {
 
     // Col 2, Row 0: Hasil Keputusan
     const cellResult = new WiseFrame('', { id: 'frmProcResult' });
-    cellResult.addControl(new WiseLabel(WiseI18n.t('Hasil Keputusan *'), { id: 'lblProcResult', style: labelStyle }));
+    cellResult.addControl(new WiseLabel(WiseI18n.t('HASIL_KEPUTUSAN_2'), { id: 'lblProcResult', style: labelStyle }));
     this.cmbResult = new WiseComboBox('PENDING', {
       id: 'cmbProcResult',
       items: [
-        { value: 'PENDING', label: WiseI18n.t('⏳ PENDING (Menunggu)') },
-        { value: 'PASSED', label: WiseI18n.t('✅ PASSED (Lolos)') },
-        { value: 'FAILED', label: WiseI18n.t('❌ FAILED (Tidak Lolos)') },
-        { value: 'ON_HOLD', label: WiseI18n.t('⏸️ ON_HOLD (Ditunda)') }
+        { value: 'PENDING', label: WiseI18n.t('PENDING_MENUNGGU') },
+        { value: 'PASSED', label: WiseI18n.t('PASSED_LOLOS') },
+        { value: 'FAILED', label: WiseI18n.t('FAILED_TIDAK_LOLOS') },
+        { value: 'ON_HOLD', label: WiseI18n.t('ON_HOLD_DITUNDA_2') }
       ],
       style: { ...inputBorderStyle, width: '100%' }
     });
@@ -94,7 +94,7 @@ class WinApplicantProcessEdit extends WiseWindow {
 
     // Col 0, Row 1: Tanggal Jadwal
     const cellDate = new WiseFrame('', { id: 'frmProcDate' });
-    cellDate.addControl(new WiseLabel(WiseI18n.t('Tanggal Jadwal Pelaksanaan'), { id: 'lblProcDate', style: labelStyle }));
+    cellDate.addControl(new WiseLabel(WiseI18n.t('TANGGAL_JADWAL_PELAKSANAAN'), { id: 'lblProcDate', style: labelStyle }));
     this.dtScheduledDate = new WiseDate(new Date().toISOString().slice(0, 10), {
       id: 'dtProcScheduledDate',
       style: { ...inputBorderStyle, width: '100%' }
@@ -104,10 +104,10 @@ class WinApplicantProcessEdit extends WiseWindow {
 
     // Col 1, Row 1: Pewawancara / Evaluator
     const cellInterviewer = new WiseFrame('', { id: 'frmProcInterviewer' });
-    cellInterviewer.addControl(new WiseLabel(WiseI18n.t('Pewawancara / Evaluator'), { id: 'lblProcInterviewer', style: labelStyle }));
+    cellInterviewer.addControl(new WiseLabel(WiseI18n.t('PEWAWANCARA_EVALUATOR'), { id: 'lblProcInterviewer', style: labelStyle }));
     this.txtInterviewer = new WiseTextBox('', {
       id: 'txtProcInterviewer',
-      placeholder: WiseI18n.t('Nama evaluator atau tim penguji...'),
+      placeholder: WiseI18n.t('NAMA_EVALUATOR_ATAU_TIM_PENGUJI'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellInterviewer.addControl(this.txtInterviewer);
@@ -115,7 +115,7 @@ class WinApplicantProcessEdit extends WiseWindow {
 
     // Col 2, Row 1: Skor Akhir
     const cellScore = new WiseFrame('', { id: 'frmProcScore' });
-    cellScore.addControl(new WiseLabel(WiseI18n.t('Skor Akhir Evaluasi (0 - 100)'), { id: 'lblProcScore', style: labelStyle }));
+    cellScore.addControl(new WiseLabel(WiseI18n.t('SKOR_AKHIR_EVALUASI_0_100'), { id: 'lblProcScore', style: labelStyle }));
     this.numScore = new WiseNumericBox(0, {
       id: 'numProcOverallScore',
       min: 0,
@@ -131,9 +131,9 @@ class WinApplicantProcessEdit extends WiseWindow {
     this.tabControl = new WiseTabControl({
       id: 'tabApplicantProcess',
       tabs: [
-        { id: 'tabMatrix', title: WiseI18n.t('📊 Matriks Hasil Penilaian') },
-        { id: 'tabComments', title: WiseI18n.t('💬 Komentar & Catatan Evaluator') },
-        { id: 'tabDocs', title: WiseI18n.t('📎 Dokumen Lampiran') }
+        { id: 'tabMatrix', title: WiseI18n.t('MATRIKS_HASIL_PENILAIAN') },
+        { id: 'tabComments', title: WiseI18n.t('KOMENTAR_CATATAN_EVALUATOR') },
+        { id: 'tabDocs', title: WiseI18n.t('DOKUMEN_LAMPIRAN_2') }
       ],
       activeTab: 'tabMatrix',
       style: { width: '100%', marginBottom: '14px' }
@@ -157,19 +157,19 @@ class WinApplicantProcessEdit extends WiseWindow {
       }
     });
 
-    matrixToolbar.addControl(new WiseLabel(WiseI18n.t('Terapkan Template Matriks:'), {
+    matrixToolbar.addControl(new WiseLabel(WiseI18n.t('TERAPKAN_TEMPLATE_MATRIKS'), {
       id: 'lblProcTplSelect',
       style: { fontWeight: 600, color: '#334155' }
     }));
 
     this.cmbMatrixSelector = new WiseComboBox('', {
       id: 'cmbProcMatrixTemplateSelector',
-      items: [{ value: '', label: WiseI18n.t('(Pilih Template Matriks)') }],
+      items: [{ value: '', label: WiseI18n.t('PILIH_TEMPLATE_MATRIKS') }],
       style: { ...inputBorderStyle, minWidth: '280px' }
     });
     matrixToolbar.addControl(this.cmbMatrixSelector);
 
-    matrixToolbar.addControl(new WiseButton(WiseI18n.t('📥 Terapkan Kriteria'), {
+    matrixToolbar.addControl(new WiseButton(WiseI18n.t('TERAPKAN_KRITERIA'), {
       id: 'btnProcApplyMatrix',
       onClick: this.onApplyMatrixTemplateClick.bind(this),
       style: {
@@ -184,7 +184,7 @@ class WinApplicantProcessEdit extends WiseWindow {
       }
     }));
 
-    matrixToolbar.addControl(new WiseButton(WiseI18n.t('🧮 Hitung Skor Akhir'), {
+    matrixToolbar.addControl(new WiseButton(WiseI18n.t('HITUNG_SKOR_AKHIR'), {
       id: 'btnProcCalculateScore',
       onClick: this.onCalculateScoreClick.bind(this),
       style: {
@@ -211,12 +211,12 @@ class WinApplicantProcessEdit extends WiseWindow {
     });
 
     this.dtMatrix.columns = [
-      { key: 'no', title: WiseI18n.t('No'), width: '50px' },
-      { key: 'criterion', title: WiseI18n.t('Kriteria Penilaian'), width: '280px' },
-      { key: 'weightBadge', title: WiseI18n.t('Bobot (%)'), width: '90px' },
-      { key: 'score', title: WiseI18n.t('Skor Nilai'), width: '100px' },
-      { key: 'maxScore', title: WiseI18n.t('Maks'), width: '70px' },
-      { key: 'notes', title: WiseI18n.t('Catatan Penilai Per Kriteria'), width: '320px' }
+      { key: 'no', title: WiseI18n.t('NO'), width: '50px' },
+      { key: 'criterion', title: WiseI18n.t('KRITERIA_PENILAIAN'), width: '280px' },
+      { key: 'weightBadge', title: WiseI18n.t('BOBOT'), width: '90px' },
+      { key: 'score', title: WiseI18n.t('SKOR_NILAI'), width: '100px' },
+      { key: 'maxScore', title: WiseI18n.t('MAKS'), width: '70px' },
+      { key: 'notes', title: WiseI18n.t('CATATAN_PENILAI_PER_KRITERIA'), width: '320px' }
     ];
 
     panelMatrix.addControl(this.dtMatrix);
@@ -236,7 +236,7 @@ class WinApplicantProcessEdit extends WiseWindow {
       }
     });
 
-    editScoreBar.addControl(new WiseLabel(WiseI18n.t('Update Skor Baris Terpilih:'), {
+    editScoreBar.addControl(new WiseLabel(WiseI18n.t('UPDATE_SKOR_BARIS_TERPILIH'), {
       id: 'lblUpdateScoreTitle',
       style: { fontWeight: 600, color: 'var(--accent-dark)' }
     }));
@@ -251,12 +251,12 @@ class WinApplicantProcessEdit extends WiseWindow {
 
     this.txtRowNotes = new WiseTextBox('', {
       id: 'txtRowNotesInput',
-      placeholder: WiseI18n.t('Catatan penilaian kriteria...'),
+      placeholder: WiseI18n.t('CATATAN_PENILAIAN_KRITERIA'),
       style: { ...inputBorderStyle, flex: '1', padding: '6px 10px' }
     });
     editScoreBar.addControl(this.txtRowNotes);
 
-    editScoreBar.addControl(new WiseButton(WiseI18n.t('Simpan Skor Kriteria'), {
+    editScoreBar.addControl(new WiseButton(WiseI18n.t('SIMPAN_SKOR_KRITERIA'), {
       id: 'btnSaveRowScore',
       onClick: this.onSaveRowScoreClick.bind(this),
       style: {
@@ -276,11 +276,11 @@ class WinApplicantProcessEdit extends WiseWindow {
 
     // --- TAB 2: Komentar & Catatan Evaluator ---
     const panelComments = new WiseFrame('', { id: 'pnlProcComments', style: { padding: '8px 0' } });
-    panelComments.addControl(new WiseLabel(WiseI18n.t('Komentar & Catatan Penilai Keseluruhan'), { id: 'lblProcComments', style: labelStyle }));
+    panelComments.addControl(new WiseLabel(WiseI18n.t('KOMENTAR_CATATAN_PENILAI_KESELURUHAN'), { id: 'lblProcComments', style: labelStyle }));
     this.txtComments = new WiseTextArea('', {
       id: 'txtProcComments',
       rows: 8,
-      placeholder: WiseI18n.t('Tuliskan catatan menyeluruh mengenai performa kandidat, kekuatan, area perbaikan, dan rekomendasi keputusan...'),
+      placeholder: WiseI18n.t('TULISKAN_CATATAN_MENYELURUH_MENGENAI_PERFORMA_KANDIDAT'),
       style: { ...inputBorderStyle, width: '100%', padding: '10px' }
     });
     panelComments.addControl(this.txtComments);
@@ -304,26 +304,26 @@ class WinApplicantProcessEdit extends WiseWindow {
       }
     });
 
-    uploadBar.addControl(new WiseLabel(WiseI18n.t('Nama Dokumen:'), {
+    uploadBar.addControl(new WiseLabel(WiseI18n.t('NAMA_DOKUMEN'), {
       id: 'lblDocUploadTitle',
       style: { fontWeight: 600, color: '#334155' }
     }));
 
     this.txtDocName = new WiseTextBox('', {
       id: 'txtProcDocName',
-      placeholder: WiseI18n.t('Contoh: Lembar Evaluasi Wawancara, Hasil Tes Coding'),
+      placeholder: WiseI18n.t('CONTOH_LEMBAR_EVALUASI_WAWANCARA_HASIL_TES_CODING'),
       style: { ...inputBorderStyle, width: '280px', padding: '6px 10px' }
     });
     uploadBar.addControl(this.txtDocName);
 
     this.txtDocFile = new WiseTextBox('', {
       id: 'txtProcDocFileName',
-      placeholder: WiseI18n.t('URL Dokumen / File Lampiran'),
+      placeholder: WiseI18n.t('URL_DOKUMEN_FILE_LAMPIRAN'),
       style: { ...inputBorderStyle, flex: '1', padding: '6px 10px' }
     });
     uploadBar.addControl(this.txtDocFile);
 
-    uploadBar.addControl(new WiseButton(WiseI18n.t('📎 Tambah Lampiran'), {
+    uploadBar.addControl(new WiseButton(WiseI18n.t('TAMBAH_LAMPIRAN'), {
       id: 'btnAddDocAttachment',
       onClick: this.onAddDocumentAttachmentClick.bind(this),
       style: {
@@ -350,10 +350,10 @@ class WinApplicantProcessEdit extends WiseWindow {
     });
 
     this.dtDocs.columns = [
-      { key: 'no', title: WiseI18n.t('No'), width: '50px' },
-      { key: 'name', title: WiseI18n.t('Nama Dokumen'), width: '320px' },
-      { key: 'fileUrl', title: WiseI18n.t('Lokasi / Link Berkas'), width: '380px' },
-      { key: 'uploadedAt', title: WiseI18n.t('Waktu Unggah'), width: '180px' }
+      { key: 'no', title: WiseI18n.t('NO'), width: '50px' },
+      { key: 'name', title: WiseI18n.t('NAMA_DOKUMEN_2'), width: '320px' },
+      { key: 'fileUrl', title: WiseI18n.t('LOKASI_LINK_BERKAS'), width: '380px' },
+      { key: 'uploadedAt', title: WiseI18n.t('WAKTU_UNGGAH'), width: '180px' }
     ];
 
     panelDocs.addControl(this.dtDocs);
@@ -373,7 +373,7 @@ class WinApplicantProcessEdit extends WiseWindow {
       }
     });
 
-    bottomBar.addControl(new WiseButton(WiseI18n.t('Batal'), {
+    bottomBar.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnProcCancel',
       onClick: () => this.close(),
       style: {
@@ -388,7 +388,7 @@ class WinApplicantProcessEdit extends WiseWindow {
       }
     }));
 
-    bottomBar.addControl(new WiseButton(WiseI18n.t('💾 Simpan Hasil Proses'), {
+    bottomBar.addControl(new WiseButton(WiseI18n.t('SIMPAN_HASIL_PROSES'), {
       id: 'btnProcSave',
       onClick: this.onSaveClick.bind(this),
       style: {
@@ -415,7 +415,7 @@ class WinApplicantProcessEdit extends WiseWindow {
 
       if (this.cmbMatrixSelector) {
         this.cmbMatrixSelector.setItems([
-          { value: '', label: WiseI18n.t('(Pilih Template Matriks)') },
+          { value: '', label: WiseI18n.t('PILIH_TEMPLATE_MATRIKS') },
           ...this.matrixTemplates.map((m) => ({ value: String(m.id), label: `${m.name} (${(m.criteria || []).length} kriteria)` }))
         ]);
       }
@@ -439,7 +439,7 @@ class WinApplicantProcessEdit extends WiseWindow {
         this.renderDocsTable();
       }
     } catch (err) {
-      this.showInfo(WiseI18n.t('Error'), err.message, 'error');
+      this.showInfo(WiseI18n.t('ERROR'), err.message, 'error');
     }
   }
 
@@ -474,7 +474,7 @@ class WinApplicantProcessEdit extends WiseWindow {
   onSaveRowScoreClick() {
     const idx = this.dtMatrix.selectedRowIndex;
     if (idx === null || idx === undefined || idx < 0 || !this.evaluationMatrixList[idx]) {
-      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu baris kriteria penilaian pada tabel terlebih dahulu.'), 'warning');
+      this.showInfo(WiseI18n.t('PEMBERITAHUAN'), WiseI18n.t('PILIH_SALAH_SATU_BARIS_KRITERIA_PENILAIAN_PADA_TABEL'), 'warning');
       return;
     }
 
@@ -491,13 +491,13 @@ class WinApplicantProcessEdit extends WiseWindow {
   onApplyMatrixTemplateClick() {
     const matrixIdStr = this.cmbMatrixSelector ? this.cmbMatrixSelector.value : '';
     if (!matrixIdStr) {
-      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu template matriks terlebih dahulu.'), 'warning');
+      this.showInfo(WiseI18n.t('PEMBERITAHUAN'), WiseI18n.t('PILIH_SALAH_SATU_TEMPLATE_MATRIKS_TERLEBIH_DAHULU'), 'warning');
       return;
     }
 
     const tpl = this.matrixTemplates.find((m) => String(m.id) === String(matrixIdStr));
     if (!tpl || !Array.isArray(tpl.criteria)) {
-      this.showInfo(WiseI18n.t('Error'), WiseI18n.t('Data matriks tidak valid.'), 'error');
+      this.showInfo(WiseI18n.t('ERROR'), WiseI18n.t('DATA_MATRIKS_TIDAK_VALID'), 'error');
       return;
     }
 
@@ -511,7 +511,7 @@ class WinApplicantProcessEdit extends WiseWindow {
 
     this.renderMatrixTable();
     this.onCalculateScoreClick();
-    this.showInfo(WiseI18n.t('Sukses'), `${WiseI18n.t('Berhasil menerapkan')} ${this.evaluationMatrixList.length} ${WiseI18n.t('kriteria penilaian dari template.')}`, 'success');
+    this.showInfo(WiseI18n.t('SUKSES'), `${WiseI18n.t('BERHASIL_MENERAPKAN')} ${this.evaluationMatrixList.length} ${WiseI18n.t('KRITERIA_PENILAIAN_DARI_TEMPLATE')}`, 'success');
   }
 
   onCalculateScoreClick() {
@@ -547,7 +547,7 @@ class WinApplicantProcessEdit extends WiseWindow {
     const fileUrl = this.txtDocFile ? this.txtDocFile.value.trim() : '';
 
     if (!docName) {
-      this.showInfo(WiseI18n.t('Validasi'), WiseI18n.t('Nama dokumen lampiran wajib diisi.'), 'warning');
+      this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('NAMA_DOKUMEN_LAMPIRAN_WAJIB_DIISI'), 'warning');
       return;
     }
 
@@ -567,7 +567,7 @@ class WinApplicantProcessEdit extends WiseWindow {
   async onSaveClick() {
     const stageName = this.txtStageName ? this.txtStageName.value.trim() : '';
     if (!stageName) {
-      this.showInfo(WiseI18n.t('Validasi'), WiseI18n.t('Nama tahapan proses seleksi wajib diisi.'), 'warning');
+      this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('NAMA_TAHAPAN_PROSES_SELEKSI_WAJIB_DIISI'), 'warning');
       return;
     }
 
@@ -588,10 +588,10 @@ class WinApplicantProcessEdit extends WiseWindow {
     try {
       if (this.processId) {
         await api.updateProcess(this.processId, payload);
-        this.showInfo(WiseI18n.t('Sukses'), WiseI18n.t('Data proses dan matriks hasil evaluasi berhasil disimpan.'), 'success');
+        this.showInfo(WiseI18n.t('SUKSES'), WiseI18n.t('DATA_PROSES_DAN_MATRIKS_HASIL_EVALUASI_BERHASIL_DISIMPAN'), 'success');
       } else {
         await api.createProcess(payload);
-        this.showInfo(WiseI18n.t('Sukses'), WiseI18n.t('Tahapan seleksi baru berhasil ditambahkan.'), 'success');
+        this.showInfo(WiseI18n.t('SUKSES'), WiseI18n.t('TAHAPAN_SELEKSI_BARU_BERHASIL_DITAMBAHKAN'), 'success');
       }
 
       if (typeof this.onSavedCallback === 'function') {
@@ -600,7 +600,7 @@ class WinApplicantProcessEdit extends WiseWindow {
 
       this.close();
     } catch (err) {
-      this.showInfo(WiseI18n.t('Gagal Menyimpan'), err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MENYIMPAN'), err.message, 'error');
     }
   }
 

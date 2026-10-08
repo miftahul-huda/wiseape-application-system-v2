@@ -12,7 +12,7 @@ const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI
 class WinStageItemEdit extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = options.data ? WiseI18n.t('Edit Butir Tahapan Proses') : WiseI18n.t('Tambah Butir Tahapan Proses');
+    this.title = options.data ? WiseI18n.t('EDIT_BUTIR_TAHAPAN_PROSES') : WiseI18n.t('TAMBAH_BUTIR_TAHAPAN_PROSES');
     this.appIcon = options.appIcon || '⚙️';
     this.width = options.width || '540';
     this.height = options.height || '440';
@@ -38,10 +38,10 @@ class WinStageItemEdit extends WiseWindow {
 
     // 1. Nama Tahapan
     const cellName = new WiseFrame('', { id: 'frmStageItemName' });
-    cellName.addControl(new WiseLabel(WiseI18n.t('Nama Tahapan Proses *'), { id: 'lblItemName', style: labelStyle }));
+    cellName.addControl(new WiseLabel(WiseI18n.t('NAMA_TAHAPAN_PROSES'), { id: 'lblItemName', style: labelStyle }));
     this.txtStageName = new WiseTextBox(this.itemData ? this.itemData.name : '', {
       id: 'txtItemStageName',
-      placeholder: WiseI18n.t('Contoh: Interview User, Interview HRD, Tes Praktik, CV Screening'),
+      placeholder: WiseI18n.t('CONTOH_INTERVIEW_USER_INTERVIEW_HRD_TES_PRAKTIK_CV'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellName.addControl(this.txtStageName);
@@ -49,7 +49,7 @@ class WinStageItemEdit extends WiseWindow {
 
     // 2. Urutan
     const cellOrder = new WiseFrame('', { id: 'frmStageItemOrder' });
-    cellOrder.addControl(new WiseLabel(WiseI18n.t('Urutan Tahapan *'), { id: 'lblItemOrder', style: labelStyle }));
+    cellOrder.addControl(new WiseLabel(WiseI18n.t('URUTAN_TAHAPAN'), { id: 'lblItemOrder', style: labelStyle }));
     this.numOrder = new WiseNumericBox(this.itemData ? this.itemData.order : 1, {
       id: 'numItemOrder',
       min: 1,
@@ -61,9 +61,9 @@ class WinStageItemEdit extends WiseWindow {
 
     // 3. Matriks Penilaian
     const cellMatrix = new WiseFrame('', { id: 'frmStageItemMatrix' });
-    cellMatrix.addControl(new WiseLabel(WiseI18n.t('Template Matriks Penilaian (Opsional)'), { id: 'lblItemMatrix', style: labelStyle }));
+    cellMatrix.addControl(new WiseLabel(WiseI18n.t('TEMPLATE_MATRIKS_PENILAIAN_OPSIONAL'), { id: 'lblItemMatrix', style: labelStyle }));
     const matrixItems = [
-      { value: '', label: WiseI18n.t('(Tanpa Matriks Penilaian Khusus)') },
+      { value: '', label: WiseI18n.t('TANPA_MATRIKS_PENILAIAN_KHUSUS') },
       ...this.matrixTemplates.map((m) => ({ value: String(m.id), label: `${m.name} (${(m.criteria || []).length} kriteria)` }))
     ];
     this.cmbMatrix = new WiseComboBox(this.itemData && this.itemData.matrixTemplateId ? String(this.itemData.matrixTemplateId) : '', {
@@ -76,11 +76,11 @@ class WinStageItemEdit extends WiseWindow {
 
     // 4. Deskripsi
     const cellDesc = new WiseFrame('', { id: 'frmStageItemDesc' });
-    cellDesc.addControl(new WiseLabel(WiseI18n.t('Deskripsi / Panduan Tahapan'), { id: 'lblItemDesc', style: labelStyle }));
+    cellDesc.addControl(new WiseLabel(WiseI18n.t('DESKRIPSI_PANDUAN_TAHAPAN'), { id: 'lblItemDesc', style: labelStyle }));
     this.txtDesc = new WiseTextArea(this.itemData ? this.itemData.description : '', {
       id: 'txtItemDesc',
       rows: 3,
-      placeholder: WiseI18n.t('Penjelasan ruang lingkup dan sasaran tahapan ini...'),
+      placeholder: WiseI18n.t('PENJELASAN_RUANG_LINGKUP_DAN_SASARAN_TAHAPAN_INI'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellDesc.addControl(this.txtDesc);
@@ -94,7 +94,7 @@ class WinStageItemEdit extends WiseWindow {
       style: { display: 'flex', justifyContent: 'flex-end', gap: '8px' }
     });
 
-    btnContainer.addControl(new WiseButton(WiseI18n.t('Batal'), {
+    btnContainer.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnItemCancel',
       onClick: () => this.close(),
       style: {
@@ -109,7 +109,7 @@ class WinStageItemEdit extends WiseWindow {
       }
     }));
 
-    btnContainer.addControl(new WiseButton(WiseI18n.t('💾 Simpan'), {
+    btnContainer.addControl(new WiseButton(WiseI18n.t('SIMPAN_3'), {
       id: 'btnItemSave',
       onClick: this.onSaveClick.bind(this),
       style: {
@@ -132,7 +132,7 @@ class WinStageItemEdit extends WiseWindow {
   onSaveClick() {
     const name = this.txtStageName ? this.txtStageName.value.trim() : '';
     if (!name) {
-      this.showInfo(WiseI18n.t('Validasi'), WiseI18n.t('Nama tahapan proses wajib diisi.'), 'warning');
+      this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('NAMA_TAHAPAN_PROSES_WAJIB_DIISI'), 'warning');
       return;
     }
 

@@ -8,8 +8,8 @@ const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI
 class WinHRIS extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = WiseI18n.t('Wise HRIS — Human Resource Information System Portal');
-    this.appTitle = options.appTitle || WiseI18n.t('Wise HRIS');
+    this.title = WiseI18n.t('WISE_HRIS_PORTAL_SISTEM_INFORMASI_SDM');
+    this.appTitle = options.appTitle || WiseI18n.t('WISE_HRIS');
     this.appIcon = options.appIcon || '🏢';
     this.width = options.width || '840';
     this.height = options.height || '680';
@@ -34,15 +34,15 @@ class WinHRIS extends WiseWindow {
       }
     });
 
-    bannerFrame.addControl(new WiseLabel(WiseI18n.t('🏢 Wise HRIS Enterprise Portal'), {
+    bannerFrame.addControl(new WiseLabel(WiseI18n.t('WISE_HRIS_ENTERPRISE_PORTAL'), {
       id: 'lblPortalTitle',
       style: { fontSize: 20, fontWeight: 800, color: '#ffffff', display: 'block', marginBottom: '3px' }
     }));
-    bannerFrame.addControl(new WiseLabel(WiseI18n.t('Pusat Layanan & Integrasi Manajemen Sumber Daya Manusia Terpadu'), {
+    bannerFrame.addControl(new WiseLabel(WiseI18n.t('PUSAT_LAYANAN_INTEGRASI_MANAJEMEN_SUMBER_DAYA_MANUSIA'), {
       id: 'lblPortalSubtitle',
       style: { color: 'rgba(255, 255, 255, 0.9)', display: 'block' }
     }));
-    bannerFrame.addControl(new WiseLabel(WiseI18n.t('Pilih sub-aplikasi di bawah ini untuk mengelola modul HRIS perusahaan:'), {
+    bannerFrame.addControl(new WiseLabel(WiseI18n.t('PILIH_SUB_APLIKASI_DI_BAWAH_INI_UNTUK_MENGELOLA_MODUL_HRIS'), {
       id: 'lblPortalDesc',
       style: { color: 'rgba(255, 255, 255, 0.8)', display: 'block', marginTop: '2px' }
     }));
@@ -50,7 +50,7 @@ class WinHRIS extends WiseWindow {
     this.addControl(bannerFrame);
 
     // Section Title
-    this.addControl(new WiseLabel(WiseI18n.t('Modul HRIS Terdaftar'), {
+    this.addControl(new WiseLabel(WiseI18n.t('MODUL_HRIS_TERDAFTAR'), {
       id: 'lblSubAppsTitle',
       style: { fontWeight: 700, color: '#1e293b', marginBottom: '8px', display: 'block' }
     }));
@@ -66,7 +66,7 @@ class WinHRIS extends WiseWindow {
     });
 
     // --- Sub-App 1: Employee Management (Active) ---
-    const cardEmployee = new WiseFrame(WiseI18n.t('🟢 AKTIF — Employee Management'), {
+    const cardEmployee = new WiseFrame(WiseI18n.t('AKTIF_EMPLOYEE_MANAGEMENT'), {
       id: 'cardEmployeeMgmt',
       style: {
         border: 'none',
@@ -77,15 +77,15 @@ class WinHRIS extends WiseWindow {
         padding: '12px 14px'
       }
     });
-    cardEmployee.addControl(new WiseLabel(WiseI18n.t('👤 Manajemen Karyawan'), {
+    cardEmployee.addControl(new WiseLabel(WiseI18n.t('MANAJEMEN_KARYAWAN_3'), {
       id: 'lblEmpCardTitle',
       style: { fontWeight: 700, color: 'var(--accent-dark)', display: 'block', marginBottom: '2px' }
     }));
-    cardEmployee.addControl(new WiseLabel(WiseI18n.t('Kelola data profil lengkap, posisi, legalitas dokumen, riwayat karir, dan keluarga karyawan.'), {
+    cardEmployee.addControl(new WiseLabel(WiseI18n.t('KELOLA_DATA_PROFIL_LENGKAP_POSISI_LEGALITAS_DOKUMEN_RIWAYAT'), {
       id: 'lblEmpCardDesc',
       style: { ...descStyle, color: '#475569' }
     }));
-    cardEmployee.addControl(new WiseButton(WiseI18n.t('🚀 Buka Manajemen Karyawan'), {
+    cardEmployee.addControl(new WiseButton(WiseI18n.t('BUKA_MANAJEMEN_KARYAWAN'), {
       id: 'btnOpenEmployeeMgmt',
       onClick: () => this.launchApp('employeeManagement'),
       style: { marginTop: '4px', background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 14px', borderRadius: '6px' }
@@ -93,7 +93,7 @@ class WinHRIS extends WiseWindow {
     gridLayout.setCell(0, 0, cardEmployee);
 
     // --- Sub-App 2: Organization Management (Active) ---
-    const cardOrg = new WiseFrame(WiseI18n.t('🟢 AKTIF — Struktur Organisasi & Jabatan'), {
+    const cardOrg = new WiseFrame(WiseI18n.t('AKTIF_STRUKTUR_ORGANISASI_JABATAN'), {
       id: 'cardOrgMgmt',
       style: {
         border: 'none',
@@ -104,15 +104,15 @@ class WinHRIS extends WiseWindow {
         padding: '12px 14px'
       }
     });
-    cardOrg.addControl(new WiseLabel(WiseI18n.t('🏛️ Manajemen Organisasi'), {
+    cardOrg.addControl(new WiseLabel(WiseI18n.t('MANAJEMEN_ORGANISASI_3'), {
       id: 'lblOrgCardTitle',
       style: { fontWeight: 700, color: 'var(--accent-dark)', display: 'block', marginBottom: '2px' }
     }));
-    cardOrg.addControl(new WiseLabel(WiseI18n.t('Kelola struktur divisi, departemen, jenjang jabatan (job level), dan master daftar posisi jabatan (jabatan).'), {
+    cardOrg.addControl(new WiseLabel(WiseI18n.t('KELOLA_STRUKTUR_DIVISI_DEPARTEMEN_JENJANG_JABATAN_JOB_LEVEL'), {
       id: 'lblOrgCardDesc',
       style: { ...descStyle, color: '#475569' }
     }));
-    cardOrg.addControl(new WiseButton(WiseI18n.t('🚀 Buka Manajemen Organisasi'), {
+    cardOrg.addControl(new WiseButton(WiseI18n.t('BUKA_MANAJEMEN_ORGANISASI'), {
       id: 'btnOpenOrgMgmt',
       onClick: () => this.launchApp('organizationManagement'),
       style: { marginTop: '4px', background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 14px', borderRadius: '6px' }
@@ -120,7 +120,7 @@ class WinHRIS extends WiseWindow {
     gridLayout.setCell(0, 1, cardOrg);
 
     // --- Sub-App 3: Master Data Management (Active) ---
-    const cardMaster = new WiseFrame(WiseI18n.t('🟢 AKTIF — Master Data Management'), {
+    const cardMaster = new WiseFrame(WiseI18n.t('AKTIF_MASTER_DATA_MANAGEMENT'), {
       id: 'cardMasterMgmt',
       style: {
         border: 'none',
@@ -131,15 +131,15 @@ class WinHRIS extends WiseWindow {
         padding: '12px 14px'
       }
     });
-    cardMaster.addControl(new WiseLabel(WiseI18n.t('🗂️ Manajemen Master Data'), {
+    cardMaster.addControl(new WiseLabel(WiseI18n.t('MANAJEMEN_MASTER_DATA_3'), {
       id: 'lblMasterCardTitle',
       style: { fontWeight: 700, color: 'var(--accent-dark)', display: 'block', marginBottom: '2px' }
     }));
-    cardMaster.addControl(new WiseLabel(WiseI18n.t('Kelola tabel master referensi: Agama, Hubungan Keluarga, Bank Payroll, Status Pegawai, Jenis Dokumen, Lokasi Kerja, dll.'), {
+    cardMaster.addControl(new WiseLabel(WiseI18n.t('KELOLA_TABEL_MASTER_REFERENSI_AGAMA_HUBUNGAN_KELUARGA_BANK'), {
       id: 'lblMasterCardDesc',
       style: { ...descStyle, color: '#475569' }
     }));
-    cardMaster.addControl(new WiseButton(WiseI18n.t('🚀 Buka Manajemen Master Data'), {
+    cardMaster.addControl(new WiseButton(WiseI18n.t('BUKA_MANAJEMEN_MASTER_DATA'), {
       id: 'btnOpenMasterMgmt',
       onClick: () => this.launchApp('masterDataManagement'),
       style: { marginTop: '4px', background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 14px', borderRadius: '6px' }
@@ -147,7 +147,7 @@ class WinHRIS extends WiseWindow {
     gridLayout.setCell(1, 0, cardMaster);
 
     // --- Sub-App 4: Recruitment (Active) ---
-    const cardRecruitment = new WiseFrame(WiseI18n.t('🟢 AKTIF — Rekrutmen & Talent Acquisition'), {
+    const cardRecruitment = new WiseFrame(WiseI18n.t('AKTIF_REKRUTMEN_TALENT_ACQUISITION'), {
       id: 'cardRecruitmentMgmt',
       style: {
         border: 'none',
@@ -158,15 +158,15 @@ class WinHRIS extends WiseWindow {
         padding: '12px 14px'
       }
     });
-    cardRecruitment.addControl(new WiseLabel(WiseI18n.t('🎯 Rekrutmen & Perekrutan'), {
+    cardRecruitment.addControl(new WiseLabel(WiseI18n.t('REKRUTMEN_PEREKRUTAN_2'), {
       id: 'lblRecCardTitle',
       style: { fontWeight: 700, color: 'var(--accent-dark)', display: 'block', marginBottom: '2px' }
     }));
-    cardRecruitment.addControl(new WiseLabel(WiseI18n.t('Posting lowongan pekerjaan, alur proses seleksi & wawancara, matriks evaluasi, serta manajemen pelamar.'), {
+    cardRecruitment.addControl(new WiseLabel(WiseI18n.t('POSTING_LOWONGAN_PEKERJAAN_ALUR_PROSES_SELEKSI_WAWANCARA'), {
       id: 'lblRecCardDesc',
       style: { ...descStyle, color: '#475569' }
     }));
-    cardRecruitment.addControl(new WiseButton(WiseI18n.t('🚀 Buka Rekrutmen'), {
+    cardRecruitment.addControl(new WiseButton(WiseI18n.t('BUKA_REKRUTMEN_2'), {
       id: 'btnOpenRecruitment',
       onClick: () => this.launchApp('recruitment'),
       style: { marginTop: '4px', background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 14px', borderRadius: '6px' }
@@ -174,7 +174,7 @@ class WinHRIS extends WiseWindow {
     gridLayout.setCell(1, 1, cardRecruitment);
 
     // --- Sub-App 5: Payroll & Compensation (Coming Soon) ---
-    const cardPayroll = new WiseFrame(WiseI18n.t('⏳ SEGERA HADIR — Penggajian & Pajak'), {
+    const cardPayroll = new WiseFrame(WiseI18n.t('SEGERA_HADIR_PENGGAJIAN_PAJAK'), {
       id: 'cardPayroll',
       style: {
         border: 'none',
@@ -186,15 +186,15 @@ class WinHRIS extends WiseWindow {
         padding: '12px 14px'
       }
     });
-    cardPayroll.addControl(new WiseLabel(WiseI18n.t('💳 Payroll & Tax'), {
+    cardPayroll.addControl(new WiseLabel(WiseI18n.t('PENGGAJIAN_PAJAK'), {
       id: 'lblPayCardTitle',
       style: { fontWeight: 700, color: '#334155', display: 'block', marginBottom: '2px' }
     }));
-    cardPayroll.addControl(new WiseLabel(WiseI18n.t('Perhitungan gaji otomatis, potongan PPh 21, iuran BPJS, dan penerbitan e-slip gaji karyawan.'), {
+    cardPayroll.addControl(new WiseLabel(WiseI18n.t('PERHITUNGAN_GAJI_OTOMATIS_POTONGAN_PPH_21_IURAN_BPJS_DAN'), {
       id: 'lblPayCardDesc',
       style: descStyle
     }));
-    cardPayroll.addControl(new WiseButton(WiseI18n.t('Modul Dalam Pengembangan'), {
+    cardPayroll.addControl(new WiseButton(WiseI18n.t('MODUL_DALAM_PENGEMBANGAN'), {
       id: 'btnPayDisabled',
       disabled: true,
       style: { marginTop: '4px', padding: '6px 12px', borderRadius: '6px' }
@@ -202,7 +202,7 @@ class WinHRIS extends WiseWindow {
     gridLayout.setCell(2, 0, cardPayroll);
 
     // --- Sub-App 6: Performance & Appraisal (Coming Soon) ---
-    const cardPerformance = new WiseFrame(WiseI18n.t('⏳ SEGERA HADIR — Kinerja & Penilaian'), {
+    const cardPerformance = new WiseFrame(WiseI18n.t('SEGERA_HADIR_KINERJA_PENILAIAN'), {
       id: 'cardPerformance',
       style: {
         border: 'none',
@@ -214,15 +214,15 @@ class WinHRIS extends WiseWindow {
         padding: '12px 14px'
       }
     });
-    cardPerformance.addControl(new WiseLabel(WiseI18n.t('🎯 Performance & KPI'), {
+    cardPerformance.addControl(new WiseLabel(WiseI18n.t('KINERJA_KPI'), {
       id: 'lblPerfCardTitle',
       style: { fontWeight: 700, color: '#334155', display: 'block', marginBottom: '2px' }
     }));
-    cardPerformance.addControl(new WiseLabel(WiseI18n.t('Penilaian KPI karyawan, evaluasi 360 derajat, dan review kinerja berkala oleh atasan langsung.'), {
+    cardPerformance.addControl(new WiseLabel(WiseI18n.t('PENILAIAN_KPI_KARYAWAN_EVALUASI_360_DERAJAT_DAN_REVIEW'), {
       id: 'lblPerfCardDesc',
       style: descStyle
     }));
-    cardPerformance.addControl(new WiseButton(WiseI18n.t('Modul Dalam Pengembangan'), {
+    cardPerformance.addControl(new WiseButton(WiseI18n.t('MODUL_DALAM_PENGEMBANGAN'), {
       id: 'btnPerfDisabled',
       disabled: true,
       style: { marginTop: '4px', padding: '6px 12px', borderRadius: '6px' }
@@ -232,7 +232,7 @@ class WinHRIS extends WiseWindow {
     this.addControl(gridLayout);
 
     // Quick Status Bar
-    this.addControl(new WiseLabel(WiseI18n.t('Backend: HRIS Service (Port 4001)  •  DB: PostgreSQL wiseape-hris'), {
+    this.addControl(new WiseLabel(WiseI18n.t('BACKEND_HRIS_SERVICE_PORT_4001_DB_POSTGRESQL_WISEAPE_HRIS'), {
       id: 'lblBackendStatus',
       style: { color: '#94a3b8', textAlign: 'center', display: 'block', marginTop: '6px' }
     }));

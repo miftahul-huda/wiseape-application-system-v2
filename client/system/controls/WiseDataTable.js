@@ -390,7 +390,7 @@
     // always has the full picture without having to merge state itself.
     static renderFilterBar(data, context) {
       const bar = document.createElement('div');
-      bar.className = 'wise-dt-filter-bar flex flex-wrap items-end gap-3 rounded-xl border border-slate-900/8 bg-white/70 px-4 py-3 shadow-sm backdrop-blur-sm';
+      bar.className = 'wise-dt-filter-bar flex flex-wrap items-end gap-3 rounded-lg border border-slate-900/8 bg-white/70 px-4 py-3 shadow-sm backdrop-blur-sm';
 
       // Collect all current input elements so we can snapshot all values
       // whenever any one of them changes.
@@ -431,7 +431,7 @@
 
           const sel = document.createElement('select');
           sel.id = `${data.id}-filter-${filter.id}`;
-          sel.className = 'w-full cursor-pointer appearance-none rounded-md border border-slate-300 bg-white py-1.5 pl-3 pr-8 text-sm text-slate-800 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
+          sel.className = 'w-full cursor-pointer appearance-none rounded-sm border border-slate-300 bg-white py-1.5 pl-3 pr-8 text-sm text-slate-800 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
           inputEls[filter.id] = sel;
 
           (filter.items || []).forEach((item) => {
@@ -480,7 +480,7 @@
           inp.id = `${data.id}-filter-${filter.id}`;
           inp.placeholder = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(filter.placeholder || '') : (filter.placeholder || '');
           inp.value = filter.value || '';
-          inp.className = 'w-full appearance-none rounded-md border border-slate-300 bg-white py-1.5 pl-8 pr-3 text-sm text-slate-800 placeholder-slate-400 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
+          inp.className = 'w-full appearance-none rounded-sm border border-slate-300 bg-white py-1.5 pl-8 pr-3 text-sm text-slate-800 placeholder-slate-400 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
           inputEls[filter.id] = inp;
 
           // Trigger on Enter key
@@ -506,7 +506,7 @@
       const displayBtn = document.createElement('button');
       displayBtn.type = 'button';
       displayBtn.id = `${data.id}-filter-btn-display`;
-      displayBtn.className = 'inline-flex items-center justify-center gap-1.5 rounded-lg border-0 bg-[var(--accent,#2563eb)] px-3.5 py-1.5 text-sm font-medium text-white shadow-none transition-all duration-150 ease-out hover:opacity-90 active:scale-95 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-[var(--accent,#2563eb)] focus:ring-offset-1 h-[34px]';
+      displayBtn.className = 'inline-flex items-center justify-center gap-1.5 rounded-md border-0 bg-[var(--accent,#2563eb)] px-3.5 py-1.5 text-sm font-medium text-white shadow-none transition-all duration-150 ease-out hover:opacity-90 active:scale-95 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-[var(--accent,#2563eb)] focus:ring-offset-1 h-[34px]';
 
       const filterIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       filterIcon.setAttribute('viewBox', '0 0 24 24');
@@ -517,7 +517,7 @@
       filterIcon.innerHTML = '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>';
 
       const btnText = document.createElement('span');
-      btnText.textContent = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('Display') : 'Display';
+      btnText.textContent = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('TAMPILKAN') : 'Display';
 
       displayBtn.appendChild(filterIcon);
       displayBtn.appendChild(btnText);
@@ -534,7 +534,7 @@
 
     static renderTable(data, context, fireFilterChange) {
       const box = document.createElement('div');
-      box.className = 'wise-dt-box overflow-hidden rounded-xl border border-slate-900/10 bg-white shadow-md';
+      box.className = 'wise-dt-box overflow-hidden rounded-lg border border-slate-900/10 bg-white shadow-md';
 
       // Scrollable div wrapping the table and rows
       const scrollDiv = document.createElement('div');
@@ -833,7 +833,7 @@
         btn.type = 'button';
         btn.dataset.cellInteractive = 'true';
         btn.textContent = col.label || col.header || 'Action';
-        btn.className = 'appearance-none rounded-md border-0 bg-[var(--accent)] px-3 py-1 text-xs font-semibold text-white cursor-pointer';
+        btn.className = 'appearance-none rounded-sm border-0 bg-[var(--accent)] px-3 py-1 text-xs font-semibold text-white cursor-pointer';
         btn.addEventListener('click', (event) => {
           event.stopPropagation();
           context.desktop.sendControlEvent(context.appId, data.id, td, 'cellclick', {
@@ -847,7 +847,7 @@
         // Without an explicit size/shape, appearance:none renders at the
         // browser's tiny intrinsic default -- easy to mistake for a plain
         // dot rather than a checkbox. Match the size WiseCheckboxGroup uses.
-        input.className = 'h-[18px] w-[18px] rounded cursor-pointer';
+        input.className = 'h-[18px] w-[18px] rounded-sm cursor-pointer';
         input.dataset.cellInteractive = 'true';
         input.checked = !!cellValue;
         input.addEventListener('click', (event) => event.stopPropagation());
@@ -856,7 +856,7 @@
       } else if (col.type === 'combobox') {
         const select = document.createElement('select');
         select.dataset.cellInteractive = 'true';
-        select.className = 'rounded border border-slate-300 px-1.5 py-1 text-xs';
+        select.className = 'rounded-sm border border-slate-300 px-1.5 py-1 text-xs';
         (col.items || []).forEach((item) => {
           const option = document.createElement('option');
           const optValue = typeof item === 'object' ? item.value : item;
@@ -901,11 +901,11 @@
           const img = document.createElement('img');
           img.src = cellValue;
           img.alt = '';
-          img.className = 'h-9 w-9 rounded-md object-cover bg-slate-100';
+          img.className = 'h-9 w-9 rounded-sm object-cover bg-slate-100';
           td.appendChild(img);
         } else {
           const placeholder = document.createElement('div');
-          placeholder.className = 'flex h-9 w-9 items-center justify-center rounded-md bg-slate-100 text-slate-400';
+          placeholder.className = 'flex h-9 w-9 items-center justify-center rounded-sm bg-slate-100 text-slate-400';
           placeholder.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg>';
           td.appendChild(placeholder);
         }
@@ -934,7 +934,7 @@
       const countStrong = document.createElement('strong');
       countStrong.className = 'font-semibold text-slate-700';
       countStrong.textContent = String(totalCount);
-      const rowsLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('baris') : 'baris';
+      const rowsLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('BARIS') : 'baris';
       info.appendChild(countStrong);
       info.appendChild(document.createTextNode(` ${rowsLabel}`));
       pager.appendChild(info);
@@ -944,8 +944,8 @@
 
       if ((data.pageSizeOptions || []).length > 0) {
         const sizeSelect = document.createElement('select');
-        sizeSelect.className = 'wise-dt-page-size mr-1 cursor-pointer rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 shadow-none outline-none transition hover:border-[var(--accent)]';
-        const pageLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('halaman') : 'halaman';
+        sizeSelect.className = 'wise-dt-page-size mr-1 cursor-pointer rounded-sm border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 shadow-none outline-none transition hover:border-[var(--accent)]';
+        const pageLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('HALAMAN') : 'halaman';
         data.pageSizeOptions.forEach((size) => {
           const option = document.createElement('option');
           option.value = size;
@@ -995,7 +995,7 @@
         return btn;
       };
 
-      const prevLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('Halaman sebelumnya') : 'Halaman sebelumnya';
+      const prevLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('HALAMAN_SEBELUMNYA') : 'Halaman sebelumnya';
       controls.appendChild(navButton(chevron('prev'), {
         disabled: currentPage <= 1,
         ariaLabel: prevLabel,
@@ -1016,7 +1016,7 @@
         }));
       });
 
-      const nextLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('Halaman berikutnya') : 'Halaman berikutnya';
+      const nextLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('HALAMAN_BERIKUTNYA') : 'Halaman berikutnya';
       controls.appendChild(navButton(chevron('next'), {
         disabled: currentPage >= totalPages,
         ariaLabel: nextLabel,

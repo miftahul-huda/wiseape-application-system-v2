@@ -48,57 +48,32 @@ class WinEmployeeEdit extends WiseWindow {
   onWindowInit() {
     this.controls = [];
 
-    // ── Header / Hero Card ───────────────────────────────────────
-    const heroBanner = new WiseFrame('', {
-      id: 'frameEditHero',
-      style: {
-        background: 'linear-gradient(135deg, var(--accent-dark) 0%, var(--accent) 100%)',
-        borderRadius: '12px',
-        padding: '16px 20px',
-        marginBottom: '14px',
-        boxShadow: '0 8px 20px -4px rgba(0, 0, 0, 0.18)',
-        color: '#ffffff'
-      }
+    // ── Toolbar: Save & Close side by side ─────────────────────────
+    const editToolbar = new WiseFrame('', {
+      id: 'frameEditToolbar',
+      layout: 'horizontal',
+      style: { background: 'transparent', border: 'none', padding: '0', marginBottom: '10px' }
     });
-
-    const tblHero = new WiseTableLayout({ rows: 1, columns: 2, id: 'tblEditHeroLayout' });
-    
-    const heroLeft = new WiseFrame('', { style: { background: 'transparent', border: 'none', padding: '0' } });
-    heroLeft.addControl(new WiseLabel('✏️ Formulir Data Karyawan', {
-      id: 'lblEditHeroTitle',
-      style: { fontWeight: 700, color: 'rgba(255,255,255,0.85)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '4px' }
-    }));
-    heroLeft.addControl(new WiseLabel('Tambah / Edit Data Karyawan', {
-      id: 'lblEditEmployeeName',
-      style: { fontSize: 20, color: '#ffffff', display: 'block', fontWeight: 800, marginBottom: '2px' }
-    }));
-    heroLeft.addControl(new WiseLabel('Lengkapi seluruh informasi data profil karyawan di bawah ini.', {
-      id: 'lblEditEmployeeSub',
-      style: { color: 'rgba(255,255,255,0.9)', display: 'block' }
-    }));
-
-    const heroRight = new WiseFrame('', { style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' } });
-    heroRight.addControl(new WiseButton('💾 Simpan Perubahan', {
+    editToolbar.addControl(new WiseButton('💾 Simpan Perubahan', {
       id: 'btnEditSave',
       onClick: this.onSaveEmployee.bind(this),
       style: {
-        background: '#ffffff',
-        color: 'var(--accent-dark)',
+        background: 'var(--accent)',
+        color: '#ffffff',
         fontWeight: 700,
         borderRadius: '8px',
         padding: '8px 18px',
         border: 'none',
         boxShadow: 'none',
-        marginRight: '8px',
         cursor: 'pointer'
       }
     }));
-    heroRight.addControl(new WiseButton('✕ Tutup', {
+    editToolbar.addControl(new WiseButton('✕ Tutup', {
       id: 'btnEditClose',
       onClick: this.onCloseClick.bind(this),
       style: {
-        background: 'rgba(255,255,255,0.2)',
-        color: '#ffffff',
+        background: '#f1f5f9',
+        color: '#334155',
         fontWeight: 600,
         borderRadius: '8px',
         padding: '8px 14px',
@@ -107,11 +82,7 @@ class WinEmployeeEdit extends WiseWindow {
         cursor: 'pointer'
       }
     }));
-
-    tblHero.setCell(0, 0, heroLeft);
-    tblHero.setCell(0, 1, heroRight);
-    heroBanner.addControl(tblHero);
-    this.addControl(heroBanner);
+    this.addControl(editToolbar);
 
     // ── Tab Control ─────────────────────────────────────────────
     const editTabs = new WiseTabControl({
@@ -670,10 +641,6 @@ class WinEmployeeEdit extends WiseWindow {
 
   populateForm(emp) {
     if (!emp) return;
-
-    if (this.lblEditEmployeeName) {
-      this.lblEditEmployeeName.setValue(`${emp.fullName || ''} (${emp.nik || ''})`);
-    }
 
     // Personal
     if (this.txtFullName) this.txtFullName.setValue(emp.fullName || '');

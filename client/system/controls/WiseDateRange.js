@@ -32,7 +32,7 @@
       wrapper.className = 'w-full flex items-center gap-2.5';
       WiseControl.applyCommon(wrapper, data, context);
 
-      const dateInputClass = 'min-w-0 flex-1 appearance-none rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-800 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
+      const dateInputClass = 'min-w-0 flex-1 appearance-none rounded-sm border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-800 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
 
       const startInput = document.createElement('input');
       startInput.type = 'date';
