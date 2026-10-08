@@ -9,6 +9,12 @@ const MasterData = require('./MasterData');
 const Organization = require('./Organization');
 const JobLevel = require('./JobLevel');
 const JobPosition = require('./JobPosition');
+const RecruitmentStageTemplate = require('./RecruitmentStageTemplate');
+const RecruitmentMatrixTemplate = require('./RecruitmentMatrixTemplate');
+const JobVacancy = require('./JobVacancy');
+const JobApplicant = require('./JobApplicant');
+const ApplicantProcess = require('./ApplicantProcess');
+const RecruitmentDocument = require('./RecruitmentDocument');
 
 // ==========================================
 // Model Associations
@@ -109,6 +115,54 @@ JobPosition.belongsTo(JobLevel, {
   as: 'jobLevel'
 });
 
+// ==========================================
+// Recruitment Associations
+// ==========================================
+
+// 10. JobVacancy <-> JobApplicant (1 : M)
+JobVacancy.hasMany(JobApplicant, {
+  foreignKey: 'jobVacancyId',
+  as: 'applicants',
+  onDelete: 'CASCADE'
+});
+JobApplicant.belongsTo(JobVacancy, {
+  foreignKey: 'jobVacancyId',
+  as: 'vacancy'
+});
+
+// 11. JobApplicant <-> ApplicantProcess (1 : M)
+JobApplicant.hasMany(ApplicantProcess, {
+  foreignKey: 'applicantId',
+  as: 'processes',
+  onDelete: 'CASCADE'
+});
+ApplicantProcess.belongsTo(JobApplicant, {
+  foreignKey: 'applicantId',
+  as: 'applicant'
+});
+
+// 12. JobVacancy <-> ApplicantProcess (1 : M)
+JobVacancy.hasMany(ApplicantProcess, {
+  foreignKey: 'jobVacancyId',
+  as: 'processes',
+  onDelete: 'CASCADE'
+});
+ApplicantProcess.belongsTo(JobVacancy, {
+  foreignKey: 'jobVacancyId',
+  as: 'vacancy'
+});
+
+// 13. ApplicantProcess <-> RecruitmentDocument (1 : M)
+ApplicantProcess.hasMany(RecruitmentDocument, {
+  foreignKey: 'applicantProcessId',
+  as: 'documentsList',
+  onDelete: 'CASCADE'
+});
+RecruitmentDocument.belongsTo(ApplicantProcess, {
+  foreignKey: 'applicantProcessId',
+  as: 'applicantProcess'
+});
+
 module.exports = {
   sequelize,
   Employee,
@@ -120,5 +174,11 @@ module.exports = {
   MasterData,
   Organization,
   JobLevel,
-  JobPosition
+  JobPosition,
+  RecruitmentStageTemplate,
+  RecruitmentMatrixTemplate,
+  JobVacancy,
+  JobApplicant,
+  ApplicantProcess,
+  RecruitmentDocument
 };

@@ -53,6 +53,9 @@ async function startServer() {
     const { seedMasterData } = require('./src/scripts/seedMasterData');
     await seedMasterData();
 
+    const { seedRecruitmentData } = require('./src/scripts/seedRecruitment');
+    await seedRecruitmentData();
+
     const server = app.listen(port, () => {
       console.log(`[HRIS Service] Wiseape HRIS REST API Microservice running on port ${port}`);
       console.log(`[HRIS Service] API Documentation: http://localhost:${port}/api`);

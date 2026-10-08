@@ -10,6 +10,7 @@ const FALLBACK_MENUS = [
   { id: 7, parentId: 5, type: 'item', label: 'Employee Management', icon: '👤', appId: 'employeeManagement', sortOrder: 1 },
   { id: 8, parentId: 5, type: 'item', label: 'Organization Management', icon: '🏛️', appId: 'organizationManagement', sortOrder: 2 },
   { id: 9, parentId: 5, type: 'item', label: 'Master Data Management', icon: '🗂️', appId: 'masterDataManagement', sortOrder: 3 },
+  { id: 10, parentId: 5, type: 'item', label: 'Recruitment', icon: '🎯', appId: 'recruitment', sortOrder: 4 },
 ];
 
 let schemaReady = false;
@@ -129,6 +130,19 @@ async function ensureAdminMenuSeeded() {
     await db.query(
       `INSERT INTO wiseape_menus (parent_id, menu_type, label, icon, app_id, sort_order)
        VALUES ($1, 'item', 'Master Data Management', '🗂️', 'masterDataManagement', 3)`,
+      [hrisGroupId]
+    );
+  }
+
+  // Ensure child menu item 'recruitment'
+  const existingRecruitment = await db.query(
+    'SELECT 1 FROM wiseape_menus WHERE parent_id = $1 AND app_id = $2',
+    [hrisGroupId, 'recruitment']
+  );
+  if (existingRecruitment.rowCount === 0) {
+    await db.query(
+      `INSERT INTO wiseape_menus (parent_id, menu_type, label, icon, app_id, sort_order)
+       VALUES ($1, 'item', 'Recruitment', '🎯', 'recruitment', 4)`,
       [hrisGroupId]
     );
   }

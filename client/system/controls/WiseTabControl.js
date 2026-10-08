@@ -72,6 +72,16 @@
       super(options.activeIndex || 0, options);
       this.name = 'WiseTabControl';
       this.tabs = [];
+      if (Array.isArray(options.tabs)) {
+        options.tabs.forEach((t) => {
+          this.addTab({
+            id: t.id,
+            label: t.label || t.title || t.name || t.id || '',
+            controls: t.controls || [],
+            icon: t.icon || null
+          });
+        });
+      }
       this.layout = options.layout === 'vertical' ? 'vertical' : 'horizontal';
       this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
       this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
@@ -93,16 +103,32 @@
       let tabLabel = label;
       let tabControls = controls;
       let tabIcon = icon;
+      let tabId = null;
 
       if (typeof label === 'object' && label !== null && !Array.isArray(label)) {
-        tabLabel = label.label || '';
+        tabId = label.id || null;
+        tabLabel = label.label || label.title || label.name || '';
         tabControls = label.controls || controls || [];
         tabIcon = label.icon || icon || null;
       } else if (typeof icon === 'object' && icon !== null) {
         tabIcon = icon.icon || null;
       }
 
-      this.tabs.push({ label: tabLabel, controls: tabControls, icon: tabIcon });
+      this.tabs.push({ id: tabId, label: tabLabel, controls: tabControls, icon: tabIcon });
+      return this;
+    }
+
+    addTabContent(tabIdOrLabel, control) {
+      let targetTab = this.tabs.find((t) => t.id === tabIdOrLabel || t.label === tabIdOrLabel);
+      if (!targetTab) {
+        targetTab = { id: tabIdOrLabel, label: tabIdOrLabel, controls: [], icon: null };
+        this.tabs.push(targetTab);
+      }
+      if (Array.isArray(control)) {
+        targetTab.controls.push(...control);
+      } else if (control) {
+        targetTab.controls.push(control);
+      }
       return this;
     }
 

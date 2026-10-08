@@ -24,6 +24,7 @@ const fallbackMenus = [
       { id: 7, type: 'item', label: 'Employee Management', icon: '👤', appId: 'employeeManagement', sortOrder: 1, children: [] },
       { id: 8, type: 'item', label: 'Organization Management', icon: '🏛️', appId: 'organizationManagement', sortOrder: 2, children: [] },
       { id: 9, type: 'item', label: 'Master Data Management', icon: '🗂️', appId: 'masterDataManagement', sortOrder: 3, children: [] },
+      { id: 10, type: 'item', label: 'Recruitment', icon: '🎯', appId: 'recruitment', sortOrder: 4, children: [] },
     ],
   },
 ];

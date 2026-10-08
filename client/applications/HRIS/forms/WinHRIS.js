@@ -145,33 +145,32 @@ class WinHRIS extends WiseWindow {
     }));
     gridLayout.setCell(1, 0, cardMaster);
 
-    // --- Sub-App 4: Attendance & Leave (Coming Soon) ---
-    const cardAttendance = new WiseFrame('⏳ SEGERA HADIR — Presensi & Cuti', {
-      id: 'cardAttendance',
+    // --- Sub-App 4: Recruitment (Active) ---
+    const cardRecruitment = new WiseFrame('🟢 AKTIF — Rekrutmen & Talent Acquisition', {
+      id: 'cardRecruitmentMgmt',
       style: {
         border: 'none',
         borderRadius: '12px',
-        background: 'color-mix(in srgb, var(--bg2) 15%, rgba(255, 255, 255, 0.7))',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-        opacity: '0.85',
+        background: 'linear-gradient(to bottom, color-mix(in srgb, var(--accent) 12%, rgba(255, 255, 255, 0.95)), rgba(255, 255, 255, 0.85))',
+        boxShadow: '0 4px 14px rgba(0, 0, 0, 0.06)',
         height: '100%',
         padding: '12px 14px'
       }
     });
-    cardAttendance.addControl(new WiseLabel('⏱️ Attendance & Leave', {
-      id: 'lblAttTitle',
-      style: { fontWeight: 700, color: '#334155', display: 'block', marginBottom: '2px' }
+    cardRecruitment.addControl(new WiseLabel('🎯 Recruitment & Hiring', {
+      id: 'lblRecCardTitle',
+      style: { fontWeight: 700, color: 'var(--accent-dark)', display: 'block', marginBottom: '2px' }
     }));
-    cardAttendance.addControl(new WiseLabel('Pencatatan jam kerja, absensi check-in/out, approval cuti tahunan, lembur, dan izin sakit.', {
-      id: 'lblAttDesc',
-      style: descStyle
+    cardRecruitment.addControl(new WiseLabel('Posting lowongan pekerjaan, alur proses seleksi & wawancara, matriks evaluasi, serta manajemen pelamar.', {
+      id: 'lblRecCardDesc',
+      style: { ...descStyle, color: '#475569' }
     }));
-    cardAttendance.addControl(new WiseButton('Modul Dalam Pengembangan', {
-      id: 'btnAttDisabled',
-      disabled: true,
-      style: { marginTop: '4px', padding: '6px 12px', borderRadius: '6px' }
+    cardRecruitment.addControl(new WiseButton('🚀 Buka Recruitment', {
+      id: 'btnOpenRecruitment',
+      onClick: () => this.launchApp('recruitment'),
+      style: { marginTop: '4px', background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 14px', borderRadius: '6px' }
     }));
-    gridLayout.setCell(1, 1, cardAttendance);
+    gridLayout.setCell(1, 1, cardRecruitment);
 
     // --- Sub-App 5: Payroll & Compensation (Coming Soon) ---
     const cardPayroll = new WiseFrame('⏳ SEGERA HADIR — Penggajian & Pajak', {

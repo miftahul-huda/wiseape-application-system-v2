@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="recBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f766e" />
+      <stop offset="50%" stop-color="#0d9488" />
+      <stop offset="100%" stop-color="#14b8a6" />
+    </linearGradient>
+  </defs>
+
+  <!-- Squircle Background -->
+  <rect x="0" y="0" width="128" height="128" rx="28" fill="url(#recBg)"/>
+
+  <!-- Recruitment Target & Candidate Icon -->
+  <g fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Candidate Head -->
+    <circle cx="64" cy="46" r="16" fill="rgba(255,255,255,0.18)" />
+    
+    <!-- Candidate Body -->
+    <path d="M38 94 C38 78 50 72 64 72 C78 72 90 78 90 94" fill="rgba(255,255,255,0.18)" />
+
+    <!-- Crosshair / Target Search Markers -->
+    <circle cx="64" cy="64" r="42" stroke="rgba(255,255,255,0.5)" stroke-width="3" stroke-dasharray="8 6" />
+    
+    <line x1="64" y1="14" x2="64" y2="24" stroke="#5eead4" stroke-width="4.5" />
+    <line x1="64" y1="104" x2="64" y2="114" stroke="#5eead4" stroke-width="4.5" />
+    <line x1="14" y1="64" x2="24" y2="64" stroke="#5eead4" stroke-width="4.5" />
+    <line x1="104" y1="64" x2="114" y2="64" stroke="#5eead4" stroke-width="4.5" />
+  </g>
+</svg>

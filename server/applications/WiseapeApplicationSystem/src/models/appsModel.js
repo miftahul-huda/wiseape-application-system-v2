@@ -78,6 +78,17 @@ const FALLBACK_APPS = [
     appStartPoint: 'applications/HRIS/MasterDataManagement/AppMasterDataManagement.js:AppMasterDataManagement',
     appParameter: {},
   },
+  {
+    appID: 'recruitment',
+    appTitle: 'Recruitment',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '🎯',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/Recruitment/AppRecruitment.js:AppRecruitment',
+    appParameter: {},
+  },
 ];
 
 function parseJsonField(value, fallback) {
@@ -186,6 +197,25 @@ async function ensureAdminAppSeeded() {
         JSON.stringify(['Wiseape WAS']),
         JSON.stringify({}),
         'applications/HRIS/MasterDataManagement/AppMasterDataManagement.js:AppMasterDataManagement',
+        JSON.stringify({}),
+      ]
+    );
+  }
+
+  const existingRecruitment = await db.query('SELECT 1 FROM wiseape_apps WHERE app_id = $1', ['recruitment']);
+  if (existingRecruitment.rowCount === 0) {
+    await db.query(
+      `INSERT INTO wiseape_apps (app_id, app_title, app_version, app_developer, app_icon, app_libraries, app_config, app_start_point, app_parameter)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+      [
+        'recruitment',
+        'Recruitment',
+        '1.0.0',
+        'Wiseape',
+        '🎯',
+        JSON.stringify(['Wiseape WAS']),
+        JSON.stringify({}),
+        'applications/Recruitment/AppRecruitment.js:AppRecruitment',
         JSON.stringify({}),
       ]
     );

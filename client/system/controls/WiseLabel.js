@@ -19,6 +19,10 @@
       return this.value;
     }
 
+    setText(value) {
+      return this.setValue(value);
+    }
+
     getIcon() {
       return this.icon;
     }

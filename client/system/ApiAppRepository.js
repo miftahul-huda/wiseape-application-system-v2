@@ -76,6 +76,17 @@ const fallbackApps = [
     appStartPoint: 'applications/HRIS/MasterDataManagement/AppMasterDataManagement.js:AppMasterDataManagement',
     appParameter: {},
   },
+  {
+    appID: 'recruitment',
+    appTitle: 'Recruitment',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '🎯',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/Recruitment/AppRecruitment.js:AppRecruitment',
+    appParameter: {},
+  },
 ];
 
 class ApiAppRepository {

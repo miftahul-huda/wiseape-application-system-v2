@@ -11,6 +11,7 @@ const masterDataRoutes = require('./masterDataRoutes');
 const organizationRoutes = require('./organizationRoutes');
 const jobLevelRoutes = require('./jobLevelRoutes');
 const positionRoutes = require('./positionRoutes');
+const recruitmentRoutes = require('./recruitmentRoutes');
 
 // Service health check and meta
 router.get('/', (req, res) => {
@@ -29,7 +30,8 @@ router.get('/', (req, res) => {
       workExperiences: '/api/work-experiences',
       education: '/api/education',
       careerHistory: '/api/career-history',
-      family: '/api/family'
+      family: '/api/family',
+      recruitment: '/api/recruitment'
     }
   });
 });
@@ -50,5 +52,6 @@ router.use('/work-experiences', workExperienceRoutes);
 router.use('/education', educationRoutes);
 router.use('/career-history', careerHistoryRoutes);
 router.use('/family', familyRoutes);
+router.use('/recruitment', recruitmentRoutes);
 
 module.exports = router;

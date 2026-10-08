@@ -4,29 +4,50 @@
 
   class WiseComboBox extends WiseControl {
     constructor(items = [], options = {}) {
-      const normalizedItems = (items || []).map((it) => (typeof it === 'object' && it !== null ? { value: it.value !== undefined ? it.value : it.label, label: it.label !== undefined ? it.label : String(it.value) } : { value: it, label: String(it) }));
+      let resolvedItems = items;
+      let opts = options || {};
+      let initialValOverride = undefined;
+
+      if (!Array.isArray(items)) {
+        if (opts && Array.isArray(opts.items)) {
+          resolvedItems = opts.items;
+          initialValOverride = items;
+        } else if (typeof items === 'object' && items !== null && Array.isArray(items.items)) {
+          resolvedItems = items.items;
+          opts = items;
+        } else {
+          resolvedItems = [];
+          if (items !== undefined && items !== null) {
+            initialValOverride = items;
+          }
+        }
+      }
+
+      const normalizedItems = (resolvedItems || []).map((it) => (typeof it === 'object' && it !== null ? { value: it.value !== undefined ? it.value : it.label, label: it.label !== undefined ? it.label : String(it.value) } : { value: it, label: String(it) }));
       
       let initialValue = '';
-      if (options.value !== undefined && options.value !== null) {
-        initialValue = options.value;
-      } else if (options.selectedValue !== undefined && options.selectedValue !== null) {
-        initialValue = options.selectedValue;
-      } else if (options.selectedIndex !== undefined && options.selectedIndex >= 0 && normalizedItems[options.selectedIndex]) {
-        initialValue = normalizedItems[options.selectedIndex].value;
+      if (initialValOverride !== undefined && initialValOverride !== null) {
+        initialValue = initialValOverride;
+      } else if (opts.value !== undefined && opts.value !== null) {
+        initialValue = opts.value;
+      } else if (opts.selectedValue !== undefined && opts.selectedValue !== null) {
+        initialValue = opts.selectedValue;
+      } else if (opts.selectedIndex !== undefined && opts.selectedIndex >= 0 && normalizedItems[opts.selectedIndex]) {
+        initialValue = normalizedItems[opts.selectedIndex].value;
       } else if (normalizedItems[0]) {
         initialValue = normalizedItems[0].value;
       }
 
-      super(initialValue, options);
+      super(initialValue, opts);
       this.name = 'WiseComboBox';
       this.items = normalizedItems;
-      this.placeholder = options.placeholder || 'Pilih opsi...';
-      this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
-      this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
-      this.style = options.style || {};
+      this.placeholder = opts.placeholder || 'Pilih opsi...';
+      this.onClick = typeof opts.onClick === 'function' ? opts.onClick : null;
+      this.onHover = typeof opts.onHover === 'function' ? opts.onHover : null;
+      this.style = opts.style || {};
 
-      const publicOnChange = typeof options.onChange === 'function' ? options.onChange : null;
-      this.onItemChanged = typeof options.onItemChanged === 'function' ? options.onItemChanged : null;
+      const publicOnChange = typeof opts.onChange === 'function' ? opts.onChange : null;
+      this.onItemChanged = typeof opts.onItemChanged === 'function' ? opts.onItemChanged : null;
       this._lastItem = this.items.find((item) => String(item.value) === String(this.value)) || null;
       this.onChange = (publicOnChange || this.onItemChanged) ? () => {
         const previousItem = this._lastItem;
