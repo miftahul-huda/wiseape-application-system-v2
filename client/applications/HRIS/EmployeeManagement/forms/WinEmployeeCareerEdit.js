@@ -16,8 +16,8 @@ const CAREER_TYPES = ['Promosi', 'Demosi', 'Rotasi', 'Penyesuaian Gaji', 'Pengha
 class WinEmployeeCareerEdit extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.employeeId = options.employeeId || null;
     this.record = options.data || null;
+    this.employeeId = options.employeeId || (this.record && this.record.employeeId) || (options.parentWindow && (options.parentWindow.selectedEmployeeId || options.parentWindow.employeeId)) || null;
     this.recordId = (this.record && this.record.id) || null;
     this.title = this.recordId ? 'Edit Riwayat Karir' : 'Catat Riwayat Karir / Promosi';
     this.width = 620;
@@ -48,7 +48,10 @@ class WinEmployeeCareerEdit extends WiseWindow {
     this.addControl(tblCar);
 
     // ── Action Buttons ──────────────────────────────────────────
-    const actionFrame = new WiseFrame('', { style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' } });
+    const actionFrame = new WiseFrame('', {
+      id: 'frameCareerActions',
+      style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' }
+    });
     actionFrame.addControl(new WiseButton('💾 Simpan Riwayat Karir', {
       id: 'btnSaveCareer',
       onClick: this.onSaveClick.bind(this),
@@ -91,9 +94,11 @@ class WinEmployeeCareerEdit extends WiseWindow {
   }
 
   async onSaveClick() {
-    if (!this.employeeId) {
+    const empId = this.employeeId || (this.record && this.record.employeeId) || (this.parentWindow && (this.parentWindow.selectedEmployeeId || this.parentWindow.employeeId));
+    if (!empId) {
       return this.showInfo('Peringatan', 'Data karyawan belum ditentukan.', 'warning');
     }
+    this.employeeId = empId;
     const effectiveDate = (this.dtCareerDate ? this.dtCareerDate.value : null) || '';
     if (!effectiveDate) {
       return this.showInfo('Validasi', 'Tanggal efektif perubahan wajib diisi.', 'warning');

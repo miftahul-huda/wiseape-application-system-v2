@@ -15,8 +15,8 @@ const EDU_DEGREES = ['SMA/SMK', 'D3', 'D4', 'S1', 'S2', 'S3', 'Sertifikasi Profe
 class WinEmployeeEducationEdit extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.employeeId = options.employeeId || null;
     this.record = options.data || null;
+    this.employeeId = options.employeeId || (this.record && this.record.employeeId) || (options.parentWindow && (options.parentWindow.selectedEmployeeId || options.parentWindow.employeeId)) || null;
     this.recordId = (this.record && this.record.id) || null;
     this.title = this.recordId ? 'Edit Riwayat Pendidikan' : 'Tambah Riwayat Pendidikan';
     this.width = 620;
@@ -47,7 +47,10 @@ class WinEmployeeEducationEdit extends WiseWindow {
     this.addControl(tblEdu);
 
     // ── Action Buttons ──────────────────────────────────────────
-    const actionFrame = new WiseFrame('', { style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' } });
+    const actionFrame = new WiseFrame('', {
+      id: 'frameEduActions',
+      style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' }
+    });
     actionFrame.addControl(new WiseButton('💾 Simpan Pendidikan', {
       id: 'btnSaveEdu',
       onClick: this.onSaveClick.bind(this),
@@ -90,9 +93,11 @@ class WinEmployeeEducationEdit extends WiseWindow {
   }
 
   async onSaveClick() {
-    if (!this.employeeId) {
+    const empId = this.employeeId || (this.record && this.record.employeeId) || (this.parentWindow && (this.parentWindow.selectedEmployeeId || this.parentWindow.employeeId));
+    if (!empId) {
       return this.showInfo('Peringatan', 'Data karyawan belum ditentukan.', 'warning');
     }
+    this.employeeId = empId;
     const inst = this.txtEduInst ? this.txtEduInst.value : '';
     if (!inst) {
       return this.showInfo('Validasi', 'Nama institusi pendidikan wajib diisi.', 'warning');

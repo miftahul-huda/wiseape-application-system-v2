@@ -382,6 +382,26 @@ class HrisApiRepository {
     return res.data || [];
   }
 
+  async createDocument(employeeId, data) {
+    const res = await this.request(`/employees/${employeeId}/documents`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    return res.data;
+  }
+
+  async addDocument(employeeId, data) {
+    return this.createDocument(employeeId, data);
+  }
+
+  async updateDocument(id, data) {
+    const res = await this.request(`/documents/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    return res.data;
+  }
+
   async uploadDocument(employeeId, formData) {
     const url = `${this.baseUrl}/employees/${employeeId}/documents`;
     const response = await fetch(url, {
@@ -412,6 +432,10 @@ class HrisApiRepository {
     return res.data;
   }
 
+  async addWorkExperience(employeeId, data) {
+    return this.createWorkExperience(employeeId, data);
+  }
+
   async updateWorkExperience(id, data) {
     const res = await this.request(`/work-experiences/${id}`, {
       method: 'PUT',
@@ -437,6 +461,18 @@ class HrisApiRepository {
     return res.data;
   }
 
+  async addEducation(employeeId, data) {
+    return this.createEducation(employeeId, data);
+  }
+
+  async addEducationHistory(employeeId, data) {
+    return this.createEducation(employeeId, data);
+  }
+
+  async createEducationHistory(employeeId, data) {
+    return this.createEducation(employeeId, data);
+  }
+
   async updateEducation(id, data) {
     const res = await this.request(`/education/${id}`, {
       method: 'PUT',
@@ -445,8 +481,16 @@ class HrisApiRepository {
     return res.data;
   }
 
+  async updateEducationHistory(id, data) {
+    return this.updateEducation(id, data);
+  }
+
   async deleteEducation(id) {
     return this.request(`/education/${id}`, { method: 'DELETE' });
+  }
+
+  async deleteEducationHistory(id) {
+    return this.deleteEducation(id);
   }
 
   async listCareerHistory(employeeId) {
@@ -460,6 +504,10 @@ class HrisApiRepository {
       body: JSON.stringify(data)
     });
     return res.data;
+  }
+
+  async addCareerHistory(employeeId, data) {
+    return this.createCareerHistory(employeeId, data);
   }
 
   async updateCareerHistory(id, data) {
@@ -487,6 +535,18 @@ class HrisApiRepository {
     return res.data;
   }
 
+  async addFamily(employeeId, data) {
+    return this.createFamily(employeeId, data);
+  }
+
+  async addFamilyMember(employeeId, data) {
+    return this.createFamily(employeeId, data);
+  }
+
+  async createFamilyMember(employeeId, data) {
+    return this.createFamily(employeeId, data);
+  }
+
   async updateFamily(id, data) {
     const res = await this.request(`/family/${id}`, {
       method: 'PUT',
@@ -495,8 +555,16 @@ class HrisApiRepository {
     return res.data;
   }
 
+  async updateFamilyMember(id, data) {
+    return this.updateFamily(id, data);
+  }
+
   async deleteFamily(id) {
     return this.request(`/family/${id}`, { method: 'DELETE' });
+  }
+
+  async deleteFamilyMember(id) {
+    return this.deleteFamily(id);
   }
 }
 

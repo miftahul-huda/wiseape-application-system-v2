@@ -13,8 +13,8 @@ const api = new HrisApiRepository();
 class WinEmployeeExperienceEdit extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.employeeId = options.employeeId || null;
     this.record = options.data || null;
+    this.employeeId = options.employeeId || (this.record && this.record.employeeId) || (options.parentWindow && (options.parentWindow.selectedEmployeeId || options.parentWindow.employeeId)) || null;
     this.recordId = (this.record && this.record.id) || null;
     this.title = this.recordId ? 'Edit Pengalaman Kerja' : 'Tambah Pengalaman Kerja';
     this.width = 620;
@@ -43,7 +43,10 @@ class WinEmployeeExperienceEdit extends WiseWindow {
     this.addControl(tblExp);
 
     // ── Action Buttons ──────────────────────────────────────────
-    const actionFrame = new WiseFrame('', { style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' } });
+    const actionFrame = new WiseFrame('', {
+      id: 'frameExpActions',
+      style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' }
+    });
     actionFrame.addControl(new WiseButton('💾 Simpan Pengalaman', {
       id: 'btnSaveExp',
       onClick: this.onSaveClick.bind(this),
@@ -86,9 +89,11 @@ class WinEmployeeExperienceEdit extends WiseWindow {
   }
 
   async onSaveClick() {
-    if (!this.employeeId) {
+    const empId = this.employeeId || (this.record && this.record.employeeId) || (this.parentWindow && (this.parentWindow.selectedEmployeeId || this.parentWindow.employeeId));
+    if (!empId) {
       return this.showInfo('Peringatan', 'Data karyawan belum ditentukan.', 'warning');
     }
+    this.employeeId = empId;
     const company = this.txtExpCompany ? this.txtExpCompany.value : '';
     const position = this.txtExpPosition ? this.txtExpPosition.value : '';
     if (!company || !position) {

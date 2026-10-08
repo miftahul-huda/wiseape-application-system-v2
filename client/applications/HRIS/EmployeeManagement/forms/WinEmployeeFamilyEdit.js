@@ -27,8 +27,8 @@ const GENDERS = [
 class WinEmployeeFamilyEdit extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.employeeId = options.employeeId || null;
     this.record = options.data || null;
+    this.employeeId = options.employeeId || (this.record && this.record.employeeId) || (options.parentWindow && (options.parentWindow.selectedEmployeeId || options.parentWindow.employeeId)) || null;
     this.recordId = (this.record && this.record.id) || null;
     this.title = this.recordId ? 'Edit Anggota Keluarga' : 'Tambah Anggota Keluarga';
     this.width = 540;
@@ -57,7 +57,10 @@ class WinEmployeeFamilyEdit extends WiseWindow {
     this.addControl(tblFam);
 
     // ── Action Buttons ──────────────────────────────────────────
-    const actionFrame = new WiseFrame('', { style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' } });
+    const actionFrame = new WiseFrame('', {
+      id: 'frameFamActions',
+      style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' }
+    });
     actionFrame.addControl(new WiseButton('💾 Simpan', {
       id: 'btnSaveFamily',
       onClick: this.onSaveClick.bind(this),
@@ -98,6 +101,12 @@ class WinEmployeeFamilyEdit extends WiseWindow {
   }
 
   async onSaveClick() {
+    const empId = this.employeeId || (this.record && this.record.employeeId) || (this.parentWindow && (this.parentWindow.selectedEmployeeId || this.parentWindow.employeeId));
+    if (!empId) {
+      return this.showInfo('Peringatan', 'Data karyawan belum ditentukan.', 'warning');
+    }
+    this.employeeId = empId;
+
     const name = this.txtFamName?.value?.trim();
     const gender = this.cmbFamGender?.value || 'Laki-laki';
     const relationship = this.cmbFamRelation?.value || 'Anak';
@@ -118,12 +127,10 @@ class WinEmployeeFamilyEdit extends WiseWindow {
 
       if (this.recordId) {
         await api.updateFamilyMember(this.recordId, payload);
+        this.showInfo('Berhasil', 'Data anggota keluarga berhasil diperbarui.', 'success');
       } else {
-        if (!this.employeeId) {
-          this.showInfo('Error', 'ID Karyawan tidak ditemukan.', 'error');
-          return;
-        }
         await api.addFamilyMember(this.employeeId, payload);
+        this.showInfo('Berhasil', 'Data anggota keluarga berhasil ditambahkan.', 'success');
       }
 
       if (this.parentWindow) {
