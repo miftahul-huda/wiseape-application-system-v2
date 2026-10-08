@@ -101,7 +101,14 @@ class WinEmployeeDetail extends WiseWindow {
 
     // ── TAB 1: DATA PRIBADI ─────────────────────────────────────
     const tabPersControls = [];
-    const tblPersonal = new WiseTableLayout({ rows: 5, columns: 2, id: 'tblDetailPersonal', style: { marginBottom: '8px' } });
+    const tblPersonal = new WiseTableLayout({
+      rows: 5,
+      columns: 2,
+      columnWidths: ['50%', '50%'],
+      tableLayout: 'fixed',
+      id: 'tblDetailPersonal',
+      style: { width: '100%', tableLayout: 'fixed', marginBottom: '8px' }
+    });
     tblPersonal.setCell(0, 0, this.infoField('Nama Lengkap', 'lblValFullName'));
     tblPersonal.setCell(0, 1, this.infoField('Nama Panggilan', 'lblValNickname'));
     tblPersonal.setCell(1, 0, this.infoField('Tempat Lahir', 'lblValBirthPlace'));
@@ -124,7 +131,14 @@ class WinEmployeeDetail extends WiseWindow {
         padding: '12px'
       }
     });
-    const tblEmergency = new WiseTableLayout({ rows: 1, columns: 3, id: 'tblEmergency' });
+    const tblEmergency = new WiseTableLayout({
+      rows: 1,
+      columns: 3,
+      columnWidths: ['33.33%', '33.33%', '33.34%'],
+      tableLayout: 'fixed',
+      id: 'tblEmergency',
+      style: { width: '100%', tableLayout: 'fixed' }
+    });
     tblEmergency.setCell(0, 0, this.infoField('Nama Kontak', 'lblValEmergencyName'));
     tblEmergency.setCell(0, 1, this.infoField('Hubungan', 'lblValEmergencyRelation'));
     tblEmergency.setCell(0, 2, this.infoField('Nomor Telepon', 'lblValEmergencyPhone'));
@@ -135,7 +149,14 @@ class WinEmployeeDetail extends WiseWindow {
 
     // ── TAB 2: DATA PEKERJAAN ───────────────────────────────────
     const tabEmplControls = [];
-    const tblEmployment = new WiseTableLayout({ rows: 5, columns: 2, id: 'tblDetailEmployment', style: { marginBottom: '8px' } });
+    const tblEmployment = new WiseTableLayout({
+      rows: 5,
+      columns: 2,
+      columnWidths: ['50%', '50%'],
+      tableLayout: 'fixed',
+      id: 'tblDetailEmployment',
+      style: { width: '100%', tableLayout: 'fixed', marginBottom: '8px' }
+    });
     tblEmployment.setCell(0, 0, this.infoField('NIK / ID Karyawan', 'lblValNik'));
     tblEmployment.setCell(0, 1, this.infoField('Jabatan / Posisi', 'lblValJobTitle'));
     tblEmployment.setCell(1, 0, this.infoField('Tingkat Jabatan (Job Level)', 'lblValJobLevel'));
@@ -158,7 +179,14 @@ class WinEmployeeDetail extends WiseWindow {
         padding: '12px'
       }
     });
-    const tblTenure = new WiseTableLayout({ rows: 1, columns: 2, id: 'tblTenure' });
+    const tblTenure = new WiseTableLayout({
+      rows: 1,
+      columns: 2,
+      columnWidths: ['50%', '50%'],
+      tableLayout: 'fixed',
+      id: 'tblTenure',
+      style: { width: '100%', tableLayout: 'fixed' }
+    });
     tblTenure.setCell(0, 0, this.infoField('Masa Kerja', 'lblValTenure'));
     tblTenure.setCell(0, 1, this.infoField('Status Keaktifan', 'lblValActiveStatus'));
     frameTenure.addControl(tblTenure);
@@ -168,7 +196,14 @@ class WinEmployeeDetail extends WiseWindow {
 
     // ── TAB 3: KOMPENSASI & PAYROLL ─────────────────────────────
     const tabPayControls = [];
-    const tblPayroll = new WiseTableLayout({ rows: 5, columns: 2, id: 'tblDetailPayroll', style: { marginBottom: '8px' } });
+    const tblPayroll = new WiseTableLayout({
+      rows: 5,
+      columns: 2,
+      columnWidths: ['50%', '50%'],
+      tableLayout: 'fixed',
+      id: 'tblDetailPayroll',
+      style: { width: '100%', tableLayout: 'fixed', marginBottom: '8px' }
+    });
     tblPayroll.setCell(0, 0, this.infoField('Nama Bank', 'lblValBankName'));
     tblPayroll.setCell(0, 1, this.infoField('Nomor Rekening', 'lblValBankAccountNumber'));
     tblPayroll.setCell(1, 0, this.infoField('Nama Pemilik Rekening', 'lblValBankAccountHolder'));
@@ -191,7 +226,14 @@ class WinEmployeeDetail extends WiseWindow {
         padding: '12px'
       }
     });
-    const tblTax = new WiseTableLayout({ rows: 1, columns: 3, id: 'tblTax' });
+    const tblTax = new WiseTableLayout({
+      rows: 1,
+      columns: 3,
+      columnWidths: ['33.33%', '33.33%', '33.34%'],
+      tableLayout: 'fixed',
+      id: 'tblTax',
+      style: { width: '100%', tableLayout: 'fixed' }
+    });
     tblTax.setCell(0, 0, this.infoField('Nomor NPWP', 'lblValNpwp'));
     tblTax.setCell(0, 1, this.infoField('Nomor BPJS Kesehatan', 'lblValBpjsKesehatan'));
     tblTax.setCell(0, 2, this.infoField('Nomor BPJS Ketenagakerjaan', 'lblValBpjsKetenagakerjaan'));

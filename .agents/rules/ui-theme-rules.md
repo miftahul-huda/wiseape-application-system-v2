@@ -22,9 +22,13 @@ Dalam seluruh form, window, frame, button, label, table, dan komponen UI di apli
 3. **Komponen Form & Window**:
    - Semua window baru atau refaktor window (termasuk `WinEmployeeDetail`, `WinEmployeeEdit`, `WinEmployeeManagement`, dan modul HRIS lainnya) harus selalu mewarisi dan mengikuti tema aktif yang dipilih pengguna di desktop settings.
 - Buat button tanpa border atau shadow. Just flat and simple button.
-- **Flat Input Controls (Dilarang 3D / Shadow)**: DILARANG KERAS membuat input controls (WiseTextBox, WiseComboBox, WiseTextArea, WiseDate, WiseNumericBox, dll.) dengan efek 3D, inset shadow, drop shadow, atau bevel. Semua control input WAJIB dibuat flat dan bersih dengan border 1px yang jelas (solid flat border) tanpa shadow sama sekali (`shadow-none` / `boxShadow: 'none'`).
+- **WAJIB Border pada Semua Input Controls (DILARANG MENGHILANGKAN BORDER)**:
+  - **DILARANG KERAS MENGHILANGKAN BORDER** (`border: none`, `border: 0`, `border-none`, `border-transparent`, `outline: none` tanpa border) pada seluruh input controls (`WiseTextBox`, `WiseComboBox`, `WiseDate`, `WiseDateRange`, `WiseNumericBox`, `WiseTextArea`, search input, dll.).
+  - Seluruh input controls **WAJIB** memiliki border 1px solid yang jelas, tegas, dan kontras (`border: 1px solid #94a3b8` / `border border-slate-300`). Jangan pernah membuat input tanpa border atau borderless.
+  - **Flat Input Controls (Dilarang 3D / Shadow)**: DILARANG KERAS membuat input controls dengan efek 3D, inset shadow, drop shadow, atau bevel. Semua control input WAJIB dibuat flat dan bersih dengan border 1px yang jelas (solid flat border) tanpa shadow sama sekali (`shadow-none` / `boxShadow: 'none'`).
 - Buat ukuran font mengikuti ukuran default, jangan diperkecil termasuk di tab, button, label, atau input.
 - Dilarang membuat form input inline di bawah data table untuk sub-records. Gunakan tombol aksi / context menu pada tabel yang membuka form window/dialog tersendiri via `this.openWindow(...)`.
-- Setiap membuat Window jangan ditambahkan Frame informasi jika tidak diminta.
+- **DILARANG MENAMBAHKAN FRAME / HERO BANNER DI ATAS FORM ATAU WINDOW**: DILARANG KERAS menambahkan frame dekoratif, hero header banner, atau frame informasi/deskripsi di bagian atas window atau form kecuali diminta secara eksplisit oleh user. Window dan form harus langsung dimulai dengan konten fungsional utama (toolbar aksi, tab, filter, data table, atau layout input controls).
 - WAJIB menggunakan kontrol `WiseDate` untuk setiap field input tanggal.
 - Selalu rujuk dokumentasi di root folder `/docs` (`docs/API_REFERENCE.md`, `docs/DEVELOPMENT_GUIDE.md`, dll.) untuk panduan penggunaan kontrol WAS.
+- **WAJIB Dukung Multi-Language (Current Active Language)**: Setiap membuat form, window, dialog, tombol aksi, label field, placeholder input, tab, filter table, atau pesan baru, seluruh teks/label **WAJIB** terdaftar dan didukung dalam kamus terjemahan `WiseI18n.js` (mendukung `id`, `en`, `de`, `es`, `fr`, `ar`) agar UI selalu otomatis menyesuaikan dengan bahasa aktif (`currentLanguage`) yang dipilih pengguna di Pengaturan Desktop.

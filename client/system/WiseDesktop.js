@@ -137,8 +137,12 @@ class WiseDesktop {
             controlEl.textContent = t(raw);
           }
 
-          // 2. WiseButton
-          if (controlEl.tagName === 'BUTTON' || controlEl.dataset.controlType === 'WiseButton') {
+          // 2. WiseButton (text-only). WiseIconMenu is also a <button> carrying
+          // data-control-id, but its content is an icon -- overwriting
+          // textContent would wipe the SVG/img, so it is skipped here.
+          if (controlEl.dataset.controlType !== 'WiseIconMenu' &&
+              (controlEl.tagName === 'BUTTON' || controlEl.dataset.controlType === 'WiseButton') &&
+              !controlEl.querySelector('svg, img')) {
             const raw = controlEl.dataset.rawLabel || controlEl.textContent;
             controlEl.dataset.rawLabel = raw;
             controlEl.textContent = t(raw);

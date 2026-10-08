@@ -251,9 +251,29 @@ class WinEmployeeManagement extends WiseWindow {
 
   async loadInitialData() {
     try {
+      await this.loadDepartmentFilterItems();
       await this.loadEmployeesTable();
     } catch (err) {
       this.showInfo('Error Koneksi Backend', err.message, 'error');
+    }
+  }
+
+  // Department filter = root organizations from master data (same source as
+  // the Department combobox in the employee edit form). Failures are
+  // non-fatal: the filter just keeps its current items.
+  async loadDepartmentFilterItems() {
+    try {
+      const res = await api.listOrganizations({ isActive: 'true', sortBy: 'sortOrder', sortOrder: 'ASC' });
+      const roots = (res.rows || []).filter((o) => !o.parentId);
+      const filter = this.dtEmployees && (this.dtEmployees.filterControls || []).find((f) => f.id === 'department');
+      if (filter) {
+        filter.items = [
+          { value: '', label: 'Semua Departemen' },
+          ...roots.map((o) => ({ value: o.name, label: o.name }))
+        ];
+      }
+    } catch (err) {
+      // keep existing filter items
     }
   }
 

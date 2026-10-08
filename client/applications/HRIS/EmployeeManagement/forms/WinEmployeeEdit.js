@@ -20,7 +20,7 @@ const HrisApiRepository = require('../services/HrisApiRepository');
 const api = new HrisApiRepository();
 
 const RELIGIONS = ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu', 'Lainnya'];
-const JOB_LEVELS = ['Staff', 'Senior Staff', 'Supervisor', 'Manager', 'General Manager', 'Director'];
+const WiseI18n = typeof window !== 'undefined' ? window.WiseI18n : require('../../../../system/WiseI18n');
 const EMPLOYMENT_STATUSES = ['Karyawan Tetap', 'Kontrak/PKWT', 'Paruh Waktu', 'Magang'];
 const TAX_STATUSES = ['TK/0', 'TK/1', 'TK/2', 'TK/3', 'K/0', 'K/1', 'K/2', 'K/3'];
 const BANKS = ['BCA', 'Bank Mandiri', 'BNI', 'BRI', 'CIMB Niaga', 'Bank Danamon', 'Bank Permata', 'Lainnya'];
@@ -116,13 +116,20 @@ class WinEmployeeEdit extends WiseWindow {
 
     // ── TAB 1: DATA PRIBADI ─────────────────────────────────────
     const tabPersControls = [];
-    const tblPersonal = new WiseTableLayout({ rows: 5, columns: 2, id: 'tblEditPersonal', style: { marginBottom: '8px' } });
+    const tblPersonal = new WiseTableLayout({
+      rows: 5,
+      columns: 2,
+      columnWidths: ['50%', '50%'],
+      tableLayout: 'fixed',
+      id: 'tblEditPersonal',
+      style: { width: '100%', tableLayout: 'fixed', marginBottom: '8px' }
+    });
     tblPersonal.setCell(0, 0, this.formGroup('Nama Lengkap *', new WiseTextBox('', { id: 'txtFullName', placeholder: 'e.g. Raden Ayu Annisa Putri, S.T.' })));
     tblPersonal.setCell(0, 1, this.formGroup('Nama Panggilan', new WiseTextBox('', { id: 'txtNickname', placeholder: 'e.g. Annisa' })));
     tblPersonal.setCell(1, 0, this.formGroup('Tempat Lahir', new WiseTextBox('', { id: 'txtBirthPlace', placeholder: 'e.g. Yogyakarta' })));
     tblPersonal.setCell(1, 1, this.formGroup('Tanggal Lahir', new WiseDate('', { id: 'dtBirthDate' })));
-    tblPersonal.setCell(2, 0, this.formGroup('Jenis Kelamin', new WiseComboBox([{ value: 'Laki-laki', label: 'Laki-laki' }, { value: 'Perempuan', label: 'Perempuan' }], { id: 'cmbGender', value: 'Laki-laki' })));
-    tblPersonal.setCell(2, 1, this.formGroup('Agama', new WiseComboBox(RELIGIONS.map(r => ({ value: r, label: r })), { id: 'cmbReligion', value: 'Islam' })));
+    tblPersonal.setCell(2, 0, this.formGroup('Jenis Kelamin', new WiseComboBox([{ value: 'Laki-laki', label: 'Laki-laki' }, { value: 'Perempuan', label: 'Perempuan' }], { id: 'cmbGender', value: 'Laki-laki', style: { width: '100%' } })));
+    tblPersonal.setCell(2, 1, this.formGroup('Agama', new WiseComboBox(RELIGIONS.map(r => ({ value: r, label: r })), { id: 'cmbReligion', value: 'Islam', style: { width: '100%' } })));
     tblPersonal.setCell(3, 0, this.formGroup('Nomor Telepon / WhatsApp *', new WiseTextBox('', { id: 'txtPhoneNumber', placeholder: '081234567890' })));
     tblPersonal.setCell(3, 1, this.formGroup('Email Pribadi *', new WiseTextBox('', { id: 'txtPersonalEmail', placeholder: 'karyawan@example.com' })));
     tblPersonal.setCell(4, 0, this.formGroup('Alamat Tempat Tinggal Saat Ini', new WiseTextBox('', { id: 'txtCurrentAddress', placeholder: 'Alamat domisili saat ini' })));
@@ -139,9 +146,16 @@ class WinEmployeeEdit extends WiseWindow {
         padding: '12px'
       }
     });
-    const tblEmergency = new WiseTableLayout({ rows: 1, columns: 3, id: 'tblEmergency' });
+    const tblEmergency = new WiseTableLayout({
+      rows: 1,
+      columns: 3,
+      columnWidths: ['33.33%', '33.33%', '33.34%'],
+      tableLayout: 'fixed',
+      id: 'tblEmergency',
+      style: { width: '100%', tableLayout: 'fixed' }
+    });
     tblEmergency.setCell(0, 0, this.formGroup('Nama Kontak Darurat', new WiseTextBox('', { id: 'txtEmergencyName', placeholder: 'Nama kontak darurat' })));
-    tblEmergency.setCell(0, 1, this.formGroup('Hubungan', new WiseComboBox(['Orang Tua', 'Suami/Istri', 'Saudara Kandung', 'Anak', 'Teman'].map(h => ({ value: h, label: h })), { id: 'cmbEmergencyRelation', value: 'Orang Tua' })));
+    tblEmergency.setCell(0, 1, this.formGroup('Hubungan', new WiseComboBox(['Orang Tua', 'Suami/Istri', 'Saudara Kandung', 'Anak', 'Teman'].map(h => ({ value: h, label: h })), { id: 'cmbEmergencyRelation', value: 'Orang Tua', style: { width: '100%' } })));
     tblEmergency.setCell(0, 2, this.formGroup('Nomor Telepon Darurat', new WiseTextBox('', { id: 'txtEmergencyPhone', placeholder: '0812xxxxxxxx' })));
     frameEmergency.addControl(tblEmergency);
     tabPersControls.push(frameEmergency);
@@ -150,24 +164,52 @@ class WinEmployeeEdit extends WiseWindow {
 
     // ── TAB 2: DATA PEKERJAAN ───────────────────────────────────
     const tabEmplControls = [];
-    const tblEmployment = new WiseTableLayout({ rows: 5, columns: 2, id: 'tblEditEmployment', style: { marginBottom: '8px' } });
+    const tblEmployment = new WiseTableLayout({
+      rows: 5,
+      columns: 2,
+      columnWidths: ['50%', '50%'],
+      tableLayout: 'fixed',
+      id: 'tblEditEmployment',
+      style: { width: '100%', tableLayout: 'fixed', marginBottom: '8px' }
+    });
     tblEmployment.setCell(0, 0, this.formGroup('NIK / ID Karyawan *', new WiseTextBox('', { id: 'txtNik', placeholder: 'EMP-2024-001' })));
-    tblEmployment.setCell(0, 1, this.formGroup('Jabatan / Posisi *', new WiseTextBox('', { id: 'txtJobTitle', placeholder: 'e.g. Senior Software Engineer' })));
-    tblEmployment.setCell(1, 0, this.formGroup('Tingkat Jabatan', new WiseComboBox(JOB_LEVELS.map(l => ({ value: l, label: l })), { id: 'cmbJobLevel', value: 'Staff' })));
-    tblEmployment.setCell(1, 1, this.formGroup('Departemen', new WiseTextBox('', { id: 'txtDepartment', placeholder: 'Technology / Engineering' })));
-    tblEmployment.setCell(2, 0, this.formGroup('Divisi / Sub-Departemen', new WiseTextBox('', { id: 'txtDivision', placeholder: 'e.g. Frontend Engineering' })));
-    tblEmployment.setCell(2, 1, this.formGroup('Status Kepegawaian', new WiseComboBox(EMPLOYMENT_STATUSES.map(s => ({ value: s, label: s })), { id: 'cmbEmploymentStatus', value: 'Karyawan Tetap' })));
+    // Department / Division / Job Title / Job Level are fed from the Organization,
+    // Position and Job Level master data (see loadMasterData / applyOrgSelection).
+    const orgComboStyle = { width: '100%' };
+    tblEmployment.setCell(0, 1, this.formGroup('Departemen', new WiseComboBox([], {
+      id: 'cmbDepartment', value: '', style: orgComboStyle,
+      onChange: this.onDepartmentChanged.bind(this)
+    })));
+    tblEmployment.setCell(1, 0, this.formGroup('Divisi / Sub-Departemen', new WiseComboBox([], {
+      id: 'cmbDivision', value: '', style: orgComboStyle,
+      onChange: this.onDivisionChanged.bind(this)
+    })));
+    tblEmployment.setCell(1, 1, this.formGroup('Jabatan / Posisi *', new WiseComboBox([], {
+      id: 'cmbJobTitle', value: '', style: orgComboStyle,
+      onChange: this.onJobTitleChanged.bind(this)
+    })));
+    tblEmployment.setCell(2, 0, this.formGroup('Tingkat Jabatan', new WiseComboBox([], {
+      id: 'cmbJobLevel', value: '', style: orgComboStyle
+    })));
+    tblEmployment.setCell(2, 1, this.formGroup('Status Kepegawaian', new WiseComboBox(EMPLOYMENT_STATUSES.map(s => ({ value: s, label: s })), { id: 'cmbEmploymentStatus', value: 'Karyawan Tetap', style: orgComboStyle })));
     tblEmployment.setCell(3, 0, this.formGroup('Tanggal Bergabung', new WiseDate('', { id: 'dtJoinDate' })));
     tblEmployment.setCell(3, 1, this.formGroup('Tanggal Berakhir (Kontrak/Magang)', new WiseDate('', { id: 'dtEndDate' })));
     tblEmployment.setCell(4, 0, this.formGroup('Atasan Langsung', new WiseTextBox('', { id: 'txtManagerName', placeholder: 'Nama Atasan Langsung' })));
-    tblEmployment.setCell(4, 1, this.formGroup('Lokasi Kerja', new WiseComboBox(['Kantor Pusat', 'Kantor Cabang', 'Remote', 'Hybrid'].map(l => ({ value: l, label: l })), { id: 'cmbWorkLocation', value: 'Kantor Pusat' })));
+    tblEmployment.setCell(4, 1, this.formGroup('Lokasi Kerja', new WiseComboBox(['Kantor Pusat', 'Kantor Cabang', 'Remote', 'Hybrid'].map(l => ({ value: l, label: l })), { id: 'cmbWorkLocation', value: 'Kantor Pusat', style: orgComboStyle })));
     tabEmplControls.push(tblEmployment);
     editTabs.addTab({ label: 'Data Pekerjaan', icon: '💼', controls: tabEmplControls });
 
     // ── TAB 3: KOMPENSASI & PAYROLL ─────────────────────────────
     const tabPayControls = [];
-    const tblPayroll = new WiseTableLayout({ rows: 6, columns: 2, id: 'tblEditPayroll', style: { marginBottom: '8px' } });
-    tblPayroll.setCell(0, 0, this.formGroup('Nama Bank', new WiseComboBox(BANKS.map(b => ({ value: b, label: b })), { id: 'cmbBankName', value: 'BCA' })));
+    const tblPayroll = new WiseTableLayout({
+      rows: 6,
+      columns: 2,
+      columnWidths: ['50%', '50%'],
+      tableLayout: 'fixed',
+      id: 'tblEditPayroll',
+      style: { width: '100%', tableLayout: 'fixed', marginBottom: '8px' }
+    });
+    tblPayroll.setCell(0, 0, this.formGroup('Nama Bank', new WiseComboBox(BANKS.map(b => ({ value: b, label: b })), { id: 'cmbBankName', value: 'BCA', style: { width: '100%' } })));
     tblPayroll.setCell(0, 1, this.formGroup('Nomor Rekening Bank', new WiseTextBox('', { id: 'txtBankAccountNumber', placeholder: 'Nomor rekening untuk transfer gaji' })));
     tblPayroll.setCell(1, 0, this.formGroup('Nama Pemilik Rekening', new WiseTextBox('', { id: 'txtBankAccountHolder', placeholder: 'Harus sesuai buku tabungan' })));
     tblPayroll.setCell(1, 1, this.formGroup('Gaji Pokok', new WiseNumericBox('0', { id: 'numBasicSalary', value: 0, prefix: 'Rp ' })));
@@ -387,7 +429,7 @@ class WinEmployeeEdit extends WiseWindow {
   }
 
   formGroup(label, control) {
-    const frame = new WiseFrame('', { style: { padding: '4px 6px', border: 'none', background: 'transparent' } });
+    const frame = new WiseFrame('', { style: { padding: '4px 6px', border: 'none', background: 'transparent', width: '100%', boxSizing: 'border-box' } });
     frame.addControl(new WiseLabel(label, { style: { fontWeight: 600, color: '#475569', marginBottom: '4px', display: 'block' } }));
     frame.addControl(control);
     return frame;
@@ -397,9 +439,122 @@ class WinEmployeeEdit extends WiseWindow {
     this.visible = true;
     const opts = options || {};
     const employeeId = opts.employeeId || this.selectedEmployeeId;
+    await this.loadMasterData();
     if (employeeId) {
       await this.loadEmployee(employeeId);
+    } else {
+      this.applyOrgSelection({});
     }
+  }
+
+  // ── Organization / Position / Job Level master data ───────────
+  async loadMasterData() {
+    try {
+      const [orgRes, levelRes, posRes] = await Promise.all([
+        api.listOrganizations({ isActive: 'true', sortBy: 'sortOrder', sortOrder: 'ASC' }),
+        api.listJobLevels({ isActive: 'true', sortBy: 'levelNumber', sortOrder: 'ASC' }),
+        api.listPositions({ isActive: 'true', sortBy: 'title', sortOrder: 'ASC' })
+      ]);
+      this.orgs = orgRes.rows || [];
+      this.jobLevels = levelRes.rows || [];
+      this.positions = posRes.rows || [];
+    } catch (err) {
+      this.orgs = [];
+      this.jobLevels = [];
+      this.positions = [];
+      this.showInfo('Gagal Memuat Master Data', err.message, 'error');
+    }
+  }
+
+  t(key) {
+    return WiseI18n.t(key);
+  }
+
+  // Builds combobox items from a list of names, prepending a blank option and
+  // keeping the current value selectable even if it is no longer in master
+  // data (legacy employee records) so saving never silently drops it.
+  buildNameItems(names, current, blankLabel) {
+    const unique = [...new Set(names.filter(Boolean))];
+    if (current && !unique.includes(current)) unique.push(current);
+    return [{ value: '', label: this.t(blankLabel) }, ...unique.map((n) => ({ value: n, label: n }))];
+  }
+
+  // Re-populates the four dependent comboboxes for the given selection:
+  //   Department  = root organizations (no parent)
+  //   Division    = child organizations of the selected Department
+  //   Job Title   = positions of the Division (or Department subtree), falling
+  //                 back to every active position when none are mapped
+  //   Job Level   = all job levels
+  // `keepLegacy` keeps stored values missing from master data selectable.
+  applyOrgSelection({ department = '', division = '', jobTitle = '', jobLevel = '' }, keepLegacy = false) {
+    const orgs = this.orgs || [];
+    const positions = this.positions || [];
+    const levels = this.jobLevels || [];
+
+    const roots = orgs.filter((o) => !o.parentId);
+    const deptObj = roots.find((o) => o.name === department) || null;
+    const divisions = deptObj ? orgs.filter((o) => o.parentId === deptObj.id) : [];
+    const divObj = divisions.find((o) => o.name === division) || null;
+
+    let candidateOrgIds;
+    if (divObj) candidateOrgIds = new Set([divObj.id]);
+    else if (deptObj) candidateOrgIds = new Set([deptObj.id, ...divisions.map((o) => o.id)]);
+    else candidateOrgIds = null;
+
+    let candidates = candidateOrgIds ? positions.filter((p) => candidateOrgIds.has(p.organizationId)) : [];
+    if (candidates.length === 0) candidates = positions;
+    const titles = candidates.map((p) => p.title);
+
+    const validDept = deptObj ? department : (keepLegacy ? department : '');
+    const validDiv = divObj ? division : (keepLegacy ? division : '');
+    const validTitle = (titles.includes(jobTitle) || keepLegacy) ? jobTitle : '';
+    const levelNames = levels.map((l) => l.name);
+    const validLevel = (levelNames.includes(jobLevel) || keepLegacy) ? jobLevel : '';
+
+    if (this.cmbDepartment) {
+      this.cmbDepartment.setItems(this.buildNameItems(roots.map((o) => o.name), validDept, '(Pilih Departemen)'));
+      this.cmbDepartment.setValue(validDept);
+    }
+    if (this.cmbDivision) {
+      this.cmbDivision.setItems(this.buildNameItems(divisions.map((o) => o.name), validDiv, '(Pilih Divisi / Sub-Departemen)'));
+      this.cmbDivision.setValue(validDiv);
+    }
+    if (this.cmbJobTitle) {
+      this.cmbJobTitle.setItems(this.buildNameItems(titles, validTitle, '(Pilih Jabatan)'));
+      this.cmbJobTitle.setValue(validTitle);
+    }
+    if (this.cmbJobLevel) {
+      this.cmbJobLevel.setItems(this.buildNameItems(levelNames, validLevel, '(Pilih Tingkat Jabatan)'));
+      this.cmbJobLevel.setValue(validLevel);
+    }
+  }
+
+  currentOrgSelection() {
+    return {
+      department: this.cmbDepartment ? this.cmbDepartment.value : '',
+      division: this.cmbDivision ? this.cmbDivision.value : '',
+      jobTitle: this.cmbJobTitle ? this.cmbJobTitle.value : '',
+      jobLevel: this.cmbJobLevel ? this.cmbJobLevel.value : ''
+    };
+  }
+
+  onDepartmentChanged() {
+    // A different department invalidates the division (and usually the title).
+    this.applyOrgSelection({ ...this.currentOrgSelection(), division: '' });
+  }
+
+  onDivisionChanged() {
+    this.applyOrgSelection(this.currentOrgSelection());
+  }
+
+  onJobTitleChanged() {
+    const sel = this.currentOrgSelection();
+    const pos = (this.positions || []).find((p) => p.title === sel.jobTitle);
+    if (pos && pos.jobLevelId) {
+      const level = (this.jobLevels || []).find((l) => l.id === pos.jobLevelId);
+      if (level) sel.jobLevel = level.name;
+    }
+    this.applyOrgSelection(sel);
   }
 
   async loadEmployee(employeeId) {
@@ -439,10 +594,12 @@ class WinEmployeeEdit extends WiseWindow {
 
     // Employment
     if (this.txtNik) this.txtNik.setValue(emp.nik || '');
-    if (this.txtJobTitle) this.txtJobTitle.setValue(emp.jobTitle || '');
-    if (this.cmbJobLevel) this.cmbJobLevel.setValue(emp.jobLevel || 'Staff');
-    if (this.txtDepartment) this.txtDepartment.setValue(emp.department || '');
-    if (this.txtDivision) this.txtDivision.setValue(emp.division || '');
+    this.applyOrgSelection({
+      department: emp.department || '',
+      division: emp.division || '',
+      jobTitle: emp.jobTitle || '',
+      jobLevel: emp.jobLevel || ''
+    }, true);
     if (this.cmbEmploymentStatus) this.cmbEmploymentStatus.setValue(emp.employmentStatus || 'Karyawan Tetap');
     if (this.dtJoinDate) this.dtJoinDate.setValue(emp.joinDate || '');
     if (this.dtEndDate) this.dtEndDate.setValue(emp.endDate || '');
@@ -489,10 +646,10 @@ class WinEmployeeEdit extends WiseWindow {
         emergencyContactPhone: this.txtEmergencyPhone ? this.txtEmergencyPhone.value : '',
 
         nik: this.txtNik ? this.txtNik.value : '',
-        jobTitle: this.txtJobTitle ? this.txtJobTitle.value : '',
-        jobLevel: this.cmbJobLevel ? this.cmbJobLevel.value : 'Staff',
-        department: this.txtDepartment ? this.txtDepartment.value : '',
-        division: this.txtDivision ? this.txtDivision.value : '',
+        jobTitle: this.cmbJobTitle ? this.cmbJobTitle.value : '',
+        jobLevel: this.cmbJobLevel ? this.cmbJobLevel.value : '',
+        department: this.cmbDepartment ? this.cmbDepartment.value : '',
+        division: this.cmbDivision ? this.cmbDivision.value : '',
         employmentStatus: this.cmbEmploymentStatus ? this.cmbEmploymentStatus.value : 'Karyawan Tetap',
         joinDate: (this.dtJoinDate ? this.dtJoinDate.value : null) || new Date().toISOString().slice(0, 10),
         endDate: (this.dtEndDate ? this.dtEndDate.value : null) || null,

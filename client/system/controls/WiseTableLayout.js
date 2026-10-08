@@ -8,6 +8,8 @@
       this.name = 'WiseTableLayout';
       this.rows = options.rows || 1;
       this.columns = options.columns || 1;
+      this.columnWidths = options.columnWidths || null;
+      this.tableLayout = options.tableLayout || null;
       this.cells = [];
       this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
       this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
@@ -20,7 +22,7 @@
         col,
         colSpan: cellOptions.colSpan || 1,
         rowSpan: cellOptions.rowSpan || 1,
-        control,
+      control,
       });
       return this;
     }
@@ -39,6 +41,8 @@
         dataField: this.dataField,
         rows: this.rows,
         columns: this.columns,
+        columnWidths: this.columnWidths,
+        tableLayout: this.tableLayout,
         cells: this.cells.map((cell) => ({
           row: cell.row,
           col: cell.col,
@@ -56,8 +60,22 @@
 
     static renderElement(data, context) {
       const table = document.createElement('table');
-      table.className = 'w-full border-collapse';
+      const isFixed = data.tableLayout === 'fixed' || (data.style && data.style.tableLayout === 'fixed') || (Array.isArray(data.columnWidths) && data.columnWidths.length > 0);
+      table.className = `w-full border-collapse ${isFixed ? 'table-fixed' : ''}`.trim();
+      if (isFixed) {
+        table.style.tableLayout = 'fixed';
+      }
       WiseControl.applyCommon(table, data, context);
+
+      if (Array.isArray(data.columnWidths) && data.columnWidths.length > 0) {
+        const colgroup = document.createElement('colgroup');
+        data.columnWidths.forEach((w) => {
+          const col = document.createElement('col');
+          if (w) col.style.width = typeof w === 'number' ? `${w}px` : w;
+          colgroup.appendChild(col);
+        });
+        table.appendChild(colgroup);
+      }
 
       const cellByPosition = new Map();
       (data.cells || []).forEach((cell) => cellByPosition.set(`${cell.row}:${cell.col}`, cell));
@@ -74,6 +92,14 @@
           const cell = cellByPosition.get(key);
           const td = document.createElement('td');
           td.className = 'align-top p-1.5';
+
+          // Explicit width for table columns when specified or fixed layout is active
+          if (Array.isArray(data.columnWidths) && data.columnWidths[col] && (!cell || cell.colSpan <= 1)) {
+            const w = data.columnWidths[col];
+            td.style.width = typeof w === 'number' ? `${w}px` : w;
+          } else if (isFixed && data.columns > 0 && (!cell || cell.colSpan <= 1)) {
+            td.style.width = `${(100 / data.columns).toFixed(2)}%`;
+          }
 
           if (cell) {
             if (cell.colSpan > 1) td.colSpan = cell.colSpan;

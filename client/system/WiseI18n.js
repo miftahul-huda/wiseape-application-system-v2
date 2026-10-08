@@ -498,6 +498,16 @@
     'Unit Organisasi / Dept': { id: 'Unit Organisasi / Dept', en: 'Organizational Unit / Dept', de: 'Organisationseinheit / Abt.', es: 'Unidad Organizativa / Dpto', fr: 'Unité Organisationnelle / Dép.', ar: 'الوحدة التنظيمية / القسم' },
     'Jenjang / Grade': { id: 'Jenjang / Grade', en: 'Level / Grade', de: 'Stufe / Grad', es: 'Nivel / Grado', fr: 'Niveau / Grade', ar: 'المستوى / الدرجة' },
     'Jenjang Jabatan / Grade': { id: 'Jenjang Jabatan / Grade', en: 'Job Level / Grade', de: 'Positionsebene / Grad', es: 'Nivel de puesto / Grado', fr: 'Niveau de Poste / Grade', ar: 'المستوى الوظيفي / الدرجة' },
+
+    // Employee form: org / position / level comboboxes
+    'Departemen': { id: 'Departemen', en: 'Department', de: 'Abteilung', es: 'Departamento', fr: 'Département', ar: 'القسم' },
+    'Divisi / Sub-Departemen': { id: 'Divisi / Sub-Departemen', en: 'Division / Sub-Department', de: 'Bereich / Unterabteilung', es: 'División / Subdepartamento', fr: 'Division / Sous-département', ar: 'الشعبة / القسم الفرعي' },
+    'Jabatan / Posisi *': { id: 'Jabatan / Posisi *', en: 'Job Title / Position *', de: 'Stellenbezeichnung / Position *', es: 'Cargo / Puesto *', fr: 'Intitulé / Poste *', ar: 'المسمى الوظيفي / المنصب *' },
+    'Tingkat Jabatan': { id: 'Tingkat Jabatan', en: 'Job Level', de: 'Positionsebene', es: 'Nivel de puesto', fr: 'Niveau de poste', ar: 'المستوى الوظيفي' },
+    '(Pilih Departemen)': { id: '(Pilih Departemen)', en: '(Select Department)', de: '(Abteilung wählen)', es: '(Seleccionar departamento)', fr: '(Choisir un département)', ar: '(اختر القسم)' },
+    '(Pilih Divisi / Sub-Departemen)': { id: '(Pilih Divisi / Sub-Departemen)', en: '(Select Division / Sub-Department)', de: '(Bereich / Unterabteilung wählen)', es: '(Seleccionar división / subdepartamento)', fr: '(Choisir division / sous-département)', ar: '(اختر الشعبة / القسم الفرعي)' },
+    '(Pilih Jabatan)': { id: '(Pilih Jabatan)', en: '(Select Job Title)', de: '(Stelle wählen)', es: '(Seleccionar cargo)', fr: '(Choisir un poste)', ar: '(اختر المسمى الوظيفي)' },
+    '(Pilih Tingkat Jabatan)': { id: '(Pilih Tingkat Jabatan)', en: '(Select Job Level)', de: '(Positionsebene wählen)', es: '(Seleccionar nivel de puesto)', fr: '(Choisir un niveau de poste)', ar: '(اختر المستوى الوظيفي)' },
     '(Tidak Terikat Organisasi Spesifik)': { id: '(Tidak Terikat Organisasi Spesifik)', en: '(Not Bound to Specific Org)', de: '(Nicht organisationsgebunden)', es: '(No vinculado a organización específica)', fr: '(Non rattaché à une org. spécifique)', ar: '(غير مرتبط بمنظمة معينة)' },
     '(Pilih Jenjang Jabatan)': { id: '(Pilih Jenjang Jabatan)', en: '(Select Job Level)', de: '(Positionsebene wählen)', es: '(Seleccionar nivel de puesto)', fr: '(Sélectionner le Niveau de Poste)', ar: '(اختر المستوى الوظيفي)' },
     'Uraian Tugas': { id: 'Uraian Tugas', en: 'Job Summary', de: 'Aufgabenbeschreibung', es: 'Resumen de tareas', fr: 'Description des Tâches', ar: 'مهام الوظيفة' },

@@ -110,6 +110,12 @@
     }
 
     static patchElement(winEl, data, context) {
+      const existing = winEl.querySelector(`[data-control-id="${data.id}"]`);
+      if (existing && context) {
+        existing.replaceWith(WiseIconMenuGroup.renderElement(data, context));
+        return;
+      }
+
       const registry = window.WiseControlRegistry;
       (data.items || []).forEach((item) => {
         const ControlClass = registry[item.type] || registry.WiseControl;

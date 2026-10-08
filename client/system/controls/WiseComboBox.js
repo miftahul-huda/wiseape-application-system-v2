@@ -120,6 +120,9 @@
       wrapper.dataset.value = currentValue;
       wrapper.dataset.controlId = data.id || '';
       wrapper.dataset.controlType = 'WiseComboBox';
+      // Lets patchElement detect that the server changed the option list
+      // (e.g. cascading Department -> Division -> Position) and rebuild.
+      wrapper.dataset.itemsSig = JSON.stringify(items.map((it) => [it.value, it.label]));
       Object.defineProperty(wrapper, 'value', {
         get: () => wrapper.dataset.value,
         set: (v) => {
@@ -313,9 +316,15 @@
       return wrapper;
     }
 
-    static patchElement(winEl, data) {
+    static patchElement(winEl, data, context) {
       const wrapper = winEl.querySelector(`[data-control-id="${data.id}"]`);
       if (!wrapper) return;
+
+      const newSig = JSON.stringify((data.items || []).map((it) => (typeof it === 'object' && it !== null ? [it.value, it.label] : [it, String(it)])));
+      if (context && wrapper.dataset.itemsSig !== undefined && wrapper.dataset.itemsSig !== newSig) {
+        wrapper.replaceWith(WiseComboBox.renderElement(data, context));
+        return;
+      }
 
       const items = (data.items || []).map((it) => (typeof it === 'object' && it !== null ? { value: it.value !== undefined ? it.value : it.label, label: it.label !== undefined ? it.label : String(it.value) } : { value: it, label: String(it) }));
       let currentValue = data.value !== undefined && data.value !== null ? data.value : wrapper.dataset.value;
@@ -341,7 +350,16 @@
         labelSpan.textContent = currentItem ? currentItem.label : (data.placeholder || 'Pilih opsi...');
       }
 
-      WiseControl.patchElement(winEl, data);
+      // Do NOT call WiseControl.patchElement here: the wrapper is a <div>, so
+      // the generic version would set textContent and wipe the trigger/dropdown.
+      Object.entries(data.style || {}).forEach(([key, value]) => {
+        wrapper.style[key] = typeof value === 'number' ? `${value}px` : value;
+      });
+      if (data.visible === false) {
+        wrapper.style.display = 'none';
+      } else if (wrapper.style.display === 'none') {
+        wrapper.style.display = (data.style && data.style.display) || '';
+      }
     }
   }
 
