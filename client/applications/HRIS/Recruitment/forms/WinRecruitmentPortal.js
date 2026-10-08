@@ -17,7 +17,7 @@ const api = new RecruitmentApiRepository();
 class WinRecruitmentPortal extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = WiseI18n.t('Wise Recruitment — Talent Acquisition & Hiring Portal');
+    this.title = WiseI18n.t('Wise Recruitment — Portal Rekrutmen & Talent Acquisition');
     this.appTitle = options.appTitle || WiseI18n.t('Wise Recruitment');
     this.appIcon = options.appIcon || '🎯';
     this.width = options.width || '92%';
@@ -37,31 +37,31 @@ class WinRecruitmentPortal extends WiseWindow {
 
     // 1. Icon Menu Bar Toolbar (Quick navigation)
     const iconMenuGroup = new WiseIconMenuGroup('', [
-      new WiseIconMenu(WiseI18n.t('Job Vacancies'), {
+      new WiseIconMenu(WiseI18n.t('Lowongan Pekerjaan'), {
         icon: '💼',
         iconSize: 32,
         description: WiseI18n.t('Posting dan kelola lowongan pekerjaan serta alur proses seleksi'),
         onClick: () => this.openWindow(WinJobVacancyList)
       }),
-      new WiseIconMenu(WiseI18n.t('Applicants'), {
+      new WiseIconMenu(WiseI18n.t('Pelamar'), {
         icon: '👥',
         iconSize: 32,
         description: WiseI18n.t('Manajemen pelamar dan pelacakan proses recruitment setiap pelamar'),
         onClick: () => this.openWindow(WinApplicantList)
       }),
-      new WiseIconMenu(WiseI18n.t('Stage Templates'), {
+      new WiseIconMenu(WiseI18n.t('Template Tahapan'), {
         icon: '⚙️',
         iconSize: 32,
         description: WiseI18n.t('Kelola template tahapan proses seleksi (Interview User, HRD, Tes, dll)'),
         onClick: () => this.openWindow(WinStageTemplateList)
       }),
-      new WiseIconMenu(WiseI18n.t('Matrix Templates'), {
+      new WiseIconMenu(WiseI18n.t('Template Matriks'), {
         icon: '📊',
         iconSize: 32,
         description: WiseI18n.t('Kelola template matriks evaluasi & kriteria bobot penilaian hasil seleksi'),
         onClick: () => this.openWindow(WinMatrixTemplateList)
       }),
-      new WiseIconMenu(WiseI18n.t('Refresh Data'), {
+      new WiseIconMenu(WiseI18n.t('Perbarui Data'), {
         icon: '🔄',
         iconSize: 32,
         description: WiseI18n.t('Perbarui ringkasan statistik dan metrik rekrutmen terbaru'),
@@ -149,7 +149,7 @@ class WinRecruitmentPortal extends WiseWindow {
 
     // --- Module 1: Job Vacancy Posting ---
     const modVacancy = new WiseFrame('', { id: 'frameModVacancy', style: moduleCardStyle });
-    modVacancy.addControl(new WiseLabel(WiseI18n.t('💼 Job Vacancy Posting'), {
+    modVacancy.addControl(new WiseLabel(WiseI18n.t('💼 Posting Lowongan Kerja'), {
       id: 'lblModVacTitle',
       style: { fontSize: 16, fontWeight: 700, color: 'var(--accent-dark)', display: 'block', marginBottom: '4px' }
     }));
@@ -157,7 +157,7 @@ class WinRecruitmentPortal extends WiseWindow {
       id: 'lblModVacDesc',
       style: descStyle
     }));
-    modVacancy.addControl(new WiseButton(WiseI18n.t('🚀 Buka Job Vacancies'), {
+    modVacancy.addControl(new WiseButton(WiseI18n.t('🚀 Buka Lowongan Pekerjaan'), {
       id: 'btnOpenVacancies',
       onClick: () => this.openWindow(WinJobVacancyList),
       style: { background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 16px', borderRadius: '6px', border: 'none', boxShadow: 'none' }
@@ -166,7 +166,7 @@ class WinRecruitmentPortal extends WiseWindow {
 
     // --- Module 2: Applicant Management ---
     const modApplicant = new WiseFrame('', { id: 'frameModApplicant', style: moduleCardStyle });
-    modApplicant.addControl(new WiseLabel(WiseI18n.t('👥 Applicant Management'), {
+    modApplicant.addControl(new WiseLabel(WiseI18n.t('👥 Manajemen Pelamar'), {
       id: 'lblModAppTitle',
       style: { fontSize: 16, fontWeight: 700, color: 'var(--accent-dark)', display: 'block', marginBottom: '4px' }
     }));
@@ -183,7 +183,7 @@ class WinRecruitmentPortal extends WiseWindow {
 
     // --- Module 3: Template Proses Recruitment ---
     const modStageTemplate = new WiseFrame('', { id: 'frameModStageTpl', style: moduleCardStyle });
-    modStageTemplate.addControl(new WiseLabel(WiseI18n.t('⚙️ Template Proses Recruitment'), {
+    modStageTemplate.addControl(new WiseLabel(WiseI18n.t('⚙️ Template Proses Rekrutmen'), {
       id: 'lblModStageTplTitle',
       style: { fontSize: 16, fontWeight: 700, color: 'var(--accent-dark)', display: 'block', marginBottom: '4px' }
     }));

@@ -12,7 +12,7 @@ const api = new RecruitmentApiRepository();
 class WinJobVacancyList extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = WiseI18n.t('Job Vacancy Posting — Wise Recruitment');
+    this.title = WiseI18n.t('Posting Lowongan Kerja — Wise Recruitment');
     this.appIcon = options.appIcon || '💼';
     this.width = options.width || '92%';
     this.height = options.height || '86%';
@@ -283,13 +283,13 @@ class WinJobVacancyList extends WiseWindow {
 
   async onDeleteClick() {
     if (!this.selectedVacancy) {
-      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu baris lowongan yang ingin dihapus.'), 'warning');
+      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu baris lowongan pekerjaan yang ingin dihapus.'), 'warning');
       return;
     }
 
     const conf = await this.confirm(
       WiseI18n.t('Konfirmasi Hapus'),
-      `${WiseI18n.t('Apakah Anda yakin ingin menghapus lowongan')} "${this.selectedVacancy.title}"? ${WiseI18n.t('Tindakan ini tidak dapat dibatalkan.')}`
+      `${WiseI18n.t('Apakah Anda yakin ingin menghapus lowongan pekerjaan')} "${this.selectedVacancy.title}"? ${WiseI18n.t('Tindakan ini tidak dapat dibatalkan.')}`
     );
     if (!conf) return;
 

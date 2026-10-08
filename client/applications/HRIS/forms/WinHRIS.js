@@ -77,7 +77,7 @@ class WinHRIS extends WiseWindow {
         padding: '12px 14px'
       }
     });
-    cardEmployee.addControl(new WiseLabel(WiseI18n.t('👤 Employee Management'), {
+    cardEmployee.addControl(new WiseLabel(WiseI18n.t('👤 Manajemen Karyawan'), {
       id: 'lblEmpCardTitle',
       style: { fontWeight: 700, color: 'var(--accent-dark)', display: 'block', marginBottom: '2px' }
     }));
@@ -85,7 +85,7 @@ class WinHRIS extends WiseWindow {
       id: 'lblEmpCardDesc',
       style: { ...descStyle, color: '#475569' }
     }));
-    cardEmployee.addControl(new WiseButton(WiseI18n.t('🚀 Buka Employee Management'), {
+    cardEmployee.addControl(new WiseButton(WiseI18n.t('🚀 Buka Manajemen Karyawan'), {
       id: 'btnOpenEmployeeMgmt',
       onClick: () => this.launchApp('employeeManagement'),
       style: { marginTop: '4px', background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 14px', borderRadius: '6px' }
@@ -104,7 +104,7 @@ class WinHRIS extends WiseWindow {
         padding: '12px 14px'
       }
     });
-    cardOrg.addControl(new WiseLabel(WiseI18n.t('🏛️ Organization Management'), {
+    cardOrg.addControl(new WiseLabel(WiseI18n.t('🏛️ Manajemen Organisasi'), {
       id: 'lblOrgCardTitle',
       style: { fontWeight: 700, color: 'var(--accent-dark)', display: 'block', marginBottom: '2px' }
     }));
@@ -112,7 +112,7 @@ class WinHRIS extends WiseWindow {
       id: 'lblOrgCardDesc',
       style: { ...descStyle, color: '#475569' }
     }));
-    cardOrg.addControl(new WiseButton(WiseI18n.t('🚀 Buka Organization Management'), {
+    cardOrg.addControl(new WiseButton(WiseI18n.t('🚀 Buka Manajemen Organisasi'), {
       id: 'btnOpenOrgMgmt',
       onClick: () => this.launchApp('organizationManagement'),
       style: { marginTop: '4px', background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 14px', borderRadius: '6px' }
@@ -131,7 +131,7 @@ class WinHRIS extends WiseWindow {
         padding: '12px 14px'
       }
     });
-    cardMaster.addControl(new WiseLabel(WiseI18n.t('🗂️ Master Data Management'), {
+    cardMaster.addControl(new WiseLabel(WiseI18n.t('🗂️ Manajemen Master Data'), {
       id: 'lblMasterCardTitle',
       style: { fontWeight: 700, color: 'var(--accent-dark)', display: 'block', marginBottom: '2px' }
     }));
@@ -139,7 +139,7 @@ class WinHRIS extends WiseWindow {
       id: 'lblMasterCardDesc',
       style: { ...descStyle, color: '#475569' }
     }));
-    cardMaster.addControl(new WiseButton(WiseI18n.t('🚀 Buka Master Data Management'), {
+    cardMaster.addControl(new WiseButton(WiseI18n.t('🚀 Buka Manajemen Master Data'), {
       id: 'btnOpenMasterMgmt',
       onClick: () => this.launchApp('masterDataManagement'),
       style: { marginTop: '4px', background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 14px', borderRadius: '6px' }
@@ -158,7 +158,7 @@ class WinHRIS extends WiseWindow {
         padding: '12px 14px'
       }
     });
-    cardRecruitment.addControl(new WiseLabel(WiseI18n.t('🎯 Recruitment & Hiring'), {
+    cardRecruitment.addControl(new WiseLabel(WiseI18n.t('🎯 Rekrutmen & Perekrutan'), {
       id: 'lblRecCardTitle',
       style: { fontWeight: 700, color: 'var(--accent-dark)', display: 'block', marginBottom: '2px' }
     }));
@@ -166,7 +166,7 @@ class WinHRIS extends WiseWindow {
       id: 'lblRecCardDesc',
       style: { ...descStyle, color: '#475569' }
     }));
-    cardRecruitment.addControl(new WiseButton(WiseI18n.t('🚀 Buka Recruitment'), {
+    cardRecruitment.addControl(new WiseButton(WiseI18n.t('🚀 Buka Rekrutmen'), {
       id: 'btnOpenRecruitment',
       onClick: () => this.launchApp('recruitment'),
       style: { marginTop: '4px', background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 14px', borderRadius: '6px' }
