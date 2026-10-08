@@ -211,10 +211,12 @@ class WinEmployeeManagement extends WiseWindow {
         label: 'Status Kepegawaian',
         items: [
           { value: '', label: 'Semua Status' },
-          { value: 'Tetap', label: 'Tetap' },
-          { value: 'Kontrak', label: 'Kontrak' },
-          { value: 'Magang', label: 'Magang' },
-          { value: 'Freelance', label: 'Freelance' }
+          { value: 'Tetap (PKWTT)', label: 'Tetap (PKWTT)' },
+          { value: 'Kontrak (PKWT)', label: 'Kontrak (PKWT)' },
+          { value: 'Probation / Masa Percobaan', label: 'Probation / Masa Percobaan' },
+          { value: 'Magang (Internship)', label: 'Magang (Internship)' },
+          { value: 'Freelance / Mitra', label: 'Freelance / Mitra' },
+          { value: 'Konsultan', label: 'Konsultan' }
         ],
         onChange: this.onTableFilterInputChanged.bind(this)
       },
@@ -251,7 +253,10 @@ class WinEmployeeManagement extends WiseWindow {
 
   async loadInitialData() {
     try {
-      await this.loadDepartmentFilterItems();
+      await Promise.all([
+        this.loadDepartmentFilterItems(),
+        this.loadEmploymentStatusFilterItems()
+      ]);
       await this.loadEmployeesTable();
     } catch (err) {
       this.showInfo('Error Koneksi Backend', err.message, 'error');
@@ -270,6 +275,28 @@ class WinEmployeeManagement extends WiseWindow {
         filter.items = [
           { value: '', label: 'Semua Departemen' },
           ...roots.map((o) => ({ value: o.name, label: o.name }))
+        ];
+      }
+    } catch (err) {
+      // keep existing filter items
+    }
+  }
+
+  // Employment status filter = master data (EMPLOYMENT_STATUS)
+  async loadEmploymentStatusFilterItems() {
+    try {
+      const res = await api.listMasterData({
+        dataType: 'EMPLOYMENT_STATUS',
+        isActive: 'true',
+        sortBy: 'sortOrder',
+        sortOrder: 'ASC'
+      });
+      const rows = res.rows || [];
+      const filter = this.dtEmployees && (this.dtEmployees.filterControls || []).find((f) => f.id === 'employmentStatus');
+      if (filter && rows.length > 0) {
+        filter.items = [
+          { value: '', label: 'Semua Status' },
+          ...rows.map((item) => ({ value: item.name, label: item.name }))
         ];
       }
     } catch (err) {

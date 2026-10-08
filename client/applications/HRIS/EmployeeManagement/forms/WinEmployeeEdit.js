@@ -20,8 +20,15 @@ const HrisApiRepository = require('../services/HrisApiRepository');
 const api = new HrisApiRepository();
 
 const RELIGIONS = ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu', 'Lainnya'];
-const WiseI18n = typeof window !== 'undefined' ? window.WiseI18n : require('../../../../system/WiseI18n');
-const EMPLOYMENT_STATUSES = ['Karyawan Tetap', 'Kontrak/PKWT', 'Paruh Waktu', 'Magang'];
+const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
+const EMPLOYMENT_STATUSES = [
+  'Tetap (PKWTT)',
+  'Kontrak (PKWT)',
+  'Probation / Masa Percobaan',
+  'Magang (Internship)',
+  'Freelance / Mitra',
+  'Konsultan'
+];
 const TAX_STATUSES = ['TK/0', 'TK/1', 'TK/2', 'TK/3', 'K/0', 'K/1', 'K/2', 'K/3'];
 const BANKS = ['BCA', 'Bank Mandiri', 'BNI', 'BRI', 'CIMB Niaga', 'Bank Danamon', 'Bank Permata', 'Lainnya'];
 
@@ -191,7 +198,7 @@ class WinEmployeeEdit extends WiseWindow {
     tblEmployment.setCell(2, 0, this.formGroup('Tingkat Jabatan', new WiseComboBox([], {
       id: 'cmbJobLevel', value: '', style: orgComboStyle
     })));
-    tblEmployment.setCell(2, 1, this.formGroup('Status Kepegawaian', new WiseComboBox(EMPLOYMENT_STATUSES.map(s => ({ value: s, label: s })), { id: 'cmbEmploymentStatus', value: 'Karyawan Tetap', style: orgComboStyle })));
+    tblEmployment.setCell(2, 1, this.formGroup('Status Kepegawaian', new WiseComboBox(EMPLOYMENT_STATUSES.map(s => ({ value: s, label: s })), { id: 'cmbEmploymentStatus', value: 'Tetap (PKWTT)', style: orgComboStyle })));
     tblEmployment.setCell(3, 0, this.formGroup('Tanggal Bergabung', new WiseDate('', { id: 'dtJoinDate' })));
     tblEmployment.setCell(3, 1, this.formGroup('Tanggal Berakhir (Kontrak/Magang)', new WiseDate('', { id: 'dtEndDate' })));
     tblEmployment.setCell(4, 0, this.formGroup('Atasan Langsung', new WiseTextBox('', { id: 'txtManagerName', placeholder: 'Nama Atasan Langsung' })));
@@ -450,14 +457,22 @@ class WinEmployeeEdit extends WiseWindow {
   // ── Organization / Position / Job Level master data ───────────
   async loadMasterData() {
     try {
-      const [orgRes, levelRes, posRes] = await Promise.all([
+      const [orgRes, levelRes, posRes, statusRes] = await Promise.all([
         api.listOrganizations({ isActive: 'true', sortBy: 'sortOrder', sortOrder: 'ASC' }),
         api.listJobLevels({ isActive: 'true', sortBy: 'levelNumber', sortOrder: 'ASC' }),
-        api.listPositions({ isActive: 'true', sortBy: 'title', sortOrder: 'ASC' })
+        api.listPositions({ isActive: 'true', sortBy: 'title', sortOrder: 'ASC' }),
+        api.listMasterData({ dataType: 'EMPLOYMENT_STATUS', isActive: 'true', sortBy: 'sortOrder', sortOrder: 'ASC' })
       ]);
       this.orgs = orgRes.rows || [];
       this.jobLevels = levelRes.rows || [];
       this.positions = posRes.rows || [];
+      const masterStatuses = (statusRes.rows || []).map(r => r.name);
+      const statuses = masterStatuses.length > 0 ? masterStatuses : EMPLOYMENT_STATUSES;
+      if (this.cmbEmploymentStatus) {
+        const curVal = this.cmbEmploymentStatus.value;
+        const allStatuses = [...new Set([...statuses, ...(curVal ? [curVal] : [])])];
+        this.cmbEmploymentStatus.setItems(allStatuses.map(s => ({ value: s, label: s })));
+      }
     } catch (err) {
       this.orgs = [];
       this.jobLevels = [];
@@ -467,7 +482,13 @@ class WinEmployeeEdit extends WiseWindow {
   }
 
   t(key) {
-    return WiseI18n.t(key);
+    if (typeof WiseI18n !== 'undefined' && WiseI18n && typeof WiseI18n.t === 'function') {
+      return WiseI18n.t(key);
+    }
+    if (typeof window !== 'undefined' && window.WiseI18n && typeof window.WiseI18n.t === 'function') {
+      return window.WiseI18n.t(key);
+    }
+    return key;
   }
 
   // Builds combobox items from a list of names, prepending a blank option and
@@ -647,7 +668,14 @@ class WinEmployeeEdit extends WiseWindow {
       jobTitle: emp.jobTitle || '',
       jobLevel: emp.jobLevel || ''
     }, true);
-    if (this.cmbEmploymentStatus) this.cmbEmploymentStatus.setValue(emp.employmentStatus || 'Karyawan Tetap');
+    if (this.cmbEmploymentStatus) {
+      const val = emp.employmentStatus || 'Tetap (PKWTT)';
+      const existingItems = this.cmbEmploymentStatus.items || [];
+      if (!existingItems.some(item => item.value === val)) {
+        this.cmbEmploymentStatus.setItems([...existingItems, { value: val, label: val }]);
+      }
+      this.cmbEmploymentStatus.setValue(val);
+    }
     if (this.dtJoinDate) this.dtJoinDate.setValue(emp.joinDate || '');
     if (this.dtEndDate) this.dtEndDate.setValue(emp.endDate || '');
     if (this.txtManagerName) this.txtManagerName.setValue(emp.managerName || (emp.manager ? emp.manager.fullName : ''));
@@ -697,7 +725,7 @@ class WinEmployeeEdit extends WiseWindow {
         jobLevel: this.cmbJobLevel ? this.cmbJobLevel.value : '',
         department: this.cmbDepartment ? this.cmbDepartment.value : '',
         division: this.cmbDivision ? this.cmbDivision.value : '',
-        employmentStatus: this.cmbEmploymentStatus ? this.cmbEmploymentStatus.value : 'Karyawan Tetap',
+        employmentStatus: this.cmbEmploymentStatus ? this.cmbEmploymentStatus.value : 'Tetap (PKWTT)',
         joinDate: (this.dtJoinDate ? this.dtJoinDate.value : null) || new Date().toISOString().slice(0, 10),
         endDate: (this.dtEndDate ? this.dtEndDate.value : null) || null,
         managerName: this.txtManagerName ? this.txtManagerName.value : '',

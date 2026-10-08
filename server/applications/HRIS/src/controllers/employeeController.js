@@ -58,13 +58,13 @@ exports.findAll = async (req, res, next) => {
     }
 
     // Specific filters
-    if (department) where.department = department;
-    if (jobTitle) where.jobTitle = jobTitle;
-    if (jobLevel) where.jobLevel = jobLevel;
-    if (employmentStatus) where.employmentStatus = employmentStatus;
-    if (workLocation) where.workLocation = workLocation;
-    if (status) where.status = status;
-    if (isActive !== undefined) {
+    if (department && department !== 'Semua') where.department = department;
+    if (jobTitle && jobTitle !== 'Semua') where.jobTitle = jobTitle;
+    if (jobLevel && jobLevel !== 'Semua') where.jobLevel = jobLevel;
+    if (employmentStatus && employmentStatus !== 'Semua') where.employmentStatus = employmentStatus;
+    if (workLocation && workLocation !== 'Semua') where.workLocation = workLocation;
+    if (status && status !== 'Semua') where.status = status;
+    if (isActive !== undefined && isActive !== 'Semua') {
       where.isActive = isActive === 'true' || isActive === true;
     }
 
