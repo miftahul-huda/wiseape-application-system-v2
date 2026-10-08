@@ -6,6 +6,7 @@ const WiseNumericBox = require('../../../../system/controls/WiseNumericBox');
 const WiseDate = require('../../../../system/controls/WiseDate');
 const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
 const WiseFrame = require('../../../../system/controls/WiseFrame');
+const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
 
 const HrisApiRepository = require('../services/HrisApiRepository');
 const api = new HrisApiRepository();
@@ -16,7 +17,7 @@ class WinEmployeeExperienceEdit extends WiseWindow {
     this.record = options.data || null;
     this.employeeId = options.employeeId || (this.record && this.record.employeeId) || (options.parentWindow && (options.parentWindow.selectedEmployeeId || options.parentWindow.employeeId)) || null;
     this.recordId = (this.record && this.record.id) || null;
-    this.title = this.recordId ? 'Edit Pengalaman Kerja' : 'Tambah Pengalaman Kerja';
+    this.title = this.recordId ? WiseI18n.t('Edit Pengalaman Kerja') : WiseI18n.t('Tambah Pengalaman Kerja');
     this.width = 620;
     this.centered = true;
   }
@@ -27,19 +28,21 @@ class WinEmployeeExperienceEdit extends WiseWindow {
     // ── Form Content ────────────────────────────────────────────
     const tblExp = new WiseTableLayout({ rows: 4, columns: 2, id: 'tblExpEdit', style: { marginBottom: '16px' } });
     
-    this.txtExpCompany = new WiseTextBox('e.g. PT Telekomunikasi Indonesia', { id: 'txtExpCompany', value: this.record?.companyName || '', placeholder: 'e.g. PT Telekomunikasi Indonesia' });
-    this.txtExpPosition = new WiseTextBox('e.g. Senior Software Engineer', { id: 'txtExpPosition', value: this.record?.position || '', placeholder: 'e.g. Senior Software Engineer' });
+    const currPrefix = typeof WiseI18n !== 'undefined' && WiseI18n ? WiseI18n.getCurrencyPrefix() : 'Rp ';
+
+    this.txtExpCompany = new WiseTextBox(WiseI18n.t('e.g. PT Telekomunikasi Indonesia'), { id: 'txtExpCompany', value: this.record?.companyName || '', placeholder: WiseI18n.t('e.g. PT Telekomunikasi Indonesia') });
+    this.txtExpPosition = new WiseTextBox(WiseI18n.t('e.g. Senior Software Engineer'), { id: 'txtExpPosition', value: this.record?.position || '', placeholder: WiseI18n.t('e.g. Senior Software Engineer') });
     this.dtExpStart = new WiseDate(this.record?.startDate || '', { id: 'dtExpStart', value: this.record?.startDate || '' });
     this.dtExpEnd = new WiseDate(this.record?.endDate || '', { id: 'dtExpEnd', value: this.record?.endDate || '' });
-    this.numExpLastSalary = new WiseNumericBox(String(this.record?.lastSalary || 0), { id: 'numExpLastSalary', value: Number(this.record?.lastSalary || 0), prefix: 'Rp ' });
-    this.txtExpDesc = new WiseTextBox('Tanggung jawab utama...', { id: 'txtExpDesc', value: this.record?.description || '', placeholder: 'Tanggung jawab utama...' });
+    this.numExpLastSalary = new WiseNumericBox(String(this.record?.lastSalary || 0), { id: 'numExpLastSalary', value: Number(this.record?.lastSalary || 0), prefix: currPrefix });
+    this.txtExpDesc = new WiseTextBox(WiseI18n.t('Tanggung jawab utama...'), { id: 'txtExpDesc', value: this.record?.description || '', placeholder: WiseI18n.t('Tanggung jawab utama...') });
 
-    tblExp.setCell(0, 0, this.formGroup('Nama Perusahaan *', this.txtExpCompany));
-    tblExp.setCell(0, 1, this.formGroup('Posisi / Jabatan *', this.txtExpPosition));
-    tblExp.setCell(1, 0, this.formGroup('Tanggal Mulai', this.dtExpStart));
-    tblExp.setCell(1, 1, this.formGroup('Tanggal Selesai', this.dtExpEnd));
-    tblExp.setCell(2, 0, this.formGroup('Gaji Terakhir (Rp)', this.numExpLastSalary));
-    tblExp.setCell(2, 1, this.formGroup('Keterangan / Tanggung Jawab', this.txtExpDesc));
+    tblExp.setCell(0, 0, this.formGroup(WiseI18n.t('Nama Perusahaan *'), this.txtExpCompany));
+    tblExp.setCell(0, 1, this.formGroup(WiseI18n.t('Posisi / Jabatan *'), this.txtExpPosition));
+    tblExp.setCell(1, 0, this.formGroup(WiseI18n.t('Tanggal Mulai'), this.dtExpStart));
+    tblExp.setCell(1, 1, this.formGroup(WiseI18n.t('Tanggal Selesai'), this.dtExpEnd));
+    tblExp.setCell(2, 0, this.formGroup(WiseI18n.t('Gaji Terakhir (Rp)'), this.numExpLastSalary));
+    tblExp.setCell(2, 1, this.formGroup(WiseI18n.t('Keterangan / Tanggung Jawab'), this.txtExpDesc));
     this.addControl(tblExp);
 
     // ── Action Buttons ──────────────────────────────────────────
@@ -47,13 +50,13 @@ class WinEmployeeExperienceEdit extends WiseWindow {
       id: 'frameExpActions',
       style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' }
     });
-    actionFrame.addControl(new WiseButton('💾 Simpan Pengalaman', {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('💾 Simpan Pengalaman'), {
       id: 'btnSaveExp',
       onClick: this.onSaveClick.bind(this),
       style: {
         background: 'var(--accent)',
         color: '#ffffff',
-        fontWeight: 700,
+        fontWeight: 600,
         borderRadius: '8px',
         padding: '10px 20px',
         border: 'none',
@@ -62,7 +65,7 @@ class WinEmployeeExperienceEdit extends WiseWindow {
         cursor: 'pointer'
       }
     }));
-    actionFrame.addControl(new WiseButton('✕ Batal', {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('✕ Batal'), {
       id: 'btnCancelExp',
       onClick: this.onCancelClick.bind(this),
       style: {
@@ -82,8 +85,8 @@ class WinEmployeeExperienceEdit extends WiseWindow {
   }
 
   formGroup(label, control) {
-    const frame = new WiseFrame('', { style: { padding: '4px 6px', border: 'none', background: 'transparent' } });
-    frame.addControl(new WiseLabel(label, { style: { fontWeight: 600, color: '#475569', marginBottom: '4px', display: 'block' } }));
+    const frame = new WiseFrame('', { style: { padding: '2px 4px', border: 'none', background: 'transparent' } });
+    frame.addControl(new WiseLabel(label, { style: { fontWeight: 600, color: '#475569', marginBottom: '0px', lineHeight: '1.2', display: 'block' } }));
     frame.addControl(control);
     return frame;
   }
@@ -91,13 +94,13 @@ class WinEmployeeExperienceEdit extends WiseWindow {
   async onSaveClick() {
     const empId = this.employeeId || (this.record && this.record.employeeId) || (this.parentWindow && (this.parentWindow.selectedEmployeeId || this.parentWindow.employeeId));
     if (!empId) {
-      return this.showInfo('Peringatan', 'Data karyawan belum ditentukan.', 'warning');
+      return this.showInfo(WiseI18n.t('Peringatan'), WiseI18n.t('Data karyawan belum ditentukan.'), 'warning');
     }
     this.employeeId = empId;
     const company = this.txtExpCompany ? this.txtExpCompany.value : '';
     const position = this.txtExpPosition ? this.txtExpPosition.value : '';
     if (!company || !position) {
-      return this.showInfo('Validasi', 'Nama perusahaan dan posisi jabatan wajib diisi.', 'warning');
+      return this.showInfo(WiseI18n.t('Validasi'), WiseI18n.t('Nama perusahaan dan posisi jabatan wajib diisi.'), 'warning');
     }
 
     const payload = {
@@ -112,10 +115,10 @@ class WinEmployeeExperienceEdit extends WiseWindow {
     try {
       if (this.recordId) {
         await api.updateWorkExperience(this.recordId, payload);
-        this.showInfo('Berhasil', 'Data pengalaman kerja berhasil diperbarui.', 'success');
+        this.showInfo(WiseI18n.t('Berhasil'), WiseI18n.t('Data pengalaman kerja berhasil diperbarui.'), 'success');
       } else {
         await api.addWorkExperience(this.employeeId, payload);
-        this.showInfo('Berhasil', 'Riwayat pengalaman kerja berhasil ditambahkan.', 'success');
+        this.showInfo(WiseI18n.t('Berhasil'), WiseI18n.t('Riwayat pengalaman kerja berhasil ditambahkan.'), 'success');
       }
 
       if (this.parentWindow && typeof this.parentWindow.loadEmployee === 'function') {
@@ -123,7 +126,7 @@ class WinEmployeeExperienceEdit extends WiseWindow {
       }
       this.close();
     } catch (err) {
-      this.showInfo('Gagal Menyimpan', err.message, 'error');
+      this.showInfo(WiseI18n.t('Gagal Menyimpan'), err.message, 'error');
     }
   }
 

@@ -1,14 +1,14 @@
-const WiseWindow = require('../../../system/WiseWindow');
-const WiseLabel = require('../../../system/controls/WiseLabel');
-const WiseButton = require('../../../system/controls/WiseButton');
-const WiseTextBox = require('../../../system/controls/WiseTextBox');
-const WiseNumericBox = require('../../../system/controls/WiseNumericBox');
-const WiseTextArea = require('../../../system/controls/WiseTextArea');
-const WiseComboBox = require('../../../system/controls/WiseComboBox');
-const WiseDataTable = require('../../../system/controls/WiseDataTable');
-const WiseFrame = require('../../../system/controls/WiseFrame');
-const WiseTableLayout = require('../../../system/controls/WiseTableLayout');
-const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../system/WiseI18n');
+const WiseWindow = require('../../../../system/WiseWindow');
+const WiseLabel = require('../../../../system/controls/WiseLabel');
+const WiseButton = require('../../../../system/controls/WiseButton');
+const WiseTextBox = require('../../../../system/controls/WiseTextBox');
+const WiseNumericBox = require('../../../../system/controls/WiseNumericBox');
+const WiseTextArea = require('../../../../system/controls/WiseTextArea');
+const WiseComboBox = require('../../../../system/controls/WiseComboBox');
+const WiseDataTable = require('../../../../system/controls/WiseDataTable');
+const WiseFrame = require('../../../../system/controls/WiseFrame');
+const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
+const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
 
 const WinMatrixCriterionEdit = require('./WinMatrixCriterionEdit');
 const RecruitmentApiRepository = require('../services/RecruitmentApiRepository');
@@ -17,7 +17,7 @@ const api = new RecruitmentApiRepository();
 class WinMatrixTemplateEdit extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = options.templateId ? 'Edit Template Matriks Penilaian' : 'Tambah Template Matriks Penilaian Baru';
+    this.title = options.templateId ? WiseI18n.t('Edit Template Matriks Penilaian') : WiseI18n.t('Tambah Template Matriks Penilaian Baru');
     this.appIcon = options.appIcon || '📊';
     this.width = options.width || '84%';
     this.height = options.height || '84%';
@@ -30,18 +30,11 @@ class WinMatrixTemplateEdit extends WiseWindow {
     this.criteriaList = [];
   }
 
-  t(key) {
-    if (typeof WiseI18n !== 'undefined' && WiseI18n && typeof WiseI18n.t === 'function') {
-      return WiseI18n.t(key);
-    }
-    return key;
-  }
-
   onWindowInit() {
     this.controls = [];
 
     const inputBorderStyle = { border: '1px solid #94a3b8', borderRadius: '6px' };
-    const labelStyle = { fontWeight: 600, color: '#334155', display: 'block', marginBottom: '4px' };
+    const labelStyle = { fontWeight: 600, color: '#334155', display: 'block', marginBottom: '2px', lineHeight: '1.2' };
 
     // 1. Template Master Fields Layout (3 cols x 2 rows)
     const masterGrid = new WiseTableLayout({
@@ -52,17 +45,17 @@ class WinMatrixTemplateEdit extends WiseWindow {
     });
 
     const cellName = new WiseFrame('', { id: 'frmMatrixName' });
-    cellName.addControl(new WiseLabel(this.t('Nama Template Matriks *'), { id: 'lblMatrixName', style: labelStyle }));
+    cellName.addControl(new WiseLabel(WiseI18n.t('Nama Template Matriks *'), { id: 'lblMatrixName', style: labelStyle }));
     this.txtName = new WiseTextBox('', {
       id: 'txtMatrixName',
-      placeholder: 'Contoh: Matriks Wawancara HRD (Behavioral & Culture Fit)',
+      placeholder: WiseI18n.t('Contoh: Matriks Wawancara HRD (Behavioral & Culture Fit)'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellName.addControl(this.txtName);
     masterGrid.setCell(0, 0, cellName);
 
     const cellPass = new WiseFrame('', { id: 'frmMatrixPass' });
-    cellPass.addControl(new WiseLabel(this.t('Passing Score / Ambang Lolos *'), { id: 'lblMatrixPass', style: labelStyle }));
+    cellPass.addControl(new WiseLabel(WiseI18n.t('Passing Score / Ambang Lolos *'), { id: 'lblMatrixPass', style: labelStyle }));
     this.numPassScore = new WiseNumericBox(75, {
       id: 'numMatrixPassScore',
       min: 1,
@@ -73,12 +66,12 @@ class WinMatrixTemplateEdit extends WiseWindow {
     masterGrid.setCell(0, 1, cellPass);
 
     const cellActive = new WiseFrame('', { id: 'frmMatrixActive' });
-    cellActive.addControl(new WiseLabel(this.t('Status Aktif'), { id: 'lblMatrixActive', style: labelStyle }));
+    cellActive.addControl(new WiseLabel(WiseI18n.t('Status Aktif'), { id: 'lblMatrixActive', style: labelStyle }));
     this.cmbIsActive = new WiseComboBox('true', {
       id: 'cmbMatrixActive',
       items: [
-        { value: 'true', label: '🟢 Aktif' },
-        { value: 'false', label: '🔴 Nonaktif' }
+        { value: 'true', label: WiseI18n.t('🟢 Aktif') },
+        { value: 'false', label: WiseI18n.t('🔴 Nonaktif') }
       ],
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -86,20 +79,20 @@ class WinMatrixTemplateEdit extends WiseWindow {
     masterGrid.setCell(0, 2, cellActive);
 
     const cellCode = new WiseFrame('', { id: 'frmMatrixCode' });
-    cellCode.addControl(new WiseLabel(this.t('Kode Matriks (Opsional)'), { id: 'lblMatrixCode', style: labelStyle }));
+    cellCode.addControl(new WiseLabel(WiseI18n.t('Kode Matriks (Opsional)'), { id: 'lblMatrixCode', style: labelStyle }));
     this.txtCode = new WiseTextBox('', {
       id: 'txtMatrixCode',
-      placeholder: 'Contoh: MTX-HRD-01',
+      placeholder: WiseI18n.t('Contoh: MTX-HRD-01'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellCode.addControl(this.txtCode);
     masterGrid.setCell(1, 0, cellCode);
 
     const cellDesc = new WiseFrame('', { id: 'frmMatrixDesc' });
-    cellDesc.addControl(new WiseLabel(this.t('Deskripsi / Panduan Umum Matriks'), { id: 'lblMatrixDesc', style: labelStyle }));
+    cellDesc.addControl(new WiseLabel(WiseI18n.t('Deskripsi / Panduan Umum Matriks'), { id: 'lblMatrixDesc', style: labelStyle }));
     this.txtDesc = new WiseTextBox('', {
       id: 'txtMatrixDesc',
-      placeholder: 'Tujuan matriks dan kelompok peran sasaran...',
+      placeholder: WiseI18n.t('Tujuan matriks dan kelompok peran sasaran...'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellDesc.addControl(this.txtDesc);
@@ -108,7 +101,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
     this.addControl(masterGrid);
 
     // 2. Sub-records Section Title & Toolbar
-    this.addControl(new WiseLabel('Kriteria Penilaian & Pembobotan Nilai Hasil Seleksi', {
+    this.addControl(new WiseLabel(WiseI18n.t('Kriteria Penilaian & Pembobotan Nilai Hasil Seleksi'), {
       id: 'lblSubCriteriaTitle',
       style: { fontWeight: 700, color: 'var(--accent-dark)', display: 'block', marginBottom: '8px' }
     }));
@@ -118,7 +111,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
       style: { display: 'flex', gap: '8px', marginBottom: '8px' }
     });
 
-    critToolbar.addControl(new WiseButton(this.t('➕ Tambah Kriteria'), {
+    critToolbar.addControl(new WiseButton(WiseI18n.t('➕ Tambah Kriteria'), {
       id: 'btnCritAdd',
       onClick: this.onAddCriterionClick.bind(this),
       style: {
@@ -133,7 +126,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
       }
     }));
 
-    critToolbar.addControl(new WiseButton(this.t('✏️ Edit Kriteria'), {
+    critToolbar.addControl(new WiseButton(WiseI18n.t('✏️ Edit Kriteria'), {
       id: 'btnCritEdit',
       onClick: this.onEditCriterionClick.bind(this),
       style: {
@@ -148,7 +141,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
       }
     }));
 
-    critToolbar.addControl(new WiseButton(this.t('🗑️ Hapus Kriteria'), {
+    critToolbar.addControl(new WiseButton(WiseI18n.t('🗑️ Hapus Kriteria'), {
       id: 'btnCritDelete',
       onClick: this.onDeleteCriterionClick.bind(this),
       style: {
@@ -175,11 +168,11 @@ class WinMatrixTemplateEdit extends WiseWindow {
     });
 
     this.dtCriteria.columns = [
-      { key: 'no', title: 'No', width: '60px' },
-      { key: 'criterion', title: 'Kriteria Penilaian / Kompetensi', width: '320px' },
-      { key: 'weightBadge', title: 'Bobot (%)', width: '110px' },
-      { key: 'scaleType', title: 'Skala Nilai', width: '140px' },
-      { key: 'description', title: 'Panduan Evaluator', width: '380px' }
+      { key: 'no', title: WiseI18n.t('No'), width: '60px' },
+      { key: 'criterion', title: WiseI18n.t('Kriteria Penilaian / Kompetensi'), width: '320px' },
+      { key: 'weightBadge', title: WiseI18n.t('Bobot (%)'), width: '110px' },
+      { key: 'scaleType', title: WiseI18n.t('Skala Nilai'), width: '140px' },
+      { key: 'description', title: WiseI18n.t('Panduan Evaluator'), width: '380px' }
     ];
 
     this.addControl(this.dtCriteria);
@@ -196,7 +189,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
       }
     });
 
-    bottomBar.addControl(new WiseButton(this.t('Batal'), {
+    bottomBar.addControl(new WiseButton(WiseI18n.t('Batal'), {
       id: 'btnMatrixCancel',
       onClick: () => this.close(),
       style: {
@@ -211,7 +204,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
       }
     }));
 
-    bottomBar.addControl(new WiseButton(this.t('💾 Simpan Template Matriks'), {
+    bottomBar.addControl(new WiseButton(WiseI18n.t('💾 Simpan Template Matriks'), {
       id: 'btnMatrixSave',
       onClick: this.onSaveClick.bind(this),
       style: {
@@ -247,7 +240,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
         this.renderCriteriaTable();
       }
     } catch (err) {
-      this.showInfo('Error', err.message, 'error');
+      this.showInfo(WiseI18n.t('Error'), err.message, 'error');
     }
   }
 
@@ -278,7 +271,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
   async onEditCriterionClick() {
     const idx = this.dtCriteria.selectedRowIndex;
     if (idx === null || idx === undefined || idx < 0 || !this.criteriaList[idx]) {
-      this.showInfo('Pemberitahuan', 'Pilih salah satu kriteria yang ingin diedit.', 'warning');
+      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu kriteria yang ingin diedit.'), 'warning');
       return;
     }
 
@@ -295,7 +288,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
   async onDeleteCriterionClick() {
     const idx = this.dtCriteria.selectedRowIndex;
     if (idx === null || idx === undefined || idx < 0 || !this.criteriaList[idx]) {
-      this.showInfo('Pemberitahuan', 'Pilih salah satu kriteria yang ingin dihapus.', 'warning');
+      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu kriteria yang ingin dihapus.'), 'warning');
       return;
     }
 
@@ -306,7 +299,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
   async onSaveClick() {
     const name = this.txtName ? this.txtName.value.trim() : '';
     if (!name) {
-      this.showInfo('Validasi Form', 'Nama template matriks wajib diisi.', 'warning');
+      this.showInfo(WiseI18n.t('Validasi Form'), WiseI18n.t('Nama template matriks wajib diisi.'), 'warning');
       return;
     }
 
@@ -322,10 +315,10 @@ class WinMatrixTemplateEdit extends WiseWindow {
     try {
       if (this.selectedTemplateId) {
         await api.updateMatrixTemplate(this.selectedTemplateId, payload);
-        this.showInfo('Sukses', 'Template matriks penilaian berhasil diperbarui.', 'success');
+        this.showInfo(WiseI18n.t('Sukses'), WiseI18n.t('Template matriks penilaian berhasil diperbarui.'), 'success');
       } else {
         await api.createMatrixTemplate(payload);
-        this.showInfo('Sukses', 'Template matriks penilaian berhasil dibuat.', 'success');
+        this.showInfo(WiseI18n.t('Sukses'), WiseI18n.t('Template matriks penilaian berhasil dibuat.'), 'success');
       }
 
       if (typeof this.onSavedCallback === 'function') {
@@ -334,7 +327,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
 
       this.close();
     } catch (err) {
-      this.showInfo('Gagal Menyimpan', err.message, 'error');
+      this.showInfo(WiseI18n.t('Gagal Menyimpan'), err.message, 'error');
     }
   }
 

@@ -51,7 +51,7 @@
       el.innerHTML = '';
       const textVal = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(data.value) : (data.value ?? '');
       if (data.icon) {
-        el.className = 'inline-flex items-center gap-1.5 whitespace-pre-wrap text-sm text-slate-800';
+        el.className = 'wise-label inline-flex items-center gap-1.5 whitespace-pre-wrap text-sm text-slate-800';
         const iconSpan = document.createElement('span');
         iconSpan.className = 'wise-label-icon inline-flex items-center justify-center shrink-0';
         const rawIcon = String(data.icon).trim();
@@ -70,7 +70,7 @@
         el.appendChild(iconSpan);
         el.appendChild(textSpan);
       } else {
-        el.className = 'whitespace-pre-wrap text-sm text-slate-800';
+        el.className = 'wise-label whitespace-pre-wrap text-sm text-slate-800';
         el.textContent = textVal;
       }
     }

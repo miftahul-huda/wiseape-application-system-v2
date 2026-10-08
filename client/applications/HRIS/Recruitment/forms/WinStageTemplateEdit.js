@@ -1,13 +1,13 @@
-const WiseWindow = require('../../../system/WiseWindow');
-const WiseLabel = require('../../../system/controls/WiseLabel');
-const WiseButton = require('../../../system/controls/WiseButton');
-const WiseTextBox = require('../../../system/controls/WiseTextBox');
-const WiseTextArea = require('../../../system/controls/WiseTextArea');
-const WiseComboBox = require('../../../system/controls/WiseComboBox');
-const WiseDataTable = require('../../../system/controls/WiseDataTable');
-const WiseFrame = require('../../../system/controls/WiseFrame');
-const WiseTableLayout = require('../../../system/controls/WiseTableLayout');
-const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../system/WiseI18n');
+const WiseWindow = require('../../../../system/WiseWindow');
+const WiseLabel = require('../../../../system/controls/WiseLabel');
+const WiseButton = require('../../../../system/controls/WiseButton');
+const WiseTextBox = require('../../../../system/controls/WiseTextBox');
+const WiseTextArea = require('../../../../system/controls/WiseTextArea');
+const WiseComboBox = require('../../../../system/controls/WiseComboBox');
+const WiseDataTable = require('../../../../system/controls/WiseDataTable');
+const WiseFrame = require('../../../../system/controls/WiseFrame');
+const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
+const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
 
 const WinStageItemEdit = require('./WinStageItemEdit');
 const RecruitmentApiRepository = require('../services/RecruitmentApiRepository');
@@ -16,7 +16,7 @@ const api = new RecruitmentApiRepository();
 class WinStageTemplateEdit extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = options.templateId ? 'Edit Template Proses Recruitment' : 'Tambah Template Proses Recruitment Baru';
+    this.title = options.templateId ? WiseI18n.t('Edit Template Proses Recruitment') : WiseI18n.t('Tambah Template Proses Recruitment Baru');
     this.appIcon = options.appIcon || '⚙️';
     this.width = options.width || '82%';
     this.height = options.height || '82%';
@@ -30,18 +30,11 @@ class WinStageTemplateEdit extends WiseWindow {
     this.stagesList = [];
   }
 
-  t(key) {
-    if (typeof WiseI18n !== 'undefined' && WiseI18n && typeof WiseI18n.t === 'function') {
-      return WiseI18n.t(key);
-    }
-    return key;
-  }
-
   onWindowInit() {
     this.controls = [];
 
     const inputBorderStyle = { border: '1px solid #94a3b8', borderRadius: '6px' };
-    const labelStyle = { fontWeight: 600, color: '#334155', display: 'block', marginBottom: '4px' };
+    const labelStyle = { fontWeight: 600, color: '#334155', display: 'block', marginBottom: '2px', lineHeight: '1.2' };
 
     // 1. Template Master Fields Layout (2 cols x 2 rows)
     const masterGrid = new WiseTableLayout({
@@ -52,22 +45,22 @@ class WinStageTemplateEdit extends WiseWindow {
     });
 
     const cellName = new WiseFrame('', { id: 'frmTplName' });
-    cellName.addControl(new WiseLabel(this.t('Nama Template Alur *'), { id: 'lblTplName', style: labelStyle }));
+    cellName.addControl(new WiseLabel(WiseI18n.t('Nama Template Alur *'), { id: 'lblTplName', style: labelStyle }));
     this.txtName = new WiseTextBox('', {
       id: 'txtTplName',
-      placeholder: 'Contoh: Alur Seleksi Software Engineer & IT',
+      placeholder: WiseI18n.t('Contoh: Alur Seleksi Software Engineer & IT'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellName.addControl(this.txtName);
     masterGrid.setCell(0, 0, cellName);
 
     const cellActive = new WiseFrame('', { id: 'frmTplActive' });
-    cellActive.addControl(new WiseLabel(this.t('Status Aktif'), { id: 'lblTplActive', style: labelStyle }));
+    cellActive.addControl(new WiseLabel(WiseI18n.t('Status Aktif'), { id: 'lblTplActive', style: labelStyle }));
     this.cmbIsActive = new WiseComboBox('true', {
       id: 'cmbTplActive',
       items: [
-        { value: 'true', label: '🟢 Aktif' },
-        { value: 'false', label: '🔴 Nonaktif' }
+        { value: 'true', label: WiseI18n.t('🟢 Aktif') },
+        { value: 'false', label: WiseI18n.t('🔴 Nonaktif') }
       ],
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -75,20 +68,20 @@ class WinStageTemplateEdit extends WiseWindow {
     masterGrid.setCell(0, 1, cellActive);
 
     const cellCode = new WiseFrame('', { id: 'frmTplCode' });
-    cellCode.addControl(new WiseLabel(this.t('Kode Template (Opsional)'), { id: 'lblTplCode', style: labelStyle }));
+    cellCode.addControl(new WiseLabel(WiseI18n.t('Kode Template (Opsional)'), { id: 'lblTplCode', style: labelStyle }));
     this.txtCode = new WiseTextBox('', {
       id: 'txtTplCode',
-      placeholder: 'Contoh: STG-TECH-01',
+      placeholder: WiseI18n.t('Contoh: STG-TECH-01'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellCode.addControl(this.txtCode);
     masterGrid.setCell(1, 0, cellCode);
 
     const cellDesc = new WiseFrame('', { id: 'frmTplDesc' });
-    cellDesc.addControl(new WiseLabel(this.t('Deskripsi / Peruntukan Template'), { id: 'lblTplDesc', style: labelStyle }));
+    cellDesc.addControl(new WiseLabel(WiseI18n.t('Deskripsi / Peruntukan Template'), { id: 'lblTplDesc', style: labelStyle }));
     this.txtDesc = new WiseTextBox('', {
       id: 'txtTplDesc',
-      placeholder: 'Penjelasan tujuan atau profil pelamar yang cocok...',
+      placeholder: WiseI18n.t('Penjelasan tujuan atau profil pelamar yang cocok...'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellDesc.addControl(this.txtDesc);
@@ -97,7 +90,7 @@ class WinStageTemplateEdit extends WiseWindow {
     this.addControl(masterGrid);
 
     // 2. Sub-records Section Title & Toolbar
-    this.addControl(new WiseLabel('Daftar Tahapan Proses dalam Template (Interview User, HRD, Tes, dll)', {
+    this.addControl(new WiseLabel(WiseI18n.t('Daftar Tahapan Proses dalam Template (Interview User, HRD, Tes, dll)'), {
       id: 'lblSubStagesTitle',
       style: { fontWeight: 700, color: 'var(--accent-dark)', display: 'block', marginBottom: '8px' }
     }));
@@ -107,7 +100,7 @@ class WinStageTemplateEdit extends WiseWindow {
       style: { display: 'flex', gap: '8px', marginBottom: '8px' }
     });
 
-    stageToolbar.addControl(new WiseButton(this.t('➕ Tambah Tahapan'), {
+    stageToolbar.addControl(new WiseButton(WiseI18n.t('➕ Tambah Tahapan'), {
       id: 'btnTplStageAdd',
       onClick: this.onAddStageClick.bind(this),
       style: {
@@ -122,7 +115,7 @@ class WinStageTemplateEdit extends WiseWindow {
       }
     }));
 
-    stageToolbar.addControl(new WiseButton(this.t('✏️ Edit Tahapan'), {
+    stageToolbar.addControl(new WiseButton(WiseI18n.t('✏️ Edit Tahapan'), {
       id: 'btnTplStageEdit',
       onClick: this.onEditStageClick.bind(this),
       style: {
@@ -137,7 +130,7 @@ class WinStageTemplateEdit extends WiseWindow {
       }
     }));
 
-    stageToolbar.addControl(new WiseButton(this.t('🗑️ Hapus Tahapan'), {
+    stageToolbar.addControl(new WiseButton(WiseI18n.t('🗑️ Hapus Tahapan'), {
       id: 'btnTplStageDelete',
       onClick: this.onDeleteStageClick.bind(this),
       style: {
@@ -164,10 +157,10 @@ class WinStageTemplateEdit extends WiseWindow {
     });
 
     this.dtStages.columns = [
-      { key: 'order', title: 'Urutan', width: '80px' },
-      { key: 'name', title: 'Nama Tahapan', width: '280px' },
-      { key: 'matrixName', title: 'Matriks Penilaian', width: '260px' },
-      { key: 'description', title: 'Deskripsi / Panduan', width: '320px' }
+      { key: 'order', title: WiseI18n.t('Urutan'), width: '80px' },
+      { key: 'name', title: WiseI18n.t('Nama Tahapan'), width: '280px' },
+      { key: 'matrixName', title: WiseI18n.t('Matriks Penilaian'), width: '260px' },
+      { key: 'description', title: WiseI18n.t('Deskripsi / Panduan'), width: '320px' }
     ];
 
     this.addControl(this.dtStages);
@@ -184,7 +177,7 @@ class WinStageTemplateEdit extends WiseWindow {
       }
     });
 
-    bottomBar.addControl(new WiseButton(this.t('Batal'), {
+    bottomBar.addControl(new WiseButton(WiseI18n.t('Batal'), {
       id: 'btnTplCancel',
       onClick: () => this.close(),
       style: {
@@ -199,7 +192,7 @@ class WinStageTemplateEdit extends WiseWindow {
       }
     }));
 
-    bottomBar.addControl(new WiseButton(this.t('💾 Simpan Template'), {
+    bottomBar.addControl(new WiseButton(WiseI18n.t('💾 Simpan Template'), {
       id: 'btnTplSave',
       onClick: this.onSaveClick.bind(this),
       style: {
@@ -237,7 +230,7 @@ class WinStageTemplateEdit extends WiseWindow {
         this.renderStagesTable();
       }
     } catch (err) {
-      this.showInfo('Error', err.message, 'error');
+      this.showInfo(WiseI18n.t('Error'), err.message, 'error');
     }
   }
 
@@ -271,7 +264,7 @@ class WinStageTemplateEdit extends WiseWindow {
   async onEditStageClick() {
     const idx = this.dtStages.selectedRowIndex;
     if (idx === null || idx === undefined || idx < 0 || !this.stagesList[idx]) {
-      this.showInfo('Pemberitahuan', 'Pilih salah satu tahapan yang ingin diedit.', 'warning');
+      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu tahapan yang ingin diedit.'), 'warning');
       return;
     }
 
@@ -289,7 +282,7 @@ class WinStageTemplateEdit extends WiseWindow {
   async onDeleteStageClick() {
     const idx = this.dtStages.selectedRowIndex;
     if (idx === null || idx === undefined || idx < 0 || !this.stagesList[idx]) {
-      this.showInfo('Pemberitahuan', 'Pilih salah satu tahapan yang ingin dihapus.', 'warning');
+      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu tahapan yang ingin dihapus.'), 'warning');
       return;
     }
 
@@ -300,7 +293,7 @@ class WinStageTemplateEdit extends WiseWindow {
   async onSaveClick() {
     const name = this.txtName ? this.txtName.value.trim() : '';
     if (!name) {
-      this.showInfo('Validasi Form', 'Nama template alur proses wajib diisi.', 'warning');
+      this.showInfo(WiseI18n.t('Validasi Form'), WiseI18n.t('Nama template alur proses wajib diisi.'), 'warning');
       return;
     }
 
@@ -315,10 +308,10 @@ class WinStageTemplateEdit extends WiseWindow {
     try {
       if (this.selectedTemplateId) {
         await api.updateStageTemplate(this.selectedTemplateId, payload);
-        this.showInfo('Sukses', 'Template proses recruitment berhasil diperbarui.', 'success');
+        this.showInfo(WiseI18n.t('Sukses'), WiseI18n.t('Template proses recruitment berhasil diperbarui.'), 'success');
       } else {
         await api.createStageTemplate(payload);
-        this.showInfo('Sukses', 'Template proses recruitment berhasil dibuat.', 'success');
+        this.showInfo(WiseI18n.t('Sukses'), WiseI18n.t('Template proses recruitment berhasil dibuat.'), 'success');
       }
 
       if (typeof this.onSavedCallback === 'function') {
@@ -327,7 +320,7 @@ class WinStageTemplateEdit extends WiseWindow {
 
       this.close();
     } catch (err) {
-      this.showInfo('Gagal Menyimpan', err.message, 'error');
+      this.showInfo(WiseI18n.t('Gagal Menyimpan'), err.message, 'error');
     }
   }
 

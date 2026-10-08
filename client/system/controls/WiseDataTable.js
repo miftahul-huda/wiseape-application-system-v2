@@ -576,6 +576,8 @@
         label.className = 'inline-flex items-center gap-1';
         const rawHeader = col.header || col.label || col.title || '';
         const labelText = document.createElement('span');
+        labelText.className = 'header-label';
+        labelText.dataset.rawText = rawHeader;
         labelText.textContent = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(rawHeader) : rawHeader;
         label.appendChild(labelText);
 

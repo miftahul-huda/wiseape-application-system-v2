@@ -46,19 +46,24 @@
 
     static renderElement(data, context) {
       const wrapper = document.createElement('div');
-      wrapper.className = 'rounded-lg border border-slate-900/10 bg-white/60 p-4 shadow-none';
+      const hasTitle = Boolean(data.title && String(data.title).trim());
+      wrapper.className = hasTitle
+        ? 'wise-frame rounded-lg border border-slate-900/10 bg-white/60 p-4 shadow-none'
+        : 'wise-frame bg-transparent p-0 border-0 shadow-none';
       WiseControl.applyCommon(wrapper, data, context);
 
-      if (data.title) {
+      if (hasTitle) {
         const heading = document.createElement('div');
-        heading.className = 'mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500';
+        heading.className = 'wise-frame-title mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500';
         heading.textContent = data.title;
         wrapper.appendChild(heading);
       }
 
       const body = document.createElement('div');
       const isHorizontal = data.layout === 'horizontal' || (data.style && (data.style.flexDirection === 'row' || data.style.display === 'flex'));
-      body.className = isHorizontal ? 'flex flex-row flex-wrap items-center gap-2' : 'flex flex-col gap-2';
+      body.className = isHorizontal
+        ? 'wise-frame-body flex flex-row flex-wrap items-center gap-2'
+        : 'wise-frame-body flex flex-col gap-0.5';
       (data.controls || []).forEach((control) => body.appendChild(context.desktop.renderControl(control, context.appId, context.windowId)));
       wrapper.appendChild(body);
 

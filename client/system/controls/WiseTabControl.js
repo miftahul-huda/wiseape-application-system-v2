@@ -40,7 +40,7 @@
       ${activePill}
       <span class="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap ${isActive ? 'pl-2' : 'pl-0'} transition-all">
         ${iconHtml}
-        <span>${transLabel}</span>
+        <span class="wise-tab-text" data-raw-label="${label}">${transLabel}</span>
       </span>
       ${chevron}
     `;
@@ -56,7 +56,7 @@
       ${activeLine}
       <span class="inline-flex items-center gap-2 relative z-10">
         ${iconHtml}
-        <span>${transLabel}</span>
+        <span class="wise-tab-text" data-raw-label="${label}">${transLabel}</span>
       </span>
     `;
   }

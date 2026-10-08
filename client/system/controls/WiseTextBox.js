@@ -48,7 +48,9 @@
     static renderElement(data, context) {
       const el = document.createElement('input');
       el.type = 'text';
-      el.placeholder = data.placeholder || '';
+      const rawPh = data.placeholder || '';
+      el.dataset.rawPlaceholder = rawPh;
+      el.placeholder = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(rawPh) : rawPh;
       el.value = data.value || '';
       // maxlength is actively enforced by the browser (typing past it is
       // blocked); minlength isn't (it can't be, until you've typed
@@ -65,6 +67,21 @@
         el.addEventListener('keydown', (e) => context.desktop.sendControlEvent(context.appId, data.id, el, 'keypress', { key: e.key, code: e.code, ctrlKey: e.ctrlKey, shiftKey: e.shiftKey, altKey: e.altKey }));
       }
       return el;
+    }
+
+    static patchElement(winEl, data) {
+      const el = winEl.querySelector(`[data-control-id="${data.id}"]`);
+      if (!el) return;
+      if (data.value !== undefined && el.value !== data.value) {
+        el.value = data.value;
+      }
+      if (data.placeholder !== undefined) {
+        el.dataset.rawPlaceholder = data.placeholder;
+        el.placeholder = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(data.placeholder) : data.placeholder;
+      }
+      Object.entries(data.style || {}).forEach(([key, value]) => {
+        el.style[key] = typeof value === 'number' ? `${value}px` : value;
+      });
     }
   }
 

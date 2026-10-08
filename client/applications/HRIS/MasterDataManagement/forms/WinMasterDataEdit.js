@@ -44,10 +44,6 @@ class WinMasterDataEdit extends WiseWindow {
     this.onSavedCallback = options.onSaved || null;
   }
 
-  t(key) {
-    return WiseI18n.t(key);
-  }
-
   onWindowInit() {
     this.controls = [];
 
@@ -62,7 +58,7 @@ class WinMasterDataEdit extends WiseWindow {
     const lblStyle = { fontWeight: 600, color: '#334155', display: 'block', paddingTop: '6px' };
 
     // 1. Kategori (Category / DataType)
-    formLayout.setCell(0, 0, new WiseLabel(this.t('Kategori Master *'), { style: lblStyle }));
+    formLayout.setCell(0, 0, new WiseLabel(WiseI18n.t('Kategori Master *'), { style: lblStyle }));
     const activeDataType = (this.initialData && this.initialData.dataType) ? this.initialData.dataType : this.initialDataType;
     const cmbCategory = new WiseComboBox(
       CATEGORY_OPTIONS(),
@@ -75,7 +71,7 @@ class WinMasterDataEdit extends WiseWindow {
     formLayout.setCell(0, 1, cmbCategory);
 
     // 2. Kode (Code)
-    formLayout.setCell(1, 0, new WiseLabel(this.t('Kode Unik *'), { style: lblStyle }));
+    formLayout.setCell(1, 0, new WiseLabel(WiseI18n.t('Kode Unik *'), { style: lblStyle }));
     const txtCode = new WiseTextBox(this.initialData ? this.initialData.code : '', {
       id: 'txtCode',
       placeholder: 'ISLAM, HO_JKT, BCA, PERMANENT',
@@ -84,36 +80,38 @@ class WinMasterDataEdit extends WiseWindow {
     formLayout.setCell(1, 1, txtCode);
 
     // 3. Nama / Label (Name)
-    formLayout.setCell(2, 0, new WiseLabel(this.t('Nama / Deskripsi Tampilan *'), { style: lblStyle }));
+    formLayout.setCell(2, 0, new WiseLabel(WiseI18n.t('Nama / Deskripsi Tampilan *'), { style: lblStyle }));
     const txtName = new WiseTextBox(this.initialData ? this.initialData.name : '', {
       id: 'txtName',
-      placeholder: this.t('Nama / Deskripsi Tampilan *'),
+      placeholder: WiseI18n.t('Nama / Deskripsi Tampilan *'),
       style: { width: '100%' }
     });
     formLayout.setCell(2, 1, txtName);
 
     // 4. Keterangan (Description)
-    formLayout.setCell(3, 0, new WiseLabel(this.t('Keterangan Tambahan'), { style: lblStyle }));
+    formLayout.setCell(3, 0, new WiseLabel(WiseI18n.t('Keterangan Tambahan'), { style: lblStyle }));
     const txtDescription = new WiseTextBox(this.initialData ? (this.initialData.description || '') : '', {
       id: 'txtDescription',
-      placeholder: this.t('Keterangan Tambahan'),
+      placeholder: WiseI18n.t('Keterangan Tambahan'),
       style: { width: '100%' }
     });
     formLayout.setCell(3, 1, txtDescription);
 
     // 5. Urutan (Sort Order)
-    formLayout.setCell(4, 0, new WiseLabel(this.t('Urutan Tampilan'), { style: lblStyle }));
-    const numSortOrder = new WiseNumericBox(this.initialData ? (this.initialData.sortOrder || 0) : 0, {
+    formLayout.setCell(4, 0, new WiseLabel(WiseI18n.t('Urutan Tampilan'), { style: lblStyle }));
+    const sortVal = this.initialData && this.initialData.sortOrder !== undefined ? Number(this.initialData.sortOrder) : 0;
+    const numSortOrder = new WiseNumericBox(String(sortVal), {
       id: 'numSortOrder',
+      value: sortVal,
       style: { width: '120px' }
     });
     formLayout.setCell(4, 1, numSortOrder);
 
     // 6. Status Aktif
-    formLayout.setCell(5, 0, new WiseLabel(this.t('Status'), { style: lblStyle }));
+    formLayout.setCell(5, 0, new WiseLabel(WiseI18n.t('Status'), { style: lblStyle }));
     const cmbStatus = new WiseComboBox([
-      { value: 'true', label: this.t('🟢 Aktif (Bisa Dipilih)') },
-      { value: 'false', label: '🔴 ' + this.t('Nonaktif') }
+      { value: 'true', label: WiseI18n.t('🟢 Aktif (Bisa Dipilih)') },
+      { value: 'false', label: '🔴 ' + WiseI18n.t('Nonaktif') }
     ], {
       id: 'cmbStatus',
       value: (this.initialData && this.initialData.isActive === false) ? 'false' : 'true',
@@ -142,7 +140,7 @@ class WinMasterDataEdit extends WiseWindow {
       }
     });
 
-    const btnCancel = new WiseButton(this.t('✕ Batal'), {
+    const btnCancel = new WiseButton(WiseI18n.t('✕ Batal'), {
       id: 'btnMasterCancel',
       onClick: () => this.close(),
       style: {
@@ -155,7 +153,7 @@ class WinMasterDataEdit extends WiseWindow {
       }
     });
 
-    const btnSave = new WiseButton(this.t('💾 Simpan Data'), {
+    const btnSave = new WiseButton(WiseI18n.t('💾 Simpan Data'), {
       id: 'btnMasterSave',
       onClick: this.onSave.bind(this),
       style: {
@@ -191,12 +189,12 @@ class WinMasterDataEdit extends WiseWindow {
       const isActive = cmbStat ? (cmbStat.value !== 'false' && cmbStat.value !== false) : true;
 
       if (!code) {
-        this.showError(this.t('Kode master data wajib diisi.'));
+        this.showError(WiseI18n.t('Kode master data wajib diisi.'));
         return;
       }
 
       if (!name) {
-        this.showError(this.t('Nama master data wajib diisi.'));
+        this.showError(WiseI18n.t('Nama master data wajib diisi.'));
         return;
       }
 
@@ -221,7 +219,7 @@ class WinMasterDataEdit extends WiseWindow {
 
       this.close();
     } catch (err) {
-      this.showError(err.message || this.t('Gagal menyimpan data master'));
+      this.showError(err.message || WiseI18n.t('Gagal menyimpan data master'));
     }
   }
 

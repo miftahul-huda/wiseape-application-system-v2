@@ -33,10 +33,6 @@ class WinOrganizationManagement extends WiseWindow {
     this._currentFilters = {};
   }
 
-  t(key) {
-    return WiseI18n.t(key);
-  }
-
   onWindowInit() {
     this.controls = [];
 
@@ -50,7 +46,7 @@ class WinOrganizationManagement extends WiseWindow {
       }
     });
 
-    this.btnTabOrg = new WiseButton(this.t('🏛️ Unit Organisasi (Divisi & Dept)'), {
+    this.btnTabOrg = new WiseButton(WiseI18n.t('🏛️ Unit Organisasi (Divisi & Dept)'), {
       id: 'btnTabOrg',
       onClick: () => this.switchTab('org'),
       style: {
@@ -63,7 +59,7 @@ class WinOrganizationManagement extends WiseWindow {
       }
     });
 
-    this.btnTabLevels = new WiseButton(this.t('🎖️ Jenjang Jabatan (Job Levels)'), {
+    this.btnTabLevels = new WiseButton(WiseI18n.t('🎖️ Jenjang Jabatan (Job Levels)'), {
       id: 'btnTabLevels',
       onClick: () => this.switchTab('levels'),
       style: {
@@ -76,7 +72,7 @@ class WinOrganizationManagement extends WiseWindow {
       }
     });
 
-    this.btnTabPositions = new WiseButton(this.t('💼 Master Jabatan (Positions)'), {
+    this.btnTabPositions = new WiseButton(WiseI18n.t('💼 Master Jabatan (Positions)'), {
       id: 'btnTabPositions',
       onClick: () => this.switchTab('positions'),
       style: {
@@ -104,7 +100,7 @@ class WinOrganizationManagement extends WiseWindow {
       }
     });
 
-    actionToolbar.addControl(new WiseButton(this.t('➕ Tambah Data'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('➕ Tambah Data'), {
       id: 'btnOrgAdd',
       onClick: this.onAddClick.bind(this),
       style: {
@@ -117,7 +113,7 @@ class WinOrganizationManagement extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(this.t('✏️ Edit Data'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('✏️ Edit Data'), {
       id: 'btnOrgEdit',
       onClick: this.onEditClick.bind(this),
       style: {
@@ -130,7 +126,7 @@ class WinOrganizationManagement extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(this.t('🔄 Toggle Aktif/Nonaktif'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('🔄 Toggle Aktif/Nonaktif'), {
       id: 'btnOrgToggleActive',
       onClick: this.onToggleActiveClick.bind(this),
       style: {
@@ -143,7 +139,7 @@ class WinOrganizationManagement extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(this.t('🗑️ Hapus'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('🗑️ Hapus'), {
       id: 'btnOrgDelete',
       onClick: this.onDeleteClick.bind(this),
       style: {
@@ -156,7 +152,7 @@ class WinOrganizationManagement extends WiseWindow {
       }
     }));
 
-    actionToolbar.addControl(new WiseButton(this.t('🔄 Segarkan (Refresh)'), {
+    actionToolbar.addControl(new WiseButton(WiseI18n.t('🔄 Segarkan (Refresh)'), {
       id: 'btnOrgRefresh',
       onClick: () => this.fetchCurrentTabData(1, 15, this._currentFilters),
       style: {
@@ -184,15 +180,15 @@ class WinOrganizationManagement extends WiseWindow {
     this.setupTableForTab(this.activeTab);
 
     this.dtOrg.addContextMenu([
-      { id: 'edit', label: this.t('Edit'), onClick: (row) => this.onEditClick(row) },
-      { id: 'toggle', label: this.t('Toggle Status'), onClick: (row) => this.onToggleActiveClick(row) },
-      { id: 'delete', label: this.t('Hapus'), onClick: (row) => this.onDeleteClick(row) }
+      { id: 'edit', label: WiseI18n.t('Edit'), onClick: (row) => this.onEditClick(row) },
+      { id: 'toggle', label: WiseI18n.t('Toggle Status'), onClick: (row) => this.onToggleActiveClick(row) },
+      { id: 'delete', label: WiseI18n.t('Hapus'), onClick: (row) => this.onDeleteClick(row) }
     ]);
 
     this.addControl(this.dtOrg);
 
     // 5. Summary Info
-    this.lblSummary = new WiseLabel(this.t('Memuat data organisasi...'), {
+    this.lblSummary = new WiseLabel(WiseI18n.t('Memuat data organisasi...'), {
       id: 'lblOrgSummary',
       style: { color: '#64748b', fontWeight: 500, display: 'block', marginTop: '8px' }
     });
@@ -205,34 +201,34 @@ class WinOrganizationManagement extends WiseWindow {
     if (tab === 'org') {
       this.dtOrg.setColumns([
         { dataField: 'no', header: '#', width: 50 },
-        { dataField: 'typeBadge', header: this.t('Tipe'), width: 120 },
-        { dataField: 'code', header: this.t('Kode'), width: 120 },
-        { dataField: 'name', header: this.t('Nama Unit Organisasi'), width: 250 },
-        { dataField: 'parentName', header: this.t('Induk Organisasi'), width: 220 },
-        { dataField: 'description', header: this.t('Deskripsi'), width: 'auto' },
-        { dataField: 'sortOrder', header: this.t('Urutan'), width: 70 },
-        { dataField: 'statusBadge', header: this.t('Status'), width: 110 }
+        { dataField: 'typeBadge', header: WiseI18n.t('Tipe'), width: 120 },
+        { dataField: 'code', header: WiseI18n.t('Kode'), width: 120 },
+        { dataField: 'name', header: WiseI18n.t('Nama Unit Organisasi'), width: 250 },
+        { dataField: 'parentName', header: WiseI18n.t('Induk Organisasi'), width: 220 },
+        { dataField: 'description', header: WiseI18n.t('Deskripsi'), width: 'auto' },
+        { dataField: 'sortOrder', header: WiseI18n.t('Urutan'), width: 70 },
+        { dataField: 'statusBadge', header: WiseI18n.t('Status'), width: 110 }
       ]);
     } else if (tab === 'levels') {
       this.dtOrg.setColumns([
         { dataField: 'no', header: '#', width: 50 },
-        { dataField: 'code', header: this.t('Kode'), width: 120 },
-        { dataField: 'name', header: this.t('Nama Jenjang / Grade'), width: 240 },
-        { dataField: 'levelBadge', header: this.t('Tingkat Level'), width: 120 },
-        { dataField: 'description', header: this.t('Cakupan Tanggung Jawab'), width: 'auto' },
-        { dataField: 'sortOrder', header: this.t('Urutan'), width: 70 },
-        { dataField: 'statusBadge', header: this.t('Status'), width: 110 }
+        { dataField: 'code', header: WiseI18n.t('Kode'), width: 120 },
+        { dataField: 'name', header: WiseI18n.t('Nama Jenjang / Grade'), width: 240 },
+        { dataField: 'levelBadge', header: WiseI18n.t('Tingkat Level'), width: 120 },
+        { dataField: 'description', header: WiseI18n.t('Cakupan Tanggung Jawab'), width: 'auto' },
+        { dataField: 'sortOrder', header: WiseI18n.t('Urutan'), width: 70 },
+        { dataField: 'statusBadge', header: WiseI18n.t('Status'), width: 110 }
       ]);
     } else {
       this.dtOrg.setColumns([
         { dataField: 'no', header: '#', width: 50 },
-        { dataField: 'code', header: this.t('Kode'), width: 130 },
-        { dataField: 'title', header: this.t('Judul / Nama Jabatan'), width: 240 },
-        { dataField: 'department', header: this.t('Unit / Departemen'), width: 220 },
-        { dataField: 'jobLevelName', header: this.t('Jenjang / Grade'), width: 180 },
-        { dataField: 'description', header: this.t('Uraian Tugas'), width: 'auto' },
-        { dataField: 'sortOrder', header: this.t('Urutan'), width: 70 },
-        { dataField: 'statusBadge', header: this.t('Status'), width: 110 }
+        { dataField: 'code', header: WiseI18n.t('Kode'), width: 130 },
+        { dataField: 'title', header: WiseI18n.t('Judul / Nama Jabatan'), width: 240 },
+        { dataField: 'department', header: WiseI18n.t('Unit / Departemen'), width: 220 },
+        { dataField: 'jobLevelName', header: WiseI18n.t('Jenjang / Grade'), width: 180 },
+        { dataField: 'description', header: WiseI18n.t('Uraian Tugas'), width: 'auto' },
+        { dataField: 'sortOrder', header: WiseI18n.t('Urutan'), width: 70 },
+        { dataField: 'statusBadge', header: WiseI18n.t('Status'), width: 110 }
       ]);
     }
 
@@ -241,18 +237,18 @@ class WinOrganizationManagement extends WiseWindow {
       {
         id: 'search',
         type: 'text',
-        label: this.t('Pencarian'),
-        placeholder: this.t('Cari kode, nama, deskripsi...'),
+        label: WiseI18n.t('Pencarian'),
+        placeholder: WiseI18n.t('Cari kode, nama, deskripsi...'),
         onChange: this.onTableFilterInputChanged.bind(this)
       },
       {
         id: 'isActive',
         type: 'select',
-        label: this.t('Status'),
+        label: WiseI18n.t('Status'),
         items: [
-          { value: '', label: this.t('Semua Status') },
-          { value: 'true', label: '🟢 ' + this.t('Aktif') },
-          { value: 'false', label: '🔴 ' + this.t('Nonaktif') }
+          { value: '', label: WiseI18n.t('Semua Status') },
+          { value: 'true', label: '🟢 ' + WiseI18n.t('Aktif') },
+          { value: 'false', label: '🔴 ' + WiseI18n.t('Nonaktif') }
         ],
         onChange: this.onTableFilterInputChanged.bind(this)
       }
@@ -313,15 +309,15 @@ class WinOrganizationManagement extends WiseWindow {
           typeBadge: `[${item.type}]`,
           parentName: item.parent
             ? `[${item.parent.code}] ${item.parent.name}`
-            : this.t('(Root / Tingkat Atas)'),
-          statusBadge: item.isActive ? ('🟢 ' + this.t('Aktif')) : ('🔴 ' + this.t('Nonaktif'))
+            : WiseI18n.t('(Root / Tingkat Atas)'),
+          statusBadge: item.isActive ? ('🟢 ' + WiseI18n.t('Aktif')) : ('🔴 ' + WiseI18n.t('Nonaktif'))
         }));
         this.dtOrg.pageSize = limit;
         this.dtOrg.currentPage = page;
         this.dtOrg.setData(formatted, formatted.length);
         if (this.lblSummary) {
           const activeCount = this.cachedOrgs.filter((i) => i.isActive).length;
-          this.lblSummary.text = `${this.t('Menampilkan')} ${this.cachedOrgs.length} ${this.t('unit organisasi')} (${activeCount} ${this.t('Aktif')}, ${this.cachedOrgs.length - activeCount} ${this.t('Nonaktif')}).`;
+          this.lblSummary.text = `${WiseI18n.t('Menampilkan')} ${this.cachedOrgs.length} ${WiseI18n.t('unit organisasi')} (${activeCount} ${WiseI18n.t('Aktif')}, ${this.cachedOrgs.length - activeCount} ${WiseI18n.t('Nonaktif')}).`;
         }
       } else if (this.activeTab === 'levels') {
         const res = await api.listJobLevels({ search, isActive });
@@ -330,14 +326,14 @@ class WinOrganizationManagement extends WiseWindow {
           ...item,
           no: idx + 1,
           levelBadge: `Level ${item.levelNumber}`,
-          statusBadge: item.isActive ? ('🟢 ' + this.t('Aktif')) : ('🔴 ' + this.t('Nonaktif'))
+          statusBadge: item.isActive ? ('🟢 ' + WiseI18n.t('Aktif')) : ('🔴 ' + WiseI18n.t('Nonaktif'))
         }));
         this.dtOrg.pageSize = limit;
         this.dtOrg.currentPage = page;
         this.dtOrg.setData(formatted, formatted.length);
         if (this.lblSummary) {
           const activeCount = this.cachedLevels.filter((i) => i.isActive).length;
-          this.lblSummary.text = `${this.t('Menampilkan')} ${this.cachedLevels.length} ${this.t('jenjang jabatan')} (${activeCount} ${this.t('Aktif')}, ${this.cachedLevels.length - activeCount} ${this.t('Nonaktif')}).`;
+          this.lblSummary.text = `${WiseI18n.t('Menampilkan')} ${this.cachedLevels.length} ${WiseI18n.t('jenjang jabatan')} (${activeCount} ${WiseI18n.t('Aktif')}, ${this.cachedLevels.length - activeCount} ${WiseI18n.t('Nonaktif')}).`;
         }
       } else {
         const res = await api.listPositions({ search, isActive });
@@ -347,14 +343,14 @@ class WinOrganizationManagement extends WiseWindow {
           no: idx + 1,
           department: item.organization ? item.organization.name : (item.department || '-'),
           jobLevelName: item.jobLevel ? `[Lvl ${item.jobLevel.level_number || item.jobLevel.levelNumber}] ${item.jobLevel.name}` : '-',
-          statusBadge: item.isActive ? ('🟢 ' + this.t('Aktif')) : ('🔴 ' + this.t('Nonaktif'))
+          statusBadge: item.isActive ? ('🟢 ' + WiseI18n.t('Aktif')) : ('🔴 ' + WiseI18n.t('Nonaktif'))
         }));
         this.dtOrg.pageSize = limit;
         this.dtOrg.currentPage = page;
         this.dtOrg.setData(formatted, formatted.length);
         if (this.lblSummary) {
           const activeCount = this.cachedPositions.filter((i) => i.isActive).length;
-          this.lblSummary.text = `${this.t('Menampilkan')} ${this.cachedPositions.length} ${this.t('master posisi jabatan')} (${activeCount} ${this.t('Aktif')}, ${this.cachedPositions.length - activeCount} ${this.t('Nonaktif')}).`;
+          this.lblSummary.text = `${WiseI18n.t('Menampilkan')} ${this.cachedPositions.length} ${WiseI18n.t('master posisi jabatan')} (${activeCount} ${WiseI18n.t('Aktif')}, ${this.cachedPositions.length - activeCount} ${WiseI18n.t('Nonaktif')}).`;
         }
       }
 
@@ -385,7 +381,7 @@ class WinOrganizationManagement extends WiseWindow {
     this.selectedItem = rows[0];
     const name = this.selectedItem.name || this.selectedItem.title || this.selectedItem.code;
     if (this.lblSummary && name) {
-      this.lblSummary.text = `${this.t('Dipilih')}: [${this.selectedItem.code}] ${name}`;
+      this.lblSummary.text = `${WiseI18n.t('Dipilih')}: [${this.selectedItem.code}] ${name}`;
     }
   }
 
@@ -422,7 +418,7 @@ class WinOrganizationManagement extends WiseWindow {
   onEditClick(targetRow = null) {
     const item = targetRow || this.selectedItem;
     if (!item) {
-      alert(this.t('Pilih salah satu baris data yang ingin diedit terlebih dahulu.'));
+      alert(WiseI18n.t('Pilih salah satu baris data yang ingin diedit terlebih dahulu.'));
       return;
     }
 
@@ -464,7 +460,7 @@ class WinOrganizationManagement extends WiseWindow {
   async onToggleActiveClick(targetRow = null) {
     const item = targetRow || this.selectedItem;
     if (!item) {
-      alert(this.t('Pilih salah satu baris data terlebih dahulu.'));
+      alert(WiseI18n.t('Pilih salah satu baris data terlebih dahulu.'));
       return;
     }
 
@@ -488,7 +484,7 @@ class WinOrganizationManagement extends WiseWindow {
   async onDeleteClick(targetRow = null) {
     const item = targetRow || this.selectedItem;
     if (!item) {
-      alert(this.t('Pilih baris data yang ingin dihapus terlebih dahulu.'));
+      alert(WiseI18n.t('Pilih baris data yang ingin dihapus terlebih dahulu.'));
       return;
     }
 

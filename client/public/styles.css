@@ -37,6 +37,76 @@ button {
   border: none;
 }
 
+/* Ensure inputs reset default margin */
+input,
+select,
+textarea {
+  margin: 0 !important;
+}
+
+/* Make input labels tighter and closer to the inputs */
+.wise-label,
+[data-control-type="WiseLabel"] {
+  line-height: 1.2 !important;
+}
+
+/* WiseFrame body vertical gap between label and input */
+.wise-frame-body {
+  gap: 2px !important;
+}
+
+.wise-frame-body.flex-row {
+  gap: 8px !important;
+}
+
+.wise-frame-body > .wise-label,
+.wise-frame-body > [data-control-type="WiseLabel"] {
+  margin-bottom: 0px !important;
+  line-height: 1.2 !important;
+}
+
+.wise-label:has(+ input),
+.wise-label:has(+ select),
+.wise-label:has(+ textarea),
+.wise-label:has(+ .wise-combobox-wrapper),
+.wise-label:has(+ .wise-numericbox-wrapper),
+.wise-label:has(+ [data-control-type="WiseDate"]),
+.wise-label:has(+ [data-control-type="WiseDateRange"]),
+.wise-label:has(+ [data-control-type="WiseTextBox"]),
+.wise-label:has(+ [data-control-type="WiseComboBox"]),
+.wise-label:has(+ [data-control-type="WiseNumericBox"]),
+.wise-label:has(+ [data-control-type="WiseTextArea"]),
+[data-control-type="WiseLabel"]:has(+ input),
+[data-control-type="WiseLabel"]:has(+ select),
+[data-control-type="WiseLabel"]:has(+ textarea),
+[data-control-type="WiseLabel"]:has(+ .wise-combobox-wrapper),
+[data-control-type="WiseLabel"]:has(+ .wise-numericbox-wrapper),
+[data-control-type="WiseLabel"]:has(+ [data-control-type="WiseDate"]),
+[data-control-type="WiseLabel"]:has(+ [data-control-type="WiseDateRange"]),
+[data-control-type="WiseLabel"]:has(+ [data-control-type="WiseTextBox"]),
+[data-control-type="WiseLabel"]:has(+ [data-control-type="WiseComboBox"]),
+[data-control-type="WiseLabel"]:has(+ [data-control-type="WiseNumericBox"]),
+[data-control-type="WiseLabel"]:has(+ [data-control-type="WiseTextArea"]),
+[data-control-type="WiseFrame"] > .wise-label:first-child:not(:only-child),
+[data-control-type="WiseFrame"] > [data-control-type="WiseLabel"]:first-child:not(:only-child) {
+  margin-bottom: 0px !important;
+  line-height: 1.2 !important;
+}
+
+/* Clear separation between a previous input and subsequent input label */
+input + .wise-label,
+input + [data-control-type="WiseLabel"],
+select + .wise-label,
+select + [data-control-type="WiseLabel"],
+textarea + .wise-label,
+textarea + [data-control-type="WiseLabel"],
+.wise-combobox-wrapper + .wise-label,
+.wise-combobox-wrapper + [data-control-type="WiseLabel"],
+.wise-numericbox-wrapper + .wise-label,
+.wise-numericbox-wrapper + [data-control-type="WiseLabel"] {
+  margin-top: 10px !important;
+}
+
 /* Strict Flat Input Controls - 1px solid uniform border on all 4 sides (No 3D/bevel/inset shadow) */
 input[type="text"]:not(.wise-numeric-inner-input):not(.wise-combobox-search-input),
 input[type="password"],
@@ -49,7 +119,7 @@ input[type="search"],
 select,
 textarea,
 .wise-numericbox-wrapper,
-.wise-combobox-trigger {
+.wise-combobox-wrapper {
   display: block;
   width: 100%;
   box-sizing: border-box !important;
@@ -88,11 +158,17 @@ textarea {
   appearance: none !important;
 }
 
-.wise-numericbox-wrapper {
+.wise-numericbox-wrapper,
+.wise-combobox-wrapper {
   display: flex !important;
   align-items: center !important;
   height: 34px !important;
   min-height: 34px !important;
+  padding: 0 !important;
+  position: relative !important;
+}
+
+.wise-numericbox-wrapper {
   padding: 0 4px !important;
 }
 
@@ -100,9 +176,21 @@ textarea {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  height: 34px !important;
-  min-height: 34px !important;
-  padding: 5px 10px !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  box-sizing: border-box !important;
+  border: none !important;
+  border-width: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  color: inherit !important;
+  font-size: 14px !important;
+  padding: 0 10px !important;
   cursor: pointer;
   user-select: none;
 }
@@ -118,12 +206,18 @@ input[type="search"]:focus,
 select:focus,
 textarea:focus,
 .wise-numericbox-wrapper:focus-within,
-.wise-combobox-trigger:focus,
-.wise-combobox-wrapper.is-open .wise-combobox-trigger {
+.wise-combobox-wrapper:focus-within,
+.wise-combobox-wrapper.is-open {
   border: 1px solid var(--accent) !important;
   box-shadow: none !important;
   -webkit-box-shadow: none !important;
   outline: none !important;
+}
+
+.wise-combobox-trigger:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 .wise-combobox-dropdown {
@@ -179,9 +273,17 @@ body.dark-theme input[type="date"],
 body.dark-theme select,
 body.dark-theme textarea,
 body.dark-theme .wise-numericbox-wrapper,
-body.dark-theme .wise-combobox-trigger {
+body.dark-theme .wise-combobox-wrapper {
   background-color: #1e293b !important;
   border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark-theme .wise-combobox-trigger {
+  border: none !important;
+  border-width: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
   color: #f1f5f9 !important;
 }
 
@@ -189,8 +291,8 @@ body.dark-theme input[type="text"]:not(.wise-numeric-inner-input):not(.wise-comb
 body.dark-theme select:focus,
 body.dark-theme textarea:focus,
 body.dark-theme .wise-numericbox-wrapper:focus-within,
-body.dark-theme .wise-combobox-trigger:focus,
-body.dark-theme .wise-combobox-wrapper.is-open .wise-combobox-trigger {
+body.dark-theme .wise-combobox-wrapper:focus-within,
+body.dark-theme .wise-combobox-wrapper.is-open {
   border: 1px solid var(--accent) !important;
   box-shadow: none !important;
 }

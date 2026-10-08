@@ -6,6 +6,7 @@ const WiseComboBox = require('../../../../system/controls/WiseComboBox');
 const WiseDate = require('../../../../system/controls/WiseDate');
 const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
 const WiseFrame = require('../../../../system/controls/WiseFrame');
+const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
 
 const HrisApiRepository = require('../services/HrisApiRepository');
 const api = new HrisApiRepository();
@@ -18,7 +19,7 @@ class WinEmployeeDocumentEdit extends WiseWindow {
     this.record = options.data || null;
     this.employeeId = options.employeeId || (this.record && this.record.employeeId) || (options.parentWindow && (options.parentWindow.selectedEmployeeId || options.parentWindow.employeeId)) || null;
     this.recordId = (this.record && this.record.id) || null;
-    this.title = this.recordId ? 'Edit Dokumen Karyawan' : 'Tambah Dokumen Baru';
+    this.title = this.recordId ? WiseI18n.t('Edit Dokumen Karyawan') : WiseI18n.t('Tambah Dokumen Baru');
     this.width = 620;
     this.centered = true;
   }
@@ -29,19 +30,19 @@ class WinEmployeeDocumentEdit extends WiseWindow {
     // ── Form Content ────────────────────────────────────────────
     const tblDoc = new WiseTableLayout({ rows: 4, columns: 2, id: 'tblDocEdit', style: { marginBottom: '16px' } });
     
-    this.cmbDocType = new WiseComboBox(DOC_TYPES.map(d => ({ value: d, label: d })), { id: 'cmbDocType', value: this.record?.documentType || 'KTP' });
-    this.txtDocNumber = new WiseTextBox('Nomor KTP/NPWP/No Kontrak', { id: 'txtDocNumber', value: this.record?.documentNumber || '', placeholder: 'Nomor KTP/NPWP/No Kontrak' });
-    this.txtDocTitle = new WiseTextBox('e.g. Scan KTP Asli', { id: 'txtDocTitle', value: this.record?.title || '', placeholder: 'e.g. Scan KTP Asli' });
+    this.cmbDocType = new WiseComboBox(DOC_TYPES.map(d => ({ value: d, label: WiseI18n.t(d) })), { id: 'cmbDocType', value: this.record?.documentType || 'KTP' });
+    this.txtDocNumber = new WiseTextBox(WiseI18n.t('Nomor KTP/NPWP/No Kontrak'), { id: 'txtDocNumber', value: this.record?.documentNumber || '', placeholder: WiseI18n.t('Nomor KTP/NPWP/No Kontrak') });
+    this.txtDocTitle = new WiseTextBox(WiseI18n.t('e.g. Scan KTP Asli'), { id: 'txtDocTitle', value: this.record?.title || '', placeholder: WiseI18n.t('e.g. Scan KTP Asli') });
     this.dtDocIssueDate = new WiseDate(this.record?.issueDate || '', { id: 'dtDocIssueDate', value: this.record?.issueDate || '' });
     this.dtDocExpiryDate = new WiseDate(this.record?.expiryDate || '', { id: 'dtDocExpiryDate', value: this.record?.expiryDate || '' });
-    this.txtDocDesc = new WiseTextBox('Keterangan dokumen...', { id: 'txtDocDesc', value: this.record?.description || '', placeholder: 'Keterangan dokumen...' });
+    this.txtDocDesc = new WiseTextBox(WiseI18n.t('Keterangan dokumen...'), { id: 'txtDocDesc', value: this.record?.description || '', placeholder: WiseI18n.t('Keterangan dokumen...') });
 
-    tblDoc.setCell(0, 0, this.formGroup('Jenis Dokumen *', this.cmbDocType));
-    tblDoc.setCell(0, 1, this.formGroup('Nomor Dokumen', this.txtDocNumber));
-    tblDoc.setCell(1, 0, this.formGroup('Judul Dokumen *', this.txtDocTitle), { colSpan: 2 });
-    tblDoc.setCell(2, 0, this.formGroup('Tanggal Terbit', this.dtDocIssueDate));
-    tblDoc.setCell(2, 1, this.formGroup('Tanggal Berakhir', this.dtDocExpiryDate));
-    tblDoc.setCell(3, 0, this.formGroup('Keterangan / Catatan', this.txtDocDesc), { colSpan: 2 });
+    tblDoc.setCell(0, 0, this.formGroup(WiseI18n.t('Jenis Dokumen *'), this.cmbDocType));
+    tblDoc.setCell(0, 1, this.formGroup(WiseI18n.t('Nomor Dokumen'), this.txtDocNumber));
+    tblDoc.setCell(1, 0, this.formGroup(WiseI18n.t('Judul Dokumen *'), this.txtDocTitle), { colSpan: 2 });
+    tblDoc.setCell(2, 0, this.formGroup(WiseI18n.t('Tanggal Terbit'), this.dtDocIssueDate));
+    tblDoc.setCell(2, 1, this.formGroup(WiseI18n.t('Tanggal Berakhir'), this.dtDocExpiryDate));
+    tblDoc.setCell(3, 0, this.formGroup(WiseI18n.t('Keterangan / Catatan'), this.txtDocDesc), { colSpan: 2 });
     this.addControl(tblDoc);
 
     // ── Action Buttons ──────────────────────────────────────────
@@ -49,13 +50,13 @@ class WinEmployeeDocumentEdit extends WiseWindow {
       id: 'frameDocActions',
       style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' }
     });
-    actionFrame.addControl(new WiseButton('💾 Simpan Dokumen', {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('💾 Simpan Dokumen'), {
       id: 'btnSaveDoc',
       onClick: this.onSaveClick.bind(this),
       style: {
         background: 'var(--accent)',
         color: '#ffffff',
-        fontWeight: 700,
+        fontWeight: 600,
         borderRadius: '8px',
         padding: '10px 20px',
         border: 'none',
@@ -64,7 +65,7 @@ class WinEmployeeDocumentEdit extends WiseWindow {
         cursor: 'pointer'
       }
     }));
-    actionFrame.addControl(new WiseButton('✕ Batal', {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('✕ Batal'), {
       id: 'btnCancelDoc',
       onClick: this.onCancelClick.bind(this),
       style: {
@@ -84,8 +85,8 @@ class WinEmployeeDocumentEdit extends WiseWindow {
   }
 
   formGroup(label, control) {
-    const frame = new WiseFrame('', { style: { padding: '4px 6px', border: 'none', background: 'transparent' } });
-    frame.addControl(new WiseLabel(label, { style: { fontWeight: 600, color: '#475569', marginBottom: '4px', display: 'block' } }));
+    const frame = new WiseFrame('', { style: { padding: '2px 4px', border: 'none', background: 'transparent' } });
+    frame.addControl(new WiseLabel(label, { style: { fontWeight: 600, color: '#475569', marginBottom: '0px', lineHeight: '1.2', display: 'block' } }));
     frame.addControl(control);
     return frame;
   }
@@ -93,12 +94,12 @@ class WinEmployeeDocumentEdit extends WiseWindow {
   async onSaveClick() {
     const empId = this.employeeId || (this.record && this.record.employeeId) || (this.parentWindow && (this.parentWindow.selectedEmployeeId || this.parentWindow.employeeId));
     if (!empId) {
-      return this.showInfo('Peringatan', 'Data karyawan belum ditentukan.', 'warning');
+      return this.showInfo(WiseI18n.t('Peringatan'), WiseI18n.t('Data karyawan belum ditentukan.'), 'warning');
     }
     this.employeeId = empId;
     const title = this.txtDocTitle ? this.txtDocTitle.value : '';
     if (!title) {
-      return this.showInfo('Validasi', 'Judul dokumen wajib diisi.', 'warning');
+      return this.showInfo(WiseI18n.t('Validasi'), WiseI18n.t('Judul dokumen wajib diisi.'), 'warning');
     }
 
     const payload = {
@@ -113,10 +114,10 @@ class WinEmployeeDocumentEdit extends WiseWindow {
     try {
       if (this.recordId) {
         await api.updateDocument(this.recordId, payload);
-        this.showInfo('Berhasil', 'Data dokumen berhasil diperbarui.', 'success');
+        this.showInfo(WiseI18n.t('Berhasil'), WiseI18n.t('Data dokumen berhasil diperbarui.'), 'success');
       } else {
         await api.addDocument(this.employeeId, payload);
-        this.showInfo('Berhasil', 'Dokumen baru berhasil ditambahkan.', 'success');
+        this.showInfo(WiseI18n.t('Berhasil'), WiseI18n.t('Dokumen baru berhasil ditambahkan.'), 'success');
       }
 
       if (this.parentWindow && typeof this.parentWindow.loadEmployee === 'function') {
@@ -124,7 +125,7 @@ class WinEmployeeDocumentEdit extends WiseWindow {
       }
       this.close();
     } catch (err) {
-      this.showInfo('Gagal Menyimpan', err.message, 'error');
+      this.showInfo(WiseI18n.t('Gagal Menyimpan'), err.message, 'error');
     }
   }
 

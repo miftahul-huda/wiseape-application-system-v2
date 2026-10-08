@@ -32,10 +32,6 @@ class WinOrganizationEdit extends WiseWindow {
     this.onSavedCallback = options.onSaved || null;
   }
 
-  t(key) {
-    return WiseI18n.t(key);
-  }
-
   onWindowInit() {
     this.controls = [];
 
@@ -50,7 +46,7 @@ class WinOrganizationEdit extends WiseWindow {
     const lblStyle = { fontWeight: 600, color: '#334155', display: 'block', paddingTop: '6px' };
 
     // 1. Tipe Organisasi (Type)
-    formLayout.setCell(0, 0, new WiseLabel(this.t('Tipe Struktur *'), { style: lblStyle }));
+    formLayout.setCell(0, 0, new WiseLabel(WiseI18n.t('Tipe Struktur *'), { style: lblStyle }));
     const typeItems = ORG_TYPES.map((t) => ({ value: t, label: t }));
     const cmbType = new WiseComboBox(typeItems, {
       id: 'cmbOrgType',
@@ -60,27 +56,31 @@ class WinOrganizationEdit extends WiseWindow {
     formLayout.setCell(0, 1, cmbType);
 
     // 2. Kode Organisasi
-    formLayout.setCell(1, 0, new WiseLabel(this.t('Kode Organisasi *'), { style: lblStyle }));
-    const txtCode = new WiseTextBox(this.initialData ? this.initialData.code : '', {
+    formLayout.setCell(1, 0, new WiseLabel(WiseI18n.t('Kode Organisasi *'), { style: lblStyle }));
+    const codeVal = this.initialData ? (this.initialData.code || '') : '';
+    const txtCode = new WiseTextBox(codeVal, {
       id: 'txtOrgCode',
+      value: codeVal,
       placeholder: 'DIV-TECH, DEPT-ENG, DEPT-HR',
       style: { width: '100%' }
     });
     formLayout.setCell(1, 1, txtCode);
 
     // 3. Nama Organisasi
-    formLayout.setCell(2, 0, new WiseLabel(this.t('Nama Organisasi *'), { style: lblStyle }));
-    const txtName = new WiseTextBox(this.initialData ? this.initialData.name : '', {
+    formLayout.setCell(2, 0, new WiseLabel(WiseI18n.t('Nama Organisasi *'), { style: lblStyle }));
+    const nameVal = this.initialData ? (this.initialData.name || '') : '';
+    const txtName = new WiseTextBox(nameVal, {
       id: 'txtOrgName',
+      value: nameVal,
       placeholder: 'Software Engineering, Human Resources',
       style: { width: '100%' }
     });
     formLayout.setCell(2, 1, txtName);
 
     // 4. Induk Organisasi (Parent)
-    formLayout.setCell(3, 0, new WiseLabel(this.t('Induk Organisasi'), { style: lblStyle }));
+    formLayout.setCell(3, 0, new WiseLabel(WiseI18n.t('Induk Organisasi'), { style: lblStyle }));
     const parentItems = [
-      { value: '', label: this.t('(Tidak Ada / Unit Tingkat Atas)') },
+      { value: '', label: WiseI18n.t('(Tidak Ada / Unit Tingkat Atas)') },
       ...this.parentOptions.map((p) => ({ value: String(p.id), label: `[${p.code}] ${p.name}` }))
     ];
     const cmbParent = new WiseComboBox(parentItems, {
@@ -91,18 +91,22 @@ class WinOrganizationEdit extends WiseWindow {
     formLayout.setCell(3, 1, cmbParent);
 
     // 5. Deskripsi
-    formLayout.setCell(4, 0, new WiseLabel(this.t('Deskripsi Fungsi'), { style: lblStyle }));
-    const txtDesc = new WiseTextBox(this.initialData ? (this.initialData.description || '') : '', {
+    formLayout.setCell(4, 0, new WiseLabel(WiseI18n.t('Deskripsi Fungsi'), { style: lblStyle }));
+    const descVal = this.initialData ? (this.initialData.description || '') : '';
+    const txtDesc = new WiseTextBox(descVal, {
       id: 'txtOrgDesc',
-      placeholder: this.t('Deskripsi Fungsi'),
+      value: descVal,
+      placeholder: WiseI18n.t('Deskripsi Fungsi'),
       style: { width: '100%' }
     });
     formLayout.setCell(4, 1, txtDesc);
 
     // 6. Urutan (Sort Order)
-    formLayout.setCell(5, 0, new WiseLabel(this.t('Urutan Tampilan'), { style: lblStyle }));
-    const numSort = new WiseNumericBox(this.initialData ? (this.initialData.sortOrder || 0) : 0, {
+    formLayout.setCell(5, 0, new WiseLabel(WiseI18n.t('Urutan Tampilan'), { style: lblStyle }));
+    const sortVal = this.initialData && this.initialData.sortOrder !== undefined ? Number(this.initialData.sortOrder) : 0;
+    const numSort = new WiseNumericBox(String(sortVal), {
       id: 'numOrgSortOrder',
+      value: sortVal,
       style: { width: '120px' }
     });
     formLayout.setCell(5, 1, numSort);
@@ -128,7 +132,7 @@ class WinOrganizationEdit extends WiseWindow {
       }
     });
 
-    const btnCancel = new WiseButton(this.t('✕ Batal'), {
+    const btnCancel = new WiseButton(WiseI18n.t('✕ Batal'), {
       id: 'btnOrgCancel',
       onClick: () => this.close(),
       style: {
@@ -141,7 +145,7 @@ class WinOrganizationEdit extends WiseWindow {
       }
     });
 
-    const btnSave = new WiseButton(this.t('💾 Simpan Organisasi'), {
+    const btnSave = new WiseButton(WiseI18n.t('💾 Simpan Organisasi'), {
       id: 'btnOrgSave',
       onClick: this.onSave.bind(this),
       style: {
@@ -180,12 +184,12 @@ class WinOrganizationEdit extends WiseWindow {
       }
 
       if (!code) {
-        this.showError(this.t('Kode organisasi wajib diisi.'));
+        this.showError(WiseI18n.t('Kode organisasi wajib diisi.'));
         return;
       }
 
       if (!name) {
-        this.showError(this.t('Nama organisasi wajib diisi.'));
+        this.showError(WiseI18n.t('Nama organisasi wajib diisi.'));
         return;
       }
 
@@ -211,7 +215,7 @@ class WinOrganizationEdit extends WiseWindow {
 
       this.close();
     } catch (err) {
-      this.showError(err.message || this.t('Gagal menyimpan unit organisasi'));
+      this.showError(err.message || WiseI18n.t('Gagal menyimpan unit organisasi'));
     }
   }
 

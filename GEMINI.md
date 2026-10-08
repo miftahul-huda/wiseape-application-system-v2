@@ -22,4 +22,14 @@
 - **Dokumentasi Kontrol**: Untuk melihat panduan dan referensi lengkap penggunaan controls yang tersedia, selalu rujuk dokumentasi di root folder `/docs` (`docs/API_REFERENCE.md`, `docs/DEVELOPMENT_GUIDE.md`, dll.).
 
 ## 3. Internationalization & Multi-Language (i18n) Compliance
-- **WAJIB Dukung Multi-Language (Current Active Language)**: Setiap membuat form, window, dialog, tombol aksi, label field, placeholder input, tab, filter table, atau pesan baru, seluruh teks/label **WAJIB** terdaftar dan didukung dalam kamus terjemahan `WiseI18n.js` (mendukung `id`, `en`, `de`, `es`, `fr`, `ar`) agar UI selalu otomatis menyesuaikan dengan bahasa aktif (`currentLanguage`) yang dipilih pengguna di Pengaturan Desktop.
+- **WAJIB Dukung Multi-Language (Current Active Language) di Setiap Elemen UI**: Setiap membuat form baru maupun merevisi form/window yang ada, **SELURUH** elemen antarmuka pengguna:
+  - **Window Title** (`this.title = WiseI18n.t(...)`)
+  - **Label** (`new WiseLabel(WiseI18n.t(...))`)
+  - **Button** (`new WiseButton(WiseI18n.t(...))`)
+  - **Placeholder Input** (`placeholder: WiseI18n.t(...)`)
+  - **Data Table Header** (`columns: [{ key: '...', title: WiseI18n.t(...) }]`)
+  - **Tab Title** (`tabs: [{ id: '...', title: WiseI18n.t(...) }]`)
+  - **Filter Controls & Context Menu** (`label: WiseI18n.t(...)`, `placeholder: WiseI18n.t(...)`)
+  - **Pesan Status & Notifikasi Dialog**
+  **WAJIB** dibungkus dengan `WiseI18n.t(...)` dan seluruh teks/key wajib terdaftar dalam kamus terjemahan `WiseI18n.js` (mendukung `id`, `en`, `de`, `es`, `fr`, `ar`) agar UI selalu otomatis menyesuaikan dengan bahasa aktif (`currentLanguage`) yang dipilih pengguna di Pengaturan Desktop.
+- **DILARANG MEMBUAT FUNGSI `t(key)` LOKAL/SENDIRI DI DALAM FORM/WINDOW**: Dilarang keras membuat method atau helper `t(key)` / `this.t(key)` sendiri di dalam class window atau form. Selalu gunakan fungsi `WiseI18n.t(key)` secara langsung dari `WiseI18n.js` (`const WiseI18n = ...` lalu panggil `WiseI18n.t(...)`). Seluruh kode form/window yang masih memiliki fungsi `t(key)` sendiri harus dibersihkan.

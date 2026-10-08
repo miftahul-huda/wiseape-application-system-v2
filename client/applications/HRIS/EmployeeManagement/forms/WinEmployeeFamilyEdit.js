@@ -95,7 +95,7 @@ class WinEmployeeFamilyEdit extends WiseWindow {
 
   formGroup(labelText, control) {
     const frame = new WiseFrame('', { style: { background: 'transparent', border: 'none', padding: '0 6px 8px 6px' } });
-    frame.addControl(new WiseLabel(labelText, { style: { display: 'block', marginBottom: '4px', fontWeight: '500', color: 'var(--dark-text)' } }));
+    frame.addControl(new WiseLabel(labelText, { style: { display: 'block', marginBottom: '2px', lineHeight: '1.2', fontWeight: '500', color: 'var(--dark-text)' } }));
     frame.addControl(control);
     return frame;
   }

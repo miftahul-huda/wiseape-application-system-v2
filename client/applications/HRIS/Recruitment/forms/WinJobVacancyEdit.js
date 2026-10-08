@@ -1,15 +1,15 @@
-const WiseWindow = require('../../../system/WiseWindow');
-const WiseLabel = require('../../../system/controls/WiseLabel');
-const WiseButton = require('../../../system/controls/WiseButton');
-const WiseTextBox = require('../../../system/controls/WiseTextBox');
-const WiseTextArea = require('../../../system/controls/WiseTextArea');
-const WiseComboBox = require('../../../system/controls/WiseComboBox');
-const WiseDate = require('../../../system/controls/WiseDate');
-const WiseTabControl = require('../../../system/controls/WiseTabControl');
-const WiseDataTable = require('../../../system/controls/WiseDataTable');
-const WiseFrame = require('../../../system/controls/WiseFrame');
-const WiseTableLayout = require('../../../system/controls/WiseTableLayout');
-const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../system/WiseI18n');
+const WiseWindow = require('../../../../system/WiseWindow');
+const WiseLabel = require('../../../../system/controls/WiseLabel');
+const WiseButton = require('../../../../system/controls/WiseButton');
+const WiseTextBox = require('../../../../system/controls/WiseTextBox');
+const WiseTextArea = require('../../../../system/controls/WiseTextArea');
+const WiseComboBox = require('../../../../system/controls/WiseComboBox');
+const WiseDate = require('../../../../system/controls/WiseDate');
+const WiseTabControl = require('../../../../system/controls/WiseTabControl');
+const WiseDataTable = require('../../../../system/controls/WiseDataTable');
+const WiseFrame = require('../../../../system/controls/WiseFrame');
+const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
+const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
 
 const WinJobVacancyStageEdit = require('./WinJobVacancyStageEdit');
 const RecruitmentApiRepository = require('../services/RecruitmentApiRepository');
@@ -18,7 +18,7 @@ const api = new RecruitmentApiRepository();
 class WinJobVacancyEdit extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = options.vacancyId ? 'Edit Lowongan Pekerjaan — Wise Recruitment' : 'Tambah Lowongan Pekerjaan Baru — Wise Recruitment';
+    this.title = options.vacancyId ? WiseI18n.t('Edit Lowongan Pekerjaan — Wise Recruitment') : WiseI18n.t('Tambah Lowongan Pekerjaan Baru — Wise Recruitment');
     this.appIcon = options.appIcon || '💼';
     this.width = options.width || '88%';
     this.height = options.height || '88%';
@@ -34,25 +34,18 @@ class WinJobVacancyEdit extends WiseWindow {
     this.selectedStageIndex = null;
   }
 
-  t(key) {
-    if (typeof WiseI18n !== 'undefined' && WiseI18n && typeof WiseI18n.t === 'function') {
-      return WiseI18n.t(key);
-    }
-    return key;
-  }
-
   onWindowInit() {
     this.controls = [];
 
     const inputBorderStyle = { border: '1px solid #94a3b8', borderRadius: '6px' };
-    const labelStyle = { fontWeight: 600, color: '#334155', display: 'block', marginBottom: '4px' };
+    const labelStyle = { fontWeight: 600, color: '#334155', display: 'block', marginBottom: '2px', lineHeight: '1.2' };
 
     // 1. Tab Control
     this.tabControl = new WiseTabControl({
       id: 'tabJobVacancy',
       tabs: [
-        { id: 'tabInfo', title: '📝 Informasi Lowongan' },
-        { id: 'tabStages', title: '⚙️ Alur Proses Seleksi' }
+        { id: 'tabInfo', title: WiseI18n.t('📝 Informasi Lowongan') },
+        { id: 'tabStages', title: WiseI18n.t('⚙️ Alur Proses Seleksi') }
       ],
       activeTab: 'tabInfo',
       style: { width: '100%', marginBottom: '14px' }
@@ -71,52 +64,52 @@ class WinJobVacancyEdit extends WiseWindow {
 
     // Row 0: Judul Lowongan & Status
     const cellTitle = new WiseFrame('', { id: 'frmVacTitle' });
-    cellTitle.addControl(new WiseLabel(this.t('Judul Lowongan *'), { id: 'lblVacTitle', style: labelStyle }));
+    cellTitle.addControl(new WiseLabel(WiseI18n.t('Judul Lowongan *'), { id: 'lblVacTitle', style: labelStyle }));
     this.txtTitle = new WiseTextBox('', {
       id: 'txtVacTitle',
-      placeholder: 'Contoh: Senior Frontend Engineer',
+      placeholder: WiseI18n.t('Contoh: Senior Frontend Engineer'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellTitle.addControl(this.txtTitle);
     infoGrid.setCell(0, 0, cellTitle);
 
     const cellStatus = new WiseFrame('', { id: 'frmVacStatus' });
-    cellStatus.addControl(new WiseLabel(this.t('Status Lowongan *'), { id: 'lblVacStatus', style: labelStyle }));
+    cellStatus.addControl(new WiseLabel(WiseI18n.t('Status Lowongan *'), { id: 'lblVacStatus', style: labelStyle }));
     this.cmbStatus = new WiseComboBox('ACTIVE', {
       id: 'cmbVacStatus',
       items: [
-        { value: 'ACTIVE', label: '🟢 ACTIVE (Dibuka)' },
-        { value: 'DRAFT', label: '🟡 DRAFT (Konsep)' },
-        { value: 'CLOSED', label: '🔴 CLOSED (Ditutup)' }
+        { value: 'ACTIVE', label: WiseI18n.t('🟢 ACTIVE (Dibuka)') },
+        { value: 'DRAFT', label: WiseI18n.t('🟡 DRAFT (Konsep)') },
+        { value: 'CLOSED', label: WiseI18n.t('🔴 CLOSED (Ditutup)') }
       ],
-      style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
+      style: { ...inputBorderStyle, width: '100%' }
     });
     cellStatus.addControl(this.cmbStatus);
     infoGrid.setCell(0, 1, cellStatus);
 
     // Row 1: Departemen & Divisi
     const cellDept = new WiseFrame('', { id: 'frmVacDept' });
-    cellDept.addControl(new WiseLabel(this.t('Departemen *'), { id: 'lblVacDept', style: labelStyle }));
+    cellDept.addControl(new WiseLabel(WiseI18n.t('Departemen *'), { id: 'lblVacDept', style: labelStyle }));
     this.cmbDepartment = new WiseComboBox('', {
       id: 'cmbVacDept',
       items: [
-        { value: '', label: '(Pilih Departemen)' },
-        { value: 'Technology & Digital Innovation', label: 'Technology & Digital Innovation' },
-        { value: 'Human Capital & General Affairs', label: 'Human Capital & General Affairs' },
-        { value: 'Finance, Tax & Accounting', label: 'Finance, Tax & Accounting' },
-        { value: 'Sales, Marketing & Commercial', label: 'Sales, Marketing & Commercial' },
-        { value: 'Operations & Customer Experience', label: 'Operations & Customer Experience' }
+        { value: '', label: WiseI18n.t('(Pilih Departemen)') },
+        { value: 'Technology & Digital Innovation', label: WiseI18n.t('Technology & Digital Innovation') },
+        { value: 'Human Capital & General Affairs', label: WiseI18n.t('Human Capital & General Affairs') },
+        { value: 'Finance, Tax & Accounting', label: WiseI18n.t('Finance, Tax & Accounting') },
+        { value: 'Sales, Marketing & Commercial', label: WiseI18n.t('Sales, Marketing & Commercial') },
+        { value: 'Operations & Customer Experience', label: WiseI18n.t('Operations & Customer Experience') }
       ],
-      style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
+      style: { ...inputBorderStyle, width: '100%' }
     });
     cellDept.addControl(this.cmbDepartment);
     infoGrid.setCell(1, 0, cellDept);
 
     const cellDiv = new WiseFrame('', { id: 'frmVacDiv' });
-    cellDiv.addControl(new WiseLabel(this.t('Divisi / Sub-Departemen'), { id: 'lblVacDiv', style: labelStyle }));
+    cellDiv.addControl(new WiseLabel(WiseI18n.t('Divisi / Sub-Departemen'), { id: 'lblVacDiv', style: labelStyle }));
     this.txtDivision = new WiseTextBox('', {
       id: 'txtVacDivision',
-      placeholder: 'Contoh: Software Engineering, People Operations',
+      placeholder: WiseI18n.t('Contoh: Software Engineering, People Operations'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellDiv.addControl(this.txtDivision);
@@ -124,68 +117,68 @@ class WinJobVacancyEdit extends WiseWindow {
 
     // Row 2: Posisi Jabatan & Jenjang Jabatan
     const cellPos = new WiseFrame('', { id: 'frmVacPos' });
-    cellPos.addControl(new WiseLabel(this.t('Posisi / Jabatan *'), { id: 'lblVacPos', style: labelStyle }));
+    cellPos.addControl(new WiseLabel(WiseI18n.t('Posisi / Jabatan *'), { id: 'lblVacPos', style: labelStyle }));
     this.txtPosition = new WiseTextBox('', {
       id: 'txtVacPosition',
-      placeholder: 'Contoh: Senior Software Engineer',
+      placeholder: WiseI18n.t('Contoh: Senior Software Engineer'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellPos.addControl(this.txtPosition);
     infoGrid.setCell(2, 0, cellPos);
 
     const cellLvl = new WiseFrame('', { id: 'frmVacLvl' });
-    cellLvl.addControl(new WiseLabel(this.t('Tingkat Jabatan (Job Level)'), { id: 'lblVacLvl', style: labelStyle }));
+    cellLvl.addControl(new WiseLabel(WiseI18n.t('Tingkat Jabatan (Job Level)'), { id: 'lblVacLvl', style: labelStyle }));
     this.cmbJobLevel = new WiseComboBox('', {
       id: 'cmbVacJobLevel',
       items: [
-        { value: '', label: '(Pilih Jenjang Jabatan)' },
-        { value: 'Director / C-Level', label: 'Director / C-Level' },
-        { value: 'Manager', label: 'Manager' },
-        { value: 'Supervisor', label: 'Supervisor' },
-        { value: 'Senior Staff / Specialist', label: 'Senior Staff / Specialist' },
-        { value: 'Staff / Entry Level', label: 'Staff / Entry Level' },
-        { value: 'Internship / Magang', label: 'Internship / Magang' }
+        { value: '', label: WiseI18n.t('(Pilih Jenjang Jabatan)') },
+        { value: 'Director / C-Level', label: WiseI18n.t('Director / C-Level') },
+        { value: 'Manager', label: WiseI18n.t('Manager') },
+        { value: 'Supervisor', label: WiseI18n.t('Supervisor') },
+        { value: 'Senior Staff / Specialist', label: WiseI18n.t('Senior Staff / Specialist') },
+        { value: 'Staff / Entry Level', label: WiseI18n.t('Staff / Entry Level') },
+        { value: 'Internship / Magang', label: WiseI18n.t('Internship / Magang') }
       ],
-      style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
+      style: { ...inputBorderStyle, width: '100%' }
     });
     cellLvl.addControl(this.cmbJobLevel);
     infoGrid.setCell(2, 1, cellLvl);
 
     // Row 3: Lokasi Kerja & Tipe Kontrak
     const cellLoc = new WiseFrame('', { id: 'frmVacLoc' });
-    cellLoc.addControl(new WiseLabel(this.t('Lokasi Kerja'), { id: 'lblVacLoc', style: labelStyle }));
+    cellLoc.addControl(new WiseLabel(WiseI18n.t('Lokasi Kerja'), { id: 'lblVacLoc', style: labelStyle }));
     this.cmbWorkLocation = new WiseComboBox('Kantor Pusat', {
       id: 'cmbVacLocation',
       items: [
-        { value: 'Kantor Pusat', label: 'Kantor Pusat (On-site)' },
-        { value: 'Hybrid', label: 'Hybrid' },
-        { value: 'Remote', label: 'Remote / WFH' },
-        { value: 'Kantor Cabang', label: 'Kantor Cabang' }
+        { value: 'Kantor Pusat', label: WiseI18n.t('Kantor Pusat (On-site)') },
+        { value: 'Hybrid', label: WiseI18n.t('Hybrid') },
+        { value: 'Remote', label: WiseI18n.t('Remote / WFH') },
+        { value: 'Kantor Cabang', label: WiseI18n.t('Kantor Cabang') }
       ],
-      style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
+      style: { ...inputBorderStyle, width: '100%' }
     });
     cellLoc.addControl(this.cmbWorkLocation);
     infoGrid.setCell(3, 0, cellLoc);
 
     const cellType = new WiseFrame('', { id: 'frmVacType' });
-    cellType.addControl(new WiseLabel(this.t('Status Kepegawaian'), { id: 'lblVacType', style: labelStyle }));
+    cellType.addControl(new WiseLabel(WiseI18n.t('Status Kepegawaian'), { id: 'lblVacType', style: labelStyle }));
     this.cmbEmploymentType = new WiseComboBox('Tetap (PKWTT)', {
       id: 'cmbVacEmpType',
       items: [
-        { value: 'Tetap (PKWTT)', label: 'Tetap (PKWTT)' },
-        { value: 'Kontrak (PKWT)', label: 'Kontrak (PKWT)' },
-        { value: 'Probation / Masa Percobaan', label: 'Probation / Masa Percobaan' },
-        { value: 'Magang (Internship)', label: 'Magang (Internship)' },
-        { value: 'Freelance / Mitra', label: 'Freelance / Mitra' }
+        { value: 'Tetap (PKWTT)', label: WiseI18n.t('Tetap (PKWTT)') },
+        { value: 'Kontrak (PKWT)', label: WiseI18n.t('Kontrak (PKWT)') },
+        { value: 'Probation / Masa Percobaan', label: WiseI18n.t('Probation / Masa Percobaan') },
+        { value: 'Magang (Internship)', label: WiseI18n.t('Magang (Internship)') },
+        { value: 'Freelance / Mitra', label: WiseI18n.t('Freelance / Mitra') }
       ],
-      style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
+      style: { ...inputBorderStyle, width: '100%' }
     });
     cellType.addControl(this.cmbEmploymentType);
     infoGrid.setCell(3, 1, cellType);
 
     // Row 4: Tanggal Aktif & Tanggal Berakhir
     const cellStart = new WiseFrame('', { id: 'frmVacStart' });
-    cellStart.addControl(new WiseLabel(this.t('Tanggal Aktif *'), { id: 'lblVacStart', style: labelStyle }));
+    cellStart.addControl(new WiseLabel(WiseI18n.t('Tanggal Aktif *'), { id: 'lblVacStart', style: labelStyle }));
     this.dtStartDate = new WiseDate(new Date().toISOString().slice(0, 10), {
       id: 'dtVacStartDate',
       style: { ...inputBorderStyle, width: '100%' }
@@ -194,7 +187,7 @@ class WinJobVacancyEdit extends WiseWindow {
     infoGrid.setCell(4, 0, cellStart);
 
     const cellEnd = new WiseFrame('', { id: 'frmVacEnd' });
-    cellEnd.addControl(new WiseLabel(this.t('Tanggal Berakhir *'), { id: 'lblVacEnd', style: labelStyle }));
+    cellEnd.addControl(new WiseLabel(WiseI18n.t('Tanggal Berakhir *'), { id: 'lblVacEnd', style: labelStyle }));
     const defaultEnd = new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
     this.dtEndDate = new WiseDate(defaultEnd, {
       id: 'dtVacEndDate',
@@ -205,11 +198,11 @@ class WinJobVacancyEdit extends WiseWindow {
 
     // Row 5: Deskripsi Lowongan (Span full width)
     const cellDesc = new WiseFrame('', { id: 'frmVacDesc' });
-    cellDesc.addControl(new WiseLabel(this.t('Deskripsi Lowongan, Kualifikasi & Tanggung Jawab'), { id: 'lblVacDesc', style: labelStyle }));
+    cellDesc.addControl(new WiseLabel(WiseI18n.t('Deskripsi Lowongan, Kualifikasi & Tanggung Jawab'), { id: 'lblVacDesc', style: labelStyle }));
     this.txtDescription = new WiseTextArea('', {
       id: 'txtVacDescription',
       rows: 5,
-      placeholder: 'Tuliskan deskripsi peran, kualifikasi persyaratan, dan tanggung jawab pekerjaan...',
+      placeholder: WiseI18n.t('Tuliskan deskripsi peran, kualifikasi persyaratan, dan tanggung jawab pekerjaan...'),
       style: { ...inputBorderStyle, width: '100%', padding: '8px 10px' }
     });
     cellDesc.addControl(this.txtDescription);
@@ -236,19 +229,19 @@ class WinJobVacancyEdit extends WiseWindow {
       }
     });
 
-    templateToolbar.addControl(new WiseLabel(this.t('Terapkan dari Template Alur:'), {
+    templateToolbar.addControl(new WiseLabel(WiseI18n.t('Terapkan dari Template Alur:'), {
       id: 'lblTplSelector',
       style: { fontWeight: 600, color: '#334155', whiteSpace: 'nowrap' }
     }));
 
     this.cmbStageTemplate = new WiseComboBox('', {
       id: 'cmbStageTemplateSelector',
-      items: [{ value: '', label: '(Pilih Template Alur Proses)' }],
-      style: { ...inputBorderStyle, minWidth: '280px', padding: '6px 10px' }
+      items: [{ value: '', label: WiseI18n.t('(Pilih Template Alur Proses)') }],
+      style: { ...inputBorderStyle, minWidth: '280px' }
     });
     templateToolbar.addControl(this.cmbStageTemplate);
 
-    templateToolbar.addControl(new WiseButton(this.t('📥 Terapkan Template'), {
+    templateToolbar.addControl(new WiseButton(WiseI18n.t('📥 Terapkan Template'), {
       id: 'btnApplyTemplate',
       onClick: this.onApplyTemplateClick.bind(this),
       style: {
@@ -271,7 +264,7 @@ class WinJobVacancyEdit extends WiseWindow {
       style: { display: 'flex', gap: '8px', marginBottom: '8px' }
     });
 
-    stageActionToolbar.addControl(new WiseButton(this.t('➕ Tambah Tahapan'), {
+    stageActionToolbar.addControl(new WiseButton(WiseI18n.t('➕ Tambah Tahapan'), {
       id: 'btnStageAdd',
       onClick: this.onAddStageClick.bind(this),
       style: {
@@ -286,7 +279,7 @@ class WinJobVacancyEdit extends WiseWindow {
       }
     }));
 
-    stageActionToolbar.addControl(new WiseButton(this.t('✏️ Edit Tahapan'), {
+    stageActionToolbar.addControl(new WiseButton(WiseI18n.t('✏️ Edit Tahapan'), {
       id: 'btnStageEdit',
       onClick: this.onEditStageClick.bind(this),
       style: {
@@ -301,7 +294,7 @@ class WinJobVacancyEdit extends WiseWindow {
       }
     }));
 
-    stageActionToolbar.addControl(new WiseButton(this.t('🗑️ Hapus Tahapan'), {
+    stageActionToolbar.addControl(new WiseButton(WiseI18n.t('🗑️ Hapus Tahapan'), {
       id: 'btnStageDelete',
       onClick: this.onDeleteStageClick.bind(this),
       style: {
@@ -329,10 +322,10 @@ class WinJobVacancyEdit extends WiseWindow {
     });
 
     this.dtStages.columns = [
-      { key: 'order', title: 'Urutan', width: '80px' },
-      { key: 'name', title: 'Nama Tahapan Seleksi', width: '280px' },
-      { key: 'matrixName', title: 'Matriks Penilaian', width: '260px' },
-      { key: 'description', title: 'Deskripsi / Panduan', width: '320px' }
+      { key: 'order', title: WiseI18n.t('Urutan'), width: '80px' },
+      { key: 'name', title: WiseI18n.t('Nama Tahapan Seleksi'), width: '280px' },
+      { key: 'matrixName', title: WiseI18n.t('Matriks Penilaian'), width: '260px' },
+      { key: 'description', title: WiseI18n.t('Deskripsi / Panduan'), width: '320px' }
     ];
 
     panelStages.addControl(this.dtStages);
@@ -353,7 +346,7 @@ class WinJobVacancyEdit extends WiseWindow {
       }
     });
 
-    bottomBar.addControl(new WiseButton(this.t('Batal'), {
+    bottomBar.addControl(new WiseButton(WiseI18n.t('Batal'), {
       id: 'btnVacCancel',
       onClick: () => this.close(),
       style: {
@@ -368,7 +361,7 @@ class WinJobVacancyEdit extends WiseWindow {
       }
     }));
 
-    bottomBar.addControl(new WiseButton(this.t('💾 Simpan Lowongan'), {
+    bottomBar.addControl(new WiseButton(WiseI18n.t('💾 Simpan Lowongan'), {
       id: 'btnVacSave',
       onClick: this.onSaveVacancyClick.bind(this),
       style: {
@@ -401,7 +394,7 @@ class WinJobVacancyEdit extends WiseWindow {
 
       if (this.cmbStageTemplate) {
         this.cmbStageTemplate.setItems([
-          { value: '', label: '(Pilih Template Alur Proses)' },
+          { value: '', label: WiseI18n.t('(Pilih Template Alur Proses)') },
           ...this.stageTemplates.map((t) => ({ value: String(t.id), label: `${t.name} (${(t.stages || []).length} tahapan)` }))
         ]);
       }
@@ -427,7 +420,7 @@ class WinJobVacancyEdit extends WiseWindow {
         this.renderStagesTable();
       }
     } catch (err) {
-      this.showInfo('Error', err.message, 'error');
+      this.showInfo(WiseI18n.t('Error'), err.message, 'error');
     }
   }
 
@@ -453,19 +446,19 @@ class WinJobVacancyEdit extends WiseWindow {
   async onApplyTemplateClick() {
     const tplId = this.cmbStageTemplate ? this.cmbStageTemplate.value : '';
     if (!tplId) {
-      this.showInfo('Pemberitahuan', 'Pilih salah satu template alur terlebih dahulu.', 'warning');
+      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu template alur terlebih dahulu.'), 'warning');
       return;
     }
 
     const template = this.stageTemplates.find((t) => String(t.id) === String(tplId));
     if (!template || !Array.isArray(template.stages)) {
-      this.showInfo('Error', 'Data template tidak valid.', 'error');
+      this.showInfo(WiseI18n.t('Error'), WiseI18n.t('Data template tidak valid.'), 'error');
       return;
     }
 
     const conf = await this.confirm(
-      'Terapkan Template',
-      `Terapkan alur tahapan dari template "${template.name}"? Tahapan yang sudah ada saat ini akan digantikan.`
+      WiseI18n.t('Terapkan Template'),
+      `${WiseI18n.t('Terapkan alur tahapan dari template')} "${template.name}"? ${WiseI18n.t('Tahapan yang sudah ada saat ini akan digantikan.')}`
     );
     if (!conf) return;
 
@@ -479,7 +472,7 @@ class WinJobVacancyEdit extends WiseWindow {
     }));
 
     this.renderStagesTable();
-    this.showInfo('Sukses', `Berhasil menerapkan ${this.stagesList.length} tahapan dari template.`, 'success');
+    this.showInfo(WiseI18n.t('Sukses'), `${WiseI18n.t('Berhasil menerapkan')} ${this.stagesList.length} ${WiseI18n.t('tahapan dari template.')}`, 'success');
   }
 
   async onAddStageClick() {
@@ -497,7 +490,7 @@ class WinJobVacancyEdit extends WiseWindow {
   async onEditStageClick() {
     const idx = this.dtStages.selectedRowIndex;
     if (idx === null || idx === undefined || idx < 0 || !this.stagesList[idx]) {
-      this.showInfo('Pemberitahuan', 'Pilih salah satu tahapan yang ingin diedit.', 'warning');
+      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu tahapan yang ingin diedit.'), 'warning');
       return;
     }
 
@@ -515,7 +508,7 @@ class WinJobVacancyEdit extends WiseWindow {
   async onDeleteStageClick() {
     const idx = this.dtStages.selectedRowIndex;
     if (idx === null || idx === undefined || idx < 0 || !this.stagesList[idx]) {
-      this.showInfo('Pemberitahuan', 'Pilih salah satu tahapan yang ingin dihapus.', 'warning');
+      this.showInfo(WiseI18n.t('Pemberitahuan'), WiseI18n.t('Pilih salah satu tahapan yang ingin dihapus.'), 'warning');
       return;
     }
 
@@ -526,7 +519,7 @@ class WinJobVacancyEdit extends WiseWindow {
   async onSaveVacancyClick() {
     const title = this.txtTitle ? this.txtTitle.value.trim() : '';
     if (!title) {
-      this.showInfo('Validasi Form', 'Judul lowongan pekerjaan wajib diisi.', 'warning');
+      this.showInfo(WiseI18n.t('Validasi Form'), WiseI18n.t('Judul lowongan pekerjaan wajib diisi.'), 'warning');
       if (this.tabControl) this.tabControl.setActiveTab('tabInfo');
       return;
     }
@@ -549,10 +542,10 @@ class WinJobVacancyEdit extends WiseWindow {
     try {
       if (this.selectedVacancyId) {
         await api.updateVacancy(this.selectedVacancyId, payload);
-        this.showInfo('Sukses', 'Lowongan pekerjaan berhasil diperbarui.', 'success');
+        this.showInfo(WiseI18n.t('Sukses'), WiseI18n.t('Lowongan pekerjaan berhasil diperbarui.'), 'success');
       } else {
         await api.createVacancy(payload);
-        this.showInfo('Sukses', 'Lowongan pekerjaan berhasil diposting.', 'success');
+        this.showInfo(WiseI18n.t('Sukses'), WiseI18n.t('Lowongan pekerjaan berhasil diposting.'), 'success');
       }
 
       if (typeof this.onSavedCallback === 'function') {
@@ -561,7 +554,7 @@ class WinJobVacancyEdit extends WiseWindow {
 
       this.close();
     } catch (err) {
-      this.showInfo('Gagal Menyimpan', err.message, 'error');
+      this.showInfo(WiseI18n.t('Gagal Menyimpan'), err.message, 'error');
     }
   }
 

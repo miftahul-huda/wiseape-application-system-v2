@@ -86,7 +86,7 @@ const FALLBACK_APPS = [
     appIcon: '🎯',
     appLibraries: ['Wiseape WAS'],
     appConfig: {},
-    appStartPoint: 'applications/Recruitment/AppRecruitment.js:AppRecruitment',
+    appStartPoint: 'applications/HRIS/Recruitment/AppRecruitment.js:AppRecruitment',
     appParameter: {},
   },
 ];
@@ -215,7 +215,7 @@ async function ensureAdminAppSeeded() {
         '🎯',
         JSON.stringify(['Wiseape WAS']),
         JSON.stringify({}),
-        'applications/Recruitment/AppRecruitment.js:AppRecruitment',
+        'applications/HRIS/Recruitment/AppRecruitment.js:AppRecruitment',
         JSON.stringify({}),
       ]
     );

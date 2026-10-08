@@ -42,6 +42,7 @@
       this.name = 'WiseComboBox';
       this.items = normalizedItems;
       this.placeholder = opts.placeholder || 'Pilih opsi...';
+      this.searchable = opts.searchable !== undefined ? !!opts.searchable : true;
       this.onClick = typeof opts.onClick === 'function' ? opts.onClick : null;
       this.onHover = typeof opts.onHover === 'function' ? opts.onHover : null;
       this.style = opts.style || {};
@@ -113,6 +114,7 @@
         selectedIndex: this.selectedIndex,
         items: this.items,
         placeholder: this.placeholder,
+        searchable: this.searchable !== false,
         hasHandler: !!this.onChange,
         hasClickHandler: !!this.onClick,
         hasHoverHandler: !!this.onHover,
@@ -135,12 +137,14 @@
       const items = (data.items || []).map((it) => (typeof it === 'object' && it !== null ? it : { value: it, label: String(it) }));
       const currentValue = data.value !== undefined && data.value !== null ? data.value : (items[0] ? items[0].value : '');
       const currentItem = items.find((it) => String(it.value) === String(currentValue)) || items[0] || null;
+      const isSearchable = data.searchable !== false;
 
       const wrapper = document.createElement('div');
-      wrapper.className = 'wise-combobox-wrapper relative w-full text-slate-800';
+      wrapper.className = `wise-combobox-wrapper relative w-full text-slate-800 rounded-md border border-slate-300 bg-white shadow-none transition ${isSearchable ? 'wise-combobox-searchable' : ''}`;
       wrapper.dataset.value = currentValue;
       wrapper.dataset.controlId = data.id || '';
       wrapper.dataset.controlType = 'WiseComboBox';
+      wrapper.dataset.searchable = isSearchable ? 'true' : 'false';
       // Lets patchElement detect that the server changed the option list
       // (e.g. cascading Department -> Division -> Position) and rebuild.
       wrapper.dataset.itemsSig = JSON.stringify(items.map((it) => [it.value, it.label]));
@@ -161,16 +165,22 @@
       hiddenInput.value = currentValue;
       wrapper.appendChild(hiddenInput);
 
-      // Trigger button
+      // Trigger button - In searchable mode (and as inner trigger), do NOT show inner border
       const trigger = document.createElement('div');
-      trigger.className = 'wise-combobox-trigger w-full cursor-pointer flex items-center justify-between rounded-md border border-slate-300 bg-white py-1.5 pl-3 pr-3 text-sm text-slate-800 shadow-none outline-none transition select-none';
+      trigger.className = 'wise-combobox-trigger w-full cursor-pointer flex items-center justify-between bg-transparent border-0 py-1.5 pl-3 pr-3 text-sm text-slate-800 shadow-none outline-none transition select-none';
+      trigger.style.border = 'none';
+      trigger.style.borderWidth = '0';
+      trigger.style.outline = 'none';
+      trigger.style.boxShadow = 'none';
+      trigger.style.backgroundColor = 'transparent';
       trigger.setAttribute('tabindex', '0');
 
+      const t = (txt) => (typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n.t(txt) : txt);
       const labelSpan = document.createElement('span');
       labelSpan.className = 'wise-combobox-label truncate select-none text-left flex-1 mr-2';
-      const initialText = currentItem ? currentItem.label : (data.placeholder || 'Pilih opsi...');
-      labelSpan.textContent = initialText;
-      labelSpan.dataset.rawLabel = initialText;
+      const rawInitialText = currentItem ? currentItem.label : (data.placeholder || 'Pilih opsi...');
+      labelSpan.textContent = t(rawInitialText);
+      labelSpan.dataset.rawLabel = rawInitialText;
       trigger.appendChild(labelSpan);
 
       const chevronSpan = document.createElement('span');
@@ -183,10 +193,14 @@
       const dropdown = document.createElement('div');
       dropdown.className = 'wise-combobox-dropdown hidden absolute left-0 right-0 z-[100] mt-1 rounded-md border border-slate-300 bg-white shadow-lg flex flex-col overflow-hidden';
       dropdown.style.minWidth = '100%';
+      dropdown.style.top = '100%';
 
       // Search Box
       const searchContainer = document.createElement('div');
       searchContainer.className = 'p-1.5 border-b border-slate-200 bg-slate-50 flex items-center gap-1.5';
+      if (!isSearchable) {
+        searchContainer.style.display = 'none';
+      }
       
       const searchIcon = document.createElement('span');
       searchIcon.className = 'text-xs text-slate-400 select-none pl-1';
@@ -196,7 +210,7 @@
       const searchInput = document.createElement('input');
       searchInput.type = 'text';
       searchInput.className = 'wise-combobox-search-input';
-      searchInput.placeholder = 'Cari / Search...';
+      searchInput.placeholder = t('Cari / Search...');
       searchContainer.appendChild(searchInput);
       dropdown.appendChild(searchContainer);
 
@@ -219,7 +233,7 @@
         if (filtered.length === 0) {
           const emptyDiv = document.createElement('div');
           emptyDiv.className = 'py-3 px-3 text-center text-xs text-slate-400 select-none';
-          emptyDiv.textContent = 'Tidak ada hasil / No results';
+          emptyDiv.textContent = t('Tidak ada hasil / No results');
           optionsList.appendChild(emptyDiv);
           return;
         }
@@ -236,7 +250,7 @@
 
           const optLabel = document.createElement('span');
           optLabel.className = 'truncate';
-          optLabel.textContent = it.label;
+          optLabel.textContent = t(it.label);
           optEl.appendChild(optLabel);
 
           if (isSelected) {
@@ -258,7 +272,7 @@
       function selectOption(it) {
         wrapper.dataset.value = it.value;
         hiddenInput.value = it.value;
-        labelSpan.textContent = it.label;
+        labelSpan.textContent = t(it.label);
         labelSpan.dataset.rawLabel = it.label;
         closeDropdown();
         if (data.hasHandler && context && context.desktop) {
@@ -337,6 +351,13 @@
       document.addEventListener('click', onDocClick);
 
       WiseControl.applyCommon(wrapper, data, context);
+      if (data.style && data.style.padding) {
+        wrapper.style.padding = '0';
+      }
+      trigger.style.border = 'none';
+      trigger.style.borderWidth = '0';
+      trigger.style.outline = 'none';
+      trigger.style.boxShadow = 'none';
       return wrapper;
     }
 
@@ -371,9 +392,9 @@
 
       const labelSpan = wrapper.querySelector('.wise-combobox-label');
       if (labelSpan) {
-        const displayLabel = currentItem ? currentItem.label : (data.placeholder || 'Pilih opsi...');
-        labelSpan.textContent = displayLabel;
-        labelSpan.dataset.rawLabel = displayLabel;
+        const rawDisplayLabel = currentItem ? currentItem.label : (data.placeholder || 'Pilih opsi...');
+        labelSpan.textContent = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(rawDisplayLabel) : rawDisplayLabel;
+        labelSpan.dataset.rawLabel = rawDisplayLabel;
       }
 
       // Do NOT call WiseControl.patchElement here: the wrapper is a <div>, so
@@ -381,6 +402,16 @@
       Object.entries(data.style || {}).forEach(([key, value]) => {
         wrapper.style[key] = typeof value === 'number' ? `${value}px` : value;
       });
+      if (data.style && data.style.padding) {
+        wrapper.style.padding = '0';
+      }
+      const existingTrigger = wrapper.querySelector('.wise-combobox-trigger');
+      if (existingTrigger) {
+        existingTrigger.style.border = 'none';
+        existingTrigger.style.borderWidth = '0';
+        existingTrigger.style.outline = 'none';
+        existingTrigger.style.boxShadow = 'none';
+      }
       if (data.visible === false) {
         wrapper.style.display = 'none';
       } else if (wrapper.style.display === 'none') {

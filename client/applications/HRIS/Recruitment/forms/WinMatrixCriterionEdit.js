@@ -1,18 +1,18 @@
-const WiseWindow = require('../../../system/WiseWindow');
-const WiseLabel = require('../../../system/controls/WiseLabel');
-const WiseButton = require('../../../system/controls/WiseButton');
-const WiseTextBox = require('../../../system/controls/WiseTextBox');
-const WiseNumericBox = require('../../../system/controls/WiseNumericBox');
-const WiseTextArea = require('../../../system/controls/WiseTextArea');
-const WiseComboBox = require('../../../system/controls/WiseComboBox');
-const WiseFrame = require('../../../system/controls/WiseFrame');
-const WiseTableLayout = require('../../../system/controls/WiseTableLayout');
-const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../system/WiseI18n');
+const WiseWindow = require('../../../../system/WiseWindow');
+const WiseLabel = require('../../../../system/controls/WiseLabel');
+const WiseButton = require('../../../../system/controls/WiseButton');
+const WiseTextBox = require('../../../../system/controls/WiseTextBox');
+const WiseNumericBox = require('../../../../system/controls/WiseNumericBox');
+const WiseTextArea = require('../../../../system/controls/WiseTextArea');
+const WiseComboBox = require('../../../../system/controls/WiseComboBox');
+const WiseFrame = require('../../../../system/controls/WiseFrame');
+const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
+const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
 
 class WinMatrixCriterionEdit extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = options.data ? 'Edit Kriteria Penilaian Matriks' : 'Tambah Kriteria Penilaian Matriks';
+    this.title = options.data ? WiseI18n.t('Edit Kriteria Penilaian Matriks') : WiseI18n.t('Tambah Kriteria Penilaian Matriks');
     this.appIcon = options.appIcon || '📊';
     this.width = options.width || '540';
     this.height = options.height || '440';
@@ -22,18 +22,11 @@ class WinMatrixCriterionEdit extends WiseWindow {
     this.onSavedCallback = options.onSaved || null;
   }
 
-  t(key) {
-    if (typeof WiseI18n !== 'undefined' && WiseI18n && typeof WiseI18n.t === 'function') {
-      return WiseI18n.t(key);
-    }
-    return key;
-  }
-
   onWindowInit() {
     this.controls = [];
 
     const inputBorderStyle = { border: '1px solid #94a3b8', borderRadius: '6px' };
-    const labelStyle = { fontWeight: 600, color: '#334155', display: 'block', marginBottom: '4px' };
+    const labelStyle = { fontWeight: 600, color: '#334155', display: 'block', marginBottom: '2px', lineHeight: '1.2' };
 
     const formLayout = new WiseTableLayout({
       rows: 4,
@@ -44,10 +37,10 @@ class WinMatrixCriterionEdit extends WiseWindow {
 
     // 1. Nama Kriteria
     const cellName = new WiseFrame('', { id: 'frmCritName' });
-    cellName.addControl(new WiseLabel(this.t('Kriteria Penilaian / Kompetensi *'), { id: 'lblCritName', style: labelStyle }));
+    cellName.addControl(new WiseLabel(WiseI18n.t('Kriteria Penilaian / Kompetensi *'), { id: 'lblCritName', style: labelStyle }));
     this.txtCriterion = new WiseTextBox(this.criterionData ? this.criterionData.criterion : '', {
       id: 'txtCriterionName',
-      placeholder: 'Contoh: Kemampuan Analisis & Problem Solving, Communication Skill',
+      placeholder: WiseI18n.t('Contoh: Kemampuan Analisis & Problem Solving, Communication Skill'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellName.addControl(this.txtCriterion);
@@ -55,7 +48,7 @@ class WinMatrixCriterionEdit extends WiseWindow {
 
     // 2. Bobot Persentase
     const cellWeight = new WiseFrame('', { id: 'frmCritWeight' });
-    cellWeight.addControl(new WiseLabel(this.t('Bobot Penilaian (%) *'), { id: 'lblCritWeight', style: labelStyle }));
+    cellWeight.addControl(new WiseLabel(WiseI18n.t('Bobot Penilaian (%) *'), { id: 'lblCritWeight', style: labelStyle }));
     this.numWeight = new WiseNumericBox(this.criterionData && this.criterionData.weight !== undefined ? this.criterionData.weight : 20, {
       id: 'numCritWeight',
       min: 1,
@@ -67,13 +60,13 @@ class WinMatrixCriterionEdit extends WiseWindow {
 
     // 3. Skala Penilaian
     const cellScale = new WiseFrame('', { id: 'frmCritScale' });
-    cellScale.addControl(new WiseLabel(this.t('Skala Nilai'), { id: 'lblCritScale', style: labelStyle }));
+    cellScale.addControl(new WiseLabel(WiseI18n.t('Skala Nilai'), { id: 'lblCritScale', style: labelStyle }));
     this.cmbScale = new WiseComboBox(this.criterionData && this.criterionData.scaleType ? this.criterionData.scaleType : '1-100', {
       id: 'cmbCritScale',
       items: [
-        { value: '1-100', label: 'Skala 1 - 100 (Persentil / Poin Standar)' },
-        { value: '1-10', label: 'Skala 1 - 10 (Peringkat Menengah)' },
-        { value: '1-5', label: 'Skala 1 - 5 (Likert / Rating Bintang)' }
+        { value: '1-100', label: WiseI18n.t('Skala 1 - 100 (Persentil / Poin Standar)') },
+        { value: '1-10', label: WiseI18n.t('Skala 1 - 10 (Peringkat Menengah)') },
+        { value: '1-5', label: WiseI18n.t('Skala 1 - 5 (Likert / Rating Bintang)') }
       ],
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -82,11 +75,11 @@ class WinMatrixCriterionEdit extends WiseWindow {
 
     // 4. Panduan Penilaian / Deskripsi
     const cellDesc = new WiseFrame('', { id: 'frmCritDesc' });
-    cellDesc.addControl(new WiseLabel(this.t('Panduan Penilaian Evaluator'), { id: 'lblCritDesc', style: labelStyle }));
+    cellDesc.addControl(new WiseLabel(WiseI18n.t('Panduan Penilaian Evaluator'), { id: 'lblCritDesc', style: labelStyle }));
     this.txtDesc = new WiseTextArea(this.criterionData ? this.criterionData.description : '', {
       id: 'txtCritDesc',
       rows: 3,
-      placeholder: 'Tuliskan indikator perilaku atau tolok ukur nilai yang diharapkan...',
+      placeholder: WiseI18n.t('Tuliskan indikator perilaku atau tolok ukur nilai yang diharapkan...'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
     cellDesc.addControl(this.txtDesc);
@@ -100,7 +93,7 @@ class WinMatrixCriterionEdit extends WiseWindow {
       style: { display: 'flex', justifyContent: 'flex-end', gap: '8px' }
     });
 
-    btnContainer.addControl(new WiseButton(this.t('Batal'), {
+    btnContainer.addControl(new WiseButton(WiseI18n.t('Batal'), {
       id: 'btnCritCancel',
       onClick: () => this.close(),
       style: {
@@ -115,7 +108,7 @@ class WinMatrixCriterionEdit extends WiseWindow {
       }
     }));
 
-    btnContainer.addControl(new WiseButton(this.t('💾 Simpan Kriteria'), {
+    btnContainer.addControl(new WiseButton(WiseI18n.t('💾 Simpan Kriteria'), {
       id: 'btnCritSave',
       onClick: this.onSaveClick.bind(this),
       style: {
@@ -138,7 +131,7 @@ class WinMatrixCriterionEdit extends WiseWindow {
   onSaveClick() {
     const criterion = this.txtCriterion ? this.txtCriterion.value.trim() : '';
     if (!criterion) {
-      this.showInfo('Validasi', 'Nama kriteria penilaian wajib diisi.', 'warning');
+      this.showInfo(WiseI18n.t('Validasi'), WiseI18n.t('Nama kriteria penilaian wajib diisi.'), 'warning');
       return;
     }
 

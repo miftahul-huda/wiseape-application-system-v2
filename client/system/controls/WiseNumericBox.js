@@ -52,15 +52,28 @@
   }
 
   class WiseNumericBox extends WiseControl {
-    constructor(placeholder = '', options = {}) {
-      let val = options.value !== undefined ? options.value : '';
-      let ph = options.placeholder !== undefined ? options.placeholder : '';
+    constructor(valOrPlaceholder = '', options = {}) {
+      let val = '';
+      let ph = '';
 
-      if (options.placeholder !== undefined && options.value === undefined) {
-        val = placeholder !== undefined && placeholder !== '' ? placeholder : '';
+      if (options.value !== undefined && options.value !== null) {
+        val = options.value;
+        ph = options.placeholder !== undefined && options.placeholder !== null
+          ? String(options.placeholder)
+          : (typeof valOrPlaceholder === 'string' && isNaN(Number(valOrPlaceholder)) ? String(valOrPlaceholder) : '');
+      } else if (options.placeholder !== undefined && options.placeholder !== null) {
+        val = valOrPlaceholder !== undefined && valOrPlaceholder !== null ? valOrPlaceholder : '';
         ph = String(options.placeholder);
-      } else if (!ph && placeholder) {
-        ph = String(placeholder);
+      } else {
+        const isNum = typeof valOrPlaceholder === 'number' ||
+          (typeof valOrPlaceholder === 'string' && valOrPlaceholder.trim() !== '' && !isNaN(Number(valOrPlaceholder.trim())));
+        if (isNum) {
+          val = valOrPlaceholder;
+          ph = '';
+        } else {
+          val = '';
+          ph = valOrPlaceholder !== undefined && valOrPlaceholder !== null ? String(valOrPlaceholder) : '';
+        }
       }
 
       super(val, options);

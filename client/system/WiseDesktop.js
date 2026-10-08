@@ -165,6 +165,15 @@ class WiseDesktop {
             }
           }
 
+          // 3b. WiseTextBox placeholder
+          if (controlEl.tagName === 'INPUT' && (controlEl.type === 'text' || !controlEl.type)) {
+            const rawPh = controlEl.dataset.rawPlaceholder || controlEl.placeholder;
+            if (rawPh) {
+              controlEl.dataset.rawPlaceholder = rawPh;
+              controlEl.placeholder = t(rawPh);
+            }
+          }
+
           // 4. Currency prefix
           const prefixEl = controlEl.querySelector('.wise-numeric-prefix');
           if (prefixEl && typeof window !== 'undefined' && window.WiseI18n) {
@@ -191,6 +200,13 @@ class WiseDesktop {
               labelSpan.textContent = t(raw);
             }
           });
+        });
+
+        // 6. WiseTabControl tab labels
+        winEl.querySelectorAll('.wise-tab-text').forEach((tabSpan) => {
+          const raw = tabSpan.dataset.rawLabel || tabSpan.textContent;
+          tabSpan.dataset.rawLabel = raw;
+          tabSpan.textContent = t(raw);
         });
       }
     });
@@ -974,7 +990,8 @@ class WiseDesktop {
       }
     }
 
-    const title = (windowData && windowData.title) || application.appTitle;
+    const rawTitle = (windowData && windowData.title) || application.appTitle;
+    const title = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(rawTitle) : rawTitle;
 
     const win = document.createElement('div');
     win.className = 'window';
@@ -1011,7 +1028,7 @@ class WiseDesktop {
           <button type="button" class="window-action minimize" aria-label="Minimize window">&minus;</button>
           <button type="button" class="window-action maximize" aria-label="Maximize window">&plus;</button>
         </div>
-        <div class="window-title">${this.getIconMarkup(application)} ${title}</div>
+        <div class="window-title" data-raw-title="${rawTitle}">${this.getIconMarkup(application)} <span>${title}</span></div>
         <div></div>
       </div>
       <div class="window-body">

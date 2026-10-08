@@ -1,4 +1,4 @@
-const WiseApplication = require('../../system/WiseApplication');
+const WiseApplication = require('../../../system/WiseApplication');
 const WinRecruitmentPortal = require('./forms/WinRecruitmentPortal');
 
 class AppRecruitment extends WiseApplication {

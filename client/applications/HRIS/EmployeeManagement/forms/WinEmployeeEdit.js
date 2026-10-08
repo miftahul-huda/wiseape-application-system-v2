@@ -477,7 +477,7 @@ class WinEmployeeEdit extends WiseWindow {
 
   formGroup(label, control) {
     const frame = new WiseFrame('', { style: { padding: '4px 6px', border: 'none', background: 'transparent', width: '100%', boxSizing: 'border-box' } });
-    frame.addControl(new WiseLabel(label, { style: { fontWeight: 600, color: '#475569', marginBottom: '4px', display: 'block' } }));
+    frame.addControl(new WiseLabel(label, { style: { fontWeight: 600, color: '#475569', marginBottom: '2px', lineHeight: '1.2', display: 'block' } }));
     frame.addControl(control);
     return frame;
   }
@@ -521,23 +521,13 @@ class WinEmployeeEdit extends WiseWindow {
     }
   }
 
-  t(key) {
-    if (typeof WiseI18n !== 'undefined' && WiseI18n && typeof WiseI18n.t === 'function') {
-      return WiseI18n.t(key);
-    }
-    if (typeof window !== 'undefined' && window.WiseI18n && typeof window.WiseI18n.t === 'function') {
-      return window.WiseI18n.t(key);
-    }
-    return key;
-  }
-
   // Builds combobox items from a list of names, prepending a blank option and
   // keeping the current value selectable even if it is no longer in master
   // data (legacy employee records) so saving never silently drops it.
   buildNameItems(names, current, blankLabel) {
     const unique = [...new Set(names.filter(Boolean))];
     if (current && !unique.includes(current)) unique.push(current);
-    return [{ value: '', label: this.t(blankLabel) }, ...unique.map((n) => ({ value: n, label: n }))];
+    return [{ value: '', label: WiseI18n.t(blankLabel) }, ...unique.map((n) => ({ value: n, label: n }))];
   }
 
   // Re-populates the four dependent comboboxes for the given selection:
