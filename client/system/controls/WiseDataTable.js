@@ -390,7 +390,7 @@
     // always has the full picture without having to merge state itself.
     static renderFilterBar(data, context) {
       const bar = document.createElement('div');
-      bar.className = 'wise-dt-filter-bar flex flex-wrap items-end gap-3 rounded-lg border border-slate-900/8 bg-white/70 px-4 py-3 shadow-sm backdrop-blur-sm';
+      bar.className = 'wise-dt-filter-bar flex flex-wrap items-end gap-3 rounded-lg border border-slate-900/8 bg-transparent px-4 py-3 shadow-sm';
 
       // Collect all current input elements so we can snapshot all values
       // whenever any one of them changes.

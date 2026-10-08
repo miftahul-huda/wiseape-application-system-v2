@@ -1,6 +1,7 @@
 const WiseWindow = require('../../../../system/WiseWindow');
 const WiseLabel = require('../../../../system/controls/WiseLabel');
 const WiseButton = require('../../../../system/controls/WiseButton');
+const WiseComboBox = require('../../../../system/controls/WiseComboBox');
 const WiseDataTable = require('../../../../system/controls/WiseDataTable');
 const WiseFrame = require('../../../../system/controls/WiseFrame');
 
@@ -36,58 +37,26 @@ class WinOrganizationManagement extends WiseWindow {
   onWindowInit() {
     this.controls = [];
 
-    // 1. Tab Navigation Buttons Card
+    // 1. Category Selector
     const tabNavCard = new WiseFrame('', {
       id: 'frameOrgTabNav',
       style: {
-        display: 'flex',
-        gap: '8px',
         marginBottom: '10px'
       }
     });
 
-    this.btnTabOrg = new WiseButton(WiseI18n.t('UNIT_ORGANISASI_DIVISI_DEPT'), {
-      id: 'btnTabOrg',
-      onClick: () => this.switchTab('org'),
-      style: {
-        background: this.activeTab === 'org' ? 'var(--accent-dark)' : '#e2e8f0',
-        color: this.activeTab === 'org' ? '#ffffff' : '#334155',
-        fontWeight: 700,
-        borderRadius: '8px',
-        padding: '9px 18px',
-        cursor: 'pointer'
-      }
+    this.cmbCategory = new WiseComboBox([
+      { value: 'org', label: WiseI18n.t('UNIT_ORGANISASI_DIVISI_DEPT') },
+      { value: 'levels', label: WiseI18n.t('JENJANG_JABATAN_JOB_LEVELS') },
+      { value: 'positions', label: WiseI18n.t('MASTER_JABATAN_POSITIONS') }
+    ], {
+      id: 'cmbOrgCategory',
+      value: this.activeTab,
+      style: { width: '100%', fontWeight: 600 },
+      onChange: this.onCategoryChanged.bind(this)
     });
 
-    this.btnTabLevels = new WiseButton(WiseI18n.t('JENJANG_JABATAN_JOB_LEVELS'), {
-      id: 'btnTabLevels',
-      onClick: () => this.switchTab('levels'),
-      style: {
-        background: this.activeTab === 'levels' ? 'var(--accent-dark)' : '#e2e8f0',
-        color: this.activeTab === 'levels' ? '#ffffff' : '#334155',
-        fontWeight: 700,
-        borderRadius: '8px',
-        padding: '9px 18px',
-        cursor: 'pointer'
-      }
-    });
-
-    this.btnTabPositions = new WiseButton(WiseI18n.t('MASTER_JABATAN_POSITIONS'), {
-      id: 'btnTabPositions',
-      onClick: () => this.switchTab('positions'),
-      style: {
-        background: this.activeTab === 'positions' ? 'var(--accent-dark)' : '#e2e8f0',
-        color: this.activeTab === 'positions' ? '#ffffff' : '#334155',
-        fontWeight: 700,
-        borderRadius: '8px',
-        padding: '9px 18px',
-        cursor: 'pointer'
-      }
-    });
-
-    tabNavCard.addControl(this.btnTabOrg);
-    tabNavCard.addControl(this.btnTabLevels);
-    tabNavCard.addControl(this.btnTabPositions);
+    tabNavCard.addControl(this.cmbCategory);
     this.addControl(tabNavCard);
 
     // 3. Actions Toolbar
@@ -273,23 +242,14 @@ class WinOrganizationManagement extends WiseWindow {
     }
   }
 
+  async onCategoryChanged() {
+    await this.switchTab(this.cmbCategory ? this.cmbCategory.value : 'org');
+  }
+
   async switchTab(tab) {
     this.activeTab = tab;
     this.selectedItem = null;
     this._currentFilters = {};
-
-    if (this.btnTabOrg) {
-      this.btnTabOrg.style.background = tab === 'org' ? 'var(--accent-dark)' : '#e2e8f0';
-      this.btnTabOrg.style.color = tab === 'org' ? '#ffffff' : '#334155';
-    }
-    if (this.btnTabLevels) {
-      this.btnTabLevels.style.background = tab === 'levels' ? 'var(--accent-dark)' : '#e2e8f0';
-      this.btnTabLevels.style.color = tab === 'levels' ? '#ffffff' : '#334155';
-    }
-    if (this.btnTabPositions) {
-      this.btnTabPositions.style.background = tab === 'positions' ? 'var(--accent-dark)' : '#e2e8f0';
-      this.btnTabPositions.style.color = tab === 'positions' ? '#ffffff' : '#334155';
-    }
 
     this.setupTableForTab(tab);
     await this.fetchCurrentTabData(1, 15, {});
