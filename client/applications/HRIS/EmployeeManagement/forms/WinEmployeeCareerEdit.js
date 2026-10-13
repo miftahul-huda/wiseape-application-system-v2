@@ -8,6 +8,7 @@ import {
   WiseDate,
   WiseTableLayout,
   WiseFrame,
+  WiseI18n,
 } from '../../../../src/runtime/wise.js';
 
 import HrisApiRepository from '../services/HrisApiRepository';
@@ -21,7 +22,7 @@ class WinEmployeeCareerEdit extends WiseWindow {
     this.record = options.data || null;
     this.employeeId = options.employeeId || (this.record && this.record.employeeId) || (options.parentWindow && (options.parentWindow.selectedEmployeeId || options.parentWindow.employeeId)) || null;
     this.recordId = (this.record && this.record.id) || null;
-    this.title = this.recordId ? 'Edit Riwayat Karir' : 'Catat Riwayat Karir / Promosi';
+    this.title = this.recordId ? WiseI18n.t('EDIT_RIWAYAT_KARIR') : WiseI18n.t('CATAT_RIWAYAT_KARIR');
     this.width = 620;
     this.centered = true;
   }
@@ -32,55 +33,45 @@ class WinEmployeeCareerEdit extends WiseWindow {
     // ── Form Content ────────────────────────────────────────────
     const tblCar = new WiseTableLayout({ rows: 4, columns: 2, id: 'tblCareerEdit', style: { marginBottom: '16px' } });
 
-    this.cmbCareerType = new WiseComboBox(CAREER_TYPES.map(c => ({ value: c, label: c })), { id: 'cmbCareerType', value: this.record?.changeType || 'Promosi' });
-    this.dtCareerDate = new WiseDate(this.record?.effectiveDate || new Date().toISOString().slice(0, 10), { id: 'dtCareerDate', value: this.record?.effectiveDate || new Date().toISOString().slice(0, 10) });
-    this.txtCareerTitle = new WiseTextBox('Posisi jabatan yang baru', { id: 'txtCareerTitle', value: this.record?.newJobTitle || '', placeholder: 'Posisi jabatan yang baru' });
-    this.txtCareerDept = new WiseTextBox('Departemen baru', { id: 'txtCareerDept', value: this.record?.newDepartment || '', placeholder: 'Departemen baru' });
-    this.numCareerSalary = new WiseNumericBox(String(this.record?.newSalary || 0), { id: 'numCareerSalary', value: Number(this.record?.newSalary || 0), prefix: 'Rp ' });
-    this.txtCareerRef = new WiseTextBox('SK/DIR/2024/001', { id: 'txtCareerRef', value: this.record?.referenceNumber || '', placeholder: 'SK/DIR/2024/001' });
-    this.txtCareerNotes = new WiseTextBox('Keterangan prestasi / alasan promosi...', { id: 'txtCareerNotes', value: this.record?.notes || '', placeholder: 'Keterangan prestasi / alasan promosi...' });
+    const currPrefix = typeof WiseI18n !== 'undefined' && WiseI18n ? WiseI18n.getCurrencyPrefix() : 'Rp ';
 
-    tblCar.setCell(0, 0, this.formGroup('Jenis Perubahan *', this.cmbCareerType));
-    tblCar.setCell(0, 1, this.formGroup('Tanggal Efektif *', this.dtCareerDate));
-    tblCar.setCell(1, 0, this.formGroup('Jabatan Baru', this.txtCareerTitle));
-    tblCar.setCell(1, 1, this.formGroup('Departemen Baru', this.txtCareerDept));
-    tblCar.setCell(2, 0, this.formGroup('Gaji Baru (Rp)', this.numCareerSalary));
-    tblCar.setCell(2, 1, this.formGroup('Nomor SK / Surat Keputusan', this.txtCareerRef));
-    tblCar.setCell(3, 0, this.formGroup('Catatan / Alasan Perubahan', this.txtCareerNotes), { colSpan: 2 });
+    this.cmbCareerType = new WiseComboBox(CAREER_TYPES.map(c => ({ value: c, label: WiseI18n.t(c) })), { id: 'cmbCareerType', datafield: 'changeType', value: 'Promosi' });
+    this.dtCareerDate = new WiseDate(new Date().toISOString().slice(0, 10), { id: 'dtCareerDate', datafield: 'effectiveDate' });
+    this.txtCareerTitle = new WiseTextBox(WiseI18n.t('POSISI_JABATAN_YANG_BARU') || 'Posisi jabatan yang baru', { id: 'txtCareerTitle', datafield: 'newJobTitle', placeholder: WiseI18n.t('POSISI_JABATAN_YANG_BARU') || 'Posisi jabatan yang baru' });
+    this.txtCareerDept = new WiseTextBox(WiseI18n.t('DEPARTEMEN_BARU'), { id: 'txtCareerDept', datafield: 'newDepartment', placeholder: WiseI18n.t('DEPARTEMEN_BARU') });
+    this.numCareerSalary = new WiseNumericBox('0', { id: 'numCareerSalary', datafield: 'newSalary', value: 0, prefix: currPrefix });
+    this.txtCareerRef = new WiseTextBox('SK/DIR/2024/001', { id: 'txtCareerRef', datafield: 'referenceNumber', placeholder: 'SK/DIR/2024/001' });
+    this.txtCareerNotes = new WiseTextBox(WiseI18n.t('KETERANGAN_PRESTASI_ALASAN_PROMOSI') || 'Keterangan prestasi / alasan promosi...', { id: 'txtCareerNotes', datafield: 'notes', placeholder: WiseI18n.t('KETERANGAN_PRESTASI_ALASAN_PROMOSI') || 'Keterangan prestasi / alasan promosi...' });
+
+    tblCar.setCell(0, 0, this.formGroup(WiseI18n.t('JENIS_PERUBAHAN_2'), this.cmbCareerType));
+    tblCar.setCell(0, 1, this.formGroup(WiseI18n.t('TANGGAL_EFEKTIF'), this.dtCareerDate));
+    tblCar.setCell(1, 0, this.formGroup(WiseI18n.t('JABATAN_BARU'), this.txtCareerTitle));
+    tblCar.setCell(1, 1, this.formGroup(WiseI18n.t('DEPARTEMEN_BARU'), this.txtCareerDept));
+    tblCar.setCell(2, 0, this.formGroup(WiseI18n.t('GAJI_BARU_RP'), this.numCareerSalary));
+    tblCar.setCell(2, 1, this.formGroup(WiseI18n.t('NOMOR_SK_SURAT_KEPUTUSAN'), this.txtCareerRef));
+    tblCar.setCell(3, 0, this.formGroup(WiseI18n.t('CATATAN_ALASAN_PERUBAHAN'), this.txtCareerNotes), { colSpan: 2 });
     this.addControl(tblCar);
+
+    if (this.record) {
+      this.populate(this.record);
+    }
 
     // ── Action Buttons ──────────────────────────────────────────
     const actionFrame = new WiseFrame('', {
       id: 'frameCareerActions',
       style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' }
     });
-    actionFrame.addControl(new WiseButton('💾 Simpan Riwayat Karir', {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('SIMPAN'), {
       id: 'btnSaveCareer',
       onClick: this.onSaveClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 700,
-        borderRadius: '8px',
-        padding: '10px 20px',
-        border: 'none',
-        boxShadow: 'none',
-        marginRight: '8px',
-        cursor: 'pointer'
-      }
+      style: { marginRight: '8px' }
     }));
-    actionFrame.addControl(new WiseButton('✕ Batal', {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnCancelCareer',
       onClick: this.onCancelClick.bind(this),
       style: {
         background: '#e2e8f0',
-        color: '#475569',
-        fontWeight: 600,
-        borderRadius: '8px',
-        padding: '10px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#475569'
       }
     }));
     this.addControl(actionFrame);
@@ -90,7 +81,8 @@ class WinEmployeeCareerEdit extends WiseWindow {
 
   formGroup(label, control) {
     const frame = new WiseFrame('', { style: { padding: '2px 4px', border: 'none', background: 'transparent' } });
-    frame.addControl(new WiseLabel(label, { style: { fontWeight: 600, color: '#475569', marginBottom: '0px', lineHeight: '1.2', display: 'block' } }));
+    const resolvedLabel = typeof WiseI18n !== 'undefined' ? WiseI18n.t(label) : label;
+    frame.addControl(new WiseLabel(resolvedLabel, { style: { fontWeight: 600, color: '#475569', marginBottom: '0px', lineHeight: '1.2', display: 'block' } }));
     frame.addControl(control);
     return frame;
   }
@@ -98,32 +90,34 @@ class WinEmployeeCareerEdit extends WiseWindow {
   async onSaveClick() {
     const empId = this.employeeId || (this.record && this.record.employeeId) || (this.parentWindow && (this.parentWindow.selectedEmployeeId || this.parentWindow.employeeId));
     if (!empId) {
-      return this.showInfo('Peringatan', 'Data karyawan belum ditentukan.', 'warning');
+      return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('DATA_KARYAWAN_BELUM_DITENTUKAN'), 'warning');
     }
     this.employeeId = empId;
-    const effectiveDate = (this.dtCareerDate ? this.dtCareerDate.value : null) || '';
+
+    const values = this.getValues();
+    const effectiveDate = values.effectiveDate || '';
     if (!effectiveDate) {
-      return this.showInfo('Validasi', 'Tanggal efektif perubahan wajib diisi.', 'warning');
+      return this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('TANGGAL_EFEKTIF_PERUBAHAN_WAJIB_DIISI'), 'warning');
     }
 
     const payload = {
-      changeType: this.cmbCareerType ? this.cmbCareerType.value : 'Promosi',
+      changeType: values.changeType || 'Promosi',
       effectiveDate,
-      newJobTitle: this.txtCareerTitle?.value || undefined,
-      newDepartment: this.txtCareerDept?.value || undefined,
-      newSalary: this.numCareerSalary?.value ? Number(this.numCareerSalary.value) : undefined,
-      referenceNumber: this.txtCareerRef ? this.txtCareerRef.value : '',
-      notes: this.txtCareerNotes ? this.txtCareerNotes.value : '',
+      newJobTitle: values.newJobTitle || undefined,
+      newDepartment: values.newDepartment || undefined,
+      newSalary: values.newSalary ? Number(values.newSalary) : undefined,
+      referenceNumber: (values.referenceNumber || '').trim(),
+      notes: (values.notes || '').trim(),
       applyToEmployee: true
     };
 
     try {
       if (this.recordId) {
         await api.updateCareerHistory(this.recordId, payload);
-        this.showInfo('Berhasil', 'Data riwayat karir berhasil diperbarui.', 'success');
+        this.showInfo(WiseI18n.t('BERHASIL'), WiseI18n.t('DATA_RIWAYAT_KARIR_BERHASIL_DIPERBARUI'), 'success');
       } else {
         await api.addCareerHistory(this.employeeId, payload);
-        this.showInfo('Berhasil', 'Riwayat karir berhasil dicatat.', 'success');
+        this.showInfo(WiseI18n.t('BERHASIL'), WiseI18n.t('RIWAYAT_KARIR_BERHASIL_DICATAT'), 'success');
       }
 
       if (this.parentWindow && typeof this.parentWindow.loadEmployee === 'function') {
@@ -131,7 +125,7 @@ class WinEmployeeCareerEdit extends WiseWindow {
       }
       this.close();
     } catch (err) {
-      this.showInfo('Gagal Menyimpan', err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MENYIMPAN'), err.message, 'error');
     }
   }
 

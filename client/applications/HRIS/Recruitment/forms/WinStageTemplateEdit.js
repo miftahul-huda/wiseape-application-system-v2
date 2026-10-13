@@ -50,6 +50,7 @@ class WinStageTemplateEdit extends WiseWindow {
     cellName.addControl(new WiseLabel(WiseI18n.t('NAMA_TEMPLATE_ALUR'), { id: 'lblTplName', style: labelStyle }));
     this.txtName = new WiseTextBox('', {
       id: 'txtTplName',
+      datafield: 'name',
       placeholder: WiseI18n.t('CONTOH_ALUR_SELEKSI_SOFTWARE_ENGINEER_IT'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -60,6 +61,7 @@ class WinStageTemplateEdit extends WiseWindow {
     cellActive.addControl(new WiseLabel(WiseI18n.t('STATUS_AKTIF'), { id: 'lblTplActive', style: labelStyle }));
     this.cmbIsActive = new WiseComboBox('true', {
       id: 'cmbTplActive',
+      datafield: 'isActive',
       items: [
         { value: 'true', label: WiseI18n.t('AKTIF') },
         { value: 'false', label: WiseI18n.t('NONAKTIF') }
@@ -73,6 +75,7 @@ class WinStageTemplateEdit extends WiseWindow {
     cellCode.addControl(new WiseLabel(WiseI18n.t('KODE_TEMPLATE_OPSIONAL'), { id: 'lblTplCode', style: labelStyle }));
     this.txtCode = new WiseTextBox('', {
       id: 'txtTplCode',
+      datafield: 'code',
       placeholder: WiseI18n.t('CONTOH_STG_TECH_01'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -83,6 +86,7 @@ class WinStageTemplateEdit extends WiseWindow {
     cellDesc.addControl(new WiseLabel(WiseI18n.t('DESKRIPSI_PERUNTUKAN_TEMPLATE'), { id: 'lblTplDesc', style: labelStyle }));
     this.txtDesc = new WiseTextBox('', {
       id: 'txtTplDesc',
+      datafield: 'description',
       placeholder: WiseI18n.t('PENJELASAN_TUJUAN_ATAU_PROFIL_PELAMAR_YANG_COCOK'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -104,17 +108,7 @@ class WinStageTemplateEdit extends WiseWindow {
 
     stageToolbar.addControl(new WiseButton(WiseI18n.t('TAMBAH_TAHAPAN'), {
       id: 'btnTplStageAdd',
-      onClick: this.onAddStageClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '7px 14px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
-      }
+      onClick: this.onAddStageClick.bind(this)
     }));
 
     stageToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_TAHAPAN'), {
@@ -196,17 +190,7 @@ class WinStageTemplateEdit extends WiseWindow {
 
     bottomBar.addControl(new WiseButton(WiseI18n.t('SIMPAN_TEMPLATE'), {
       id: 'btnTplSave',
-      onClick: this.onSaveClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 20px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
-      }
+      onClick: this.onSaveClick.bind(this)
     }));
 
     this.addControl(bottomBar);
@@ -223,10 +207,7 @@ class WinStageTemplateEdit extends WiseWindow {
         const tpl = await api.getStageTemplate(this.selectedTemplateId);
         this.currentTemplate = tpl;
 
-        if (this.txtName) this.txtName.setValue(tpl.name || '');
-        if (this.txtCode) this.txtCode.setValue(tpl.code || '');
-        if (this.txtDesc) this.txtDesc.setValue(tpl.description || '');
-        if (this.cmbIsActive) this.cmbIsActive.setValue(tpl.isActive ? 'true' : 'false');
+        this.populate(tpl);
 
         this.stagesList = Array.isArray(tpl.stages) ? [...tpl.stages] : [];
         this.renderStagesTable();
@@ -293,7 +274,8 @@ class WinStageTemplateEdit extends WiseWindow {
   }
 
   async onSaveClick() {
-    const name = this.txtName ? this.txtName.value.trim() : '';
+    const values = this.getValues();
+    const name = (values.name || '').trim();
     if (!name) {
       this.showInfo(WiseI18n.t('VALIDASI_FORM'), WiseI18n.t('NAMA_TEMPLATE_ALUR_PROSES_WAJIB_DIISI'), 'warning');
       return;
@@ -301,9 +283,9 @@ class WinStageTemplateEdit extends WiseWindow {
 
     const payload = {
       name,
-      code: this.txtCode ? this.txtCode.value.trim() : null,
-      description: this.txtDesc ? this.txtDesc.value.trim() : '',
-      isActive: this.cmbIsActive ? this.cmbIsActive.value === 'true' : true,
+      code: values.code ? values.code.trim() : null,
+      description: (values.description || '').trim(),
+      isActive: values.isActive !== 'false' && values.isActive !== false,
       stages: this.stagesList
     };
 

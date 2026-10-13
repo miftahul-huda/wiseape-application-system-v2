@@ -46,9 +46,9 @@ class WinJobLevelEdit extends WiseWindow {
     // 1. Kode Jenjang
     formLayout.setCell(0, 0, new WiseLabel(WiseI18n.t('KODE_JENJANG'), { style: lblStyle }));
     const codeVal = this.initialData ? (this.initialData.code || '') : '';
-    const txtCode = new WiseTextBox(codeVal, {
+    const txtCode = new WiseTextBox('', {
       id: 'txtJobLevelCode',
-      value: codeVal,
+      datafield: 'code',
       placeholder: 'LVL-01, LVL-06, LVL-09',
       style: { width: '100%' }
     });
@@ -56,10 +56,9 @@ class WinJobLevelEdit extends WiseWindow {
 
     // 2. Nama Jenjang
     formLayout.setCell(1, 0, new WiseLabel(WiseI18n.t('NAMA_JENJANG_GRADE_2'), { style: lblStyle }));
-    const nameVal = this.initialData ? (this.initialData.name || '') : '';
-    const txtName = new WiseTextBox(nameVal, {
+    const txtName = new WiseTextBox('', {
       id: 'txtJobLevelName',
-      value: nameVal,
+      datafield: 'name',
       placeholder: 'Staff, Supervisor, Manager, Director',
       style: { width: '100%' }
     });
@@ -67,20 +66,19 @@ class WinJobLevelEdit extends WiseWindow {
 
     // 3. Level Ranking (Level Number)
     formLayout.setCell(2, 0, new WiseLabel(WiseI18n.t('TINGKAT_LEVEL_1_9'), { style: lblStyle }));
-    const levelVal = this.initialData && this.initialData.levelNumber !== undefined ? Number(this.initialData.levelNumber) : 1;
-    const numLevel = new WiseNumericBox(String(levelVal), {
+    const numLevel = new WiseNumericBox('1', {
       id: 'numJobLevelRanking',
-      value: levelVal,
+      datafield: 'levelNumber',
+      value: 1,
       style: { width: '120px' }
     });
     formLayout.setCell(2, 1, numLevel);
 
     // 4. Deskripsi
     formLayout.setCell(3, 0, new WiseLabel(WiseI18n.t('DESKRIPSI_TANGGUNG_JAWAB'), { style: lblStyle }));
-    const descVal = this.initialData ? (this.initialData.description || '') : '';
-    const txtDesc = new WiseTextBox(descVal, {
+    const txtDesc = new WiseTextBox('', {
       id: 'txtJobLevelDesc',
-      value: descVal,
+      datafield: 'description',
       placeholder: WiseI18n.t('CAKUPAN_TANGGUNG_JAWAB'),
       style: { width: '100%' }
     });
@@ -88,15 +86,19 @@ class WinJobLevelEdit extends WiseWindow {
 
     // 5. Urutan
     formLayout.setCell(4, 0, new WiseLabel(WiseI18n.t('URUTAN_TAMPILAN'), { style: lblStyle }));
-    const sortVal = this.initialData && this.initialData.sortOrder !== undefined ? Number(this.initialData.sortOrder) : 0;
-    const numSort = new WiseNumericBox(String(sortVal), {
+    const numSort = new WiseNumericBox('0', {
       id: 'numJobLevelSortOrder',
-      value: sortVal,
+      datafield: 'sortOrder',
+      value: 0,
       style: { width: '120px' }
     });
     formLayout.setCell(4, 1, numSort);
 
     this.addControl(formLayout);
+
+    if (this.initialData) {
+      this.populate(this.initialData);
+    }
 
     // Error Label
     this.lblError = new WiseLabel('', {
@@ -132,15 +134,7 @@ class WinJobLevelEdit extends WiseWindow {
 
     const btnSave = new WiseButton(WiseI18n.t('SIMPAN_JENJANG'), {
       id: 'btnJobLevelSave',
-      onClick: this.onSave.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 700,
-        borderRadius: '6px',
-        padding: '8px 22px',
-        cursor: 'pointer'
-      }
+      onClick: this.onSave.bind(this)
     });
 
     actionContainer.addControl(btnCancel);
@@ -150,17 +144,12 @@ class WinJobLevelEdit extends WiseWindow {
 
   async onSave() {
     try {
-      const txtCode = this.findControl('txtJobLevelCode');
-      const txtName = this.findControl('txtJobLevelName');
-      const numLevel = this.findControl('numJobLevelRanking');
-      const txtDesc = this.findControl('txtJobLevelDesc');
-      const numSort = this.findControl('numJobLevelSortOrder');
-
-      const code = (txtCode && txtCode.value) ? txtCode.value.trim() : '';
-      const name = (txtName && txtName.value) ? txtName.value.trim() : '';
-      const levelNumber = numLevel ? parseInt(numLevel.value, 10) || 1 : 1;
-      const description = (txtDesc && txtDesc.value) ? txtDesc.value.trim() : '';
-      const sortOrder = numSort ? parseInt(numSort.value, 10) || 0 : 0;
+      const values = this.getValues();
+      const code = (values.code || '').trim();
+      const name = (values.name || '').trim();
+      const levelNumber = parseInt(values.levelNumber, 10) || 1;
+      const description = (values.description || '').trim();
+      const sortOrder = parseInt(values.sortOrder, 10) || 0;
 
       if (!code) {
         this.showError(WiseI18n.t('KODE_JENJANG_JABATAN_WAJIB_DIISI'));

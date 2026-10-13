@@ -52,17 +52,17 @@ class WinOrganizationEdit extends WiseWindow {
     const typeItems = ORG_TYPES.map((t) => ({ value: t, label: t }));
     const cmbType = new WiseComboBox(typeItems, {
       id: 'cmbOrgType',
-      value: this.initialData ? this.initialData.type : 'Department',
+      datafield: 'type',
+      value: 'Department',
       style: { width: '100%' }
     });
     formLayout.setCell(0, 1, cmbType);
 
     // 2. Kode Organisasi
     formLayout.setCell(1, 0, new WiseLabel(WiseI18n.t('KODE_ORGANISASI'), { style: lblStyle }));
-    const codeVal = this.initialData ? (this.initialData.code || '') : '';
-    const txtCode = new WiseTextBox(codeVal, {
+    const txtCode = new WiseTextBox('', {
       id: 'txtOrgCode',
-      value: codeVal,
+      datafield: 'code',
       placeholder: 'DIV-TECH, DEPT-ENG, DEPT-HR',
       style: { width: '100%' }
     });
@@ -70,10 +70,9 @@ class WinOrganizationEdit extends WiseWindow {
 
     // 3. Nama Organisasi
     formLayout.setCell(2, 0, new WiseLabel(WiseI18n.t('NAMA_ORGANISASI'), { style: lblStyle }));
-    const nameVal = this.initialData ? (this.initialData.name || '') : '';
-    const txtName = new WiseTextBox(nameVal, {
+    const txtName = new WiseTextBox('', {
       id: 'txtOrgName',
-      value: nameVal,
+      datafield: 'name',
       placeholder: 'Software Engineering, Human Resources',
       style: { width: '100%' }
     });
@@ -87,17 +86,17 @@ class WinOrganizationEdit extends WiseWindow {
     ];
     const cmbParent = new WiseComboBox(parentItems, {
       id: 'cmbOrgParent',
-      value: (this.initialData && this.initialData.parentId) ? String(this.initialData.parentId) : '',
+      datafield: 'parentId',
+      value: '',
       style: { width: '100%' }
     });
     formLayout.setCell(3, 1, cmbParent);
 
     // 5. Deskripsi
     formLayout.setCell(4, 0, new WiseLabel(WiseI18n.t('DESKRIPSI_FUNGSI'), { style: lblStyle }));
-    const descVal = this.initialData ? (this.initialData.description || '') : '';
-    const txtDesc = new WiseTextBox(descVal, {
+    const txtDesc = new WiseTextBox('', {
       id: 'txtOrgDesc',
-      value: descVal,
+      datafield: 'description',
       placeholder: WiseI18n.t('DESKRIPSI_FUNGSI'),
       style: { width: '100%' }
     });
@@ -105,15 +104,19 @@ class WinOrganizationEdit extends WiseWindow {
 
     // 6. Urutan (Sort Order)
     formLayout.setCell(5, 0, new WiseLabel(WiseI18n.t('URUTAN_TAMPILAN'), { style: lblStyle }));
-    const sortVal = this.initialData && this.initialData.sortOrder !== undefined ? Number(this.initialData.sortOrder) : 0;
-    const numSort = new WiseNumericBox(String(sortVal), {
+    const numSort = new WiseNumericBox('0', {
       id: 'numOrgSortOrder',
-      value: sortVal,
+      datafield: 'sortOrder',
+      value: 0,
       style: { width: '120px' }
     });
     formLayout.setCell(5, 1, numSort);
 
     this.addControl(formLayout);
+
+    if (this.initialData) {
+      this.populate(this.initialData);
+    }
 
     // Error message
     this.lblError = new WiseLabel('', {
@@ -149,15 +152,7 @@ class WinOrganizationEdit extends WiseWindow {
 
     const btnSave = new WiseButton(WiseI18n.t('SIMPAN_ORGANISASI'), {
       id: 'btnOrgSave',
-      onClick: this.onSave.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 700,
-        borderRadius: '6px',
-        padding: '8px 22px',
-        cursor: 'pointer'
-      }
+      onClick: this.onSave.bind(this)
     });
 
     actionContainer.addControl(btnCancel);
@@ -167,23 +162,13 @@ class WinOrganizationEdit extends WiseWindow {
 
   async onSave() {
     try {
-      const cmbType = this.findControl('cmbOrgType');
-      const txtCode = this.findControl('txtOrgCode');
-      const txtName = this.findControl('txtOrgName');
-      const cmbParent = this.findControl('cmbOrgParent');
-      const txtDesc = this.findControl('txtOrgDesc');
-      const numSort = this.findControl('numOrgSortOrder');
-
-      const type = (cmbType && cmbType.value) ? cmbType.value : 'Department';
-      const code = (txtCode && txtCode.value) ? txtCode.value.trim() : '';
-      const name = (txtName && txtName.value) ? txtName.value.trim() : '';
-      const description = (txtDesc && txtDesc.value) ? txtDesc.value.trim() : '';
-      const sortOrder = numSort ? parseInt(numSort.value, 10) || 0 : 0;
-
-      let parentId = null;
-      if (cmbParent && cmbParent.value) {
-        parentId = parseInt(cmbParent.value, 10) || null;
-      }
+      const values = this.getValues();
+      const type = values.type || 'Department';
+      const code = (values.code || '').trim();
+      const name = (values.name || '').trim();
+      const description = (values.description || '').trim();
+      const sortOrder = parseInt(values.sortOrder, 10) || 0;
+      const parentId = values.parentId ? (parseInt(values.parentId, 10) || null) : null;
 
       if (!code) {
         this.showError(WiseI18n.t('KODE_ORGANISASI_WAJIB_DIISI'));

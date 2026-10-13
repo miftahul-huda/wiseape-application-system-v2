@@ -29,15 +29,15 @@ class WinEmployeeExperienceEdit extends WiseWindow {
 
     // ── Form Content ────────────────────────────────────────────
     const tblExp = new WiseTableLayout({ rows: 4, columns: 2, id: 'tblExpEdit', style: { marginBottom: '16px' } });
-    
+
     const currPrefix = typeof WiseI18n !== 'undefined' && WiseI18n ? WiseI18n.getCurrencyPrefix() : 'Rp ';
 
-    this.txtExpCompany = new WiseTextBox(WiseI18n.t('E_G_PT_TELEKOMUNIKASI_INDONESIA'), { id: 'txtExpCompany', value: this.record?.companyName || '', placeholder: WiseI18n.t('E_G_PT_TELEKOMUNIKASI_INDONESIA') });
-    this.txtExpPosition = new WiseTextBox(WiseI18n.t('E_G_SENIOR_SOFTWARE_ENGINEER'), { id: 'txtExpPosition', value: this.record?.position || '', placeholder: WiseI18n.t('E_G_SENIOR_SOFTWARE_ENGINEER') });
-    this.dtExpStart = new WiseDate(this.record?.startDate || '', { id: 'dtExpStart', value: this.record?.startDate || '' });
-    this.dtExpEnd = new WiseDate(this.record?.endDate || '', { id: 'dtExpEnd', value: this.record?.endDate || '' });
-    this.numExpLastSalary = new WiseNumericBox(String(this.record?.lastSalary || 0), { id: 'numExpLastSalary', value: Number(this.record?.lastSalary || 0), prefix: currPrefix });
-    this.txtExpDesc = new WiseTextBox(WiseI18n.t('TANGGUNG_JAWAB_UTAMA'), { id: 'txtExpDesc', value: this.record?.description || '', placeholder: WiseI18n.t('TANGGUNG_JAWAB_UTAMA') });
+    this.txtExpCompany = new WiseTextBox(WiseI18n.t('E_G_PT_TELEKOMUNIKASI_INDONESIA'), { id: 'txtExpCompany', datafield: 'companyName', placeholder: WiseI18n.t('E_G_PT_TELEKOMUNIKASI_INDONESIA') });
+    this.txtExpPosition = new WiseTextBox(WiseI18n.t('E_G_SENIOR_SOFTWARE_ENGINEER'), { id: 'txtExpPosition', datafield: 'position', placeholder: WiseI18n.t('E_G_SENIOR_SOFTWARE_ENGINEER') });
+    this.dtExpStart = new WiseDate('', { id: 'dtExpStart', datafield: 'startDate' });
+    this.dtExpEnd = new WiseDate('', { id: 'dtExpEnd', datafield: 'endDate' });
+    this.numExpLastSalary = new WiseNumericBox('0', { id: 'numExpLastSalary', datafield: 'lastSalary', value: 0, prefix: currPrefix });
+    this.txtExpDesc = new WiseTextBox(WiseI18n.t('TANGGUNG_JAWAB_UTAMA'), { id: 'txtExpDesc', datafield: 'description', placeholder: WiseI18n.t('TANGGUNG_JAWAB_UTAMA') });
 
     tblExp.setCell(0, 0, this.formGroup(WiseI18n.t('NAMA_PERUSAHAAN'), this.txtExpCompany));
     tblExp.setCell(0, 1, this.formGroup(WiseI18n.t('POSISI_JABATAN'), this.txtExpPosition));
@@ -47,6 +47,10 @@ class WinEmployeeExperienceEdit extends WiseWindow {
     tblExp.setCell(2, 1, this.formGroup(WiseI18n.t('KETERANGAN_TANGGUNG_JAWAB'), this.txtExpDesc));
     this.addControl(tblExp);
 
+    if (this.record) {
+      this.populate(this.record);
+    }
+
     // ── Action Buttons ──────────────────────────────────────────
     const actionFrame = new WiseFrame('', {
       id: 'frameExpActions',
@@ -55,30 +59,14 @@ class WinEmployeeExperienceEdit extends WiseWindow {
     actionFrame.addControl(new WiseButton(WiseI18n.t('SIMPAN_PENGALAMAN_2'), {
       id: 'btnSaveExp',
       onClick: this.onSaveClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '8px',
-        padding: '10px 20px',
-        border: 'none',
-        boxShadow: 'none',
-        marginRight: '8px',
-        cursor: 'pointer'
-      }
+      style: { marginRight: '8px' }
     }));
-    actionFrame.addControl(new WiseButton(WiseI18n.t('BATAL_3'), {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnCancelExp',
       onClick: this.onCancelClick.bind(this),
       style: {
         background: '#e2e8f0',
-        color: '#475569',
-        fontWeight: 600,
-        borderRadius: '8px',
-        padding: '10px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#475569'
       }
     }));
     this.addControl(actionFrame);
@@ -88,7 +76,8 @@ class WinEmployeeExperienceEdit extends WiseWindow {
 
   formGroup(label, control) {
     const frame = new WiseFrame('', { style: { padding: '2px 4px', border: 'none', background: 'transparent' } });
-    frame.addControl(new WiseLabel(label, { style: { fontWeight: 600, color: '#475569', marginBottom: '0px', lineHeight: '1.2', display: 'block' } }));
+    const resolvedLabel = typeof WiseI18n !== 'undefined' ? WiseI18n.t(label) : label;
+    frame.addControl(new WiseLabel(resolvedLabel, { style: { fontWeight: 600, color: '#475569', marginBottom: '0px', lineHeight: '1.2', display: 'block' } }));
     frame.addControl(control);
     return frame;
   }
@@ -99,8 +88,10 @@ class WinEmployeeExperienceEdit extends WiseWindow {
       return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('DATA_KARYAWAN_BELUM_DITENTUKAN'), 'warning');
     }
     this.employeeId = empId;
-    const company = this.txtExpCompany ? this.txtExpCompany.value : '';
-    const position = this.txtExpPosition ? this.txtExpPosition.value : '';
+
+    const values = this.getValues();
+    const company = (values.companyName || '').trim();
+    const position = (values.position || '').trim();
     if (!company || !position) {
       return this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('NAMA_PERUSAHAAN_DAN_POSISI_JABATAN_WAJIB_DIISI'), 'warning');
     }
@@ -108,10 +99,10 @@ class WinEmployeeExperienceEdit extends WiseWindow {
     const payload = {
       companyName: company,
       position,
-      startDate: (this.dtExpStart ? this.dtExpStart.value : null) || null,
-      endDate: (this.dtExpEnd ? this.dtExpEnd.value : null) || null,
-      lastSalary: Number(this.numExpLastSalary ? this.numExpLastSalary.value : 0) || 0,
-      description: this.txtExpDesc ? this.txtExpDesc.value : ''
+      startDate: values.startDate || null,
+      endDate: values.endDate || null,
+      lastSalary: Number(values.lastSalary) || 0,
+      description: (values.description || '').trim()
     };
 
     try {

@@ -48,10 +48,9 @@ class WinPositionEdit extends WiseWindow {
 
     // 1. Kode Jabatan
     formLayout.setCell(0, 0, new WiseLabel(WiseI18n.t('KODE_POSISI_JABATAN'), { style: lblStyle }));
-    const codeVal = this.initialData ? (this.initialData.code || '') : '';
-    const txtCode = new WiseTextBox(codeVal, {
+    const txtCode = new WiseTextBox('', {
       id: 'txtPosCode',
-      value: codeVal,
+      datafield: 'code',
       placeholder: 'POS-SWE, POS-MGR-HR',
       style: { width: '100%' }
     });
@@ -59,10 +58,9 @@ class WinPositionEdit extends WiseWindow {
 
     // 2. Judul / Nama Jabatan
     formLayout.setCell(1, 0, new WiseLabel(WiseI18n.t('JUDUL_NAMA_JABATAN_2'), { style: lblStyle }));
-    const titleVal = this.initialData ? (this.initialData.title || '') : '';
-    const txtTitle = new WiseTextBox(titleVal, {
+    const txtTitle = new WiseTextBox('', {
       id: 'txtPosTitle',
-      value: titleVal,
+      datafield: 'title',
       placeholder: 'Software Engineer, HR Manager',
       style: { width: '100%' }
     });
@@ -76,7 +74,8 @@ class WinPositionEdit extends WiseWindow {
     ];
     const cmbOrg = new WiseComboBox(orgItems, {
       id: 'cmbPosOrg',
-      value: (this.initialData && this.initialData.organizationId) ? String(this.initialData.organizationId) : '',
+      datafield: 'organizationId',
+      value: '',
       style: { width: '100%' }
     });
     formLayout.setCell(2, 1, cmbOrg);
@@ -89,17 +88,17 @@ class WinPositionEdit extends WiseWindow {
     ];
     const cmbLevel = new WiseComboBox(levelItems, {
       id: 'cmbPosLevel',
-      value: (this.initialData && this.initialData.jobLevelId) ? String(this.initialData.jobLevelId) : '',
+      datafield: 'jobLevelId',
+      value: '',
       style: { width: '100%' }
     });
     formLayout.setCell(3, 1, cmbLevel);
 
     // 5. Deskripsi & Kualifikasi
     formLayout.setCell(4, 0, new WiseLabel(WiseI18n.t('URAIAN_TUGAS_SINGKAT'), { style: lblStyle }));
-    const descVal = this.initialData ? (this.initialData.description || '') : '';
-    const txtDesc = new WiseTextBox(descVal, {
+    const txtDesc = new WiseTextBox('', {
       id: 'txtPosDesc',
-      value: descVal,
+      datafield: 'description',
       placeholder: WiseI18n.t('URAIAN_TUGAS_SINGKAT'),
       style: { width: '100%' }
     });
@@ -107,15 +106,19 @@ class WinPositionEdit extends WiseWindow {
 
     // 6. Urutan (Sort Order)
     formLayout.setCell(5, 0, new WiseLabel(WiseI18n.t('URUTAN_TAMPILAN'), { style: lblStyle }));
-    const sortVal = this.initialData && this.initialData.sortOrder !== undefined ? Number(this.initialData.sortOrder) : 0;
-    const numSort = new WiseNumericBox(String(sortVal), {
+    const numSort = new WiseNumericBox('0', {
       id: 'numPosSortOrder',
-      value: sortVal,
+      datafield: 'sortOrder',
+      value: 0,
       style: { width: '120px' }
     });
     formLayout.setCell(5, 1, numSort);
 
     this.addControl(formLayout);
+
+    if (this.initialData) {
+      this.populate(this.initialData);
+    }
 
     // Error Label
     this.lblError = new WiseLabel('', {
@@ -151,15 +154,7 @@ class WinPositionEdit extends WiseWindow {
 
     const btnSave = new WiseButton(WiseI18n.t('SIMPAN_JABATAN'), {
       id: 'btnPosSave',
-      onClick: this.onSave.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 700,
-        borderRadius: '6px',
-        padding: '8px 22px',
-        cursor: 'pointer'
-      }
+      onClick: this.onSave.bind(this)
     });
 
     actionContainer.addControl(btnCancel);
@@ -169,32 +164,23 @@ class WinPositionEdit extends WiseWindow {
 
   async onSave() {
     try {
-      const txtCode = this.findControl('txtPosCode');
-      const txtTitle = this.findControl('txtPosTitle');
-      const cmbOrg = this.findControl('cmbPosOrg');
-      const cmbLevel = this.findControl('cmbPosLevel');
-      const txtDesc = this.findControl('txtPosDesc');
-      const numSort = this.findControl('numPosSortOrder');
-
-      const code = (txtCode && txtCode.value) ? txtCode.value.trim() : '';
-      const title = (txtTitle && txtTitle.value) ? txtTitle.value.trim() : '';
-      const description = (txtDesc && txtDesc.value) ? txtDesc.value.trim() : '';
-      const sortOrder = numSort ? parseInt(numSort.value, 10) || 0 : 0;
+      const values = this.getValues();
+      const code = (values.code || '').trim();
+      const title = (values.title || '').trim();
+      const description = (values.description || '').trim();
+      const sortOrder = parseInt(values.sortOrder, 10) || 0;
 
       let organizationId = null;
       let department = '';
-      if (cmbOrg && cmbOrg.value) {
-        organizationId = parseInt(cmbOrg.value, 10) || null;
+      if (values.organizationId) {
+        organizationId = parseInt(values.organizationId, 10) || null;
         const orgObj = this.orgOptions.find((o) => o.id === organizationId);
         if (orgObj) {
           department = orgObj.name;
         }
       }
 
-      let jobLevelId = null;
-      if (cmbLevel && cmbLevel.value) {
-        jobLevelId = parseInt(cmbLevel.value, 10) || null;
-      }
+      let jobLevelId = values.jobLevelId ? (parseInt(values.jobLevelId, 10) || null) : null;
 
       if (!code) {
         this.showError(WiseI18n.t('KODE_JABATAN_WAJIB_DIISI'));

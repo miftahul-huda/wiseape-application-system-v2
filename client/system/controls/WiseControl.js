@@ -8,9 +8,18 @@
       this.id = options.id || null;
       // Key WiseWindow.getValues() collects this control's value under;
       // defaults to id so most controls never need to set it explicitly.
-      this.dataField = options.dataField || options.id || null;
+      this.dataField = options.dataField || options.datafield || options.id || null;
+      this.datafield = this.dataField;
       this.visible = options.visible !== undefined ? options.visible : true;
       this.disabled = options.disabled !== undefined ? options.disabled : false;
+    }
+
+    get datafield() {
+      return this.dataField;
+    }
+
+    set datafield(val) {
+      this.dataField = val;
     }
 
     // Generic accessors so app code doesn't have to touch `.value` directly
@@ -66,6 +75,8 @@
       return {
         type: this.name,
         id: this.id,
+        dataField: this.dataField,
+        datafield: this.dataField,
         value: this.value,
         visible: this.visible,
         disabled: this.disabled,

@@ -69,6 +69,7 @@ class WinJobVacancyEdit extends WiseWindow {
     cellTitle.addControl(new WiseLabel(WiseI18n.t('JUDUL_LOWONGAN_2'), { id: 'lblVacTitle', style: labelStyle }));
     this.txtTitle = new WiseTextBox('', {
       id: 'txtVacTitle',
+      datafield: 'title',
       placeholder: WiseI18n.t('CONTOH_SENIOR_FRONTEND_ENGINEER'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -79,6 +80,7 @@ class WinJobVacancyEdit extends WiseWindow {
     cellStatus.addControl(new WiseLabel(WiseI18n.t('STATUS_LOWONGAN_2'), { id: 'lblVacStatus', style: labelStyle }));
     this.cmbStatus = new WiseComboBox('ACTIVE', {
       id: 'cmbVacStatus',
+      datafield: 'status',
       items: [
         { value: 'ACTIVE', label: WiseI18n.t('ACTIVE_DIBUKA') },
         { value: 'DRAFT', label: WiseI18n.t('DRAFT_KONSEP') },
@@ -94,6 +96,7 @@ class WinJobVacancyEdit extends WiseWindow {
     cellDept.addControl(new WiseLabel(WiseI18n.t('DEPARTEMEN_2'), { id: 'lblVacDept', style: labelStyle }));
     this.cmbDepartment = new WiseComboBox('', {
       id: 'cmbVacDept',
+      datafield: 'department',
       items: [
         { value: '', label: WiseI18n.t('PILIH_DEPARTEMEN') },
         { value: 'Technology & Digital Innovation', label: WiseI18n.t('TECHNOLOGY_DIGITAL_INNOVATION') },
@@ -111,6 +114,7 @@ class WinJobVacancyEdit extends WiseWindow {
     cellDiv.addControl(new WiseLabel(WiseI18n.t('DIVISI_SUB_DEPARTEMEN'), { id: 'lblVacDiv', style: labelStyle }));
     this.txtDivision = new WiseTextBox('', {
       id: 'txtVacDivision',
+      datafield: 'division',
       placeholder: WiseI18n.t('CONTOH_SOFTWARE_ENGINEERING_PEOPLE_OPERATIONS'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -122,6 +126,7 @@ class WinJobVacancyEdit extends WiseWindow {
     cellPos.addControl(new WiseLabel(WiseI18n.t('POSISI_JABATAN'), { id: 'lblVacPos', style: labelStyle }));
     this.txtPosition = new WiseTextBox('', {
       id: 'txtVacPosition',
+      datafield: 'position',
       placeholder: WiseI18n.t('CONTOH_SENIOR_SOFTWARE_ENGINEER'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -132,6 +137,7 @@ class WinJobVacancyEdit extends WiseWindow {
     cellLvl.addControl(new WiseLabel(WiseI18n.t('TINGKAT_JABATAN_JOB_LEVEL'), { id: 'lblVacLvl', style: labelStyle }));
     this.cmbJobLevel = new WiseComboBox('', {
       id: 'cmbVacJobLevel',
+      datafield: 'jobLevel',
       items: [
         { value: '', label: WiseI18n.t('PILIH_JENJANG_JABATAN') },
         { value: 'Director / C-Level', label: WiseI18n.t('DIRECTOR_C_LEVEL') },
@@ -151,6 +157,7 @@ class WinJobVacancyEdit extends WiseWindow {
     cellLoc.addControl(new WiseLabel(WiseI18n.t('LOKASI_KERJA'), { id: 'lblVacLoc', style: labelStyle }));
     this.cmbWorkLocation = new WiseComboBox('Kantor Pusat', {
       id: 'cmbVacLocation',
+      datafield: 'workLocation',
       items: [
         { value: 'Kantor Pusat', label: WiseI18n.t('KANTOR_PUSAT_ON_SITE') },
         { value: 'Hybrid', label: WiseI18n.t('HYBRID') },
@@ -166,6 +173,7 @@ class WinJobVacancyEdit extends WiseWindow {
     cellType.addControl(new WiseLabel(WiseI18n.t('STATUS_KEPEGAWAIAN'), { id: 'lblVacType', style: labelStyle }));
     this.cmbEmploymentType = new WiseComboBox('Tetap (PKWTT)', {
       id: 'cmbVacEmpType',
+      datafield: 'employmentType',
       items: [
         { value: 'Tetap (PKWTT)', label: WiseI18n.t('TETAP_PKWTT') },
         { value: 'Kontrak (PKWT)', label: WiseI18n.t('KONTRAK_PKWT') },
@@ -183,6 +191,7 @@ class WinJobVacancyEdit extends WiseWindow {
     cellStart.addControl(new WiseLabel(WiseI18n.t('TANGGAL_AKTIF_2'), { id: 'lblVacStart', style: labelStyle }));
     this.dtStartDate = new WiseDate(new Date().toISOString().slice(0, 10), {
       id: 'dtVacStartDate',
+      datafield: 'startDate',
       style: { ...inputBorderStyle, width: '100%' }
     });
     cellStart.addControl(this.dtStartDate);
@@ -193,6 +202,7 @@ class WinJobVacancyEdit extends WiseWindow {
     const defaultEnd = new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
     this.dtEndDate = new WiseDate(defaultEnd, {
       id: 'dtVacEndDate',
+      datafield: 'endDate',
       style: { ...inputBorderStyle, width: '100%' }
     });
     cellEnd.addControl(this.dtEndDate);
@@ -203,6 +213,7 @@ class WinJobVacancyEdit extends WiseWindow {
     cellDesc.addControl(new WiseLabel(WiseI18n.t('DESKRIPSI_LOWONGAN_KUALIFIKASI_TANGGUNG_JAWAB'), { id: 'lblVacDesc', style: labelStyle }));
     this.txtDescription = new WiseTextArea('', {
       id: 'txtVacDescription',
+      datafield: 'description',
       rows: 5,
       placeholder: WiseI18n.t('TULISKAN_DESKRIPSI_PERAN_KUALIFIKASI_PERSYARATAN_DAN'),
       style: { ...inputBorderStyle, width: '100%', padding: '8px 10px' }
@@ -245,17 +256,7 @@ class WinJobVacancyEdit extends WiseWindow {
 
     templateToolbar.addControl(new WiseButton(WiseI18n.t('TERAPKAN_TEMPLATE'), {
       id: 'btnApplyTemplate',
-      onClick: this.onApplyTemplateClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '7px 14px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
-      }
+      onClick: this.onApplyTemplateClick.bind(this)
     }));
 
     panelStages.addControl(templateToolbar);
@@ -268,17 +269,7 @@ class WinJobVacancyEdit extends WiseWindow {
 
     stageActionToolbar.addControl(new WiseButton(WiseI18n.t('TAMBAH_TAHAPAN'), {
       id: 'btnStageAdd',
-      onClick: this.onAddStageClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '7px 14px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
-      }
+      onClick: this.onAddStageClick.bind(this)
     }));
 
     stageActionToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_TAHAPAN'), {
@@ -365,17 +356,7 @@ class WinJobVacancyEdit extends WiseWindow {
 
     bottomBar.addControl(new WiseButton(WiseI18n.t('SIMPAN_LOWONGAN'), {
       id: 'btnVacSave',
-      onClick: this.onSaveVacancyClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 20px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
-      }
+      onClick: this.onSaveVacancyClick.bind(this)
     }));
 
     this.addControl(bottomBar);
@@ -406,17 +387,7 @@ class WinJobVacancyEdit extends WiseWindow {
         const vac = await api.getVacancy(this.selectedVacancyId);
         this.currentVacancy = vac;
 
-        if (this.txtTitle) this.txtTitle.setValue(vac.title || '');
-        if (this.cmbStatus) this.cmbStatus.setValue(vac.status || 'ACTIVE');
-        if (this.cmbDepartment) this.cmbDepartment.setValue(vac.department || '');
-        if (this.txtDivision) this.txtDivision.setValue(vac.division || '');
-        if (this.txtPosition) this.txtPosition.setValue(vac.position || '');
-        if (this.cmbJobLevel) this.cmbJobLevel.setValue(vac.jobLevel || '');
-        if (this.cmbWorkLocation) this.cmbWorkLocation.setValue(vac.workLocation || 'Kantor Pusat');
-        if (this.cmbEmploymentType) this.cmbEmploymentType.setValue(vac.employmentType || 'Tetap (PKWTT)');
-        if (this.dtStartDate) this.dtStartDate.setValue(vac.startDate || '');
-        if (this.dtEndDate) this.dtEndDate.setValue(vac.endDate || '');
-        if (this.txtDescription) this.txtDescription.setValue(vac.description || '');
+        this.populate(vac);
 
         this.stagesList = Array.isArray(vac.stages) ? [...vac.stages] : [];
         this.renderStagesTable();
@@ -519,7 +490,8 @@ class WinJobVacancyEdit extends WiseWindow {
   }
 
   async onSaveVacancyClick() {
-    const title = this.txtTitle ? this.txtTitle.value.trim() : '';
+    const values = this.getValues();
+    const title = (values.title || '').trim();
     if (!title) {
       this.showInfo(WiseI18n.t('VALIDASI_FORM'), WiseI18n.t('JUDUL_LOWONGAN_PEKERJAAN_WAJIB_DIISI'), 'warning');
       if (this.tabControl) this.tabControl.setActiveTab('tabInfo');
@@ -528,16 +500,16 @@ class WinJobVacancyEdit extends WiseWindow {
 
     const payload = {
       title,
-      department: this.cmbDepartment ? this.cmbDepartment.value : '',
-      division: this.txtDivision ? this.txtDivision.value.trim() : '',
-      position: this.txtPosition ? this.txtPosition.value.trim() : '',
-      jobLevel: this.cmbJobLevel ? this.cmbJobLevel.value : '',
-      workLocation: this.cmbWorkLocation ? this.cmbWorkLocation.value : 'Kantor Pusat',
-      employmentType: this.cmbEmploymentType ? this.cmbEmploymentType.value : 'Tetap (PKWTT)',
-      startDate: this.dtStartDate ? this.dtStartDate.value : null,
-      endDate: this.dtEndDate ? this.dtEndDate.value : null,
-      status: this.cmbStatus ? this.cmbStatus.value : 'ACTIVE',
-      description: this.txtDescription ? this.txtDescription.value.trim() : '',
+      department: values.department || '',
+      division: (values.division || '').trim(),
+      position: (values.position || '').trim(),
+      jobLevel: values.jobLevel || '',
+      workLocation: values.workLocation || 'Kantor Pusat',
+      employmentType: values.employmentType || 'Tetap (PKWTT)',
+      startDate: values.startDate || null,
+      endDate: values.endDate || null,
+      status: values.status || 'ACTIVE',
+      description: (values.description || '').trim(),
       stages: this.stagesList
     };
 

@@ -124,17 +124,7 @@ class WinApplicantDetail extends WiseWindow {
 
     actionToolbar.addControl(new WiseButton(WiseI18n.t('EVALUASI_UPDATE_TAHAPAN'), {
       id: 'btnProcEditStage',
-      onClick: this.onEditProcessClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
-      }
+      onClick: this.onEditProcessClick.bind(this)
     }));
 
     actionToolbar.addControl(new WiseButton(WiseI18n.t('TAMBAH_TAHAPAN_TAMBAHAN'), {

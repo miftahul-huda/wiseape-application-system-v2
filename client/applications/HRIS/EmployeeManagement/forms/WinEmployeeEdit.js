@@ -56,32 +56,16 @@ class WinEmployeeEdit extends WiseWindow {
       layout: 'horizontal',
       style: { background: 'transparent', border: 'none', padding: '0', marginBottom: '10px' }
     });
-    editToolbar.addControl(new WiseButton('💾 Simpan Perubahan', {
+    editToolbar.addControl(new WiseButton(WiseI18n.t('SIMPAN_PERUBAHAN'), {
       id: 'btnEditSave',
-      onClick: this.onSaveEmployee.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 700,
-        borderRadius: '8px',
-        padding: '8px 18px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
-      }
+      onClick: this.onSaveEmployee.bind(this)
     }));
-    editToolbar.addControl(new WiseButton('✕ Tutup', {
+    editToolbar.addControl(new WiseButton(WiseI18n.t('TUTUP_2'), {
       id: 'btnEditClose',
       onClick: this.onCloseClick.bind(this),
       style: {
         background: '#f1f5f9',
-        color: '#334155',
-        fontWeight: 600,
-        borderRadius: '8px',
-        padding: '8px 14px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#334155'
       }
     }));
     this.addControl(editToolbar);
@@ -91,7 +75,7 @@ class WinEmployeeEdit extends WiseWindow {
       id: 'editTabs',
       layout: 'horizontal',
       activeIndex: 0,
-      onTabChanged: () => {}
+      onTabChanged: () => { }
     });
 
     // ── TAB 1: DATA PRIBADI ─────────────────────────────────────
@@ -105,30 +89,30 @@ class WinEmployeeEdit extends WiseWindow {
       style: { width: '100%', tableLayout: 'fixed', marginBottom: '8px' }
     });
 
-    this.txtFullName = new WiseTextBox('e.g. Raden Ayu Annisa Putri, S.T.', { id: 'txtFullName', placeholder: 'e.g. Raden Ayu Annisa Putri, S.T.' });
-    this.txtNickname = new WiseTextBox('e.g. Annisa', { id: 'txtNickname', placeholder: 'e.g. Annisa' });
-    this.txtBirthPlace = new WiseTextBox('e.g. Yogyakarta', { id: 'txtBirthPlace', placeholder: 'e.g. Yogyakarta' });
-    this.dtBirthDate = new WiseDate('', { id: 'dtBirthDate' });
-    this.cmbGender = new WiseComboBox([{ value: 'Laki-laki', label: 'Laki-laki' }, { value: 'Perempuan', label: 'Perempuan' }], { id: 'cmbGender', value: 'Laki-laki', style: { width: '100%' } });
-    this.cmbReligion = new WiseComboBox(RELIGIONS.map(r => ({ value: r, label: r })), { id: 'cmbReligion', value: 'Islam', style: { width: '100%' } });
-    this.txtPhoneNumber = new WiseTextBox('081234567890', { id: 'txtPhoneNumber', placeholder: '081234567890' });
-    this.txtPersonalEmail = new WiseTextBox('karyawan@example.com', { id: 'txtPersonalEmail', placeholder: 'karyawan@example.com' });
-    this.txtCurrentAddress = new WiseTextBox('Alamat domisili saat ini', { id: 'txtCurrentAddress', placeholder: 'Alamat domisili saat ini' });
-    this.txtIdCardAddress = new WiseTextBox('Alamat lengkap sesuai KTP', { id: 'txtIdCardAddress', placeholder: 'Alamat lengkap sesuai KTP' });
+    this.txtFullName = new WiseTextBox('e.g. Raden Ayu Annisa Putri, S.T.', { id: 'txtFullName', datafield: 'fullName', placeholder: 'e.g. Raden Ayu Annisa Putri, S.T.' });
+    this.txtNickname = new WiseTextBox('e.g. Annisa', { id: 'txtNickname', datafield: 'nickname', placeholder: 'e.g. Annisa' });
+    this.txtBirthPlace = new WiseTextBox('e.g. Yogyakarta', { id: 'txtBirthPlace', datafield: 'birthPlace', placeholder: 'e.g. Yogyakarta' });
+    this.dtBirthDate = new WiseDate('', { id: 'dtBirthDate', datafield: 'birthDate' });
+    this.cmbGender = new WiseComboBox([{ value: 'Laki-laki', label: 'Laki-laki' }, { value: 'Perempuan', label: 'Perempuan' }], { id: 'cmbGender', datafield: 'gender', value: 'Laki-laki', style: { width: '100%' } });
+    this.cmbReligion = new WiseComboBox(RELIGIONS.map(r => ({ value: r, label: r })), { id: 'cmbReligion', datafield: 'religion', value: 'Islam', style: { width: '100%' } });
+    this.txtPhoneNumber = new WiseTextBox('081234567890', { id: 'txtPhoneNumber', datafield: 'phoneNumber', placeholder: '081234567890' });
+    this.txtPersonalEmail = new WiseTextBox('karyawan@example.com', { id: 'txtPersonalEmail', datafield: 'personalEmail', placeholder: 'karyawan@example.com' });
+    this.txtCurrentAddress = new WiseTextBox('Alamat domisili saat ini', { id: 'txtCurrentAddress', datafield: 'currentAddress', placeholder: 'Alamat domisili saat ini' });
+    this.txtIdCardAddress = new WiseTextBox('Alamat lengkap sesuai KTP', { id: 'txtIdCardAddress', datafield: 'idCardAddress', placeholder: 'Alamat lengkap sesuai KTP' });
 
-    tblPersonal.setCell(0, 0, this.formGroup('Nama Lengkap *', this.txtFullName));
-    tblPersonal.setCell(0, 1, this.formGroup('Nama Panggilan', this.txtNickname));
-    tblPersonal.setCell(1, 0, this.formGroup('Tempat Lahir', this.txtBirthPlace));
-    tblPersonal.setCell(1, 1, this.formGroup('Tanggal Lahir', this.dtBirthDate));
-    tblPersonal.setCell(2, 0, this.formGroup('Jenis Kelamin', this.cmbGender));
-    tblPersonal.setCell(2, 1, this.formGroup('Agama', this.cmbReligion));
-    tblPersonal.setCell(3, 0, this.formGroup('Nomor Telepon / WhatsApp *', this.txtPhoneNumber));
-    tblPersonal.setCell(3, 1, this.formGroup('Email Pribadi *', this.txtPersonalEmail));
-    tblPersonal.setCell(4, 0, this.formGroup('Alamat Tempat Tinggal Saat Ini', this.txtCurrentAddress));
-    tblPersonal.setCell(4, 1, this.formGroup('Alamat Sesuai KTP', this.txtIdCardAddress));
+    tblPersonal.setCell(0, 0, this.formGroup(WiseI18n.t('NAMA_LENGKAP'), this.txtFullName));
+    tblPersonal.setCell(0, 1, this.formGroup(WiseI18n.t('NAMA_PANGGILAN'), this.txtNickname));
+    tblPersonal.setCell(1, 0, this.formGroup(WiseI18n.t('TEMPAT_LAHIR'), this.txtBirthPlace));
+    tblPersonal.setCell(1, 1, this.formGroup(WiseI18n.t('TANGGAL_LAHIR'), this.dtBirthDate));
+    tblPersonal.setCell(2, 0, this.formGroup(WiseI18n.t('JENIS_KELAMIN'), this.cmbGender));
+    tblPersonal.setCell(2, 1, this.formGroup(WiseI18n.t('AGAMA'), this.cmbReligion));
+    tblPersonal.setCell(3, 0, this.formGroup(WiseI18n.t('NOMOR_TELEPON_WHATSAPP'), this.txtPhoneNumber));
+    tblPersonal.setCell(3, 1, this.formGroup(WiseI18n.t('EMAIL_PRIBADI'), this.txtPersonalEmail));
+    tblPersonal.setCell(4, 0, this.formGroup(WiseI18n.t('ALAMAT_TEMPAT_TINGGAL_SAAT_INI'), this.txtCurrentAddress));
+    tblPersonal.setCell(4, 1, this.formGroup(WiseI18n.t('ALAMAT_SESUAI_KTP'), this.txtIdCardAddress));
     tabPersControls.push(tblPersonal);
 
-    const frameEmergency = new WiseFrame('Kontak Darurat (Emergency Contact)', {
+    const frameEmergency = new WiseFrame(WiseI18n.t('KONTAK_DARURAT_EMERGENCY_CONTACT'), {
       id: 'frameEmergency',
       style: {
         marginTop: '6px',
@@ -146,17 +130,17 @@ class WinEmployeeEdit extends WiseWindow {
       id: 'tblEmergency',
       style: { width: '100%', tableLayout: 'fixed' }
     });
-    this.txtEmergencyName = new WiseTextBox('Nama kontak darurat', { id: 'txtEmergencyName', placeholder: 'Nama kontak darurat' });
-    this.cmbEmergencyRelation = new WiseComboBox(['Orang Tua', 'Suami/Istri', 'Saudara Kandung', 'Anak', 'Teman'].map(h => ({ value: h, label: h })), { id: 'cmbEmergencyRelation', value: 'Orang Tua', style: { width: '100%' } });
-    this.txtEmergencyPhone = new WiseTextBox('0812xxxxxxxx', { id: 'txtEmergencyPhone', placeholder: '0812xxxxxxxx' });
+    this.txtEmergencyName = new WiseTextBox('Nama kontak darurat', { id: 'txtEmergencyName', datafield: 'emergencyContactName', placeholder: 'Nama kontak darurat' });
+    this.cmbEmergencyRelation = new WiseComboBox(['Orang Tua', 'Suami/Istri', 'Saudara Kandung', 'Anak', 'Teman'].map(h => ({ value: h, label: WiseI18n.t(h) })), { id: 'cmbEmergencyRelation', datafield: 'emergencyContactRelation', value: 'Orang Tua', style: { width: '100%' } });
+    this.txtEmergencyPhone = new WiseTextBox('0812xxxxxxxx', { id: 'txtEmergencyPhone', datafield: 'emergencyContactPhone', placeholder: '0812xxxxxxxx' });
 
-    tblEmergency.setCell(0, 0, this.formGroup('Nama Kontak Darurat', this.txtEmergencyName));
-    tblEmergency.setCell(0, 1, this.formGroup('Hubungan', this.cmbEmergencyRelation));
-    tblEmergency.setCell(0, 2, this.formGroup('Nomor Telepon Darurat', this.txtEmergencyPhone));
+    tblEmergency.setCell(0, 0, this.formGroup(WiseI18n.t('NAMA_KONTAK_DARURAT'), this.txtEmergencyName));
+    tblEmergency.setCell(0, 1, this.formGroup(WiseI18n.t('HUBUNGAN'), this.cmbEmergencyRelation));
+    tblEmergency.setCell(0, 2, this.formGroup(WiseI18n.t('NOMOR_TELEPON_DARURAT'), this.txtEmergencyPhone));
     frameEmergency.addControl(tblEmergency);
     tabPersControls.push(frameEmergency);
 
-    editTabs.addTab({ label: 'Data Pribadi', icon: '👤', controls: tabPersControls });
+    editTabs.addTab({ label: WiseI18n.t('DATA_PRIBADI'), icon: '👤', controls: tabPersControls });
 
     // ── TAB 2: DATA PEKERJAAN ───────────────────────────────────
     const tabEmplControls = [];
@@ -170,40 +154,40 @@ class WinEmployeeEdit extends WiseWindow {
     });
     const orgComboStyle = { width: '100%' };
 
-    this.txtNik = new WiseTextBox('EMP-2024-001', { id: 'txtNik', placeholder: 'EMP-2024-001' });
+    this.txtNik = new WiseTextBox('EMP-2024-001', { id: 'txtNik', datafield: 'nik', placeholder: 'EMP-2024-001' });
     this.cmbDepartment = new WiseComboBox([], {
-      id: 'cmbDepartment', value: '', style: orgComboStyle,
+      id: 'cmbDepartment', datafield: 'department', value: '', style: orgComboStyle,
       onChange: this.onDepartmentChanged.bind(this)
     });
     this.cmbDivision = new WiseComboBox([], {
-      id: 'cmbDivision', value: '', style: orgComboStyle,
+      id: 'cmbDivision', datafield: 'division', value: '', style: orgComboStyle,
       onChange: this.onDivisionChanged.bind(this)
     });
     this.cmbJobTitle = new WiseComboBox([], {
-      id: 'cmbJobTitle', value: '', style: orgComboStyle,
+      id: 'cmbJobTitle', datafield: 'jobTitle', value: '', style: orgComboStyle,
       onChange: this.onJobTitleChanged.bind(this)
     });
     this.cmbJobLevel = new WiseComboBox([], {
-      id: 'cmbJobLevel', value: '', style: orgComboStyle
+      id: 'cmbJobLevel', datafield: 'jobLevel', value: '', style: orgComboStyle
     });
-    this.cmbEmploymentStatus = new WiseComboBox(EMPLOYMENT_STATUSES.map(s => ({ value: s, label: s })), { id: 'cmbEmploymentStatus', value: 'Tetap (PKWTT)', style: orgComboStyle });
-    this.dtJoinDate = new WiseDate('', { id: 'dtJoinDate' });
-    this.dtEndDate = new WiseDate('', { id: 'dtEndDate' });
-    this.txtManagerName = new WiseTextBox('Nama Atasan Langsung', { id: 'txtManagerName', placeholder: 'Nama Atasan Langsung' });
-    this.cmbWorkLocation = new WiseComboBox(['Kantor Pusat', 'Kantor Cabang', 'Remote', 'Hybrid'].map(l => ({ value: l, label: l })), { id: 'cmbWorkLocation', value: 'Kantor Pusat', style: orgComboStyle });
+    this.cmbEmploymentStatus = new WiseComboBox(EMPLOYMENT_STATUSES.map(s => ({ value: s, label: s })), { id: 'cmbEmploymentStatus', datafield: 'employmentStatus', value: 'Tetap (PKWTT)', style: orgComboStyle });
+    this.dtJoinDate = new WiseDate('', { id: 'dtJoinDate', datafield: 'joinDate' });
+    this.dtEndDate = new WiseDate('', { id: 'dtEndDate', datafield: 'endDate' });
+    this.txtManagerName = new WiseTextBox('Nama Atasan Langsung', { id: 'txtManagerName', datafield: 'managerName', placeholder: 'Nama Atasan Langsung' });
+    this.cmbWorkLocation = new WiseComboBox(['Kantor Pusat', 'Kantor Cabang', 'Remote', 'Hybrid'].map(l => ({ value: l, label: l })), { id: 'cmbWorkLocation', datafield: 'workLocation', value: 'Kantor Pusat', style: orgComboStyle });
 
-    tblEmployment.setCell(0, 0, this.formGroup('NIK / ID Karyawan *', this.txtNik));
-    tblEmployment.setCell(0, 1, this.formGroup('Departemen', this.cmbDepartment));
-    tblEmployment.setCell(1, 0, this.formGroup('Divisi / Sub-Departemen', this.cmbDivision));
-    tblEmployment.setCell(1, 1, this.formGroup('Jabatan / Posisi *', this.cmbJobTitle));
-    tblEmployment.setCell(2, 0, this.formGroup('Tingkat Jabatan', this.cmbJobLevel));
-    tblEmployment.setCell(2, 1, this.formGroup('Status Kepegawaian', this.cmbEmploymentStatus));
-    tblEmployment.setCell(3, 0, this.formGroup('Tanggal Bergabung', this.dtJoinDate));
-    tblEmployment.setCell(3, 1, this.formGroup('Tanggal Berakhir (Kontrak/Magang)', this.dtEndDate));
-    tblEmployment.setCell(4, 0, this.formGroup('Atasan Langsung', this.txtManagerName));
-    tblEmployment.setCell(4, 1, this.formGroup('Lokasi Kerja', this.cmbWorkLocation));
+    tblEmployment.setCell(0, 0, this.formGroup(WiseI18n.t('NIK_ID_KARYAWAN'), this.txtNik));
+    tblEmployment.setCell(0, 1, this.formGroup(WiseI18n.t('DEPARTEMEN'), this.cmbDepartment));
+    tblEmployment.setCell(1, 0, this.formGroup(WiseI18n.t('DIVISI_SUB_DEPARTEMEN'), this.cmbDivision));
+    tblEmployment.setCell(1, 1, this.formGroup(WiseI18n.t('JABATAN_POSISI'), this.cmbJobTitle));
+    tblEmployment.setCell(2, 0, this.formGroup(WiseI18n.t('TINGKAT_JABATAN'), this.cmbJobLevel));
+    tblEmployment.setCell(2, 1, this.formGroup(WiseI18n.t('STATUS_KEPEGAWAIAN'), this.cmbEmploymentStatus));
+    tblEmployment.setCell(3, 0, this.formGroup(WiseI18n.t('TANGGAL_BERGABUNG'), this.dtJoinDate));
+    tblEmployment.setCell(3, 1, this.formGroup(WiseI18n.t('TANGGAL_BERAKHIR_KONTRAK_MAGANG'), this.dtEndDate));
+    tblEmployment.setCell(4, 0, this.formGroup(WiseI18n.t('ATASAN_LANGSUNG'), this.txtManagerName));
+    tblEmployment.setCell(4, 1, this.formGroup(WiseI18n.t('LOKASI_KERJA'), this.cmbWorkLocation));
     tabEmplControls.push(tblEmployment);
-    editTabs.addTab({ label: 'Data Pekerjaan', icon: '💼', controls: tabEmplControls });
+    editTabs.addTab({ label: WiseI18n.t('DATA_PEKERJAAN'), icon: '💼', controls: tabEmplControls });
 
     // ── TAB 3: KOMPENSASI & PAYROLL ─────────────────────────────
     const tabPayControls = [];
@@ -216,33 +200,34 @@ class WinEmployeeEdit extends WiseWindow {
       style: { width: '100%', tableLayout: 'fixed', marginBottom: '8px' }
     });
 
-    this.cmbBankName = new WiseComboBox(BANKS.map(b => ({ value: b, label: b })), { id: 'cmbBankName', value: 'BCA', style: { width: '100%' } });
-    this.txtBankAccountNumber = new WiseTextBox('Nomor rekening untuk transfer gaji', { id: 'txtBankAccountNumber', placeholder: 'Nomor rekening untuk transfer gaji' });
-    this.txtBankAccountHolder = new WiseTextBox('Harus sesuai buku tabungan', { id: 'txtBankAccountHolder', placeholder: 'Harus sesuai buku tabungan' });
-    this.numBasicSalary = new WiseNumericBox('0', { id: 'numBasicSalary', value: 0, prefix: 'Rp ' });
-    this.numAllowancePosition = new WiseNumericBox('0', { id: 'numAllowancePosition', value: 0, prefix: 'Rp ' });
-    this.numAllowanceTransport = new WiseNumericBox('0', { id: 'numAllowanceTransport', value: 0, prefix: 'Rp ' });
-    this.numAllowanceMeal = new WiseNumericBox('0', { id: 'numAllowanceMeal', value: 0, prefix: 'Rp ' });
-    this.numAllowanceOther = new WiseNumericBox('0', { id: 'numAllowanceOther', value: 0, prefix: 'Rp ' });
-    this.cmbTaxStatus = new WiseComboBox(TAX_STATUSES.map(t => ({ value: t, label: t })), { id: 'cmbTaxStatus', value: 'TK/0' });
-    this.txtNpwp = new WiseTextBox('00.000.000.0-000.000', { id: 'txtNpwp', placeholder: '00.000.000.0-000.000' });
-    this.txtBpjsKesehatan = new WiseTextBox('13 digit nomor BPJS Kesehatan', { id: 'txtBpjsKesehatan', placeholder: '13 digit nomor BPJS Kesehatan' });
-    this.txtBpjsKetenagakerjaan = new WiseTextBox('Nomor kartu BPJS TK', { id: 'txtBpjsKetenagakerjaan', placeholder: 'Nomor kartu BPJS TK' });
+    const currPrefix = typeof WiseI18n !== 'undefined' && WiseI18n ? WiseI18n.getCurrencyPrefix() : 'Rp ';
+    this.cmbBankName = new WiseComboBox(BANKS.map(b => ({ value: b, label: b })), { id: 'cmbBankName', datafield: 'bankName', value: 'BCA', style: { width: '100%' } });
+    this.txtBankAccountNumber = new WiseTextBox('Nomor rekening untuk transfer gaji', { id: 'txtBankAccountNumber', datafield: 'bankAccountNumber', placeholder: 'Nomor rekening untuk transfer gaji' });
+    this.txtBankAccountHolder = new WiseTextBox('Harus sesuai buku tabungan', { id: 'txtBankAccountHolder', datafield: 'bankAccountHolder', placeholder: 'Harus sesuai buku tabungan' });
+    this.numBasicSalary = new WiseNumericBox('0', { id: 'numBasicSalary', datafield: 'basicSalary', value: 0, prefix: currPrefix });
+    this.numAllowancePosition = new WiseNumericBox('0', { id: 'numAllowancePosition', datafield: 'allowancePosition', value: 0, prefix: currPrefix });
+    this.numAllowanceTransport = new WiseNumericBox('0', { id: 'numAllowanceTransport', datafield: 'allowanceTransport', value: 0, prefix: currPrefix });
+    this.numAllowanceMeal = new WiseNumericBox('0', { id: 'numAllowanceMeal', datafield: 'allowanceMeal', value: 0, prefix: currPrefix });
+    this.numAllowanceOther = new WiseNumericBox('0', { id: 'numAllowanceOther', datafield: 'allowanceOther', value: 0, prefix: currPrefix });
+    this.cmbTaxStatus = new WiseComboBox(TAX_STATUSES.map(t => ({ value: t, label: t })), { id: 'cmbTaxStatus', datafield: 'taxStatus', value: 'TK/0' });
+    this.txtNpwp = new WiseTextBox('00.000.000.0-000.000', { id: 'txtNpwp', datafield: 'npwp', placeholder: '00.000.000.0-000.000' });
+    this.txtBpjsKesehatan = new WiseTextBox('13 digit nomor BPJS Kesehatan', { id: 'txtBpjsKesehatan', datafield: 'bpjsKesehatan', placeholder: '13 digit nomor BPJS Kesehatan' });
+    this.txtBpjsKetenagakerjaan = new WiseTextBox('Nomor kartu BPJS TK', { id: 'txtBpjsKetenagakerjaan', datafield: 'bpjsKetenagakerjaan', placeholder: 'Nomor kartu BPJS TK' });
 
-    tblPayroll.setCell(0, 0, this.formGroup('Nama Bank', this.cmbBankName));
-    tblPayroll.setCell(0, 1, this.formGroup('Nomor Rekening Bank', this.txtBankAccountNumber));
-    tblPayroll.setCell(1, 0, this.formGroup('Nama Pemilik Rekening', this.txtBankAccountHolder));
-    tblPayroll.setCell(1, 1, this.formGroup('Gaji Pokok', this.numBasicSalary));
-    tblPayroll.setCell(2, 0, this.formGroup('Tunjangan Jabatan', this.numAllowancePosition));
-    tblPayroll.setCell(2, 1, this.formGroup('Tunjangan Transport', this.numAllowanceTransport));
-    tblPayroll.setCell(3, 0, this.formGroup('Tunjangan Makan', this.numAllowanceMeal));
-    tblPayroll.setCell(3, 1, this.formGroup('Tunjangan Lainnya', this.numAllowanceOther));
-    tblPayroll.setCell(4, 0, this.formGroup('Status Perpajakan (PTKP)', this.cmbTaxStatus));
-    tblPayroll.setCell(4, 1, this.formGroup('Nomor NPWP', this.txtNpwp));
-    tblPayroll.setCell(5, 0, this.formGroup('Nomor BPJS Kesehatan', this.txtBpjsKesehatan));
-    tblPayroll.setCell(5, 1, this.formGroup('Nomor BPJS Ketenagakerjaan', this.txtBpjsKetenagakerjaan));
+    tblPayroll.setCell(0, 0, this.formGroup(WiseI18n.t('NAMA_BANK'), this.cmbBankName));
+    tblPayroll.setCell(0, 1, this.formGroup(WiseI18n.t('NOMOR_REKENING_BANK'), this.txtBankAccountNumber));
+    tblPayroll.setCell(1, 0, this.formGroup(WiseI18n.t('NAMA_PEMILIK_REKENING'), this.txtBankAccountHolder));
+    tblPayroll.setCell(1, 1, this.formGroup(WiseI18n.t('GAJI_POKOK'), this.numBasicSalary));
+    tblPayroll.setCell(2, 0, this.formGroup(WiseI18n.t('TUNJANGAN_JABATAN'), this.numAllowancePosition));
+    tblPayroll.setCell(2, 1, this.formGroup(WiseI18n.t('TUNJANGAN_TRANSPORT'), this.numAllowanceTransport));
+    tblPayroll.setCell(3, 0, this.formGroup(WiseI18n.t('TUNJANGAN_MAKAN'), this.numAllowanceMeal));
+    tblPayroll.setCell(3, 1, this.formGroup(WiseI18n.t('TUNJANGAN_LAINNYA'), this.numAllowanceOther));
+    tblPayroll.setCell(4, 0, this.formGroup(WiseI18n.t('STATUS_PERPAJAKAN_PTKP'), this.cmbTaxStatus));
+    tblPayroll.setCell(4, 1, this.formGroup(WiseI18n.t('NOMOR_NPWP'), this.txtNpwp));
+    tblPayroll.setCell(5, 0, this.formGroup(WiseI18n.t('NOMOR_BPJS_KESEHATAN'), this.txtBpjsKesehatan));
+    tblPayroll.setCell(5, 1, this.formGroup(WiseI18n.t('NOMOR_BPJS_KETENAGAKERJAAN'), this.txtBpjsKetenagakerjaan));
     tabPayControls.push(tblPayroll);
-    editTabs.addTab({ label: 'Kompensasi & Payroll', icon: '💰', controls: tabPayControls });
+    editTabs.addTab({ label: WiseI18n.t('KOMPENSASI_PAYROLL'), icon: '💰', controls: tabPayControls });
 
     // ── TAB 4: DOKUMEN & LEGALITAS ──────────────────────────────
     const tabDocControls = [];
@@ -251,17 +236,16 @@ class WinEmployeeEdit extends WiseWindow {
       layout: 'horizontal',
       style: { background: 'transparent', border: 'none', padding: '0', marginBottom: '10px' }
     });
-    docToolbar.addControl(new WiseButton('➕ Tambah Dokumen', {
+    docToolbar.addControl(new WiseButton(WiseI18n.t('TAMBAH_DOKUMEN'), {
       id: 'btnOpenAddDoc',
-      onClick: this.onOpenAddDocClick.bind(this),
-      style: { background: 'var(--accent)', color: '#ffffff', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+      onClick: this.onOpenAddDocClick.bind(this)
     }));
-    docToolbar.addControl(new WiseButton('✏️ Edit Dokumen', {
+    docToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_DOKUMEN'), {
       id: 'btnOpenEditDoc',
       onClick: this.onOpenEditDocClick.bind(this),
       style: { background: '#f1f5f9', color: '#334155', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
     }));
-    docToolbar.addControl(new WiseButton('🗑️ Hapus Dokumen', {
+    docToolbar.addControl(new WiseButton(WiseI18n.t('HAPUS_DOKUMEN'), {
       id: 'btnDeleteDoc',
       onClick: this.onDeleteDocClick.bind(this),
       style: { background: '#fee2e2', color: '#dc2626', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
@@ -278,11 +262,11 @@ class WinEmployeeEdit extends WiseWindow {
       { dataField: 'description', header: 'Keterangan', width: 200 }
     ]);
     dtDocuments.addContextMenu([
-      { id: 'edit', label: 'Edit Dokumen', onClick: (row) => this.onOpenEditDocClick(row) },
-      { id: 'delete', label: 'Hapus Dokumen', onClick: (row) => this.onDeleteDocClick(row) }
+      { id: 'edit', label: WiseI18n.t('EDIT_DOKUMEN_MENU'), onClick: (row) => this.onOpenEditDocClick(row) },
+      { id: 'delete', label: WiseI18n.t('HAPUS_DOKUMEN_MENU'), onClick: (row) => this.onDeleteDocClick(row) }
     ]);
     tabDocControls.push(dtDocuments);
-    editTabs.addTab({ label: 'Dokumen & Legalitas', icon: '📁', controls: tabDocControls });
+    editTabs.addTab({ label: WiseI18n.t('DOKUMEN_LEGALITAS'), icon: '📁', controls: tabDocControls });
 
     // ── TAB 5: PENGALAMAN KERJA ──────────────────────────────────
     const tabExpControls = [];
@@ -291,17 +275,16 @@ class WinEmployeeEdit extends WiseWindow {
       layout: 'horizontal',
       style: { background: 'transparent', border: 'none', padding: '0', marginBottom: '10px' }
     });
-    expToolbar.addControl(new WiseButton('➕ Tambah Pengalaman', {
+    expToolbar.addControl(new WiseButton(WiseI18n.t('TAMBAH_PENGALAMAN'), {
       id: 'btnOpenAddExp',
-      onClick: this.onOpenAddExpClick.bind(this),
-      style: { background: 'var(--accent)', color: '#ffffff', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+      onClick: this.onOpenAddExpClick.bind(this)
     }));
-    expToolbar.addControl(new WiseButton('✏️ Edit Pengalaman', {
+    expToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_PENGALAMAN'), {
       id: 'btnOpenEditExp',
       onClick: this.onOpenEditExpClick.bind(this),
       style: { background: '#f1f5f9', color: '#334155', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
     }));
-    expToolbar.addControl(new WiseButton('🗑️ Hapus Pengalaman', {
+    expToolbar.addControl(new WiseButton(WiseI18n.t('HAPUS_PENGALAMAN'), {
       id: 'btnDeleteExp',
       onClick: this.onDeleteExpClick.bind(this),
       style: { background: '#fee2e2', color: '#dc2626', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
@@ -318,11 +301,11 @@ class WinEmployeeEdit extends WiseWindow {
       { dataField: 'description', header: 'Keterangan', width: 220 }
     ]);
     dtExperiences.addContextMenu([
-      { id: 'edit', label: 'Edit Pengalaman', onClick: (row) => this.onOpenEditExpClick(row) },
-      { id: 'delete', label: 'Hapus Pengalaman', onClick: (row) => this.onDeleteExpClick(row) }
+      { id: 'edit', label: WiseI18n.t('EDIT_PENGALAMAN_MENU'), onClick: (row) => this.onOpenEditExpClick(row) },
+      { id: 'delete', label: WiseI18n.t('HAPUS_PENGALAMAN_MENU'), onClick: (row) => this.onDeleteExpClick(row) }
     ]);
     tabExpControls.push(dtExperiences);
-    editTabs.addTab({ label: 'Pengalaman Kerja', icon: '🏢', controls: tabExpControls });
+    editTabs.addTab({ label: WiseI18n.t('PENGALAMAN_KERJA'), icon: '🏢', controls: tabExpControls });
 
     // ── TAB 6: RIWAYAT PENDIDIKAN ───────────────────────────────
     const tabEduControls = [];
@@ -331,17 +314,16 @@ class WinEmployeeEdit extends WiseWindow {
       layout: 'horizontal',
       style: { background: 'transparent', border: 'none', padding: '0', marginBottom: '10px' }
     });
-    eduToolbar.addControl(new WiseButton('➕ Tambah Pendidikan', {
+    eduToolbar.addControl(new WiseButton(WiseI18n.t('TAMBAH_PENDIDIKAN'), {
       id: 'btnOpenAddEdu',
-      onClick: this.onOpenAddEduClick.bind(this),
-      style: { background: 'var(--accent)', color: '#ffffff', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+      onClick: this.onOpenAddEduClick.bind(this)
     }));
-    eduToolbar.addControl(new WiseButton('✏️ Edit Pendidikan', {
+    eduToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_PENDIDIKAN'), {
       id: 'btnOpenEditEdu',
       onClick: this.onOpenEditEduClick.bind(this),
       style: { background: '#f1f5f9', color: '#334155', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
     }));
-    eduToolbar.addControl(new WiseButton('🗑️ Hapus Pendidikan', {
+    eduToolbar.addControl(new WiseButton(WiseI18n.t('HAPUS_PENDIDIKAN'), {
       id: 'btnDeleteEdu',
       onClick: this.onDeleteEduClick.bind(this),
       style: { background: '#fee2e2', color: '#dc2626', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
@@ -359,11 +341,11 @@ class WinEmployeeEdit extends WiseWindow {
       { dataField: 'description', header: 'Keterangan', width: 200 }
     ]);
     dtEducation.addContextMenu([
-      { id: 'edit', label: 'Edit Pendidikan', onClick: (row) => this.onOpenEditEduClick(row) },
-      { id: 'delete', label: 'Hapus Pendidikan', onClick: (row) => this.onDeleteEduClick(row) }
+      { id: 'edit', label: WiseI18n.t('EDIT_PENDIDIKAN_MENU'), onClick: (row) => this.onOpenEditEduClick(row) },
+      { id: 'delete', label: WiseI18n.t('HAPUS_PENDIDIKAN_MENU'), onClick: (row) => this.onDeleteEduClick(row) }
     ]);
     tabEduControls.push(dtEducation);
-    editTabs.addTab({ label: 'Riwayat Pendidikan', icon: '🎓', controls: tabEduControls });
+    editTabs.addTab({ label: WiseI18n.t('RIWAYAT_PENDIDIKAN'), icon: '🎓', controls: tabEduControls });
 
     // ── TAB 7: RIWAYAT KARIR INTERNAL ───────────────────────────
     const tabCareerControls = [];
@@ -372,17 +354,16 @@ class WinEmployeeEdit extends WiseWindow {
       layout: 'horizontal',
       style: { background: 'transparent', border: 'none', padding: '0', marginBottom: '10px' }
     });
-    careerToolbar.addControl(new WiseButton('➕ Catat Riwayat Karir', {
+    careerToolbar.addControl(new WiseButton(WiseI18n.t('CATAT_RIWAYAT_KARIR'), {
       id: 'btnOpenAddCareer',
-      onClick: this.onOpenAddCareerClick.bind(this),
-      style: { background: 'var(--accent)', color: '#ffffff', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+      onClick: this.onOpenAddCareerClick.bind(this)
     }));
-    careerToolbar.addControl(new WiseButton('✏️ Edit Riwayat Karir', {
+    careerToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_RIWAYAT_KARIR'), {
       id: 'btnOpenEditCareer',
       onClick: this.onOpenEditCareerClick.bind(this),
       style: { background: '#f1f5f9', color: '#334155', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
     }));
-    careerToolbar.addControl(new WiseButton('🗑️ Hapus Riwayat Karir', {
+    careerToolbar.addControl(new WiseButton(WiseI18n.t('HAPUS_RIWAYAT_KARIR'), {
       id: 'btnDeleteCareer',
       onClick: this.onDeleteCareerClick.bind(this),
       style: { background: '#fee2e2', color: '#dc2626', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
@@ -400,11 +381,11 @@ class WinEmployeeEdit extends WiseWindow {
       { dataField: 'notes', header: 'Catatan', width: 220 }
     ]);
     dtCareer.addContextMenu([
-      { id: 'edit', label: 'Edit Riwayat Karir', onClick: (row) => this.onOpenEditCareerClick(row) },
-      { id: 'delete', label: 'Hapus Riwayat Karir', onClick: (row) => this.onDeleteCareerClick(row) }
+      { id: 'edit', label: WiseI18n.t('EDIT_RIWAYAT_KARIR_MENU'), onClick: (row) => this.onOpenEditCareerClick(row) },
+      { id: 'delete', label: WiseI18n.t('HAPUS_RIWAYAT_KARIR_MENU'), onClick: (row) => this.onDeleteCareerClick(row) }
     ]);
     tabCareerControls.push(dtCareer);
-    editTabs.addTab({ label: 'Riwayat Karir', icon: '📈', controls: tabCareerControls });
+    editTabs.addTab({ label: WiseI18n.t('RIWAYAT_KARIR'), icon: '📈', controls: tabCareerControls });
 
     // ── TAB 8: DATA KELUARGA ────────────────────────────────────
     const tabFamilyControls = [];
@@ -413,17 +394,16 @@ class WinEmployeeEdit extends WiseWindow {
       layout: 'horizontal',
       style: { background: 'transparent', border: 'none', padding: '0', marginBottom: '10px' }
     });
-    familyToolbar.addControl(new WiseButton('➕ Tambah Anggota Keluarga', {
+    familyToolbar.addControl(new WiseButton(WiseI18n.t('TAMBAH_ANGGOTA_KELUARGA'), {
       id: 'btnOpenAddFamily',
-      onClick: this.onOpenAddFamilyClick.bind(this),
-      style: { background: 'var(--accent)', color: '#ffffff', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+      onClick: this.onOpenAddFamilyClick.bind(this)
     }));
-    familyToolbar.addControl(new WiseButton('✏️ Edit Anggota Keluarga', {
+    familyToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_ANGGOTA_KELUARGA'), {
       id: 'btnOpenEditFamily',
       onClick: this.onOpenEditFamilyClick.bind(this),
       style: { background: '#f1f5f9', color: '#334155', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
     }));
-    familyToolbar.addControl(new WiseButton('🗑️ Hapus Anggota Keluarga', {
+    familyToolbar.addControl(new WiseButton(WiseI18n.t('HAPUS_ANGGOTA_KELUARGA'), {
       id: 'btnDeleteFamily',
       onClick: this.onDeleteFamilyClick.bind(this),
       style: { background: '#fee2e2', color: '#dc2626', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
@@ -438,11 +418,11 @@ class WinEmployeeEdit extends WiseWindow {
       { dataField: 'phone', header: 'Nomor Kontak', width: 200 }
     ]);
     dtFamily.addContextMenu([
-      { id: 'edit', label: 'Edit Anggota Keluarga', onClick: (row) => this.onOpenEditFamilyClick(row) },
-      { id: 'delete', label: 'Hapus Anggota Keluarga', onClick: (row) => this.onDeleteFamilyClick(row) }
+      { id: 'edit', label: WiseI18n.t('EDIT_ANGGOTA_KELUARGA_MENU'), onClick: (row) => this.onOpenEditFamilyClick(row) },
+      { id: 'delete', label: WiseI18n.t('HAPUS_ANGGOTA_KELUARGA_MENU'), onClick: (row) => this.onDeleteFamilyClick(row) }
     ]);
     tabFamilyControls.push(dtFamily);
-    editTabs.addTab({ label: 'Data Keluarga', icon: '👨‍👩‍👧‍👦', controls: tabFamilyControls });
+    editTabs.addTab({ label: WiseI18n.t('DATA_KELUARGA'), icon: '👨‍👩‍👧‍👦', controls: tabFamilyControls });
 
     this.addControl(editTabs);
     return this;
@@ -450,7 +430,8 @@ class WinEmployeeEdit extends WiseWindow {
 
   formGroup(label, control) {
     const frame = new WiseFrame('', { style: { padding: '4px 6px', border: 'none', background: 'transparent', width: '100%', boxSizing: 'border-box' } });
-    frame.addControl(new WiseLabel(label, { style: { fontWeight: 600, color: '#475569', marginBottom: '2px', lineHeight: '1.2', display: 'block' } }));
+    const labelText = typeof WiseI18n !== 'undefined' ? WiseI18n.t(label) : label;
+    frame.addControl(new WiseLabel(labelText, { style: { fontWeight: 600, color: '#475569', marginBottom: '2px', lineHeight: '1.2', display: 'block' } }));
     frame.addControl(control);
     return frame;
   }
@@ -644,29 +625,17 @@ class WinEmployeeEdit extends WiseWindow {
   populateForm(emp) {
     if (!emp) return;
 
-    // Personal
-    if (this.txtFullName) this.txtFullName.setValue(emp.fullName || '');
-    if (this.txtNickname) this.txtNickname.setValue(emp.nickname || '');
-    if (this.txtBirthPlace) this.txtBirthPlace.setValue(emp.birthPlace || '');
-    if (this.dtBirthDate) this.dtBirthDate.setValue(emp.birthDate || '');
-    if (this.cmbGender) this.cmbGender.setValue(emp.gender || 'Laki-laki');
-    if (this.cmbReligion) this.cmbReligion.setValue(emp.religion || 'Islam');
-    if (this.txtPhoneNumber) this.txtPhoneNumber.setValue(emp.phoneNumber || '');
-    if (this.txtPersonalEmail) this.txtPersonalEmail.setValue(emp.personalEmail || '');
-    if (this.txtCurrentAddress) this.txtCurrentAddress.setValue(emp.currentAddress || '');
-    if (this.txtIdCardAddress) this.txtIdCardAddress.setValue(emp.idCardAddress || '');
-    if (this.txtEmergencyName) this.txtEmergencyName.setValue(emp.emergencyContactName || '');
-    if (this.cmbEmergencyRelation) this.cmbEmergencyRelation.setValue(emp.emergencyContactRelation || 'Orang Tua');
-    if (this.txtEmergencyPhone) this.txtEmergencyPhone.setValue(emp.emergencyContactPhone || '');
+    // 1. Populate all input controls based on datafield
+    this.populate(emp);
 
-    // Employment
-    if (this.txtNik) this.txtNik.setValue(emp.nik || '');
+    // 2. Cascaded department, division, jobTitle, jobLevel selection
     this.applyOrgSelection({
       department: emp.department || '',
       division: emp.division || '',
       jobTitle: emp.jobTitle || '',
       jobLevel: emp.jobLevel || ''
     }, true);
+
     if (this.cmbEmploymentStatus) {
       const val = emp.employmentStatus || 'Tetap (PKWTT)';
       const existingItems = this.cmbEmploymentStatus.items || [];
@@ -675,26 +644,12 @@ class WinEmployeeEdit extends WiseWindow {
       }
       this.cmbEmploymentStatus.setValue(val);
     }
-    if (this.dtJoinDate) this.dtJoinDate.setValue(emp.joinDate || '');
-    if (this.dtEndDate) this.dtEndDate.setValue(emp.endDate || '');
-    if (this.txtManagerName) this.txtManagerName.setValue(emp.managerName || (emp.manager ? emp.manager.fullName : ''));
-    if (this.cmbWorkLocation) this.cmbWorkLocation.setValue(emp.workLocation || 'Kantor Pusat');
 
-    // Payroll
-    if (this.cmbBankName) this.cmbBankName.setValue(emp.bankName || 'BCA');
-    if (this.txtBankAccountNumber) this.txtBankAccountNumber.setValue(emp.bankAccountNumber || '');
-    if (this.txtBankAccountHolder) this.txtBankAccountHolder.setValue(emp.bankAccountHolder || '');
-    if (this.numBasicSalary) this.numBasicSalary.setValue(parseFloat(emp.basicSalary || 0));
-    if (this.numAllowancePosition) this.numAllowancePosition.setValue(parseFloat(emp.allowancePosition || 0));
-    if (this.numAllowanceTransport) this.numAllowanceTransport.setValue(parseFloat(emp.allowanceTransport || 0));
-    if (this.numAllowanceMeal) this.numAllowanceMeal.setValue(parseFloat(emp.allowanceMeal || 0));
-    if (this.numAllowanceOther) this.numAllowanceOther.setValue(parseFloat(emp.allowanceOther || 0));
-    if (this.cmbTaxStatus) this.cmbTaxStatus.setValue(emp.taxStatus || 'TK/0');
-    if (this.txtNpwp) this.txtNpwp.setValue(emp.npwp || '');
-    if (this.txtBpjsKesehatan) this.txtBpjsKesehatan.setValue(emp.bpjsKesehatan || '');
-    if (this.txtBpjsKetenagakerjaan) this.txtBpjsKetenagakerjaan.setValue(emp.bpjsKetenagakerjaan || '');
+    if (this.txtManagerName && !emp.managerName && emp.manager && emp.manager.fullName) {
+      this.txtManagerName.setValue(emp.manager.fullName);
+    }
 
-    // Sub-records
+    // 3. Sub-records data tables
     if (this.dtDocuments) this.dtDocuments.setData(emp.documents || [], (emp.documents || []).length);
     if (this.dtExperiences) this.dtExperiences.setData(emp.workExperiences || [], (emp.workExperiences || []).length);
     if (this.dtEducation) this.dtEducation.setData(emp.educationHistories || [], (emp.educationHistories || []).length);
@@ -704,44 +659,45 @@ class WinEmployeeEdit extends WiseWindow {
 
   async onSaveEmployee() {
     try {
+      const values = this.getValues();
       const payload = {
-        fullName: this.txtFullName ? this.txtFullName.value : '',
-        nickname: this.txtNickname ? this.txtNickname.value : '',
-        birthPlace: this.txtBirthPlace ? this.txtBirthPlace.value : '',
-        birthDate: (this.dtBirthDate ? this.dtBirthDate.value : null) || null,
-        gender: this.cmbGender ? this.cmbGender.value : 'Laki-laki',
-        religion: this.cmbReligion ? this.cmbReligion.value : 'Islam',
-        phoneNumber: this.txtPhoneNumber ? this.txtPhoneNumber.value : '',
-        personalEmail: this.txtPersonalEmail ? this.txtPersonalEmail.value : '',
-        currentAddress: this.txtCurrentAddress ? this.txtCurrentAddress.value : '',
-        idCardAddress: this.txtIdCardAddress ? this.txtIdCardAddress.value : '',
-        emergencyContactName: this.txtEmergencyName ? this.txtEmergencyName.value : '',
-        emergencyContactRelation: this.cmbEmergencyRelation ? this.cmbEmergencyRelation.value : '',
-        emergencyContactPhone: this.txtEmergencyPhone ? this.txtEmergencyPhone.value : '',
+        fullName: values.fullName || '',
+        nickname: values.nickname || '',
+        birthPlace: values.birthPlace || '',
+        birthDate: values.birthDate || null,
+        gender: values.gender || 'Laki-laki',
+        religion: values.religion || 'Islam',
+        phoneNumber: values.phoneNumber || '',
+        personalEmail: values.personalEmail || '',
+        currentAddress: values.currentAddress || '',
+        idCardAddress: values.idCardAddress || '',
+        emergencyContactName: values.emergencyContactName || '',
+        emergencyContactRelation: values.emergencyContactRelation || '',
+        emergencyContactPhone: values.emergencyContactPhone || '',
 
-        nik: this.txtNik ? this.txtNik.value : '',
-        jobTitle: this.cmbJobTitle ? this.cmbJobTitle.value : '',
-        jobLevel: this.cmbJobLevel ? this.cmbJobLevel.value : '',
-        department: this.cmbDepartment ? this.cmbDepartment.value : '',
-        division: this.cmbDivision ? this.cmbDivision.value : '',
-        employmentStatus: this.cmbEmploymentStatus ? this.cmbEmploymentStatus.value : 'Tetap (PKWTT)',
-        joinDate: (this.dtJoinDate ? this.dtJoinDate.value : null) || new Date().toISOString().slice(0, 10),
-        endDate: (this.dtEndDate ? this.dtEndDate.value : null) || null,
-        managerName: this.txtManagerName ? this.txtManagerName.value : '',
-        workLocation: this.cmbWorkLocation ? this.cmbWorkLocation.value : 'Kantor Pusat',
+        nik: values.nik || '',
+        jobTitle: values.jobTitle || '',
+        jobLevel: values.jobLevel || '',
+        department: values.department || '',
+        division: values.division || '',
+        employmentStatus: values.employmentStatus || 'Tetap (PKWTT)',
+        joinDate: values.joinDate || new Date().toISOString().slice(0, 10),
+        endDate: values.endDate || null,
+        managerName: values.managerName || '',
+        workLocation: values.workLocation || 'Kantor Pusat',
 
-        bankName: this.cmbBankName ? this.cmbBankName.value : 'BCA',
-        bankAccountNumber: this.txtBankAccountNumber ? this.txtBankAccountNumber.value : '',
-        bankAccountHolder: this.txtBankAccountHolder ? this.txtBankAccountHolder.value : '',
-        basicSalary: Number(this.numBasicSalary ? this.numBasicSalary.value : 0) || 0,
-        allowancePosition: Number(this.numAllowancePosition ? this.numAllowancePosition.value : 0) || 0,
-        allowanceTransport: Number(this.numAllowanceTransport ? this.numAllowanceTransport.value : 0) || 0,
-        allowanceMeal: Number(this.numAllowanceMeal ? this.numAllowanceMeal.value : 0) || 0,
-        allowanceOther: Number(this.numAllowanceOther ? this.numAllowanceOther.value : 0) || 0,
-        taxStatus: this.cmbTaxStatus ? this.cmbTaxStatus.value : 'TK/0',
-        npwp: this.txtNpwp ? this.txtNpwp.value : '',
-        bpjsKesehatan: this.txtBpjsKesehatan ? this.txtBpjsKesehatan.value : '',
-        bpjsKetenagakerjaan: this.txtBpjsKetenagakerjaan ? this.txtBpjsKetenagakerjaan.value : '',
+        bankName: values.bankName || 'BCA',
+        bankAccountNumber: values.bankAccountNumber || '',
+        bankAccountHolder: values.bankAccountHolder || '',
+        basicSalary: Number(values.basicSalary) || 0,
+        allowancePosition: Number(values.allowancePosition) || 0,
+        allowanceTransport: Number(values.allowanceTransport) || 0,
+        allowanceMeal: Number(values.allowanceMeal) || 0,
+        allowanceOther: Number(values.allowanceOther) || 0,
+        taxStatus: values.taxStatus || 'TK/0',
+        npwp: values.npwp || '',
+        bpjsKesehatan: values.bpjsKesehatan || '',
+        bpjsKetenagakerjaan: values.bpjsKetenagakerjaan || '',
       };
 
       if (!payload.fullName) return this.showInfo('Validasi', 'Nama lengkap karyawan wajib diisi.', 'warning');

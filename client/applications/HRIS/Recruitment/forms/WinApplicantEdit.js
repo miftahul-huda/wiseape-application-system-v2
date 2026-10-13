@@ -51,6 +51,7 @@ class WinApplicantEdit extends WiseWindow {
     cellVac.addControl(new WiseLabel(WiseI18n.t('LOWONGAN_PEKERJAAN_TARGET'), { id: 'lblAppVac', style: labelStyle }));
     this.cmbVacancy = new WiseComboBox(this.defaultVacancyId ? String(this.defaultVacancyId) : '', {
       id: 'cmbAppVacancy',
+      datafield: 'jobVacancyId',
       items: [{ value: '', label: WiseI18n.t('PILIH_LOWONGAN_PEKERJAAN') }],
       style: { ...inputBorderStyle, width: '100%' }
     });
@@ -61,6 +62,7 @@ class WinApplicantEdit extends WiseWindow {
     cellStatus.addControl(new WiseLabel(WiseI18n.t('STATUS_PELAMAR_2'), { id: 'lblAppStatus', style: labelStyle }));
     this.cmbStatus = new WiseComboBox('APPLIED', {
       id: 'cmbAppStatus',
+      datafield: 'status',
       items: [
         { value: 'APPLIED', label: WiseI18n.t('APPLIED_BARU_MELAMAR') },
         { value: 'IN_PROCESS', label: WiseI18n.t('IN_PROCESS_SEDANG_PROSES') },
@@ -79,6 +81,7 @@ class WinApplicantEdit extends WiseWindow {
     cellName.addControl(new WiseLabel(WiseI18n.t('NAMA_LENGKAP_PELAMAR'), { id: 'lblAppName', style: labelStyle }));
     this.txtName = new WiseTextBox('', {
       id: 'txtAppFullName',
+      datafield: 'fullName',
       placeholder: WiseI18n.t('NAMA_LENGKAP_BESERTA_GELAR_JIKA_ADA'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -89,6 +92,7 @@ class WinApplicantEdit extends WiseWindow {
     cellEmail.addControl(new WiseLabel(WiseI18n.t('ALAMAT_EMAIL'), { id: 'lblAppEmail', style: labelStyle }));
     this.txtEmail = new WiseTextBox('', {
       id: 'txtAppEmail',
+      datafield: 'email',
       placeholder: WiseI18n.t('NAMA_EMAIL_COM'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -100,6 +104,7 @@ class WinApplicantEdit extends WiseWindow {
     cellPhone.addControl(new WiseLabel(WiseI18n.t('NOMOR_TELEPON_WHATSAPP_2'), { id: 'lblAppPhone', style: labelStyle }));
     this.txtPhone = new WiseTextBox('', {
       id: 'txtAppPhone',
+      datafield: 'phone',
       placeholder: WiseI18n.t('0812XXXXXXXX'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -110,6 +115,7 @@ class WinApplicantEdit extends WiseWindow {
     cellGender.addControl(new WiseLabel(WiseI18n.t('JENIS_KELAMIN'), { id: 'lblAppGender', style: labelStyle }));
     this.cmbGender = new WiseComboBox('Laki-laki', {
       id: 'cmbAppGender',
+      datafield: 'gender',
       items: [
         { value: 'Laki-laki', label: WiseI18n.t('LAKI_LAKI') },
         { value: 'Perempuan', label: WiseI18n.t('PEREMPUAN') }
@@ -124,6 +130,7 @@ class WinApplicantEdit extends WiseWindow {
     cellEdu.addControl(new WiseLabel(WiseI18n.t('PENDIDIKAN_TERAKHIR'), { id: 'lblAppEdu', style: labelStyle }));
     this.cmbEducation = new WiseComboBox('S1', {
       id: 'cmbAppEducation',
+      datafield: 'lastEducation',
       items: [
         { value: 'S1', label: WiseI18n.t('S1_SARJANA') },
         { value: 'S2', label: WiseI18n.t('S2_MAGISTER') },
@@ -142,6 +149,7 @@ class WinApplicantEdit extends WiseWindow {
     cellMajor.addControl(new WiseLabel(WiseI18n.t('JURUSAN_BIDANG_STUDI'), { id: 'lblAppMajor', style: labelStyle }));
     this.txtMajor = new WiseTextBox('', {
       id: 'txtAppMajor',
+      datafield: 'major',
       placeholder: WiseI18n.t('CONTOH_TEKNIK_INFORMATIKA_MANAJEMEN_PSIKOLOGI'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -153,6 +161,7 @@ class WinApplicantEdit extends WiseWindow {
     cellComp.addControl(new WiseLabel(WiseI18n.t('PERUSAHAAN_TERAKHIR_SAAT_INI'), { id: 'lblAppCompany', style: labelStyle }));
     this.txtCompany = new WiseTextBox('', {
       id: 'txtAppCompany',
+      datafield: 'currentCompany',
       placeholder: WiseI18n.t('NAMA_PERUSAHAAN_TEMPAT_BEKERJA_SEBELUMNYA'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -163,6 +172,7 @@ class WinApplicantEdit extends WiseWindow {
     cellPos.addControl(new WiseLabel(WiseI18n.t('POSISI_JABATAN_TERAKHIR'), { id: 'lblAppPosition', style: labelStyle }));
     this.txtPosition = new WiseTextBox('', {
       id: 'txtAppPosition',
+      datafield: 'currentPosition',
       placeholder: WiseI18n.t('CONTOH_FRONTEND_DEVELOPER_HR_OFFICER'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -174,6 +184,7 @@ class WinApplicantEdit extends WiseWindow {
     cellSalary.addControl(new WiseLabel(WiseI18n.t('EKSPEKTASI_GAJI_IDR'), { id: 'lblAppSalary', style: labelStyle }));
     this.numSalary = new WiseNumericBox(10000000, {
       id: 'numAppExpectedSalary',
+      datafield: 'expectedSalary',
       min: 0,
       max: 1000000000,
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
@@ -185,6 +196,7 @@ class WinApplicantEdit extends WiseWindow {
     cellDate.addControl(new WiseLabel(WiseI18n.t('TANGGAL_MELAMAR'), { id: 'lblAppDate', style: labelStyle }));
     this.dtAppliedDate = new WiseDate(new Date().toISOString().slice(0, 10), {
       id: 'dtAppAppliedDate',
+      datafield: 'appliedDate',
       style: { ...inputBorderStyle, width: '100%' }
     });
     cellDate.addControl(this.dtAppliedDate);
@@ -197,6 +209,7 @@ class WinApplicantEdit extends WiseWindow {
     cellNotes.addControl(new WiseLabel(WiseI18n.t('CATATAN_TAMBAHAN_PELAMAR'), { id: 'lblAppNotes', style: labelStyle }));
     this.txtNotes = new WiseTextArea('', {
       id: 'txtAppNotes',
+      datafield: 'notes',
       rows: 3,
       placeholder: WiseI18n.t('KETERANGAN_SUMBER_PELAMAR_LINKEDIN_JOB_PORTAL_REFERRAL_ATAU'),
       style: { ...inputBorderStyle, width: '100%', padding: '8px 10px' }
@@ -233,17 +246,7 @@ class WinApplicantEdit extends WiseWindow {
 
     btnContainer.addControl(new WiseButton(WiseI18n.t('SIMPAN_PELAMAR'), {
       id: 'btnAppSave',
-      onClick: this.onSaveClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 20px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
-      }
+      onClick: this.onSaveClick.bind(this)
     }));
 
     this.addControl(btnContainer);
@@ -273,19 +276,7 @@ class WinApplicantEdit extends WiseWindow {
         const app = await api.getApplicant(this.selectedApplicantId);
         this.currentApplicant = app;
 
-        if (this.cmbVacancy) this.cmbVacancy.setValue(String(app.jobVacancyId));
-        if (this.cmbStatus) this.cmbStatus.setValue(app.status || 'APPLIED');
-        if (this.txtName) this.txtName.setValue(app.fullName || '');
-        if (this.txtEmail) this.txtEmail.setValue(app.email || '');
-        if (this.txtPhone) this.txtPhone.setValue(app.phone || '');
-        if (this.cmbGender) this.cmbGender.setValue(app.gender || 'Laki-laki');
-        if (this.cmbEducation) this.cmbEducation.setValue(app.lastEducation || 'S1');
-        if (this.txtMajor) this.txtMajor.setValue(app.major || '');
-        if (this.txtCompany) this.txtCompany.setValue(app.currentCompany || '');
-        if (this.txtPosition) this.txtPosition.setValue(app.currentPosition || '');
-        if (this.numSalary) this.numSalary.setValue(app.expectedSalary || 0);
-        if (this.dtAppliedDate) this.dtAppliedDate.setValue(app.appliedDate || '');
-        if (this.txtNotes) this.txtNotes.setValue(app.notes || '');
+        this.populate(app);
       }
     } catch (err) {
       this.showInfo(WiseI18n.t('ERROR'), err.message, 'error');
@@ -293,19 +284,20 @@ class WinApplicantEdit extends WiseWindow {
   }
 
   async onSaveClick() {
-    const vacancyId = this.cmbVacancy ? this.cmbVacancy.value : '';
+    const values = this.getValues();
+    const vacancyId = values.jobVacancyId ? String(values.jobVacancyId) : '';
     if (!vacancyId) {
       this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('LOWONGAN_PEKERJAAN_TARGET_WAJIB_DIPILIH'), 'warning');
       return;
     }
 
-    const fullName = this.txtName ? this.txtName.value.trim() : '';
+    const fullName = (values.fullName || '').trim();
     if (!fullName) {
       this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('NAMA_LENGKAP_PELAMAR_WAJIB_DIISI'), 'warning');
       return;
     }
 
-    const email = this.txtEmail ? this.txtEmail.value.trim() : '';
+    const email = (values.email || '').trim();
     if (!email) {
       this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('ALAMAT_EMAIL_PELAMAR_WAJIB_DIISI'), 'warning');
       return;
@@ -313,18 +305,18 @@ class WinApplicantEdit extends WiseWindow {
 
     const payload = {
       jobVacancyId: parseInt(vacancyId, 10),
-      status: this.cmbStatus ? this.cmbStatus.value : 'APPLIED',
+      status: values.status || 'APPLIED',
       fullName,
       email,
-      phone: this.txtPhone ? this.txtPhone.value.trim() : '',
-      gender: this.cmbGender ? this.cmbGender.value : 'Laki-laki',
-      lastEducation: this.cmbEducation ? this.cmbEducation.value : 'S1',
-      major: this.txtMajor ? this.txtMajor.value.trim() : '',
-      currentCompany: this.txtCompany ? this.txtCompany.value.trim() : '',
-      currentPosition: this.txtPosition ? this.txtPosition.value.trim() : '',
-      expectedSalary: this.numSalary ? parseFloat(this.numSalary.value) || 0 : 0,
-      appliedDate: this.dtAppliedDate ? this.dtAppliedDate.value : null,
-      notes: this.txtNotes ? this.txtNotes.value.trim() : ''
+      phone: (values.phone || '').trim(),
+      gender: values.gender || 'Laki-laki',
+      lastEducation: values.lastEducation || 'S1',
+      major: (values.major || '').trim(),
+      currentCompany: (values.currentCompany || '').trim(),
+      currentPosition: (values.currentPosition || '').trim(),
+      expectedSalary: parseFloat(values.expectedSalary) || 0,
+      appliedDate: values.appliedDate || null,
+      notes: (values.notes || '').trim()
     };
 
     try {

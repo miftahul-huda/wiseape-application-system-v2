@@ -123,7 +123,47 @@ class WiseWindow {
     return this;
   }
 
-  // Collects every input control's current value, keyed by its dataField
+  // Populates input controls from a data object based on each control's datafield / dataField property.
+  // Recursively walks this.controls and container children.
+  populate(data = {}) {
+    if (!data || typeof data !== 'object') return this;
+
+    const walk = (controls) => {
+      controls.forEach((control) => {
+        if (typeof control.getChildControls === 'function') {
+          walk(control.getChildControls());
+          return;
+        }
+
+        const field = control.datafield || control.dataField;
+        if (field && (data[field] !== undefined || field in data)) {
+          let val = data[field];
+          if (val === null || val === undefined) {
+            val = control.name === 'WiseNumericBox' ? 0 : '';
+          } else if (control.name === 'WiseDate' && typeof val === 'string' && val.length >= 10) {
+            val = val.slice(0, 10);
+          } else if (control.name === 'WiseNumericBox' && typeof val === 'string') {
+            val = !isNaN(Number(val)) ? Number(val) : val;
+          } else if (control.name === 'WiseComboBox' && typeof val === 'boolean') {
+            if (Array.isArray(control.items) && control.items.some((it) => it.value === String(val))) {
+              val = String(val);
+            }
+          }
+
+          if (typeof control.setValue === 'function') {
+            control.setValue(val);
+          } else {
+            control.value = val;
+          }
+        }
+      });
+    };
+
+    walk(this.controls);
+    return this;
+  }
+
+  // Collects every input control's current value, keyed by its datafield / dataField
   // (defaults to id). Display/action-only controls (WiseLabel, WiseButton)
   // are excluded; a container control (getChildControls()) is walked
   // recursively instead of contributing a value of its own.
@@ -137,7 +177,7 @@ class WiseWindow {
           return;
         }
         if (!INPUT_CONTROL_TYPES.has(control.name)) return;
-        const key = control.dataField || control.id;
+        const key = control.datafield || control.dataField || control.id;
         if (key) values[key] = control.value;
       });
     };

@@ -31,13 +31,13 @@ class WinEmployeeDocumentEdit extends WiseWindow {
 
     // ── Form Content ────────────────────────────────────────────
     const tblDoc = new WiseTableLayout({ rows: 4, columns: 2, id: 'tblDocEdit', style: { marginBottom: '16px' } });
-    
-    this.cmbDocType = new WiseComboBox(DOC_TYPES.map(d => ({ value: d, label: WiseI18n.t(d) })), { id: 'cmbDocType', value: this.record?.documentType || 'KTP' });
-    this.txtDocNumber = new WiseTextBox(WiseI18n.t('NOMOR_KTP_NPWP_NO_KONTRAK'), { id: 'txtDocNumber', value: this.record?.documentNumber || '', placeholder: WiseI18n.t('NOMOR_KTP_NPWP_NO_KONTRAK') });
-    this.txtDocTitle = new WiseTextBox(WiseI18n.t('E_G_SCAN_KTP_ASLI'), { id: 'txtDocTitle', value: this.record?.title || '', placeholder: WiseI18n.t('E_G_SCAN_KTP_ASLI') });
-    this.dtDocIssueDate = new WiseDate(this.record?.issueDate || '', { id: 'dtDocIssueDate', value: this.record?.issueDate || '' });
-    this.dtDocExpiryDate = new WiseDate(this.record?.expiryDate || '', { id: 'dtDocExpiryDate', value: this.record?.expiryDate || '' });
-    this.txtDocDesc = new WiseTextBox(WiseI18n.t('KETERANGAN_DOKUMEN_2'), { id: 'txtDocDesc', value: this.record?.description || '', placeholder: WiseI18n.t('KETERANGAN_DOKUMEN_2') });
+
+    this.cmbDocType = new WiseComboBox(DOC_TYPES.map(d => ({ value: d, label: WiseI18n.t(d) })), { id: 'cmbDocType', datafield: 'documentType', value: 'KTP' });
+    this.txtDocNumber = new WiseTextBox(WiseI18n.t('NOMOR_KTP_NPWP_NO_KONTRAK'), { id: 'txtDocNumber', datafield: 'documentNumber', placeholder: WiseI18n.t('NOMOR_KTP_NPWP_NO_KONTRAK') });
+    this.txtDocTitle = new WiseTextBox(WiseI18n.t('E_G_SCAN_KTP_ASLI'), { id: 'txtDocTitle', datafield: 'title', placeholder: WiseI18n.t('E_G_SCAN_KTP_ASLI') });
+    this.dtDocIssueDate = new WiseDate('', { id: 'dtDocIssueDate', datafield: 'issueDate' });
+    this.dtDocExpiryDate = new WiseDate('', { id: 'dtDocExpiryDate', datafield: 'expiryDate' });
+    this.txtDocDesc = new WiseTextBox(WiseI18n.t('KETERANGAN_DOKUMEN_2'), { id: 'txtDocDesc', datafield: 'description', placeholder: WiseI18n.t('KETERANGAN_DOKUMEN_2') });
 
     tblDoc.setCell(0, 0, this.formGroup(WiseI18n.t('JENIS_DOKUMEN_2'), this.cmbDocType));
     tblDoc.setCell(0, 1, this.formGroup(WiseI18n.t('NOMOR_DOKUMEN'), this.txtDocNumber));
@@ -47,6 +47,10 @@ class WinEmployeeDocumentEdit extends WiseWindow {
     tblDoc.setCell(3, 0, this.formGroup(WiseI18n.t('KETERANGAN_CATATAN'), this.txtDocDesc), { colSpan: 2 });
     this.addControl(tblDoc);
 
+    if (this.record) {
+      this.populate(this.record);
+    }
+
     // ── Action Buttons ──────────────────────────────────────────
     const actionFrame = new WiseFrame('', {
       id: 'frameDocActions',
@@ -55,30 +59,14 @@ class WinEmployeeDocumentEdit extends WiseWindow {
     actionFrame.addControl(new WiseButton(WiseI18n.t('SIMPAN_DOKUMEN_2'), {
       id: 'btnSaveDoc',
       onClick: this.onSaveClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '8px',
-        padding: '10px 20px',
-        border: 'none',
-        boxShadow: 'none',
-        marginRight: '8px',
-        cursor: 'pointer'
-      }
+      style: { marginRight: '8px' }
     }));
-    actionFrame.addControl(new WiseButton(WiseI18n.t('BATAL_3'), {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnCancelDoc',
       onClick: this.onCancelClick.bind(this),
       style: {
         background: '#e2e8f0',
-        color: '#475569',
-        fontWeight: 600,
-        borderRadius: '8px',
-        padding: '10px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#475569'
       }
     }));
     this.addControl(actionFrame);
@@ -88,7 +76,8 @@ class WinEmployeeDocumentEdit extends WiseWindow {
 
   formGroup(label, control) {
     const frame = new WiseFrame('', { style: { padding: '2px 4px', border: 'none', background: 'transparent' } });
-    frame.addControl(new WiseLabel(label, { style: { fontWeight: 600, color: '#475569', marginBottom: '0px', lineHeight: '1.2', display: 'block' } }));
+    const resolvedLabel = typeof WiseI18n !== 'undefined' ? WiseI18n.t(label) : label;
+    frame.addControl(new WiseLabel(resolvedLabel, { style: { fontWeight: 600, color: '#475569', marginBottom: '0px', lineHeight: '1.2', display: 'block' } }));
     frame.addControl(control);
     return frame;
   }
@@ -99,18 +88,20 @@ class WinEmployeeDocumentEdit extends WiseWindow {
       return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('DATA_KARYAWAN_BELUM_DITENTUKAN'), 'warning');
     }
     this.employeeId = empId;
-    const title = this.txtDocTitle ? this.txtDocTitle.value : '';
+
+    const values = this.getValues();
+    const title = (values.title || '').trim();
     if (!title) {
       return this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('JUDUL_DOKUMEN_WAJIB_DIISI'), 'warning');
     }
 
     const payload = {
-      documentType: this.cmbDocType ? this.cmbDocType.value : 'KTP',
+      documentType: values.documentType || 'KTP',
       title,
-      documentNumber: this.txtDocNumber ? this.txtDocNumber.value : '',
-      issueDate: (this.dtDocIssueDate ? this.dtDocIssueDate.value : null) || null,
-      expiryDate: (this.dtDocExpiryDate ? this.dtDocExpiryDate.value : null) || null,
-      description: this.txtDocDesc ? this.txtDocDesc.value : ''
+      documentNumber: (values.documentNumber || '').trim(),
+      issueDate: values.issueDate || null,
+      expiryDate: values.expiryDate || null,
+      description: (values.description || '').trim()
     };
 
     try {

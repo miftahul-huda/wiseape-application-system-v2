@@ -161,8 +161,7 @@ class WinRecruitmentPortal extends WiseWindow {
     }));
     modVacancy.addControl(new WiseButton(WiseI18n.t('BUKA_LOWONGAN_PEKERJAAN'), {
       id: 'btnOpenVacancies',
-      onClick: () => this.openWindow(WinJobVacancyList),
-      style: { background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 16px', borderRadius: '6px', border: 'none', boxShadow: 'none' }
+      onClick: () => this.openWindow(WinJobVacancyList)
     }));
     modulesGrid.setCell(0, 0, modVacancy);
 
@@ -178,8 +177,7 @@ class WinRecruitmentPortal extends WiseWindow {
     }));
     modApplicant.addControl(new WiseButton(WiseI18n.t('BUKA_DATA_PELAMAR'), {
       id: 'btnOpenApplicants',
-      onClick: () => this.openWindow(WinApplicantList),
-      style: { background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 16px', borderRadius: '6px', border: 'none', boxShadow: 'none' }
+      onClick: () => this.openWindow(WinApplicantList)
     }));
     modulesGrid.setCell(0, 1, modApplicant);
 
@@ -195,8 +193,7 @@ class WinRecruitmentPortal extends WiseWindow {
     }));
     modStageTemplate.addControl(new WiseButton(WiseI18n.t('BUKA_TEMPLATE_PROSES'), {
       id: 'btnOpenStageTemplates',
-      onClick: () => this.openWindow(WinStageTemplateList),
-      style: { background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 16px', borderRadius: '6px', border: 'none', boxShadow: 'none' }
+      onClick: () => this.openWindow(WinStageTemplateList)
     }));
     modulesGrid.setCell(1, 0, modStageTemplate);
 
@@ -212,8 +209,7 @@ class WinRecruitmentPortal extends WiseWindow {
     }));
     modMatrixTemplate.addControl(new WiseButton(WiseI18n.t('BUKA_TEMPLATE_MATRIKS'), {
       id: 'btnOpenMatrixTemplates',
-      onClick: () => this.openWindow(WinMatrixTemplateList),
-      style: { background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 16px', borderRadius: '6px', border: 'none', boxShadow: 'none' }
+      onClick: () => this.openWindow(WinMatrixTemplateList)
     }));
     modulesGrid.setCell(1, 1, modMatrixTemplate);
 

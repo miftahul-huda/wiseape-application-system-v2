@@ -7,6 +7,7 @@ import {
   WiseDate,
   WiseTableLayout,
   WiseFrame,
+  WiseI18n,
 } from '../../../../src/runtime/wise.js';
 
 import HrisApiRepository from '../services/HrisApiRepository';
@@ -20,7 +21,7 @@ class WinEmployeeEducationEdit extends WiseWindow {
     this.record = options.data || null;
     this.employeeId = options.employeeId || (this.record && this.record.employeeId) || (options.parentWindow && (options.parentWindow.selectedEmployeeId || options.parentWindow.employeeId)) || null;
     this.recordId = (this.record && this.record.id) || null;
-    this.title = this.recordId ? 'Edit Riwayat Pendidikan' : 'Tambah Riwayat Pendidikan';
+    this.title = this.recordId ? (WiseI18n ? WiseI18n.t('EDIT_PENDIDIKAN_MENU') : 'Edit Riwayat Pendidikan') : (WiseI18n ? WiseI18n.t('TAMBAH_PENDIDIKAN') : 'Tambah Riwayat Pendidikan');
     this.width = 620;
     this.centered = true;
   }
@@ -31,55 +32,43 @@ class WinEmployeeEducationEdit extends WiseWindow {
     // ── Form Content ────────────────────────────────────
     const tblEdu = new WiseTableLayout({ rows: 4, columns: 2, id: 'tblEduEdit', style: { marginBottom: '16px' } });
 
-    this.txtEduInst = new WiseTextBox('e.g. Institut Teknologi Bandung', { id: 'txtEduInst', value: this.record?.institutionName || '', placeholder: 'e.g. Institut Teknologi Bandung' });
-    this.cmbEduDegree = new WiseComboBox(EDU_DEGREES.map(d => ({ value: d, label: d })), { id: 'cmbEduDegree', value: this.record?.degree || 'S1' });
-    this.txtEduMajor = new WiseTextBox('e.g. Teknik Informatika', { id: 'txtEduMajor', value: this.record?.major || '', placeholder: 'e.g. Teknik Informatika' });
-    this.txtEduGpa = new WiseTextBox('e.g. 3.85', { id: 'txtEduGpa', value: this.record?.gpa || '', placeholder: 'e.g. 3.85' });
-    this.dtEduStart = new WiseDate(this.record?.startDate || '', { id: 'dtEduStart', value: this.record?.startDate || '' });
-    this.dtEduGrad = new WiseDate(this.record?.graduationDate || '', { id: 'dtEduGrad', value: this.record?.graduationDate || '' });
-    this.txtEduDesc = new WiseTextBox('Catatan prestasi atau predikat...', { id: 'txtEduDesc', value: this.record?.description || '', placeholder: 'Catatan prestasi atau predikat...' });
+    this.txtEduInst = new WiseTextBox('e.g. Institut Teknologi Bandung', { id: 'txtEduInst', datafield: 'institutionName', placeholder: 'e.g. Institut Teknologi Bandung' });
+    this.cmbEduDegree = new WiseComboBox(EDU_DEGREES.map(d => ({ value: d, label: d })), { id: 'cmbEduDegree', datafield: 'degree', value: 'S1' });
+    this.txtEduMajor = new WiseTextBox('e.g. Teknik Informatika', { id: 'txtEduMajor', datafield: 'major', placeholder: 'e.g. Teknik Informatika' });
+    this.txtEduGpa = new WiseTextBox('e.g. 3.85', { id: 'txtEduGpa', datafield: 'gpa', placeholder: 'e.g. 3.85' });
+    this.dtEduStart = new WiseDate('', { id: 'dtEduStart', datafield: 'startDate' });
+    this.dtEduGrad = new WiseDate('', { id: 'dtEduGrad', datafield: 'graduationDate' });
+    this.txtEduDesc = new WiseTextBox(WiseI18n.t('CATATAN_PRESTASI_ATAU_PREDIKAT'), { id: 'txtEduDesc', datafield: 'description', placeholder: WiseI18n.t('CATATAN_PRESTASI_ATAU_PREDIKAT') });
 
-    tblEdu.setCell(0, 0, this.formGroup('Nama Institusi / Universitas *', this.txtEduInst));
-    tblEdu.setCell(0, 1, this.formGroup('Jenjang Pendidikan', this.cmbEduDegree));
-    tblEdu.setCell(1, 0, this.formGroup('Jurusan / Program Studi', this.txtEduMajor));
-    tblEdu.setCell(1, 1, this.formGroup('IPK / Nilai Kelulusan', this.txtEduGpa));
-    tblEdu.setCell(2, 0, this.formGroup('Tanggal Mulai', this.dtEduStart));
-    tblEdu.setCell(2, 1, this.formGroup('Tanggal Lulus', this.dtEduGrad));
-    tblEdu.setCell(3, 0, this.formGroup('Keterangan / Prestasi', this.txtEduDesc), { colSpan: 2 });
+    tblEdu.setCell(0, 0, this.formGroup(WiseI18n.t('NAMA_INSTITUSI_UNIVERSITAS_2'), this.txtEduInst));
+    tblEdu.setCell(0, 1, this.formGroup(WiseI18n.t('JENJANG_PENDIDIKAN'), this.cmbEduDegree));
+    tblEdu.setCell(1, 0, this.formGroup(WiseI18n.t('JURUSAN_PROGRAM_STUDI'), this.txtEduMajor));
+    tblEdu.setCell(1, 1, this.formGroup(WiseI18n.t('IPK_NILAI_KELULUSAN'), this.txtEduGpa));
+    tblEdu.setCell(2, 0, this.formGroup(WiseI18n.t('TANGGAL_MULAI'), this.dtEduStart));
+    tblEdu.setCell(2, 1, this.formGroup(WiseI18n.t('TANGGAL_LULUS'), this.dtEduGrad));
+    tblEdu.setCell(3, 0, this.formGroup(WiseI18n.t('KETERANGAN_PRESTASI'), this.txtEduDesc), { colSpan: 2 });
     this.addControl(tblEdu);
+
+    if (this.record) {
+      this.populate(this.record);
+    }
 
     // ── Action Buttons ──────────────────────────────────────────
     const actionFrame = new WiseFrame('', {
       id: 'frameEduActions',
       style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' }
     });
-    actionFrame.addControl(new WiseButton('💾 Simpan Pendidikan', {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('SIMPAN'), {
       id: 'btnSaveEdu',
       onClick: this.onSaveClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 700,
-        borderRadius: '8px',
-        padding: '10px 20px',
-        border: 'none',
-        boxShadow: 'none',
-        marginRight: '8px',
-        cursor: 'pointer'
-      }
+      style: { marginRight: '8px' }
     }));
-    actionFrame.addControl(new WiseButton('✕ Batal', {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnCancelEdu',
       onClick: this.onCancelClick.bind(this),
       style: {
         background: '#e2e8f0',
-        color: '#475569',
-        fontWeight: 600,
-        borderRadius: '8px',
-        padding: '10px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#475569'
       }
     }));
     this.addControl(actionFrame);
@@ -89,7 +78,8 @@ class WinEmployeeEducationEdit extends WiseWindow {
 
   formGroup(label, control) {
     const frame = new WiseFrame('', { style: { padding: '2px 4px', border: 'none', background: 'transparent' } });
-    frame.addControl(new WiseLabel(label, { style: { fontWeight: 600, color: '#475569', marginBottom: '0px', lineHeight: '1.2', display: 'block' } }));
+    const resolvedLabel = typeof WiseI18n !== 'undefined' ? WiseI18n.t(label) : label;
+    frame.addControl(new WiseLabel(resolvedLabel, { style: { fontWeight: 600, color: '#475569', marginBottom: '0px', lineHeight: '1.2', display: 'block' } }));
     frame.addControl(control);
     return frame;
   }
@@ -97,31 +87,33 @@ class WinEmployeeEducationEdit extends WiseWindow {
   async onSaveClick() {
     const empId = this.employeeId || (this.record && this.record.employeeId) || (this.parentWindow && (this.parentWindow.selectedEmployeeId || this.parentWindow.employeeId));
     if (!empId) {
-      return this.showInfo('Peringatan', 'Data karyawan belum ditentukan.', 'warning');
+      return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('DATA_KARYAWAN_BELUM_DITENTUKAN'), 'warning');
     }
     this.employeeId = empId;
-    const inst = this.txtEduInst ? this.txtEduInst.value : '';
+
+    const values = this.getValues();
+    const inst = (values.institutionName || '').trim();
     if (!inst) {
-      return this.showInfo('Validasi', 'Nama institusi pendidikan wajib diisi.', 'warning');
+      return this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('NAMA_INSTITUSI_PENDIDIKAN_WAJIB_DIISI'), 'warning');
     }
 
     const payload = {
       institutionName: inst,
-      degree: this.cmbEduDegree ? this.cmbEduDegree.value : 'S1',
-      major: this.txtEduMajor ? this.txtEduMajor.value : '',
-      startDate: (this.dtEduStart ? this.dtEduStart.value : null) || null,
-      graduationDate: (this.dtEduGrad ? this.dtEduGrad.value : null) || null,
-      gpa: this.txtEduGpa ? this.txtEduGpa.value : '',
-      description: this.txtEduDesc ? this.txtEduDesc.value : ''
+      degree: values.degree || 'S1',
+      major: (values.major || '').trim(),
+      startDate: values.startDate || null,
+      graduationDate: values.graduationDate || null,
+      gpa: (values.gpa || '').trim(),
+      description: (values.description || '').trim()
     };
 
     try {
       if (this.recordId) {
         await api.updateEducationHistory(this.recordId, payload);
-        this.showInfo('Berhasil', 'Data riwayat pendidikan berhasil diperbarui.', 'success');
+        this.showInfo(WiseI18n.t('BERHASIL'), WiseI18n.t('DATA_RIWAYAT_PENDIDIKAN_BERHASIL_DIPERBARUI'), 'success');
       } else {
         await api.addEducationHistory(this.employeeId, payload);
-        this.showInfo('Berhasil', 'Riwayat pendidikan berhasil ditambahkan.', 'success');
+        this.showInfo(WiseI18n.t('BERHASIL'), WiseI18n.t('RIWAYAT_PENDIDIKAN_BERHASIL_DITAMBAHKAN'), 'success');
       }
 
       if (this.parentWindow && typeof this.parentWindow.loadEmployee === 'function') {
@@ -129,7 +121,7 @@ class WinEmployeeEducationEdit extends WiseWindow {
       }
       this.close();
     } catch (err) {
-      this.showInfo('Gagal Menyimpan', err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MENYIMPAN'), err.message, 'error');
     }
   }
 

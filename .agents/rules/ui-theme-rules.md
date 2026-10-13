@@ -41,4 +41,8 @@ Dalam seluruh form, window, frame, button, label, table, dan komponen UI di apli
   - **Filter Controls & Context Menu** (`label: WiseI18n.t(...)`, `placeholder: WiseI18n.t(...)`)
   - **Pesan Status & Notifikasi Dialog**
   **WAJIB** dibungkus dengan `WiseI18n.t(...)` dan seluruh teks/key wajib terdaftar dalam kamus terjemahan `WiseI18n.js` (mendukung `id`, `en`, `de`, `es`, `fr`, `ar`) agar UI selalu otomatis menyesuaikan dengan bahasa aktif (`currentLanguage`) yang dipilih pengguna di Pengaturan Desktop.
+- **Context Menu Items WAJIB Internationalization**:
+  - Seluruh item pada context menu data table (`dt.addContextMenu([...])`) **WAJIB** menggunakan `WiseI18n.t(...)` pada properti `label` (contoh: `{ id: 'edit', label: WiseI18n.t('EDIT_DOKUMEN_MENU'), onClick: ... }`).
+  - **DILARANG KERAS men-hardcode string literal** pada context menu seperti `label: 'Edit Dokumen'`, `label: 'Hapus Dokumen'`, `label: 'Edit Pengalaman'`, `label: 'Hapus Riwayat Karir'`, dsb.
+  - Setiap membuat atau memperbarui context menu, pastikan entri/key terjemahan (termasuk versi teks polos tanpa emoji) sudah terdaftar lengkap di kamus `WiseI18n.js` untuk seluruh bahasa yang didukung (`id`, `en`, `de`, `es`, `fr`, `ar`).
 - **DILARANG MEMBUAT FUNGSI `t(key)` LOKAL/SENDIRI DI DALAM FORM/WINDOW**: Dilarang keras membuat method atau helper `t(key)` / `this.t(key)` sendiri di dalam class window atau form. Selalu impor dan gunakan fungsi `WiseI18n.t(key)` secara langsung dari `WiseI18n.js` (`const WiseI18n = ...` lalu panggil `WiseI18n.t(...)`). Seluruh kode form/window yang masih memiliki fungsi `t(key)` sendiri harus dibersihkan.

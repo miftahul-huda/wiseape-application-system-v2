@@ -50,6 +50,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
     cellName.addControl(new WiseLabel(WiseI18n.t('NAMA_TEMPLATE_MATRIKS'), { id: 'lblMatrixName', style: labelStyle }));
     this.txtName = new WiseTextBox('', {
       id: 'txtMatrixName',
+      datafield: 'name',
       placeholder: WiseI18n.t('CONTOH_MATRIKS_WAWANCARA_HRD_BEHAVIORAL_CULTURE_FIT'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -60,6 +61,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
     cellPass.addControl(new WiseLabel(WiseI18n.t('PASSING_SCORE_AMBANG_LOLOS'), { id: 'lblMatrixPass', style: labelStyle }));
     this.numPassScore = new WiseNumericBox(75, {
       id: 'numMatrixPassScore',
+      datafield: 'passScore',
       min: 1,
       max: 100,
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
@@ -71,6 +73,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
     cellActive.addControl(new WiseLabel(WiseI18n.t('STATUS_AKTIF'), { id: 'lblMatrixActive', style: labelStyle }));
     this.cmbIsActive = new WiseComboBox('true', {
       id: 'cmbMatrixActive',
+      datafield: 'isActive',
       items: [
         { value: 'true', label: WiseI18n.t('AKTIF') },
         { value: 'false', label: WiseI18n.t('NONAKTIF') }
@@ -84,6 +87,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
     cellCode.addControl(new WiseLabel(WiseI18n.t('KODE_MATRIKS_OPSIONAL'), { id: 'lblMatrixCode', style: labelStyle }));
     this.txtCode = new WiseTextBox('', {
       id: 'txtMatrixCode',
+      datafield: 'code',
       placeholder: WiseI18n.t('CONTOH_MTX_HRD_01'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -94,6 +98,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
     cellDesc.addControl(new WiseLabel(WiseI18n.t('DESKRIPSI_PANDUAN_UMUM_MATRIKS'), { id: 'lblMatrixDesc', style: labelStyle }));
     this.txtDesc = new WiseTextBox('', {
       id: 'txtMatrixDesc',
+      datafield: 'description',
       placeholder: WiseI18n.t('TUJUAN_MATRIKS_DAN_KELOMPOK_PERAN_SASARAN'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -115,17 +120,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
 
     critToolbar.addControl(new WiseButton(WiseI18n.t('TAMBAH_KRITERIA_2'), {
       id: 'btnCritAdd',
-      onClick: this.onAddCriterionClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '7px 14px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
-      }
+      onClick: this.onAddCriterionClick.bind(this)
     }));
 
     critToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_KRITERIA_2'), {
@@ -208,17 +203,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
 
     bottomBar.addControl(new WiseButton(WiseI18n.t('SIMPAN_TEMPLATE_MATRIKS'), {
       id: 'btnMatrixSave',
-      onClick: this.onSaveClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 20px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
-      }
+      onClick: this.onSaveClick.bind(this)
     }));
 
     this.addControl(bottomBar);
@@ -232,11 +217,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
         const tpl = await api.getMatrixTemplate(this.selectedTemplateId);
         this.currentTemplate = tpl;
 
-        if (this.txtName) this.txtName.setValue(tpl.name || '');
-        if (this.txtCode) this.txtCode.setValue(tpl.code || '');
-        if (this.numPassScore) this.numPassScore.setValue(tpl.passScore || 75);
-        if (this.txtDesc) this.txtDesc.setValue(tpl.description || '');
-        if (this.cmbIsActive) this.cmbIsActive.setValue(tpl.isActive ? 'true' : 'false');
+        this.populate(tpl);
 
         this.criteriaList = Array.isArray(tpl.criteria) ? [...tpl.criteria] : [];
         this.renderCriteriaTable();
@@ -299,7 +280,8 @@ class WinMatrixTemplateEdit extends WiseWindow {
   }
 
   async onSaveClick() {
-    const name = this.txtName ? this.txtName.value.trim() : '';
+    const values = this.getValues();
+    const name = (values.name || '').trim();
     if (!name) {
       this.showInfo(WiseI18n.t('VALIDASI_FORM'), WiseI18n.t('NAMA_TEMPLATE_MATRIKS_WAJIB_DIISI'), 'warning');
       return;
@@ -307,10 +289,10 @@ class WinMatrixTemplateEdit extends WiseWindow {
 
     const payload = {
       name,
-      code: this.txtCode ? this.txtCode.value.trim() : null,
-      description: this.txtDesc ? this.txtDesc.value.trim() : '',
-      passScore: this.numPassScore ? parseFloat(this.numPassScore.value) || 75 : 75,
-      isActive: this.cmbIsActive ? this.cmbIsActive.value === 'true' : true,
+      code: values.code ? values.code.trim() : null,
+      description: (values.description || '').trim(),
+      passScore: parseFloat(values.passScore) || 75,
+      isActive: values.isActive !== 'false' && values.isActive !== false,
       criteria: this.criteriaList
     };
 

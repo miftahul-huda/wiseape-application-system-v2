@@ -90,7 +90,7 @@ class WinHRIS extends WiseWindow {
     cardEmployee.addControl(new WiseButton(WiseI18n.t('BUKA_MANAJEMEN_KARYAWAN'), {
       id: 'btnOpenEmployeeMgmt',
       onClick: () => this.launchApp('employeeManagement'),
-      style: { marginTop: '4px', background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 14px', borderRadius: '6px' }
+      style: { marginTop: '4px' }
     }));
     gridLayout.setCell(0, 0, cardEmployee);
 
@@ -117,7 +117,7 @@ class WinHRIS extends WiseWindow {
     cardOrg.addControl(new WiseButton(WiseI18n.t('BUKA_MANAJEMEN_ORGANISASI'), {
       id: 'btnOpenOrgMgmt',
       onClick: () => this.launchApp('organizationManagement'),
-      style: { marginTop: '4px', background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 14px', borderRadius: '6px' }
+      style: { marginTop: '4px' }
     }));
     gridLayout.setCell(0, 1, cardOrg);
 
@@ -144,7 +144,7 @@ class WinHRIS extends WiseWindow {
     cardMaster.addControl(new WiseButton(WiseI18n.t('BUKA_MANAJEMEN_MASTER_DATA'), {
       id: 'btnOpenMasterMgmt',
       onClick: () => this.launchApp('masterDataManagement'),
-      style: { marginTop: '4px', background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 14px', borderRadius: '6px' }
+      style: { marginTop: '4px' }
     }));
     gridLayout.setCell(1, 0, cardMaster);
 
@@ -171,7 +171,7 @@ class WinHRIS extends WiseWindow {
     cardRecruitment.addControl(new WiseButton(WiseI18n.t('BUKA_REKRUTMEN_2'), {
       id: 'btnOpenRecruitment',
       onClick: () => this.launchApp('recruitment'),
-      style: { marginTop: '4px', background: 'var(--accent)', color: '#ffffff', fontWeight: 600, padding: '7px 14px', borderRadius: '6px' }
+      style: { marginTop: '4px' }
     }));
     gridLayout.setCell(1, 1, cardRecruitment);
 

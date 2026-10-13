@@ -42,8 +42,9 @@ class WinJobVacancyStageEdit extends WiseWindow {
     // 1. Nama Tahapan
     const cellName = new WiseFrame('', { id: 'frmStageName', style: { marginBottom: '8px' } });
     cellName.addControl(new WiseLabel(WiseI18n.t('NAMA_TAHAPAN_PROSES'), { id: 'lblStageName', style: labelStyle }));
-    this.txtStageName = new WiseTextBox(this.stageData ? this.stageData.name : '', {
+    this.txtStageName = new WiseTextBox('', {
       id: 'txtStageName',
+      datafield: 'name',
       placeholder: WiseI18n.t('CONTOH_INTERVIEW_USER_INTERVIEW_HRD_CODING_TEST_DLL'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -53,8 +54,9 @@ class WinJobVacancyStageEdit extends WiseWindow {
     // 2. Urutan Tahapan
     const cellOrder = new WiseFrame('', { id: 'frmStageOrder', style: { marginBottom: '8px' } });
     cellOrder.addControl(new WiseLabel(WiseI18n.t('URUTAN_TAHAPAN'), { id: 'lblStageOrder', style: labelStyle }));
-    this.numStageOrder = new WiseNumericBox(this.stageData ? this.stageData.order : 1, {
+    this.numStageOrder = new WiseNumericBox(1, {
       id: 'numStageOrder',
+      datafield: 'order',
       min: 1,
       max: 99,
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
@@ -69,8 +71,9 @@ class WinJobVacancyStageEdit extends WiseWindow {
       { value: '', label: WiseI18n.t('TANPA_MATRIKS_PENILAIAN_KHUSUS') },
       ...this.matrixTemplates.map((m) => ({ value: String(m.id), label: `${m.name} (${(m.criteria || []).length} kriteria)` }))
     ];
-    this.cmbMatrixTemplate = new WiseComboBox(this.stageData && this.stageData.matrixTemplateId ? String(this.stageData.matrixTemplateId) : '', {
+    this.cmbMatrixTemplate = new WiseComboBox('', {
       id: 'cmbMatrixTemplate',
+      datafield: 'matrixTemplateId',
       items: matrixItems,
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -80,8 +83,9 @@ class WinJobVacancyStageEdit extends WiseWindow {
     // 4. Deskripsi
     const cellDesc = new WiseFrame('', { id: 'frmStageDesc', style: { marginBottom: '8px' } });
     cellDesc.addControl(new WiseLabel(WiseI18n.t('DESKRIPSI_PANDUAN_TAHAPAN'), { id: 'lblStageDesc', style: labelStyle }));
-    this.txtStageDesc = new WiseTextArea(this.stageData ? this.stageData.description : '', {
+    this.txtStageDesc = new WiseTextArea('', {
       id: 'txtStageDesc',
+      datafield: 'description',
       rows: 3,
       placeholder: WiseI18n.t('TULISKAN_PANDUAN_ATAU_RUANG_LINGKUP_TAHAPAN_INI'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
@@ -90,6 +94,10 @@ class WinJobVacancyStageEdit extends WiseWindow {
     formLayout.setCell(3, 0, cellDesc);
 
     this.addControl(formLayout);
+
+    if (this.stageData) {
+      this.populate(this.stageData);
+    }
 
     // Action Buttons
     const btnContainer = new WiseFrame('', {
@@ -114,17 +122,7 @@ class WinJobVacancyStageEdit extends WiseWindow {
 
     btnContainer.addControl(new WiseButton(WiseI18n.t('SIMPAN_TAHAPAN'), {
       id: 'btnStageSave',
-      onClick: this.onSaveClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
-      }
+      onClick: this.onSaveClick.bind(this)
     }));
 
     this.addControl(btnContainer);
@@ -133,14 +131,15 @@ class WinJobVacancyStageEdit extends WiseWindow {
   }
 
   onSaveClick() {
-    const name = this.txtStageName ? this.txtStageName.value.trim() : '';
+    const values = this.getValues();
+    const name = (values.name || '').trim();
     if (!name) {
       this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('NAMA_TAHAPAN_PROSES_WAJIB_DIISI'), 'warning');
       return;
     }
 
-    const order = this.numStageOrder ? parseInt(this.numStageOrder.value, 10) || 1 : 1;
-    const matrixIdStr = this.cmbMatrixTemplate ? this.cmbMatrixTemplate.value : '';
+    const order = parseInt(values.order, 10) || 1;
+    const matrixIdStr = values.matrixTemplateId ? String(values.matrixTemplateId) : '';
     const matrixId = matrixIdStr ? parseInt(matrixIdStr, 10) : null;
     const selectedMatrix = this.matrixTemplates.find((m) => String(m.id) === String(matrixIdStr));
 
@@ -148,7 +147,7 @@ class WinJobVacancyStageEdit extends WiseWindow {
       id: this.stageData ? this.stageData.id : `stg_${Date.now()}`,
       name,
       order,
-      description: this.txtStageDesc ? this.txtStageDesc.value.trim() : '',
+      description: (values.description || '').trim(),
       matrixTemplateId: matrixId,
       matrixTemplateName: selectedMatrix ? selectedMatrix.name : ''
     };

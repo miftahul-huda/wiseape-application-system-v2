@@ -35,17 +35,7 @@ class WinMatrixTemplateList extends WiseWindow {
 
     actionToolbar.addControl(new WiseButton(WiseI18n.t('TAMBAH_MATRIKS_2'), {
       id: 'btnMatrixTplAdd',
-      onClick: this.onAddClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
-      }
+      onClick: this.onAddClick.bind(this)
     }));
 
     actionToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_MATRIKS_2'), {

@@ -15,6 +15,7 @@ import {
   WiseIconMenu,
   WiseIconMenuGroup,
   WiseVerticalSeparator,
+  WiseI18n,
 } from '../../../../src/runtime/wise.js';
 
 import WinEmployeeDetail from './WinEmployeeDetail';
@@ -60,8 +61,8 @@ const DEPARTMENTS = ['Semua', 'Technology', 'Human Resources', 'Finance', 'Opera
 class WinEmployeeManagement extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = 'Employee Management — Wise HRIS';
-    this.appTitle = options.appTitle || 'Employee Management';
+    this.title = `${WiseI18n.t('MANAJEMEN_KARYAWAN')} — Wise HRIS`;
+    this.appTitle = options.appTitle || WiseI18n.t('MANAJEMEN_KARYAWAN');
     this.appIcon = options.appIcon || '👤';
     this.width = options.width || '88%';
     this.height = options.height || 700;
@@ -181,23 +182,23 @@ class WinEmployeeManagement extends WiseWindow {
       {
         id: 'search',
         type: 'text',
-        label: 'Nama / NIK',
-        placeholder: 'Cari nama atau NIK…',
+        label: WiseI18n.t('NAMA_NIK'),
+        placeholder: WiseI18n.t('CARI_NAMA_ATAU_NIK'),
         onChange: this.onTableFilterInputChanged.bind(this)
       },
       {
         id: 'jobTitle',
         type: 'text',
-        label: 'Jabatan',
-        placeholder: 'Cari jabatan…',
+        label: WiseI18n.t('JABATAN'),
+        placeholder: WiseI18n.t('CARI_JABATAN'),
         onChange: this.onTableFilterInputChanged.bind(this)
       },
       {
         id: 'department',
         type: 'select',
-        label: 'Departemen',
+        label: WiseI18n.t('DEPARTEMEN'),
         items: [
-          { value: '', label: 'Semua Departemen' },
+          { value: '', label: WiseI18n.t('SEMUA_DEPARTEMEN') },
           { value: 'Technology', label: 'Technology' },
           { value: 'Human Resources', label: 'Human Resources' },
           { value: 'Finance', label: 'Finance' },
@@ -209,36 +210,36 @@ class WinEmployeeManagement extends WiseWindow {
       {
         id: 'employmentStatus',
         type: 'select',
-        label: 'Status Kepegawaian',
+        label: WiseI18n.t('STATUS_KEPEGAWAIAN'),
         items: [
-          { value: '', label: 'Semua Status' },
-          { value: 'Tetap (PKWTT)', label: 'Tetap (PKWTT)' },
-          { value: 'Kontrak (PKWT)', label: 'Kontrak (PKWT)' },
-          { value: 'Probation / Masa Percobaan', label: 'Probation / Masa Percobaan' },
-          { value: 'Magang (Internship)', label: 'Magang (Internship)' },
-          { value: 'Freelance / Mitra', label: 'Freelance / Mitra' },
-          { value: 'Konsultan', label: 'Konsultan' }
+          { value: '', label: WiseI18n.t('SEMUA_STATUS') },
+          { value: 'Tetap (PKWTT)', label: WiseI18n.t('TETAP_PKWTT') },
+          { value: 'Kontrak (PKWT)', label: WiseI18n.t('KONTRAK_PKWT') },
+          { value: 'Probation / Masa Percobaan', label: WiseI18n.t('PROBATION_MASA_PERCOBAAN') },
+          { value: 'Magang (Internship)', label: WiseI18n.t('MAGANG_INTERNSHIP') },
+          { value: 'Freelance / Mitra', label: WiseI18n.t('FREELANCE_MITRA') },
+          { value: 'Konsultan', label: WiseI18n.t('KONSULTAN') }
         ],
         onChange: this.onTableFilterInputChanged.bind(this)
       },
       {
         id: 'isActive',
         type: 'select',
-        label: 'Status',
+        label: WiseI18n.t('STATUS'),
         items: [
-          { value: '', label: 'Semua' },
-          { value: 'true', label: '🟢 Aktif' },
-          { value: 'false', label: '🔴 Nonaktif' }
+          { value: '', label: WiseI18n.t('SEMUA') },
+          { value: 'true', label: WiseI18n.t('AKTIF') },
+          { value: 'false', label: WiseI18n.t('NONAKTIF') }
         ],
         onChange: this.onTableFilterInputChanged.bind(this)
       }
     ]);
 
     dtEmployees.addContextMenu([
-      { id: 'detail', label: 'Detail', icon: CONTEXT_MENU_ICONS.detail, onClick: (row) => this.onDetailEmployeeClick(row) },
-      { id: 'edit', label: 'Edit', icon: CONTEXT_MENU_ICONS.edit, onClick: (row) => this.onEditEmployeeClick(row) },
-      { id: 'copy', label: 'Copy', icon: CONTEXT_MENU_ICONS.copy, onClick: (row) => this.onCopyEmployeeRow(row) },
-      { id: 'paste', label: 'Paste', icon: CONTEXT_MENU_ICONS.paste, onClick: () => this.onPasteEmployeeRow() }
+      { id: 'detail', label: WiseI18n.t('DETAIL'), icon: CONTEXT_MENU_ICONS.detail, onClick: (row) => this.onDetailEmployeeClick(row) },
+      { id: 'edit', label: WiseI18n.t('EDIT'), icon: CONTEXT_MENU_ICONS.edit, onClick: (row) => this.onEditEmployeeClick(row) },
+      { id: 'copy', label: WiseI18n.t('COPY'), icon: CONTEXT_MENU_ICONS.copy, onClick: (row) => this.onCopyEmployeeRow(row) },
+      { id: 'paste', label: WiseI18n.t('PASTE'), icon: CONTEXT_MENU_ICONS.paste, onClick: () => this.onPasteEmployeeRow() }
     ]);
 
     this.addControl(dtEmployees);

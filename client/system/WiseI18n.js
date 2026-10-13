@@ -335,6 +335,37 @@
     'EDIT_ANGGOTA_KELUARGA': { id: '✏️ Edit Anggota Keluarga', en: '✏️ Edit Family Member', de: '✏️ Familienmitglied bearbeiten', es: '✏️ Editar familiar', fr: '✏️ Modifier le Membre de Famille', ar: '✏️ تعديل فرد من العائلة' },
     'HAPUS_ANGGOTA_KELUARGA': { id: '🗑️ Hapus Anggota Keluarga', en: '🗑️ Delete Family Member', de: '🗑️ Familienmitglied löschen', es: '🗑️ Eliminar familiar', fr: '🗑️ Supprimer le Membre de Famille', ar: '🗑️ حذف فرد من العائلة' },
 
+    // Sub-record context menus
+    'EDIT_DOKUMEN_MENU': { id: 'Edit Dokumen', en: 'Edit Document', de: 'Dokument bearbeiten', es: 'Editar documento', fr: 'Modifier le Document', ar: 'تعديل الوثيقة' },
+    'HAPUS_DOKUMEN_MENU': { id: 'Hapus Dokumen', en: 'Delete Document', de: 'Dokument löschen', es: 'Eliminar documento', fr: 'Supprimer le Document', ar: 'حذف الوثيقة' },
+    'EDIT_PENGALAMAN_MENU': { id: 'Edit Pengalaman', en: 'Edit Experience', de: 'Erfahrung bearbeiten', es: 'Editar experiencia', fr: 'Modifier l\'Expérience', ar: 'تعديل الخبرة' },
+    'HAPUS_PENGALAMAN_MENU': { id: 'Hapus Pengalaman', en: 'Delete Experience', de: 'Erfahrung löschen', es: 'Eliminar experiencia', fr: 'Supprimer l\'Expérience', ar: 'حذف الخبرة' },
+    'EDIT_PENDIDIKAN_MENU': { id: 'Edit Pendidikan', en: 'Edit Education', de: 'Ausbildung bearbeiten', es: 'Editar educación', fr: 'Modifier la Formation', ar: 'تعديل المؤهل' },
+    'HAPUS_PENDIDIKAN_MENU': { id: 'Hapus Pendidikan', en: 'Delete Education', de: 'Ausbildung löschen', es: 'Eliminar educación', fr: 'Supprimer la Formation', ar: 'حذف المؤهل' },
+    'EDIT_RIWAYAT_KARIR_MENU': { id: 'Edit Riwayat Karir', en: 'Edit Career History', de: 'Karriereverlauf bearbeiten', es: 'Editar historial profesional', fr: 'Modifier l\'Évolution', ar: 'تعديل المسار الوظيفي' },
+    'HAPUS_RIWAYAT_KARIR_MENU': { id: 'Hapus Riwayat Karir', en: 'Delete Career History', de: 'Karriereverlauf löschen', es: 'Eliminar historial profesional', fr: 'Supprimer l\'Évolution', ar: 'حذف المسار الوظيفي' },
+    'EDIT_ANGGOTA_KELUARGA_MENU': { id: 'Edit Anggota Keluarga', en: 'Edit Family Member', de: 'Familienmitglied bearbeiten', es: 'Editar familiar', fr: 'Modifier le Membre de Famille', ar: 'تعديل فرد من العائلة' },
+    'HAPUS_ANGGOTA_KELUARGA_MENU': { id: 'Hapus Anggota Keluarga', en: 'Delete Family Member', de: 'Familienmitglied löschen', es: 'Eliminar familiar', fr: 'Supprimer le Membre de Famille', ar: 'حذف فرد من العائلة' },
+
+    'DETAIL': { id: 'Detail', en: 'Detail', de: 'Detail', es: 'Detalle', fr: 'Détail', ar: 'تفاصيل' },
+    'Detail': { id: 'Detail', en: 'Detail', de: 'Detail', es: 'Detalle', fr: 'Détail', ar: 'تفاصيل' },
+    'COPY': { id: 'Salin', en: 'Copy', de: 'Kopieren', es: 'Copiar', fr: 'Copier', ar: 'نسخ' },
+    'Copy': { id: 'Salin', en: 'Copy', de: 'Kopieren', es: 'Copiar', fr: 'Copier', ar: 'نسخ' },
+    'PASTE': { id: 'Tempel', en: 'Paste', de: 'Einfügen', es: 'Pegar', fr: 'Coller', ar: 'لصق' },
+    'Paste': { id: 'Tempel', en: 'Paste', de: 'Einfügen', es: 'Pegar', fr: 'Coller', ar: 'لصق' },
+
+    // Direct String Keys for Context Menus
+    'Edit Dokumen': { id: 'Edit Dokumen', en: 'Edit Document', de: 'Dokument bearbeiten', es: 'Editar documento', fr: 'Modifier le Document', ar: 'تعديل الوثيقة' },
+    'Hapus Dokumen': { id: 'Hapus Dokumen', en: 'Delete Document', de: 'Dokument löschen', es: 'Eliminar documento', fr: 'Supprimer le Document', ar: 'حذف الوثيقة' },
+    'Edit Pengalaman': { id: 'Edit Pengalaman', en: 'Edit Experience', de: 'Erfahrung bearbeiten', es: 'Editar experiencia', fr: 'Modifier l\'Expérience', ar: 'تعديل الخبرة' },
+    'Hapus Pengalaman': { id: 'Hapus Pengalaman', en: 'Delete Experience', de: 'Erfahrung löschen', es: 'Eliminar experiencia', fr: 'Supprimer l\'Expérience', ar: 'حذف الخبرة' },
+    'Edit Pendidikan': { id: 'Edit Pendidikan', en: 'Edit Education', de: 'Ausbildung bearbeiten', es: 'Editar educación', fr: 'Modifier la Formation', ar: 'تعديل المؤهل' },
+    'Hapus Pendidikan': { id: 'Hapus Pendidikan', en: 'Delete Education', de: 'Ausbildung löschen', es: 'Eliminar educación', fr: 'Supprimer la Formation', ar: 'حذف المؤهل' },
+    'Edit Riwayat Karir': { id: 'Edit Riwayat Karir', en: 'Edit Career History', de: 'Karriereverlauf bearbeiten', es: 'Editar historial profesional', fr: 'Modifier l\'Évolution', ar: 'تعديل المسار الوظيفي' },
+    'Hapus Riwayat Karir': { id: 'Hapus Riwayat Karir', en: 'Delete Career History', de: 'Karriereverlauf löschen', es: 'Eliminar historial profesional', fr: 'Supprimer l\'Évolution', ar: 'حذف المسار الوظيفي' },
+    'Edit Anggota Keluarga': { id: 'Edit Anggota Keluarga', en: 'Edit Family Member', de: 'Familienmitglied bearbeiten', es: 'Editar familiar', fr: 'Modifier le Membre de Famille', ar: 'تعديل فرد من العائلة' },
+    'Hapus Anggota Keluarga': { id: 'Hapus Anggota Keluarga', en: 'Delete Family Member', de: 'Familienmitglied löschen', es: 'Eliminar familiar', fr: 'Supprimer le Membre de Famille', ar: 'حذف فرد من العائلة' },
+
     // Form Field Labels
     'NAMA_LENGKAP': { id: 'Nama Lengkap *', en: 'Full Name *', de: 'Vollständiger Name *', es: 'Nombre completo *', fr: 'Nom Complet *', ar: 'الاسم الكامل *' },
     'NAMA_LENGKAP_2': { id: 'Nama Lengkap', en: 'Full Name', de: 'Vollständiger Name', es: 'Nombre completo', fr: 'Nom Complet', ar: 'الاسم الكامل' },
@@ -1411,11 +1442,22 @@
   // entries happening to share a translated string in some language), which
   // only matters for a handful of near-synonym entries.
   const REVERSE_DICTIONARY = {};
+  const STRIPPED_REVERSE_DICTIONARY = {};
+
+  const stripEmojiPrefix = (str) => {
+    if (!str || typeof str !== 'string') return '';
+    return str.replace(/^[\p{Emoji}\u2000-\u3300\uD800-\uDFFF\uFE00-\uFE0F\s]+/u, '').trim();
+  };
+
   Object.keys(DICTIONARY).forEach((key) => {
     const entry = DICTIONARY[key];
     Object.values(entry).forEach((value) => {
       if (value && !REVERSE_DICTIONARY[value]) {
         REVERSE_DICTIONARY[value] = key;
+      }
+      const stripped = stripEmojiPrefix(value);
+      if (stripped && !STRIPPED_REVERSE_DICTIONARY[stripped]) {
+        STRIPPED_REVERSE_DICTIONARY[stripped] = key;
       }
     });
   });
@@ -1483,6 +1525,19 @@
         const trans = DICTIONARY[REVERSE_DICTIONARY[clean]][targetLang];
         if (trans) {
           return text.replace(clean, trans);
+        }
+      }
+
+      // 1c. Stripped reverse match: input has no emoji, but matches an entry
+      // whose translation contains an emoji prefix (e.g. "Edit Dokumen" matching
+      // "✏️ Edit Dokumen"). Return the translation with the emoji prefix stripped.
+      if (STRIPPED_REVERSE_DICTIONARY[clean]) {
+        const rawTrans = DICTIONARY[STRIPPED_REVERSE_DICTIONARY[clean]][targetLang];
+        if (rawTrans) {
+          const strippedTrans = stripEmojiPrefix(rawTrans);
+          if (strippedTrans) {
+            return text.replace(clean, strippedTrans);
+          }
         }
       }
 

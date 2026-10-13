@@ -40,8 +40,9 @@ class WinMatrixCriterionEdit extends WiseWindow {
     // 1. Nama Kriteria
     const cellName = new WiseFrame('', { id: 'frmCritName' });
     cellName.addControl(new WiseLabel(WiseI18n.t('KRITERIA_PENILAIAN_KOMPETENSI_2'), { id: 'lblCritName', style: labelStyle }));
-    this.txtCriterion = new WiseTextBox(this.criterionData ? this.criterionData.criterion : '', {
+    this.txtCriterion = new WiseTextBox('', {
       id: 'txtCriterionName',
+      datafield: 'criterion',
       placeholder: WiseI18n.t('CONTOH_KEMAMPUAN_ANALISIS_PROBLEM_SOLVING_COMMUNICATION'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
@@ -51,8 +52,9 @@ class WinMatrixCriterionEdit extends WiseWindow {
     // 2. Bobot Persentase
     const cellWeight = new WiseFrame('', { id: 'frmCritWeight' });
     cellWeight.addControl(new WiseLabel(WiseI18n.t('BOBOT_PENILAIAN'), { id: 'lblCritWeight', style: labelStyle }));
-    this.numWeight = new WiseNumericBox(this.criterionData && this.criterionData.weight !== undefined ? this.criterionData.weight : 20, {
+    this.numWeight = new WiseNumericBox(20, {
       id: 'numCritWeight',
+      datafield: 'weight',
       min: 1,
       max: 100,
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
@@ -63,8 +65,9 @@ class WinMatrixCriterionEdit extends WiseWindow {
     // 3. Skala Penilaian
     const cellScale = new WiseFrame('', { id: 'frmCritScale' });
     cellScale.addControl(new WiseLabel(WiseI18n.t('SKALA_NILAI'), { id: 'lblCritScale', style: labelStyle }));
-    this.cmbScale = new WiseComboBox(this.criterionData && this.criterionData.scaleType ? this.criterionData.scaleType : '1-100', {
+    this.cmbScale = new WiseComboBox('1-100', {
       id: 'cmbCritScale',
+      datafield: 'scaleType',
       items: [
         { value: '1-100', label: WiseI18n.t('SKALA_1_100_PERSENTIL_POIN_STANDAR') },
         { value: '1-10', label: WiseI18n.t('SKALA_1_10_PERINGKAT_MENENGAH') },
@@ -78,8 +81,9 @@ class WinMatrixCriterionEdit extends WiseWindow {
     // 4. Panduan Penilaian / Deskripsi
     const cellDesc = new WiseFrame('', { id: 'frmCritDesc' });
     cellDesc.addControl(new WiseLabel(WiseI18n.t('PANDUAN_PENILAIAN_EVALUATOR'), { id: 'lblCritDesc', style: labelStyle }));
-    this.txtDesc = new WiseTextArea(this.criterionData ? this.criterionData.description : '', {
+    this.txtDesc = new WiseTextArea('', {
       id: 'txtCritDesc',
+      datafield: 'description',
       rows: 3,
       placeholder: WiseI18n.t('TULISKAN_INDIKATOR_PERILAKU_ATAU_TOLOK_UKUR_NILAI_YANG'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
@@ -88,6 +92,10 @@ class WinMatrixCriterionEdit extends WiseWindow {
     formLayout.setCell(3, 0, cellDesc);
 
     this.addControl(formLayout);
+
+    if (this.criterionData) {
+      this.populate(this.criterionData);
+    }
 
     // Action Buttons
     const btnContainer = new WiseFrame('', {
@@ -112,17 +120,7 @@ class WinMatrixCriterionEdit extends WiseWindow {
 
     btnContainer.addControl(new WiseButton(WiseI18n.t('SIMPAN_KRITERIA'), {
       id: 'btnCritSave',
-      onClick: this.onSaveClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
-      }
+      onClick: this.onSaveClick.bind(this)
     }));
 
     this.addControl(btnContainer);
@@ -131,14 +129,15 @@ class WinMatrixCriterionEdit extends WiseWindow {
   }
 
   onSaveClick() {
-    const criterion = this.txtCriterion ? this.txtCriterion.value.trim() : '';
+    const values = this.getValues();
+    const criterion = (values.criterion || '').trim();
     if (!criterion) {
       this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('NAMA_KRITERIA_PENILAIAN_WAJIB_DIISI'), 'warning');
       return;
     }
 
-    const weight = this.numWeight ? parseFloat(this.numWeight.value) || 20 : 20;
-    const scaleType = this.cmbScale ? this.cmbScale.value : '1-100';
+    const weight = parseFloat(values.weight) || 20;
+    const scaleType = values.scaleType || '1-100';
     let maxScore = 100;
     if (scaleType === '1-10') maxScore = 10;
     if (scaleType === '1-5') maxScore = 5;
@@ -150,7 +149,7 @@ class WinMatrixCriterionEdit extends WiseWindow {
       scaleType,
       minScore: 0,
       maxScore,
-      description: this.txtDesc ? this.txtDesc.value.trim() : ''
+      description: (values.description || '').trim()
     };
 
     if (typeof this.onSavedCallback === 'function') {

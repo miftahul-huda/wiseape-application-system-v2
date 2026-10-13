@@ -6,6 +6,7 @@ import {
   WiseComboBox,
   WiseTableLayout,
   WiseFrame,
+  WiseI18n,
 } from '../../../../src/runtime/wise.js';
 
 import HrisApiRepository from '../services/HrisApiRepository';
@@ -32,7 +33,7 @@ class WinEmployeeFamilyEdit extends WiseWindow {
     this.record = options.data || null;
     this.employeeId = options.employeeId || (this.record && this.record.employeeId) || (options.parentWindow && (options.parentWindow.selectedEmployeeId || options.parentWindow.employeeId)) || null;
     this.recordId = (this.record && this.record.id) || null;
-    this.title = this.recordId ? 'Edit Anggota Keluarga' : 'Tambah Anggota Keluarga';
+    this.title = this.recordId ? WiseI18n.t('EDIT_ANGGOTA_KELUARGA_2') : WiseI18n.t('TAMBAH_ANGGOTA_KELUARGA_2');
     this.width = 540;
     this.centered = true;
   }
@@ -43,53 +44,41 @@ class WinEmployeeFamilyEdit extends WiseWindow {
     // ── Form Content (4 Fields Only) ────────────────────────────
     const tblFam = new WiseTableLayout({ rows: 2, columns: 2, id: 'tblFamilyEdit', style: { marginBottom: '16px' } });
 
-    this.txtFamName = new WiseTextBox('e.g. Siti Rahmawati', { id: 'txtFamName', value: this.record?.name || '', placeholder: 'e.g. Siti Rahmawati' });
-    this.cmbFamGender = new WiseComboBox(GENDERS, { id: 'cmbFamGender', value: this.record?.gender || 'Laki-laki' });
-    this.cmbFamRelation = new WiseComboBox(RELATIONSHIPS, { id: 'cmbFamRelation', value: this.record?.relationship || 'Anak' });
-    this.txtFamPhone = new WiseTextBox('0812xxxxxxxx', { id: 'txtFamPhone', value: this.record?.phone || '', placeholder: '0812xxxxxxxx' });
+    this.txtFamName = new WiseTextBox('e.g. Siti Rahmawati', { id: 'txtFamName', datafield: 'name', placeholder: 'e.g. Siti Rahmawati' });
+    this.cmbFamGender = new WiseComboBox(GENDERS.map(g => ({ value: g.value, label: WiseI18n.t(g.label) })), { id: 'cmbFamGender', datafield: 'gender', value: 'Laki-laki' });
+    this.cmbFamRelation = new WiseComboBox(RELATIONSHIPS.map(r => ({ value: r.value, label: WiseI18n.t(r.label) })), { id: 'cmbFamRelation', datafield: 'relationship', value: 'Anak' });
+    this.txtFamPhone = new WiseTextBox('0812xxxxxxxx', { id: 'txtFamPhone', datafield: 'phone', placeholder: '0812xxxxxxxx' });
 
     // Row 0: Nama & Gender
-    tblFam.setCell(0, 0, this.formGroup('Nama Anggota Keluarga *', this.txtFamName));
-    tblFam.setCell(0, 1, this.formGroup('Gender', this.cmbFamGender));
+    tblFam.setCell(0, 0, this.formGroup(WiseI18n.t('NAMA_ANGGOTA_KELUARGA_2'), this.txtFamName));
+    tblFam.setCell(0, 1, this.formGroup(WiseI18n.t('JENIS_KELAMIN'), this.cmbFamGender));
 
     // Row 1: Hubungan & Nomor Kontak
-    tblFam.setCell(1, 0, this.formGroup('Hubungan Keluarga *', this.cmbFamRelation));
-    tblFam.setCell(1, 1, this.formGroup('Nomor Kontak', this.txtFamPhone));
+    tblFam.setCell(1, 0, this.formGroup(WiseI18n.t('HUBUNGAN_KELUARGA'), this.cmbFamRelation));
+    tblFam.setCell(1, 1, this.formGroup(WiseI18n.t('NOMOR_KONTAK'), this.txtFamPhone));
 
     this.addControl(tblFam);
+
+    if (this.record) {
+      this.populate(this.record);
+    }
 
     // ── Action Buttons ──────────────────────────────────────────
     const actionFrame = new WiseFrame('', {
       id: 'frameFamActions',
       style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' }
     });
-    actionFrame.addControl(new WiseButton('💾 Simpan', {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('SIMPAN_4'), {
       id: 'btnSaveFamily',
       onClick: this.onSaveClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        border: 'none',
-        borderRadius: '6px',
-        padding: '8px 18px',
-        fontWeight: '500',
-        cursor: 'pointer',
-        boxShadow: 'none',
-        marginRight: '8px'
-      }
+      style: { marginRight: '8px' }
     }));
-    actionFrame.addControl(new WiseButton('Batal', {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnCancelFamily',
       onClick: this.onCancelClick.bind(this),
       style: {
         background: '#e2e8f0',
-        color: '#334155',
-        border: 'none',
-        borderRadius: '6px',
-        padding: '8px 16px',
-        fontWeight: '500',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#334155'
       }
     }));
     this.addControl(actionFrame);
@@ -97,7 +86,8 @@ class WinEmployeeFamilyEdit extends WiseWindow {
 
   formGroup(labelText, control) {
     const frame = new WiseFrame('', { style: { background: 'transparent', border: 'none', padding: '0 6px 8px 6px' } });
-    frame.addControl(new WiseLabel(labelText, { style: { display: 'block', marginBottom: '2px', lineHeight: '1.2', fontWeight: '500', color: 'var(--dark-text)' } }));
+    const resolvedLabel = typeof WiseI18n !== 'undefined' ? WiseI18n.t(labelText) : labelText;
+    frame.addControl(new WiseLabel(resolvedLabel, { style: { display: 'block', marginBottom: '2px', lineHeight: '1.2', fontWeight: '500', color: 'var(--dark-text)' } }));
     frame.addControl(control);
     return frame;
   }
@@ -105,34 +95,31 @@ class WinEmployeeFamilyEdit extends WiseWindow {
   async onSaveClick() {
     const empId = this.employeeId || (this.record && this.record.employeeId) || (this.parentWindow && (this.parentWindow.selectedEmployeeId || this.parentWindow.employeeId));
     if (!empId) {
-      return this.showInfo('Peringatan', 'Data karyawan belum ditentukan.', 'warning');
+      return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('DATA_KARYAWAN_BELUM_DITENTUKAN'), 'warning');
     }
     this.employeeId = empId;
 
-    const name = this.txtFamName?.value?.trim();
-    const gender = this.cmbFamGender?.value || 'Laki-laki';
-    const relationship = this.cmbFamRelation?.value || 'Anak';
-    const phone = this.txtFamPhone?.value?.trim() || null;
-
+    const values = this.getValues();
+    const name = (values.name || '').trim();
     if (!name) {
-      this.showInfo('Validasi', 'Nama anggota keluarga wajib diisi.', 'warning');
+      this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('NAMA_ANGGOTA_KELUARGA_WAJIB_DIISI'), 'warning');
       return;
     }
 
     try {
       const payload = {
         name,
-        gender,
-        relationship,
-        phone
+        gender: values.gender || 'Laki-laki',
+        relationship: values.relationship || 'Anak',
+        phone: (values.phone || '').trim() || null
       };
 
       if (this.recordId) {
         await api.updateFamilyMember(this.recordId, payload);
-        this.showInfo('Berhasil', 'Data anggota keluarga berhasil diperbarui.', 'success');
+        this.showInfo(WiseI18n.t('BERHASIL'), WiseI18n.t('DATA_ANGGOTA_KELUARGA_BERHASIL_DIPERBARUI'), 'success');
       } else {
         await api.addFamilyMember(this.employeeId, payload);
-        this.showInfo('Berhasil', 'Data anggota keluarga berhasil ditambahkan.', 'success');
+        this.showInfo(WiseI18n.t('BERHASIL'), WiseI18n.t('DATA_ANGGOTA_KELUARGA_BERHASIL_DITAMBAHKAN'), 'success');
       }
 
       if (this.parentWindow) {
@@ -146,7 +133,7 @@ class WinEmployeeFamilyEdit extends WiseWindow {
       this.close();
     } catch (err) {
       console.error('[WinEmployeeFamilyEdit] Save failed:', err);
-      this.showInfo('Error', `Gagal menyimpan data keluarga: ${err.message}`, 'error');
+      this.showInfo(WiseI18n.t('ERROR'), `${WiseI18n.t('GAGAL_MENYIMPAN')}: ${err.message}`, 'error');
     }
   }
 

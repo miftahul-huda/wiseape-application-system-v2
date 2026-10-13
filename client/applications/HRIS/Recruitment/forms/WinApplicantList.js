@@ -41,17 +41,7 @@ class WinApplicantList extends WiseWindow {
 
     actionToolbar.addControl(new WiseButton(WiseI18n.t('TAMBAH_PELAMAR_2'), {
       id: 'btnAppAdd',
-      onClick: this.onAddClick.bind(this),
-      style: {
-        background: 'var(--accent)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
-      }
+      onClick: this.onAddClick.bind(this)
     }));
 
     actionToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_PELAMAR'), {
