@@ -39,7 +39,7 @@ class WinReportViewer extends WiseWindow {
       style: { display: 'flex', alignItems: 'flex-end', gap: '12px', flexWrap: 'wrap', border: 'none', background: 'transparent', padding: '0 0 10px 0' }
     });
     this.cmbViewerGroup = new WiseComboBox([], {
-      id: 'cmbViewerGroup', label: WiseI18n.t('RD_LBL_REPORT_GROUP'), value: '', style: { width: '260px' },
+      id: 'cmbViewerGroup', label: WiseI18n.t('RD_LBL_REPORT_GROUP'), value: '', style: { width: '560px', maxWidth: '100%' },
       onChange: this.onGroupChanged.bind(this)
     });
     // a group handed over by the caller is fixed: the chooser is disabled
@@ -73,13 +73,19 @@ class WinReportViewer extends WiseWindow {
   async loadInitialData() {
     try {
       const groups = await api.listReportGroups();
-      const items = groups.map((g) => ({ value: String(g.id), label: g.name }));
+      const items = groups.map((g) => ({ value: String(g.id), label: `[${g.code}] ${g.name}` }));
       this.cmbViewerGroup.setItems(this.presetGroupId ? items : [{ value: '', label: WiseI18n.t('RD_SELECT_PLACEHOLDER') }, ...items]);
 
+      // The caller may pass a group id (12) or a group code (EMPLOYEE_INFORMATION_REPORT).
       let groupId = this.presetGroupId;
-      if (groupId && !items.some((i) => i.value === groupId)) {
-        this.lblViewerStatus.text(WiseI18n.t('RD_MSG_GROUP_NOT_FOUND'));
-        return;
+      if (groupId) {
+        const wanted = groupId.toLowerCase();
+        const match = groups.find((g) => String(g.id) === groupId || String(g.code).toLowerCase() === wanted);
+        groupId = match ? String(match.id) : '';
+        if (!match) {
+          this.lblViewerStatus.text(WiseI18n.t('RD_MSG_GROUP_NOT_FOUND'));
+          return;
+        }
       }
       if (!groupId && items.length === 1) groupId = items[0].value;
       this.cmbViewerGroup.setValue(groupId || '');
@@ -129,9 +135,15 @@ class WinReportViewer extends WiseWindow {
   }
 
   async loadReportData(reportId) {
+    // Show the spinner right away: the query can take a while, and the screen is
+    // otherwise only updated once this whole handler has finished.
+    this.clearOutput();
+    this.chartViewer.setLoading(true);
     this.lblViewerStatus.text(WiseI18n.t('RD_MSG_LOADING'));
+    await this.refresh();
     try {
       const res = await api.getReportData(reportId);
+      this.chartViewer.setLoading(false);
       this.chartViewer.setData(res.chart || {});
 
       const columns = (res.columns || []).map((c) => {
@@ -146,6 +158,7 @@ class WinReportViewer extends WiseWindow {
       this.showRawPage(PAGE_SIZE, 1);
       this.lblViewerStatus.text(WiseI18n.t('RD_MSG_PREVIEW_ROWS').replace('{n}', this.rawRows.length));
     } catch (err) {
+      this.chartViewer.setLoading(false);
       this.clearOutput();
       this.lblViewerStatus.text('');
       this.showInfo(WiseI18n.t('ERROR'), err.message, 'error');

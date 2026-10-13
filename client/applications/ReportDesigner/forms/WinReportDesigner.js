@@ -59,6 +59,7 @@ class WinReportDesigner extends WiseWindow {
     });
     this.dtReports.setColumns([
       { dataField: 'name', header: WiseI18n.t('RD_COL_NAME'), width: 220 },
+      { dataField: 'groupCode', header: WiseI18n.t('KODE'), width: 150 },
       { dataField: 'groupName', header: WiseI18n.t('RD_COL_GROUP'), width: 180 },
       { dataField: 'connectionName', header: WiseI18n.t('RD_COL_CONNECTION'), width: 180 },
       { dataField: 'chartTypeLabel', header: WiseI18n.t('RD_COL_CHART_TYPE'), width: 140 }
@@ -112,6 +113,7 @@ class WinReportDesigner extends WiseWindow {
       onDataFilterChanged: (size, page) => this.showPage(this.dtGroups, this.rowsGroups, size, page)
     });
     this.dtGroups.setColumns([
+      { dataField: 'code', header: WiseI18n.t('KODE'), width: 200 },
       { dataField: 'name', header: WiseI18n.t('RD_COL_NAME'), width: 220 },
       { dataField: 'description', header: WiseI18n.t('KETERANGAN'), width: 320 },
       { dataField: 'reportCount', header: WiseI18n.t('RD_COL_REPORT_COUNT'), width: 120 }
@@ -156,7 +158,7 @@ class WinReportDesigner extends WiseWindow {
         api.listReportGroups(), api.listConnections(), api.listReports(this.cmbGroupFilter.value || undefined)
       ]);
       const current = this.cmbGroupFilter.value || '';
-      this.cmbGroupFilter.setItems([{ value: '', label: WiseI18n.t('SEMUA') }, ...groups.map((g) => ({ value: String(g.id), label: g.name }))]);
+      this.cmbGroupFilter.setItems([{ value: '', label: WiseI18n.t('SEMUA') }, ...groups.map((g) => ({ value: String(g.id), label: `[${g.code}] ${g.name}` }))]);
       this.cmbGroupFilter.setValue(groups.some((g) => String(g.id) === current) ? current : '');
 
       this.rowsGroups = groups;

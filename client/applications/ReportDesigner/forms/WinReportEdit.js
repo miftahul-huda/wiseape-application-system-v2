@@ -171,7 +171,7 @@ class WinReportEdit extends WiseWindow {
     this.visible = true;
     try {
       const [groups, connections] = await Promise.all([api.listReportGroups(), api.listConnections()]);
-      this.cmbGroup.setItems([{ value: '', label: WiseI18n.t('RD_SELECT_PLACEHOLDER') }, ...groups.map((g) => ({ value: String(g.id), label: g.name }))]);
+      this.cmbGroup.setItems([{ value: '', label: WiseI18n.t('RD_SELECT_PLACEHOLDER') }, ...groups.map((g) => ({ value: String(g.id), label: `[${g.code}] ${g.name}` }))]);
       this.cmbConnection.setItems([{ value: '', label: WiseI18n.t('RD_SELECT_PLACEHOLDER') }, ...connections.map((c) => ({ value: String(c.id), label: c.name }))]);
       this.cmbGroup.setValue(this.defaultGroupId ? String(this.defaultGroupId) : '');
       this.cmbConnection.setValue('');

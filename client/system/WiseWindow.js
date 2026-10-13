@@ -284,6 +284,23 @@ class WiseWindow {
     return childWin;
   }
 
+  // Pushes the controls' current state to the screen immediately, in the middle
+  // of an event handler. Normally the DOM is only patched after the handler's
+  // promise resolves, so a loading indicator set before `await fetch(...)` would
+  // never be seen; `await this.refresh()` right after setting it makes it show.
+  // Browser-run apps only (no-op elsewhere).
+  async refresh() {
+    const desktop = typeof window !== 'undefined' ? window.WiseDesktopInstance : null;
+    const winEl = desktop && typeof document !== 'undefined'
+      ? document.querySelector(`.window[data-window-id="${this.windowId}"]`)
+      : null;
+    if (!winEl || typeof desktop.patchWindowControls !== 'function') return;
+
+    desktop.patchWindowControls(winEl, this.controls.map((control) => (control.render ? control.render() : control)));
+    // Let the browser actually paint before the caller starts slow work.
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  }
+
   launchApp(appId, param = null) {
     this.pendingLaunchAppId = appId;
     this.pendingLaunchParam = param || null;

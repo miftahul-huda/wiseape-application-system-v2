@@ -20,11 +20,12 @@ exists. It queues the request; when the window's event handler returns,
 ```js
 // inside any WiseWindow subclass, e.g. in a button's onClick handler
 onShowReportsClick() {
-  this.launchApp('reportViewer', { reportGroupId: 3 });
+  this.launchApp('reportViewer', { reportGroupId: 'EMPLOYEE_INFORMATION_REPORT' });
 }
 ```
 
-- `reportGroupId` present: the viewer preselects that group, disables the
+- `reportGroupId` present (a numeric group id like `3`, or a group **code** such as
+  `'EMPLOYEE_INFORMATION_REPORT'`; `reportGroupCode` is an alias): the viewer preselects that group, disables the
   group chooser and lists only that group's reports.
 - `reportGroupId` absent (`this.launchApp('reportViewer')`): the viewer shows
   a group chooser.
@@ -35,4 +36,4 @@ Notes:
   click, change, ...), because the request is delivered with the window JSON
   returned from that handler.
 - The `appId` is the `appID` registered in the WAS DB (`reportViewer`).
-- The group id comes from `GET /report-groups` (`id` field).
+- The group id/code come from `GET /report-groups` (`id` / `code` fields).

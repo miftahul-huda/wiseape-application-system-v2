@@ -53,8 +53,28 @@ INSERT INTO rd_database_types (code, name, driver, default_port) VALUES
 ON CONFLICT (code) DO NOTHING;
 `;
 
-async function initSchema() {
-  await pool.query(DDL);
+// Code derived from a name: "Laporan Penjualan" -> "LAPORAN_PENJUALAN" (no spaces).
+function slugifyCode(name) {
+  return String(name || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '')
+    .toUpperCase().slice(0, 50);
 }
 
-module.exports = { initSchema };
+async function initSchema() {
+  await pool.query(DDL);
+
+  // rd_report_groups.code: added after the first release, so migrate in place.
+  await pool.query('ALTER TABLE rd_report_groups ADD COLUMN IF NOT EXISTS code text');
+  const missing = await pool.query('SELECT id, name FROM rd_report_groups WHERE code IS NULL OR code = \'\' ORDER BY id');
+  for (const row of missing.rows) {
+    let code = slugifyCode(row.name) || `GROUP_${row.id}`;
+    const clash = await pool.query('SELECT 1 FROM rd_report_groups WHERE lower(code) = lower($1) AND id <> $2', [code, row.id]);
+    if (clash.rowCount > 0) code = `${code.slice(0, 44)}_${row.id}`;
+    await pool.query('UPDATE rd_report_groups SET code = $1 WHERE id = $2', [code, row.id]);
+  }
+  await pool.query('ALTER TABLE rd_report_groups ALTER COLUMN code SET NOT NULL');
+  await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS rd_report_groups_code_key ON rd_report_groups (lower(code))');
+}
+
+module.exports = { initSchema, slugifyCode };

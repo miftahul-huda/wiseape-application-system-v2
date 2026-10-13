@@ -6,12 +6,12 @@ const { validateReadOnlyQuery } = require('../services/queryGuard');
 const { getRuntime } = require('../services/connectionService');
 
 const ok = (res, data, status = 200) => res.status(status).json({ success: true, data });
-const SELECT = `SELECT r.*, g.name AS group_name, c.name AS connection_name FROM rd_reports r
+const SELECT = `SELECT r.*, g.name AS group_name, g.code AS group_code, c.name AS connection_name FROM rd_reports r
   LEFT JOIN rd_report_groups g ON g.id = r.group_id
   LEFT JOIN rd_connections c ON c.id = r.connection_id`;
 
 const map = (r) => ({
-  id: r.id, groupId: r.group_id, groupName: r.group_name, name: r.name, description: r.description,
+  id: r.id, groupId: r.group_id, groupName: r.group_name, groupCode: r.group_code, name: r.name, description: r.description,
   connectionId: r.connection_id, connectionName: r.connection_name, sourceType: r.source_type,
   sourceTable: r.source_table, sourceQuery: r.source_query, chartType: r.chart_type,
   dimensions: r.dimensions, measures: r.measures, rowLimit: r.row_limit, options: r.options,

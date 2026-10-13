@@ -26,6 +26,7 @@ class WiseChart extends WiseControl {
     this.labels = options.labels || [];
     this.datasets = options.datasets || [];
     this.title = options.title || '';
+    this.loading = false;
     this.height = options.height || 320;
     this.style = options.style || {};
   }
@@ -36,6 +37,13 @@ class WiseChart extends WiseControl {
     this.labels = chart.labels || [];
     this.datasets = chart.datasets || [];
     if (chart.title !== undefined) this.title = chart.title;
+    return this;
+  }
+
+  // Shows a spinner instead of the chart while data is being fetched. Needs
+  // `await window.refresh()` afterwards to appear before slow async work.
+  setLoading(loading) {
+    this.loading = !!loading;
     return this;
   }
 
@@ -55,6 +63,7 @@ class WiseChart extends WiseControl {
       labels: this.labels,
       datasets: this.datasets,
       title: this.title,
+      loading: this.loading,
       height: this.height,
       style: this.style,
       visible: this.visible,
@@ -136,6 +145,17 @@ class WiseChart extends WiseControl {
       wrapper._wiseChart = null;
     }
     wrapper.innerHTML = '';
+
+    if (data.loading) {
+      const box = document.createElement('div');
+      box.className = 'wise-chart-loading';
+      box.innerHTML = '<span class="wise-spinner" aria-hidden="true"></span>';
+      const text = document.createElement('span');
+      text.textContent = t('RD_MSG_LOADING');
+      box.appendChild(text);
+      wrapper.appendChild(box);
+      return;
+    }
 
     if (!data.labels || data.labels.length === 0) {
       const empty = document.createElement('div');

@@ -518,32 +518,10 @@ class WinEmployeeManagement extends WiseWindow {
     this.showInfo(WiseI18n.t('REFRESH'), WiseI18n.t('DATA_KARYAWAN_TELAH_DISEGARKAN'), 'information');
   }
 
-  async onReportClick() {
-    try {
-      const stats = await api.getStatistics();
-      if (!stats) return this.showInfo(WiseI18n.t('LAPORAN_RINGKASAN'), WiseI18n.t('DATA_STATISTIK_BELUM_TERSEDIA'), 'warning');
-
-      const deptBreakdown = Object.entries(stats.byDepartment || {})
-        .map(([dept, count]) => `• ${dept}: ${count} ${WiseI18n.t('ORANG')}`).join('\n');
-      const statusBreakdown = Object.entries(stats.byStatus || {})
-        .map(([status, count]) => `• ${status}: ${count} ${WiseI18n.t('ORANG')}`).join('\n');
-
-      const message = [
-        `📊 ${WiseI18n.t('TOTAL_KARYAWAN_LABEL')}: ${stats.totalEmployees || 0} ${WiseI18n.t('ORANG')}`,
-        `🟢 ${WiseI18n.t('STATUS_AKTIF_LABEL')}: ${stats.activeEmployees || 0} ${WiseI18n.t('ORANG')}`,
-        `🔴 ${WiseI18n.t('STATUS_NONAKTIF_LABEL')}: ${stats.inactiveEmployees || 0} ${WiseI18n.t('ORANG')}`,
-        '',
-        `🏢 ${WiseI18n.t('JUMLAH_PER_DEPARTEMEN_LABEL')}:`,
-        deptBreakdown || WiseI18n.t('BELUM_ADA_DATA'),
-        '',
-        `💼 ${WiseI18n.t('STATUS_KEPEGAWAIAN_LABEL')}:`,
-        statusBreakdown || WiseI18n.t('BELUM_ADA_DATA')
-      ].join('\n');
-
-      this.showInfo(WiseI18n.t('LAPORAN_RINGKASAN_KARYAWAN'), message, 'information');
-    } catch (err) {
-      this.showInfo(WiseI18n.t('GAGAL_MEMUAT_LAPORAN'), err.message, 'error');
-    }
+  // Opens the Report Viewer on the "Employee Information Report" report group
+  // (group code; a numeric group id works too).
+  onReportClick() {
+    this.launchApp('reportViewer', { reportGroupId: 'EMPLOYEE_INFORMATION_REPORT' });
   }
 
   show(param = null) {

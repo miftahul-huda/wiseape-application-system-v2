@@ -1,8 +1,10 @@
 import { WiseApplication } from '../../src/runtime/wise.js';
 import WinReportViewer from './forms/WinReportViewer';
 
-// appParameter.reportGroupId (optional): the report group to show. Without it
-// the viewer shows a group chooser.
+// appParameter.reportGroupId (optional): the report group to show -- either the
+// numeric group id or the group code (e.g. 'EMPLOYEE_INFORMATION_REPORT');
+// appParameter.reportGroupCode is accepted as an alias. Without either the
+// viewer shows a group chooser.
 class AppReportViewer extends WiseApplication {
   async run(appConfig = {}, appParameter = {}) {
     const param = appParameter || {};
@@ -11,7 +13,7 @@ class AppReportViewer extends WiseApplication {
       height: '88%',
       positionX: 80,
       positionY: 40,
-      reportGroupId: param.reportGroupId || null,
+      reportGroupId: param.reportGroupId || param.reportGroupCode || null,
     });
 
     viewerWindow.show(param);
