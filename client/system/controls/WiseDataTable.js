@@ -486,7 +486,7 @@
           inp.id = `${data.id}-filter-${filter.id}`;
           inp.placeholder = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(filter.placeholder || '') : (filter.placeholder || '');
           inp.value = filter.value || '';
-          inp.className = 'w-full appearance-none rounded-sm border border-slate-300 bg-white py-1.5 pl-8 pr-3 text-sm text-slate-800 placeholder-slate-400 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
+          inp.className = 'wise-dt-filter-search w-full appearance-none rounded-sm border border-slate-300 bg-white py-1.5 pl-8 pr-3 text-sm text-slate-800 placeholder-slate-400 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
           inputEls[filter.id] = inp;
 
           // Trigger on Enter key

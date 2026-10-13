@@ -13,6 +13,9 @@ import WinEmployeeEdit from './WinEmployeeEdit';
 import HrisApiRepository from '../services/HrisApiRepository';
 const api = new HrisApiRepository();
 
+// Light-grey header for the sub-record tables (instead of the theme-accent default).
+const GREY_TABLE_HEADER = { background: '#e2e8f0', color: '#334155' };
+
 class WinEmployeeDetail extends WiseWindow {
   constructor(options = {}) {
     super(options);
@@ -234,7 +237,7 @@ class WinEmployeeDetail extends WiseWindow {
 
     // ── TAB 4: DOKUMEN & LEGALITAS ──────────────────────────────
     const tabDocControls = [];
-    const dtDocuments = new WiseDataTable({ id: 'dtDocuments', pageSize: 6 });
+    const dtDocuments = new WiseDataTable({ id: 'dtDocuments', pageSize: 6, headerStyle: GREY_TABLE_HEADER });
     dtDocuments.setColumns([
       { dataField: 'documentType', header: WiseI18n.t('JENIS_DOKUMEN'), width: 140 },
       { dataField: 'title', header: WiseI18n.t('NAMA_JUDUL_DOKUMEN'), width: 220 },
@@ -248,7 +251,7 @@ class WinEmployeeDetail extends WiseWindow {
 
     // ── TAB 5: PENGALAMAN KERJA ──────────────────────────────────
     const tabExpControls = [];
-    const dtExperiences = new WiseDataTable({ id: 'dtExperiences', pageSize: 6 });
+    const dtExperiences = new WiseDataTable({ id: 'dtExperiences', pageSize: 6, headerStyle: GREY_TABLE_HEADER });
     dtExperiences.setColumns([
       { dataField: 'companyName', header: WiseI18n.t('PERUSAHAAN'), width: 200 },
       { dataField: 'position', header: WiseI18n.t('POSISI'), width: 180 },
@@ -262,7 +265,7 @@ class WinEmployeeDetail extends WiseWindow {
 
     // ── TAB 6: RIWAYAT PENDIDIKAN ───────────────────────────────
     const tabEduControls = [];
-    const dtEducation = new WiseDataTable({ id: 'dtEducation', pageSize: 6 });
+    const dtEducation = new WiseDataTable({ id: 'dtEducation', pageSize: 6, headerStyle: GREY_TABLE_HEADER });
     dtEducation.setColumns([
       { dataField: 'institutionName', header: WiseI18n.t('INSTITUSI_PENDIDIKAN'), width: 220 },
       { dataField: 'degree', header: WiseI18n.t('JENJANG'), width: 100 },
@@ -277,7 +280,7 @@ class WinEmployeeDetail extends WiseWindow {
 
     // ── TAB 7: RIWAYAT KARIR INTERNAL ───────────────────────────
     const tabCareerControls = [];
-    const dtCareer = new WiseDataTable({ id: 'dtCareer', pageSize: 6 });
+    const dtCareer = new WiseDataTable({ id: 'dtCareer', pageSize: 6, headerStyle: GREY_TABLE_HEADER });
     dtCareer.setColumns([
       { dataField: 'changeType', header: WiseI18n.t('JENIS_PERUBAHAN'), width: 140 },
       { dataField: 'effectiveDate', header: WiseI18n.t('TGL_EFEKTIF'), width: 110 },
@@ -292,7 +295,7 @@ class WinEmployeeDetail extends WiseWindow {
 
     // ── TAB 8: DATA KELUARGA ────────────────────────────────────
     const tabFamilyControls = [];
-    const dtFamily = new WiseDataTable({ id: 'dtFamily', pageSize: 6 });
+    const dtFamily = new WiseDataTable({ id: 'dtFamily', pageSize: 6, headerStyle: GREY_TABLE_HEADER });
     dtFamily.setColumns([
       { dataField: 'name', header: WiseI18n.t('NAMA_ANGGOTA_KELUARGA'), width: 240 },
       { dataField: 'gender', header: WiseI18n.t('JENIS_KELAMIN'), width: 140 },
@@ -309,10 +312,9 @@ class WinEmployeeDetail extends WiseWindow {
   infoField(label, valueId, defaultText = '—') {
     const frame = new WiseFrame('', {
       style: {
-        padding: '10px 14px',
-        backgroundColor: '#f8fafc',
-        borderRadius: '8px',
-        border: '1px solid #e2e8f0',
+        padding: '6px 4px',
+        background: 'transparent',
+        border: 'none',
         marginBottom: '6px'
       }
     });

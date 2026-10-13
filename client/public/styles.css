@@ -1989,3 +1989,10 @@ body.dark-theme .wise-icon-menu:hover {
 .wise-labeled:has(> [data-control-id][style*="display: none"]) {
   display: none;
 }
+
+/* Filter search input: leave room for the magnifier icon. The global flat-input
+   rule above sets padding with !important, which would otherwise win over
+   Tailwind's pl-8 and let the icon overlap the placeholder/text. */
+.wise-dt-filter-bar input.wise-dt-filter-search[type="text"] {
+  padding-left: 34px !important;
+}
