@@ -35,6 +35,9 @@
       this.selectedRowIndex = this.selectedRowIndices.length > 0 ? this.selectedRowIndices[0] : null;
       this.style = options.style || {};
       this.contextMenuItems = [];
+      // Optional header overrides, e.g. { background: '#e2e8f0', color: '#334155' };
+      // without it the header uses the theme-accent gradient from styles.css.
+      this.headerStyle = options.headerStyle || null;
 
       // Arrow functions (not prototype methods) so `this` stays the control
       // instance even though dispatchControlEvent invokes them via
@@ -323,6 +326,7 @@
         pageSizeOptions: this.pageSizeOptions,
         sortField: this.sortField,
         sortDirection: this.sortDirection,
+        headerStyle: this.headerStyle,
         height: this.height,
         maxHeight: this.maxHeight,
         scrollable: this.scrollable,
@@ -648,6 +652,12 @@
       thead.style.position = 'sticky';
       thead.style.top = '0';
       thead.style.zIndex = '10';
+      const headerStyle = data.headerStyle || {};
+      if (headerStyle.background) {
+        thead.style.background = headerStyle.background;
+        // A custom header sits flush against the first row: no divider line.
+        thead.style.boxShadow = 'none';
+      }
       const headRow = document.createElement('tr');
 
       const resizeKey = `${context.windowId || ''}:${data.id}`;
@@ -662,6 +672,8 @@
         th.style.position = 'sticky';
         th.style.top = '0';
         th.style.zIndex = '10';
+        if (headerStyle.color) th.style.color = headerStyle.color;
+        if (headerStyle.background) th.style.borderBottom = 'none';
         if (col.width) {
           const w = typeof col.width === 'number' ? `${col.width}px` : col.width;
           th.style.width = w;
@@ -1104,7 +1116,14 @@
         const state = active
           ? 'bg-[var(--accent)] text-white font-semibold shadow-sm'
           : 'bg-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-700 hover:-translate-y-px';
+        // With a custom headerStyle the current-page pill matches the header.
+        const customActive = active && data.headerStyle && data.headerStyle.background;
         btn.className = `wise-dt-nav-btn inline-flex h-7 min-w-[28px] cursor-pointer items-center justify-center rounded-full border-0 px-2 text-xs transition-all duration-150 ease-out active:translate-y-0 active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:translate-y-0 ${state}`;
+        if (customActive) {
+          btn.classList.remove('bg-[var(--accent)]', 'text-white', 'shadow-sm');
+          btn.style.background = data.headerStyle.background;
+          btn.style.color = data.headerStyle.color || '';
+        }
         if (!disabled && onClick) btn.addEventListener('click', onClick);
         return btn;
       };

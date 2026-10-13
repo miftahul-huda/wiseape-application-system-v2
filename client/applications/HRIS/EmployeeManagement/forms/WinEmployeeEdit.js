@@ -21,6 +21,9 @@ import WinEmployeeFamilyEdit from './WinEmployeeFamilyEdit';
 import HrisApiRepository from '../services/HrisApiRepository';
 const api = new HrisApiRepository();
 
+// Light-grey header for the sub-record tables (instead of the theme-accent default).
+const GREY_TABLE_HEADER = { background: '#e2e8f0', color: '#334155' };
+
 const RELIGIONS = ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu', 'Lainnya'];
 const EMPLOYMENT_STATUSES = [
   'Tetap (PKWTT)',
@@ -256,7 +259,7 @@ class WinEmployeeEdit extends WiseWindow {
     }));
     tabDocControls.push(docToolbar);
 
-    const dtDocuments = new WiseDataTable({ id: 'dtDocuments', pageSize: 6 });
+    const dtDocuments = new WiseDataTable({ id: 'dtDocuments', pageSize: 6, headerStyle: GREY_TABLE_HEADER });
     dtDocuments.setColumns([
       { dataField: 'documentType', header: WiseI18n.t('JENIS_DOKUMEN'), width: 140 },
       { dataField: 'title', header: WiseI18n.t('NAMA_JUDUL_DOKUMEN'), width: 220 },
@@ -295,7 +298,7 @@ class WinEmployeeEdit extends WiseWindow {
     }));
     tabExpControls.push(expToolbar);
 
-    const dtExperiences = new WiseDataTable({ id: 'dtExperiences', pageSize: 6 });
+    const dtExperiences = new WiseDataTable({ id: 'dtExperiences', pageSize: 6, headerStyle: GREY_TABLE_HEADER });
     dtExperiences.setColumns([
       { dataField: 'companyName', header: WiseI18n.t('PERUSAHAAN'), width: 200 },
       { dataField: 'position', header: WiseI18n.t('POSISI'), width: 180 },
@@ -334,7 +337,7 @@ class WinEmployeeEdit extends WiseWindow {
     }));
     tabEduControls.push(eduToolbar);
 
-    const dtEducation = new WiseDataTable({ id: 'dtEducation', pageSize: 6 });
+    const dtEducation = new WiseDataTable({ id: 'dtEducation', pageSize: 6, headerStyle: GREY_TABLE_HEADER });
     dtEducation.setColumns([
       { dataField: 'institutionName', header: WiseI18n.t('INSTITUSI_PENDIDIKAN'), width: 220 },
       { dataField: 'degree', header: WiseI18n.t('JENJANG'), width: 100 },
@@ -374,7 +377,7 @@ class WinEmployeeEdit extends WiseWindow {
     }));
     tabCareerControls.push(careerToolbar);
 
-    const dtCareer = new WiseDataTable({ id: 'dtCareer', pageSize: 6 });
+    const dtCareer = new WiseDataTable({ id: 'dtCareer', pageSize: 6, headerStyle: GREY_TABLE_HEADER });
     dtCareer.setColumns([
       { dataField: 'changeType', header: WiseI18n.t('JENIS_PERUBAHAN'), width: 140 },
       { dataField: 'effectiveDate', header: WiseI18n.t('TGL_EFEKTIF'), width: 110 },
@@ -414,7 +417,7 @@ class WinEmployeeEdit extends WiseWindow {
     }));
     tabFamilyControls.push(familyToolbar);
 
-    const dtFamily = new WiseDataTable({ id: 'dtFamily', pageSize: 6 });
+    const dtFamily = new WiseDataTable({ id: 'dtFamily', pageSize: 6, headerStyle: GREY_TABLE_HEADER });
     dtFamily.setColumns([
       { dataField: 'name', header: WiseI18n.t('NAMA_ANGGOTA_KELUARGA'), width: 240 },
       { dataField: 'gender', header: WiseI18n.t('GENDER'), width: 140 },

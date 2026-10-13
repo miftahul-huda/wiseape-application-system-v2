@@ -15,7 +15,6 @@
   - **DILARANG KERAS** melakukan override pada ukuran, tinggi (`height`/`minHeight`), padding, lebar (`minWidth`), maupun `borderRadius` secara sembarangan di tiap window atau tiap tombol (seperti `padding: '7px 14px'`, `padding: '8px 18px'`, `padding: '9px 30px'`, `borderRadius: '8px'`, dll.).
   - Jika memerlukan variasi warna (misalnya tombol Batal berwarna abu-abu atau tombol Hapus berwarna merah), **HANYA** tentukan properti `background` dan `color` saja (contoh: `style: { background: '#e2e8f0', color: '#334155' }`), biarkan seluruh dimensi, tinggi, padding, lebar, dan border radius mengikuti style default bawaan `WiseButton`.
   - Tombol yang berdampingan (seperti Simpan dan Batal) harus seragam dan konsisten memiliki ukuran yang sama persis mengikuti style default.
-- **Border Radius Window 3px**: Border radius untuk seluruh window (termasuk popup dialog konfirmasi dan alert info card) **WAJIB** bernilai 3px (`border-radius: 3px;`).
 - **WAJIB Border pada Semua Input Controls (DILARANG MENGHILANGKAN BORDER)**:
   - **DILARANG KERAS MENGHILANGKAN BORDER** (`border: none`, `border: 0`, `border-none`, `border-transparent`, `outline: none` tanpa border) pada seluruh input controls (`WiseTextBox`, `WiseComboBox`, `WiseDate`, `WiseDateRange`, `WiseNumericBox`, `WiseTextArea`, search input, dll.).
   - Seluruh input controls **WAJIB** memiliki border 1px solid yang jelas, tegas, dan kontras (`border: 1px solid #94a3b8` / `border border-slate-300`). Jangan pernah membuat input tanpa border/borderless.
@@ -23,6 +22,11 @@
 
 ## 2. Form & Window Architecture
 - **Sub-Records / Child Data Table Architecture**: Dilarang membuat form input inline di bawah data table untuk penambahan/pengeditan sub-records (misal: Dokumen, Pengalaman Kerja, Pendidikan, Riwayat Karir). Sediakan tombol aksi ("➕ Tambah", "✏️ Edit", "🗑️ Hapus") dan context menu di tabel yang memanggil form dialog terpisah melalui `this.openWindow(...)`.
+- **DataTable pada Form Input / Edit Wajib Header Grey & Navigasi Grey**:
+  - Setiap `WiseDataTable` yang berada di dalam window/form input atau edit (misalnya tab sub-record di `WinEmployeeEdit`: Dokumen, Pengalaman, Pendidikan, Karir, Keluarga) **WAJIB** memakai `headerStyle` dengan warna grey, bukan header default berwarna aksen tema: `new WiseDataTable({ id: '...', pageSize: 6, headerStyle: { background: '#e2e8f0', color: '#334155' } })`.
+  - Gunakan satu konstanta bersama per file (contoh: `const GREY_TABLE_HEADER = { background: '#e2e8f0', color: '#334155' };`), jangan menulis ulang nilai warna di tiap tabel.
+  - `headerStyle` otomatis menghilangkan garis pemisah antara header dan baris, serta mewarnai tombol halaman aktif pada navigasi/pager (atas dan bawah) dengan warna grey yang sama. Jangan menambahkan garis atau warna aksen lain pada header maupun navigasi tabel tersebut.
+  - Aturan ini khusus untuk DataTable di form input/edit. DataTable pada window daftar/manajemen (misalnya `WinEmployeeManagement`) tetap memakai header default tema.
 - **DILARANG MENAMBAHKAN FRAME / HERO BANNER DI ATAS FORM ATAU WINDOW**: DILARANG KERAS menambahkan frame dekoratif, hero header banner, atau frame informasi/deskripsi di bagian atas window atau form kecuali diminta secara eksplisit oleh user. Window dan form harus langsung dimulai dengan konten fungsional utama (toolbar aksi, tab, filter, data table, atau layout input controls).
 - **Input Tanggal**: Untuk seluruh input tanggal, WAJIB menggunakan kontrol `WiseDate` (bukan `WiseTextBox`).
 - **Posisi Action Buttons (Save di Kiri, Cancel di Kanan)**:
