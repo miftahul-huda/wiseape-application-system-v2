@@ -179,7 +179,7 @@
       el.value = WiseNumericBox.toDisplay(raw, decimal, group);
       el.dataset.decimal = decimal;
       el.dataset.group = group;
-      el.className = 'wise-numeric-inner-input min-w-0 flex-1 appearance-none border-0 bg-transparent px-3 py-1.5 text-sm text-slate-800 placeholder-slate-400 outline-none';
+      el.className = 'wise-numeric-inner-input min-w-0 flex-1 appearance-none border-0 bg-transparent px-3 py-1.5 text-sm text-inherit placeholder-slate-400 outline-none';
       wrapper.appendChild(el);
 
       if (data.suffix) {

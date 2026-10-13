@@ -73,7 +73,7 @@
 
       const text = document.createElement('div');
       text.className = 'flex flex-col';
-      text.innerHTML = `<strong class="text-sm text-slate-800">${data.promptText || 'Choose a file'}</strong><span class="text-[10px] text-slate-500">Click to browse or drop an image</span>`;
+      text.innerHTML = `<strong class="text-sm text-inherit">${data.promptText || 'Choose a file'}</strong><span class="text-[10px] text-slate-500">Click to browse or drop an image</span>`;
 
       label.appendChild(preview);
       label.appendChild(text);

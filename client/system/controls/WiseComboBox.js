@@ -142,7 +142,7 @@
       const isSearchable = data.searchable !== false;
 
       const wrapper = document.createElement('div');
-      wrapper.className = `wise-combobox-wrapper relative w-full text-slate-800 rounded-sm border border-slate-300 bg-white shadow-none transition ${isSearchable ? 'wise-combobox-searchable' : ''}`;
+      wrapper.className = `wise-combobox-wrapper relative w-full text-inherit rounded-sm border border-slate-300 bg-white shadow-none transition ${isSearchable ? 'wise-combobox-searchable' : ''}`;
       wrapper.dataset.value = currentValue;
       wrapper.dataset.controlId = data.id || '';
       wrapper.dataset.controlType = 'WiseComboBox';
@@ -169,7 +169,7 @@
 
       // Trigger button - In searchable mode (and as inner trigger), do NOT show inner border
       const trigger = document.createElement('div');
-      trigger.className = 'wise-combobox-trigger w-full cursor-pointer flex items-center justify-between bg-transparent border-0 py-1.5 pl-3 pr-3 text-sm text-slate-800 shadow-none outline-none transition select-none';
+      trigger.className = 'wise-combobox-trigger w-full cursor-pointer flex items-center justify-between bg-transparent border-0 py-1.5 pl-3 pr-3 text-sm text-inherit shadow-none outline-none transition select-none';
       trigger.style.border = 'none';
       trigger.style.borderWidth = '0';
       trigger.style.outline = 'none';
@@ -246,7 +246,7 @@
           optEl.className = `wise-combobox-option px-3 py-1.5 cursor-pointer flex items-center justify-between transition ${
             isSelected
               ? 'bg-[color-mix(in_srgb,var(--accent)_15%,white)] text-[var(--accent-dark)] font-semibold'
-              : 'text-slate-700 hover:bg-[color-mix(in_srgb,var(--accent)_10%,white)] hover:text-[var(--accent-dark)]'
+              : 'text-inherit hover:bg-[color-mix(in_srgb,var(--accent)_10%,white)] hover:text-[var(--accent-dark)]'
           }`;
           optEl.dataset.value = it.value;
 

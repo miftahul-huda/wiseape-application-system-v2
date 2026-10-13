@@ -39,10 +39,10 @@
       let savedRange = null;
 
       const toolbar = document.createElement('div');
-      toolbar.className = 'flex flex-wrap items-center gap-1 border-b border-slate-900/10 bg-slate-50 p-1.5 text-slate-700 select-none';
+      toolbar.className = 'flex flex-wrap items-center gap-1 border-b border-slate-900/10 bg-slate-50 p-1.5 text-inherit select-none';
 
       const editable = document.createElement('div');
-      editable.className = 'wise-htmleditor-editable min-h-[140px] max-h-[450px] overflow-y-auto px-4 py-3 text-sm text-slate-800 outline-none';
+      editable.className = 'wise-htmleditor-editable min-h-[140px] max-h-[450px] overflow-y-auto px-4 py-3 text-sm text-inherit outline-none';
       editable.contentEditable = 'true';
       editable.innerHTML = data.value || '';
       WiseControl.applyCommon(editable, data, context);
@@ -125,7 +125,7 @@
         btn.type = 'button';
         btn.innerHTML = label;
         btn.title = title || label;
-        btn.className = 'wise-editor-btn flex h-7 min-w-[28px] items-center justify-center rounded-sm px-1.5 bg-transparent text-xs font-medium text-slate-600 transition hover:bg-white hover:text-slate-900 hover:shadow-xs cursor-pointer border-0';
+        btn.className = 'wise-editor-btn flex h-7 min-w-[28px] items-center justify-center rounded-sm px-1.5 bg-transparent text-xs font-medium text-slate-600 transition hover:bg-white hover:text-inherit hover:shadow-xs cursor-pointer border-0';
         btn.addEventListener('mousedown', (event) => {
           event.preventDefault();
           if (isSourceView) return;
@@ -139,7 +139,7 @@
       const makeSelect = (optionsList, command, placeholder, title) => {
         const select = document.createElement('select');
         select.title = title || placeholder;
-        select.className = 'wise-editor-select h-7 rounded-sm border border-slate-200 bg-white px-2 py-0.5 text-xs text-slate-700 outline-none hover:border-slate-300 transition cursor-pointer';
+        select.className = 'wise-editor-select h-7 rounded-sm border border-slate-200 bg-white px-2 py-0.5 text-xs text-inherit outline-none hover:border-slate-300 transition cursor-pointer';
 
         const defaultOpt = document.createElement('option');
         defaultOpt.value = '';
@@ -169,7 +169,7 @@
       const makeColorPicker = (command, title, iconText) => {
         const wrap = document.createElement('label');
         wrap.title = title;
-        wrap.className = 'wise-editor-btn relative flex h-7 min-w-[28px] items-center justify-center rounded-sm px-1.5 bg-transparent text-xs font-medium text-slate-600 hover:bg-white hover:text-slate-900 hover:shadow-xs cursor-pointer border-0';
+        wrap.className = 'wise-editor-btn relative flex h-7 min-w-[28px] items-center justify-center rounded-sm px-1.5 bg-transparent text-xs font-medium text-slate-600 hover:bg-white hover:text-inherit hover:shadow-xs cursor-pointer border-0';
 
         const span = document.createElement('span');
         span.innerHTML = iconText;
@@ -196,10 +196,10 @@
         overlay.className = 'wise-editor-modal absolute inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center z-20 p-4 transition-all duration-150';
 
         const box = document.createElement('div');
-        box.className = 'bg-white rounded-md shadow-xl border border-slate-200 p-4 w-full max-w-xs flex flex-col gap-3 text-slate-800 text-xs animate-in fade-in zoom-in-95 duration-150';
+        box.className = 'bg-white rounded-md shadow-xl border border-slate-200 p-4 w-full max-w-xs flex flex-col gap-3 text-inherit text-xs animate-in fade-in zoom-in-95 duration-150';
 
         const header = document.createElement('div');
-        header.className = 'font-semibold text-sm border-b border-slate-100 pb-2 flex justify-between items-center text-slate-900';
+        header.className = 'font-semibold text-sm border-b border-slate-100 pb-2 flex justify-between items-center text-inherit';
         header.innerHTML = `<span>${title}</span>`;
 
         const closeBtn = document.createElement('button');
@@ -234,7 +234,7 @@
             input.type = f.type || 'text';
             input.value = f.default !== undefined ? f.default : '';
             input.placeholder = f.placeholder || '';
-            input.className = 'rounded-sm border border-slate-300 px-2.5 py-1 text-xs outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-slate-800';
+            input.className = 'rounded-sm border border-slate-300 px-2.5 py-1 text-xs outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-inherit';
             group.appendChild(label);
             group.appendChild(input);
           }
@@ -282,7 +282,7 @@
       const btnSource = document.createElement('button');
       btnSource.type = 'button';
       btnSource.title = 'View Source Code';
-      btnSource.className = 'wise-editor-btn wise-btn-source flex h-7 items-center justify-center rounded-sm px-2 bg-transparent text-xs font-mono font-bold text-slate-700 hover:bg-white hover:shadow-xs cursor-pointer border-0 transition';
+      btnSource.className = 'wise-editor-btn wise-btn-source flex h-7 items-center justify-center rounded-sm px-2 bg-transparent text-xs font-mono font-bold text-inherit hover:bg-white hover:shadow-xs cursor-pointer border-0 transition';
       btnSource.innerHTML = '&lt;/&gt; Source';
       btnSource.addEventListener('click', () => {
         isSourceView = !isSourceView;
@@ -290,7 +290,7 @@
           sourceArea.value = editable.innerHTML;
           editable.style.display = 'none';
           sourceArea.style.display = 'block';
-          btnSource.classList.add('bg-slate-200', 'text-slate-900');
+          btnSource.classList.add('bg-slate-200', 'text-inherit');
           toolbar.querySelectorAll('.wise-editor-btn:not(.wise-btn-source), .wise-editor-select, label').forEach((el) => {
             el.style.opacity = '0.4';
             el.style.pointerEvents = 'none';
@@ -299,7 +299,7 @@
           editable.innerHTML = sourceArea.value;
           sourceArea.style.display = 'none';
           editable.style.display = 'block';
-          btnSource.classList.remove('bg-slate-200', 'text-slate-900');
+          btnSource.classList.remove('bg-slate-200', 'text-inherit');
           toolbar.querySelectorAll('.wise-editor-btn, .wise-editor-select, label').forEach((el) => {
             el.style.opacity = '';
             el.style.pointerEvents = '';
@@ -388,7 +388,7 @@
       const btnLink = document.createElement('button');
       btnLink.type = 'button';
       btnLink.title = 'Add Link';
-      btnLink.className = 'wise-editor-btn flex h-7 items-center justify-center rounded-sm px-1.5 bg-transparent text-xs font-medium text-slate-600 transition hover:bg-white hover:text-slate-900 hover:shadow-xs cursor-pointer border-0';
+      btnLink.className = 'wise-editor-btn flex h-7 items-center justify-center rounded-sm px-1.5 bg-transparent text-xs font-medium text-slate-600 transition hover:bg-white hover:text-inherit hover:shadow-xs cursor-pointer border-0';
       btnLink.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
       btnLink.addEventListener('click', () => {
         if (isSourceView) return;
@@ -413,7 +413,7 @@
       const btnImage = document.createElement('button');
       btnImage.type = 'button';
       btnImage.title = 'Add Image';
-      btnImage.className = 'wise-editor-btn flex h-7 items-center justify-center rounded-sm px-1.5 bg-transparent text-xs font-medium text-slate-600 transition hover:bg-white hover:text-slate-900 hover:shadow-xs cursor-pointer border-0';
+      btnImage.className = 'wise-editor-btn flex h-7 items-center justify-center rounded-sm px-1.5 bg-transparent text-xs font-medium text-slate-600 transition hover:bg-white hover:text-inherit hover:shadow-xs cursor-pointer border-0';
       btnImage.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
       btnImage.addEventListener('click', () => {
         if (isSourceView) return;
@@ -434,7 +434,7 @@
       const btnTable = document.createElement('button');
       btnTable.type = 'button';
       btnTable.title = 'Add Table';
-      btnTable.className = 'wise-editor-btn flex h-7 items-center justify-center rounded-sm px-1.5 bg-transparent text-xs font-medium text-slate-600 transition hover:bg-white hover:text-slate-900 hover:shadow-xs cursor-pointer border-0';
+      btnTable.className = 'wise-editor-btn flex h-7 items-center justify-center rounded-sm px-1.5 bg-transparent text-xs font-medium text-slate-600 transition hover:bg-white hover:text-inherit hover:shadow-xs cursor-pointer border-0';
       btnTable.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>';
       btnTable.addEventListener('click', () => {
         if (isSourceView) return;

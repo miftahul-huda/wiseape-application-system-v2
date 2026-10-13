@@ -5,7 +5,7 @@
   --panel: rgba(28, 30, 34, 0.72);
   --taskbar: rgba(20, 22, 28, 0.55);
   --text: #f5f7fb;
-  --dark-text: #111827;
+  --dark-text: #435062;
   --accent: #0082fa;
   --accent-dark: #0064c4;
   --shadow: rgba(15, 23, 42, 0.25);
@@ -129,7 +129,7 @@ textarea,
   -webkit-box-shadow: none !important;
   outline: none !important;
   background-color: #ffffff !important;
-  color: #0f172a !important;
+  color: var(--dark-text) !important;
   font-size: 14px !important;
   line-height: 1.4 !important;
 }
@@ -238,7 +238,7 @@ textarea:focus,
   border: 1px solid #cbd5e1 !important;
   border-radius: 3px !important;
   background-color: #ffffff !important;
-  color: #0f172a !important;
+  color: var(--dark-text) !important;
   box-shadow: none !important;
   outline: none !important;
 }

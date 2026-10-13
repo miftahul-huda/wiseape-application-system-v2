@@ -437,7 +437,7 @@
 
           const sel = document.createElement('select');
           sel.id = `${data.id}-filter-${filter.id}`;
-          sel.className = 'w-full cursor-pointer appearance-none rounded-sm border border-slate-300 bg-white py-1.5 pl-3 pr-8 text-sm text-slate-800 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
+          sel.className = 'w-full cursor-pointer appearance-none rounded-sm border border-slate-300 bg-white py-1.5 pl-3 pr-8 text-sm text-inherit shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
           inputEls[filter.id] = sel;
 
           (filter.items || []).forEach((item) => {
@@ -486,7 +486,7 @@
           inp.id = `${data.id}-filter-${filter.id}`;
           inp.placeholder = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(filter.placeholder || '') : (filter.placeholder || '');
           inp.value = filter.value || '';
-          inp.className = 'wise-dt-filter-search w-full appearance-none rounded-sm border border-slate-300 bg-white py-1.5 pl-8 pr-3 text-sm text-slate-800 placeholder-slate-400 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
+          inp.className = 'wise-dt-filter-search w-full appearance-none rounded-sm border border-slate-300 bg-white py-1.5 pl-8 pr-3 text-sm text-inherit placeholder-slate-400 shadow-none outline-none transition focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]';
           inputEls[filter.id] = inp;
 
           // Trigger on Enter key
@@ -1058,7 +1058,7 @@
       const info = document.createElement('span');
       info.className = 'wise-dt-pager-info inline-flex items-center gap-1 font-medium text-slate-500';
       const countStrong = document.createElement('strong');
-      countStrong.className = 'font-semibold text-slate-700';
+      countStrong.className = 'font-semibold text-inherit';
       countStrong.textContent = String(totalCount);
       const rowsLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('BARIS') : 'baris';
       info.appendChild(countStrong);
@@ -1115,7 +1115,7 @@
         }
         const state = active
           ? 'bg-[var(--accent)] text-white font-semibold shadow-sm'
-          : 'bg-transparent text-slate-500 hover:bg-slate-100 hover:text-slate-700 hover:-translate-y-px';
+          : 'bg-transparent text-slate-500 hover:bg-slate-100 hover:text-inherit hover:-translate-y-px';
         // With a custom headerStyle the current-page pill matches the header.
         const customActive = active && data.headerStyle && data.headerStyle.background;
         btn.className = `wise-dt-nav-btn inline-flex h-7 min-w-[28px] cursor-pointer items-center justify-center rounded-full border-0 px-2 text-xs transition-all duration-150 ease-out active:translate-y-0 active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:translate-y-0 ${state}`;

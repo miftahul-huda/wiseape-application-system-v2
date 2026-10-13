@@ -161,7 +161,7 @@
         body.className = 'flex flex-col gap-1 p-3';
 
         const title = document.createElement('div');
-        title.className = 'text-sm font-semibold text-slate-800';
+        title.className = 'text-sm font-semibold text-inherit';
         title.textContent = row[data.titleField] ?? '';
 
         const text = document.createElement('div');
@@ -181,7 +181,7 @@
             btn.className = `px-2 py-1 text-xs font-semibold rounded-sm cursor-pointer transition ${
               act.variant === 'danger'
                 ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
+                : 'bg-slate-100 text-inherit hover:bg-slate-200 border border-slate-200'
             }`;
             btn.textContent = act.label;
             btn.addEventListener('click', (e) => {
