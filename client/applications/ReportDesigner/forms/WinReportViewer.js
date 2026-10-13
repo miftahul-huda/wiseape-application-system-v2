@@ -36,20 +36,24 @@ class WinReportViewer extends WiseWindow {
 
     const bar = new WiseFrame('', {
       id: 'frameViewerBar',
-      style: { display: 'flex', alignItems: 'flex-end', gap: '12px', flexWrap: 'wrap', border: 'none', background: 'transparent', padding: '0 0 10px 0' }
+      style: { display: 'flex', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap', border: 'none', background: 'transparent', padding: '0 0 10px 0' }
     });
     this.cmbViewerGroup = new WiseComboBox([], {
       id: 'cmbViewerGroup', label: WiseI18n.t('RD_LBL_REPORT_GROUP'), value: '', style: { width: '560px', maxWidth: '100%' },
       onChange: this.onGroupChanged.bind(this)
     });
-    // a group handed over by the caller is fixed: the chooser is disabled
-    if (this.presetGroupId) this.cmbViewerGroup.setDisabled(true);
+    // A group handed over by the caller is fixed, so the chooser is hidden
+    // (it still holds the group internally; only the standalone launch shows it).
+    if (this.presetGroupId) this.cmbViewerGroup.setVisibility(false);
     this.cmbViewerReport = new WiseComboBox([], {
-      id: 'cmbViewerReport', label: WiseI18n.t('RD_LBL_REPORT'), value: '', style: { width: '300px' },
+      id: 'cmbViewerReport', label: WiseI18n.t('RD_LBL_REPORT'), value: '', style: { width: '560px', maxWidth: '100%' },
       onChange: this.onReportChanged.bind(this)
     });
     this.btnViewerRefresh = new WiseButton(WiseI18n.t('REFRESH'), {
-      id: 'btnViewerRefresh', onClick: this.onRefreshClick.bind(this), style: GREY_BUTTON
+      id: 'btnViewerRefresh', onClick: this.onRefreshClick.bind(this), style: GREY_BUTTON,
+      // Invisible caption (non-breaking space) gives the button the same
+      // label row as the comboboxes, so its top lines up with theirs.
+      label: '\u00A0'
     });
     bar.addControl(this.cmbViewerGroup);
     bar.addControl(this.cmbViewerReport);

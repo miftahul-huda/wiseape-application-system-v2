@@ -314,6 +314,20 @@
       return wrapper;
     }
 
+    // Reads the active tab index back from the DOM. Without this the window-side
+    // control keeps its initial `value` (0) -- tab clicks only update the DOM
+    // unless an onTabChanged handler is set -- so the next event from any other
+    // control would patch the tab bar back to the first tab.
+    static gatherValue(winEl, id) {
+      const wrapper = winEl.querySelector(`[data-control-id="${id}"]`);
+      if (!wrapper) return undefined;
+      const panels = getTabParts(wrapper).panels;
+      if (!panels) return undefined;
+      const items = Array.from(panels.querySelectorAll(':scope > [data-tab-panel]'));
+      const active = items.findIndex((panel) => panel.style.display !== 'none');
+      return active >= 0 ? active : undefined;
+    }
+
     static patchElement(winEl, data, context) {
       const wrapper = winEl.querySelector(`[data-control-id="${data.id}"]`);
       if (wrapper) {

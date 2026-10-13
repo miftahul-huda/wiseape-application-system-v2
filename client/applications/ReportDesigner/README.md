@@ -25,8 +25,8 @@ onShowReportsClick() {
 ```
 
 - `reportGroupId` present (a numeric group id like `3`, or a group **code** such as
-  `'EMPLOYEE_INFORMATION_REPORT'`; `reportGroupCode` is an alias): the viewer preselects that group, disables the
-  group chooser and lists only that group's reports.
+  `'EMPLOYEE_INFORMATION_REPORT'`; `reportGroupCode` is an alias): the viewer preselects that group, hides the
+  Report Group combobox and lists only that group's reports.
 - `reportGroupId` absent (`this.launchApp('reportViewer')`): the viewer shows
   a group chooser.
 

@@ -66,6 +66,11 @@
       body.className = isHorizontal
         ? 'wise-frame-body flex flex-row flex-wrap items-center gap-2'
         : 'wise-frame-body flex flex-col gap-0.5';
+      // The flex row lives on the body, not on the frame itself, so a frame's
+      // `alignItems` style has to be forwarded here to take effect.
+      if (isHorizontal && data.style && data.style.alignItems) {
+        body.style.alignItems = data.style.alignItems;
+      }
       (data.controls || []).forEach((control) => body.appendChild(context.desktop.renderControl(control, context.appId, context.windowId)));
       wrapper.appendChild(body);
 
