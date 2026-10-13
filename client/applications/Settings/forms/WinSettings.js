@@ -22,8 +22,8 @@ class WinSettings extends WiseWindow {
     this.title = 'Settings';
     this.appTitle = options.appTitle || 'Settings';
     this.appIcon = options.appIcon || '⚙';
-    this.width = '480';
-    this.height = '620';
+    this.width = '60%';
+    this.height = '60%';
     this.themes = options.themes || [];
   }
 
