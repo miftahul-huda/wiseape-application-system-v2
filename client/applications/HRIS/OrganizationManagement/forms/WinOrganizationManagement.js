@@ -233,6 +233,15 @@ class WinOrganizationManagement extends WiseWindow {
     await this.fetchCurrentTabData(1, 15, {});
   }
 
+  // The API returns every matching row, but WiseDataTable holds exactly one
+  // page at a time, so slice the requested page here.
+  setTablePage(rows, page, limit) {
+    const start = (page - 1) * limit;
+    this.dtOrg.pageSize = limit;
+    this.dtOrg.currentPage = page;
+    this.dtOrg.setData(rows.slice(start, start + limit), rows.length);
+  }
+
   async fetchCurrentTabData(page = 1, limit = 15, filters = {}) {
     try {
       const search = (filters.search || '').trim();
@@ -250,9 +259,7 @@ class WinOrganizationManagement extends WiseWindow {
             : WiseI18n.t('ROOT_TINGKAT_ATAS'),
           statusBadge: item.isActive ? ('🟢 ' + WiseI18n.t('AKTIF_2')) : ('🔴 ' + WiseI18n.t('NONAKTIF_2'))
         }));
-        this.dtOrg.pageSize = limit;
-        this.dtOrg.currentPage = page;
-        this.dtOrg.setData(formatted, formatted.length);
+        this.setTablePage(formatted, page, limit);
         if (this.lblSummary) {
           const activeCount = this.cachedOrgs.filter((i) => i.isActive).length;
           this.lblSummary.text = `${WiseI18n.t('MENAMPILKAN')} ${this.cachedOrgs.length} ${WiseI18n.t('UNIT_ORGANISASI')} (${activeCount} ${WiseI18n.t('AKTIF_2')}, ${this.cachedOrgs.length - activeCount} ${WiseI18n.t('NONAKTIF_2')}).`;
@@ -266,9 +273,7 @@ class WinOrganizationManagement extends WiseWindow {
           levelBadge: `Level ${item.levelNumber}`,
           statusBadge: item.isActive ? ('🟢 ' + WiseI18n.t('AKTIF_2')) : ('🔴 ' + WiseI18n.t('NONAKTIF_2'))
         }));
-        this.dtOrg.pageSize = limit;
-        this.dtOrg.currentPage = page;
-        this.dtOrg.setData(formatted, formatted.length);
+        this.setTablePage(formatted, page, limit);
         if (this.lblSummary) {
           const activeCount = this.cachedLevels.filter((i) => i.isActive).length;
           this.lblSummary.text = `${WiseI18n.t('MENAMPILKAN')} ${this.cachedLevels.length} ${WiseI18n.t('JENJANG_JABATAN')} (${activeCount} ${WiseI18n.t('AKTIF_2')}, ${this.cachedLevels.length - activeCount} ${WiseI18n.t('NONAKTIF_2')}).`;
@@ -283,9 +288,7 @@ class WinOrganizationManagement extends WiseWindow {
           jobLevelName: item.jobLevel ? `[Lvl ${item.jobLevel.level_number || item.jobLevel.levelNumber}] ${item.jobLevel.name}` : '-',
           statusBadge: item.isActive ? ('🟢 ' + WiseI18n.t('AKTIF_2')) : ('🔴 ' + WiseI18n.t('NONAKTIF_2'))
         }));
-        this.dtOrg.pageSize = limit;
-        this.dtOrg.currentPage = page;
-        this.dtOrg.setData(formatted, formatted.length);
+        this.setTablePage(formatted, page, limit);
         if (this.lblSummary) {
           const activeCount = this.cachedPositions.filter((i) => i.isActive).length;
           this.lblSummary.text = `${WiseI18n.t('MENAMPILKAN')} ${this.cachedPositions.length} ${WiseI18n.t('MASTER_POSISI_JABATAN')} (${activeCount} ${WiseI18n.t('AKTIF_2')}, ${this.cachedPositions.length - activeCount} ${WiseI18n.t('NONAKTIF_2')}).`;

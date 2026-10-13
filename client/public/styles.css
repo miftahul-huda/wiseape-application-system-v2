@@ -1016,6 +1016,10 @@ body.dark-theme .wise-dt-context-menu-item:hover {
 
 /* WiseDataTable scrollable rows container */
 .wise-datatable-scroll {
+  /* Width follows the window/parent, never the table's content: wide tables
+     scroll inside this container instead of stretching the window. */
+  contain: inline-size;
+  max-width: 100%;
   scrollbar-width: thin;
   scrollbar-color: rgba(15, 23, 42, 0.22) transparent;
 }

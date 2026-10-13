@@ -193,7 +193,6 @@ class WinMasterDataManagement extends WiseWindow {
       });
 
       this.cachedData = res.rows || [];
-      const totalCount = res.meta?.total || this.cachedData.length;
       const catMap = CAT_MAP();
 
       const formattedRows = this.cachedData.map((item, idx) => ({
@@ -203,9 +202,12 @@ class WinMasterDataManagement extends WiseWindow {
         statusBadge: item.isActive ? ('🟢 ' + WiseI18n.t('AKTIF_2')) : ('🔴 ' + WiseI18n.t('NONAKTIF_2'))
       }));
 
+      // The API returns every matching row, but WiseDataTable holds exactly one
+      // page at a time, so slice the requested page here.
+      const start = (page - 1) * limit;
       this.dtMaster.pageSize = limit;
       this.dtMaster.currentPage = page;
-      this.dtMaster.setData(formattedRows, totalCount);
+      this.dtMaster.setData(formattedRows.slice(start, start + limit), formattedRows.length);
 
       this._currentFilters = filters;
 
