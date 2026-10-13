@@ -1,5 +1,7 @@
-const WiseApplication = require('../../system/WiseApplication');
-const WinHello = require('./forms/WinHello');
+import {
+  WiseApplication,
+} from '../../src/runtime/wise.js';
+import WinHello from './forms/WinHello';
 
 class AppHelloWorld extends WiseApplication {
   run(appConfig = {}, appParameter = {}) {
@@ -16,4 +18,4 @@ class AppHelloWorld extends WiseApplication {
   }
 }
 
-module.exports = AppHelloWorld;
+export default AppHelloWorld;

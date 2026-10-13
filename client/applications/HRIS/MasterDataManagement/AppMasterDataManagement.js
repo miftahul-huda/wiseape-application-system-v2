@@ -1,5 +1,7 @@
-const WiseApplication = require('../../../system/WiseApplication');
-const WinMasterDataManagement = require('./forms/WinMasterDataManagement');
+import {
+  WiseApplication,
+} from '../../../src/runtime/wise.js';
+import WinMasterDataManagement from './forms/WinMasterDataManagement';
 
 class AppMasterDataManagement extends WiseApplication {
   async run(appConfig = {}, appParameter = {}) {
@@ -25,4 +27,4 @@ class AppMasterDataManagement extends WiseApplication {
   }
 }
 
-module.exports = AppMasterDataManagement;
+export default AppMasterDataManagement;

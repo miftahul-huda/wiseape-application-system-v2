@@ -1,2 +1,2 @@
-const HrisApiRepository = require('../../services/HrisApiRepository');
-module.exports = HrisApiRepository;
+import HrisApiRepository from '../../services/HrisApiRepository';
+export default HrisApiRepository;

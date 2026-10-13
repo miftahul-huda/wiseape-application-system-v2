@@ -1,14 +1,16 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseDataTable = require('../../../../system/controls/WiseDataTable');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseDataTable,
+  WiseFrame,
+  WiseI18n,
+} from '../../../../src/runtime/wise.js';
 
-const WinMasterDataEdit = require('./WinMasterDataEdit');
-const HrisApiRepository = require('../../services/HrisApiRepository');
+import WinMasterDataEdit from './WinMasterDataEdit';
+import HrisApiRepository from '../../services/HrisApiRepository';
 const api = new HrisApiRepository();
 
-const WiseI18n = typeof window !== 'undefined' ? window.WiseI18n : require('../../../../system/WiseI18n');
 
 const CATEGORIES = () => {
   const t = (k) => WiseI18n.t(k);
@@ -343,4 +345,4 @@ class WinMasterDataManagement extends WiseWindow {
   }
 }
 
-module.exports = WinMasterDataManagement;
+export default WinMasterDataManagement;

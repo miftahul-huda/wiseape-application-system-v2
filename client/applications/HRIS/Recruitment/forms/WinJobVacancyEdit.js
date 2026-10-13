@@ -1,18 +1,20 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseTextBox = require('../../../../system/controls/WiseTextBox');
-const WiseTextArea = require('../../../../system/controls/WiseTextArea');
-const WiseComboBox = require('../../../../system/controls/WiseComboBox');
-const WiseDate = require('../../../../system/controls/WiseDate');
-const WiseTabControl = require('../../../../system/controls/WiseTabControl');
-const WiseDataTable = require('../../../../system/controls/WiseDataTable');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
-const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
-const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseTextBox,
+  WiseTextArea,
+  WiseComboBox,
+  WiseDate,
+  WiseTabControl,
+  WiseDataTable,
+  WiseFrame,
+  WiseTableLayout,
+  WiseI18n,
+} from '../../../../src/runtime/wise.js';
 
-const WinJobVacancyStageEdit = require('./WinJobVacancyStageEdit');
-const RecruitmentApiRepository = require('../services/RecruitmentApiRepository');
+import WinJobVacancyStageEdit from './WinJobVacancyStageEdit';
+import RecruitmentApiRepository from '../services/RecruitmentApiRepository';
 const api = new RecruitmentApiRepository();
 
 class WinJobVacancyEdit extends WiseWindow {
@@ -565,4 +567,4 @@ class WinJobVacancyEdit extends WiseWindow {
   }
 }
 
-module.exports = WinJobVacancyEdit;
+export default WinJobVacancyEdit;

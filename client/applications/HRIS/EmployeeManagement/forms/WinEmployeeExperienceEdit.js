@@ -1,14 +1,16 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseTextBox = require('../../../../system/controls/WiseTextBox');
-const WiseNumericBox = require('../../../../system/controls/WiseNumericBox');
-const WiseDate = require('../../../../system/controls/WiseDate');
-const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
-const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseTextBox,
+  WiseNumericBox,
+  WiseDate,
+  WiseTableLayout,
+  WiseFrame,
+  WiseI18n,
+} from '../../../../src/runtime/wise.js';
 
-const HrisApiRepository = require('../services/HrisApiRepository');
+import HrisApiRepository from '../services/HrisApiRepository';
 const api = new HrisApiRepository();
 
 class WinEmployeeExperienceEdit extends WiseWindow {
@@ -135,4 +137,4 @@ class WinEmployeeExperienceEdit extends WiseWindow {
   }
 }
 
-module.exports = WinEmployeeExperienceEdit;
+export default WinEmployeeExperienceEdit;

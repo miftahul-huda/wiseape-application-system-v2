@@ -1,5 +1,7 @@
-const WiseApplication = require('../../../system/WiseApplication');
-const WinEmployeeManagement = require('./forms/WinEmployeeManagement');
+import {
+  WiseApplication,
+} from '../../../src/runtime/wise.js';
+import WinEmployeeManagement from './forms/WinEmployeeManagement';
 
 class AppEmployeeManagement extends WiseApplication {
   async run(appConfig = {}, appParameter = {}) {
@@ -25,4 +27,4 @@ class AppEmployeeManagement extends WiseApplication {
   }
 }
 
-module.exports = AppEmployeeManagement;
+export default AppEmployeeManagement;

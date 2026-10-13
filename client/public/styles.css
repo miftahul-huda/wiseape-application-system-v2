@@ -850,24 +850,29 @@ body.dark-theme .wise-dt-context-menu-item:hover {
   flex-direction: column;
   max-height: 90vh;
   max-width: calc(100vw - 90px);
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
   border-radius: 14px;
   box-shadow: 0 25px 60px -10px rgba(15, 23, 42, 0.38), 0 12px 28px -6px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
   overflow: hidden;
-  backdrop-filter: blur(28px) saturate(1.5);
-  -webkit-backdrop-filter: blur(28px) saturate(1.5);
   transition: opacity 0.22s var(--spring), transform 0.22s var(--spring), box-shadow 0.22s ease, filter 0.22s ease;
 }
 
-/* Inactive window: clearly dimmer, faded opacity, desaturated, softer shadow */
+/* The window container itself is only focused programmatically (see
+   WiseDesktop.focusWindow), as a fallback for windows with no focusable
+   control -- never via Tab -- so it never needs a visible focus ring. */
+.window:focus {
+  outline: none;
+}
+
+/* Inactive window: clearly dimmer via desaturation only -- opacity stays
+   at 1 so the window's own (opaque) background never lets whatever is
+   behind it show through. */
 .window.window-inactive {
-  opacity: 0.68 !important;
   filter: saturate(0.75) contrast(0.95);
   box-shadow: 0 10px 25px -6px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(255, 255, 255, 0.3) inset;
 }
 
-.window.window-inactive[style*="opacity: 0"],
 .window[style*="opacity: 0"],
 .window[style*="opacity:0"] {
   opacity: 0 !important;
@@ -980,8 +985,8 @@ body.dark-theme .wise-dt-context-menu-item:hover {
 }
 
 .window-body {
-  padding: 30px;
-  background: rgba(255, 255, 255, 0.22);
+  padding: 24px;
+  background: #f8fafc;
   min-height: 0;
   flex: 1 1 auto;
   overflow-y: auto;
@@ -1555,7 +1560,7 @@ body.dark-theme .dock-item:hover {
 }
 
 body.dark-theme .window {
-  background: rgba(15, 23, 42, 0.92);
+  background: #0f172a;
   border-color: rgba(255, 255, 255, 0.12);
   box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.8), 0 12px 28px -6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
 }
@@ -1566,7 +1571,6 @@ body.dark-theme .window-header {
 }
 
 body.dark-theme .window.window-inactive {
-  opacity: 0.65 !important;
   filter: brightness(0.82) saturate(0.7);
   box-shadow: 0 10px 25px -6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
 }
@@ -1577,7 +1581,7 @@ body.dark-theme .window.window-inactive .window-header {
 }
 
 body.dark-theme .window-body {
-  background: rgba(15, 23, 42, 0.4);
+  background: #0b1120;
   color: #f1f5f9;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }

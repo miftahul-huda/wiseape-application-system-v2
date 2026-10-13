@@ -1,5 +1,7 @@
-const WiseApplication = require('../../system/WiseApplication');
-const WinSettings = require('./forms/WinSettings');
+import {
+  WiseApplication,
+} from '../../src/runtime/wise.js';
+import WinSettings from './forms/WinSettings';
 
 class AppSettings extends WiseApplication {
   async run(appConfig = {}, appParameter = {}) {
@@ -23,4 +25,4 @@ class AppSettings extends WiseApplication {
   }
 }
 
-module.exports = AppSettings;
+export default AppSettings;

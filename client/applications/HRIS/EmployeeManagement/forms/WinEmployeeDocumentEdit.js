@@ -1,14 +1,16 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseTextBox = require('../../../../system/controls/WiseTextBox');
-const WiseComboBox = require('../../../../system/controls/WiseComboBox');
-const WiseDate = require('../../../../system/controls/WiseDate');
-const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
-const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseTextBox,
+  WiseComboBox,
+  WiseDate,
+  WiseTableLayout,
+  WiseFrame,
+  WiseI18n,
+} from '../../../../src/runtime/wise.js';
 
-const HrisApiRepository = require('../services/HrisApiRepository');
+import HrisApiRepository from '../services/HrisApiRepository';
 const api = new HrisApiRepository();
 
 const DOC_TYPES = ['KTP', 'KK', 'NPWP', 'Kontrak Kerja', 'Sertifikat', 'Ijazah', 'Lisensi Profesi', 'Lainnya'];
@@ -134,4 +136,4 @@ class WinEmployeeDocumentEdit extends WiseWindow {
   }
 }
 
-module.exports = WinEmployeeDocumentEdit;
+export default WinEmployeeDocumentEdit;

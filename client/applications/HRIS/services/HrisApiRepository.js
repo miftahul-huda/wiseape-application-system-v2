@@ -568,4 +568,4 @@ class HrisApiRepository {
   }
 }
 
-module.exports = HrisApiRepository;
+export default HrisApiRepository;

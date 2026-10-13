@@ -1,5 +1,7 @@
-const WiseApplication = require('../../../system/WiseApplication');
-const WinRecruitmentPortal = require('./forms/WinRecruitmentPortal');
+import {
+  WiseApplication,
+} from '../../../src/runtime/wise.js';
+import WinRecruitmentPortal from './forms/WinRecruitmentPortal';
 
 class AppRecruitment extends WiseApplication {
   async run(appConfig = {}, appParameter = {}) {
@@ -25,4 +27,4 @@ class AppRecruitment extends WiseApplication {
   }
 }
 
-module.exports = AppRecruitment;
+export default AppRecruitment;

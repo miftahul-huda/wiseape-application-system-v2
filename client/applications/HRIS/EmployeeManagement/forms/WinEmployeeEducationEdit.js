@@ -1,13 +1,15 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseTextBox = require('../../../../system/controls/WiseTextBox');
-const WiseComboBox = require('../../../../system/controls/WiseComboBox');
-const WiseDate = require('../../../../system/controls/WiseDate');
-const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseTextBox,
+  WiseComboBox,
+  WiseDate,
+  WiseTableLayout,
+  WiseFrame,
+} from '../../../../src/runtime/wise.js';
 
-const HrisApiRepository = require('../services/HrisApiRepository');
+import HrisApiRepository from '../services/HrisApiRepository';
 const api = new HrisApiRepository();
 
 const EDU_DEGREES = ['SMA/SMK', 'D3', 'D4', 'S1', 'S2', 'S3', 'Sertifikasi Profesi'];
@@ -136,4 +138,4 @@ class WinEmployeeEducationEdit extends WiseWindow {
   }
 }
 
-module.exports = WinEmployeeEducationEdit;
+export default WinEmployeeEducationEdit;

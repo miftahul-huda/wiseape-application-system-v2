@@ -1,12 +1,14 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
-const WiseDataTable = require('../../../../system/controls/WiseDataTable');
-const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseFrame,
+  WiseDataTable,
+  WiseI18n,
+} from '../../../../src/runtime/wise.js';
 
-const WinStageTemplateEdit = require('./WinStageTemplateEdit');
-const RecruitmentApiRepository = require('../services/RecruitmentApiRepository');
+import WinStageTemplateEdit from './WinStageTemplateEdit';
+import RecruitmentApiRepository from '../services/RecruitmentApiRepository';
 const api = new RecruitmentApiRepository();
 
 class WinStageTemplateList extends WiseWindow {
@@ -234,4 +236,4 @@ class WinStageTemplateList extends WiseWindow {
   }
 }
 
-module.exports = WinStageTemplateList;
+export default WinStageTemplateList;

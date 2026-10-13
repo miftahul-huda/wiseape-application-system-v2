@@ -1,13 +1,15 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
-const WiseDataTable = require('../../../../system/controls/WiseDataTable');
-const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseFrame,
+  WiseDataTable,
+  WiseI18n,
+} from '../../../../src/runtime/wise.js';
 
-const WinApplicantEdit = require('./WinApplicantEdit');
-const WinApplicantDetail = require('./WinApplicantDetail');
-const RecruitmentApiRepository = require('../services/RecruitmentApiRepository');
+import WinApplicantEdit from './WinApplicantEdit';
+import WinApplicantDetail from './WinApplicantDetail';
+import RecruitmentApiRepository from '../services/RecruitmentApiRepository';
 const api = new RecruitmentApiRepository();
 
 class WinApplicantList extends WiseWindow {
@@ -354,4 +356,4 @@ class WinApplicantList extends WiseWindow {
   }
 }
 
-module.exports = WinApplicantList;
+export default WinApplicantList;

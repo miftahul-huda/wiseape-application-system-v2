@@ -94,4 +94,8 @@ class WiseApplication {
   }
 }
 
-module.exports = WiseApplication;
+if (typeof window !== 'undefined') {
+  window.WiseApplication = WiseApplication;
+} else {
+  module.exports = WiseApplication;
+}

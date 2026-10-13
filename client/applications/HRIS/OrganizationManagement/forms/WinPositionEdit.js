@@ -1,16 +1,18 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseTextBox = require('../../../../system/controls/WiseTextBox');
-const WiseNumericBox = require('../../../../system/controls/WiseNumericBox');
-const WiseComboBox = require('../../../../system/controls/WiseComboBox');
-const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseTextBox,
+  WiseNumericBox,
+  WiseComboBox,
+  WiseTableLayout,
+  WiseFrame,
+  WiseI18n,
+} from '../../../../src/runtime/wise.js';
 
-const HrisApiRepository = require('../../services/HrisApiRepository');
+import HrisApiRepository from '../../services/HrisApiRepository';
 const api = new HrisApiRepository();
 
-const WiseI18n = typeof window !== 'undefined' ? window.WiseI18n : require('../../../../system/WiseI18n');
 
 class WinPositionEdit extends WiseWindow {
   constructor(options = {}) {
@@ -239,4 +241,4 @@ class WinPositionEdit extends WiseWindow {
   }
 }
 
-module.exports = WinPositionEdit;
+export default WinPositionEdit;

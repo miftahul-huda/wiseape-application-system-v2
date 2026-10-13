@@ -1,5 +1,7 @@
-const WiseApplication = require('../../system/WiseApplication');
-const WinControls = require('./forms/WinControls');
+import {
+  WiseApplication,
+} from '../../src/runtime/wise.js';
+import WinControls from './forms/WinControls';
 
 class AppControls extends WiseApplication {
   async run(appConfig = {}, appParameter = {}) {
@@ -22,4 +24,4 @@ class AppControls extends WiseApplication {
   }
 }
 
-module.exports = AppControls;
+export default AppControls;

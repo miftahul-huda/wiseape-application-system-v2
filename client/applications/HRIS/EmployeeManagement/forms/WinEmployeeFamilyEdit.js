@@ -1,12 +1,14 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseTextBox = require('../../../../system/controls/WiseTextBox');
-const WiseComboBox = require('../../../../system/controls/WiseComboBox');
-const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseTextBox,
+  WiseComboBox,
+  WiseTableLayout,
+  WiseFrame,
+} from '../../../../src/runtime/wise.js';
 
-const HrisApiRepository = require('../services/HrisApiRepository');
+import HrisApiRepository from '../services/HrisApiRepository';
 const api = new HrisApiRepository();
 
 const RELATIONSHIPS = [
@@ -153,4 +155,4 @@ class WinEmployeeFamilyEdit extends WiseWindow {
   }
 }
 
-module.exports = WinEmployeeFamilyEdit;
+export default WinEmployeeFamilyEdit;

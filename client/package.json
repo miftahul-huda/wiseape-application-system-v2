@@ -5,7 +5,9 @@
   "main": "app.js",
   "scripts": {
     "start": "node --env-file=.env app.js",
-    "dev": "node --watch --env-file=.env app.js"
+    "dev": "node --watch --env-file=.env app.js",
+    "dev:web": "vite",
+    "build": "vite build"
   },
   "keywords": [
     "wiseape",
@@ -16,5 +18,8 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "vite": "^5.4.21"
   }
 }

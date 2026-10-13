@@ -1,6 +1,6 @@
 class ApiEmployeeRepository {
   constructor(config = {}) {
-    this.baseUrl = config.baseUrl || process.env.API_BASE_URL || 'http://localhost:4000';
+    this.baseUrl = config.baseUrl || (typeof process !== 'undefined' && process.env && process.env.API_BASE_URL) || 'http://localhost:4000';
   }
 
   async listEmployees({ limit = 10, offset = 0, sortField = 'id', sortDirection = 'asc' } = {}) {
@@ -33,4 +33,4 @@ class ApiEmployeeRepository {
   }
 }
 
-module.exports = ApiEmployeeRepository;
+export default ApiEmployeeRepository;

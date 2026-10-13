@@ -1,36 +1,38 @@
-const fs = require('fs');
-const path = require('path');
+import displayAllSvg from '../assets/icons/display-all.svg?raw';
+import detailSvg from '../assets/icons/detail.svg?raw';
+import addSvg from '../assets/icons/add.svg?raw';
+import editSvg from '../assets/icons/edit.svg?raw';
+import findSvg from '../assets/icons/find.svg?raw';
 
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseDataTable = require('../../../../system/controls/WiseDataTable');
-const WiseIconMenu = require('../../../../system/controls/WiseIconMenu');
-const WiseIconMenuGroup = require('../../../../system/controls/WiseIconMenuGroup');
-const WiseVerticalSeparator = require('../../../../system/controls/WiseVerticalSeparator');
-const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseDataTable,
+  WiseIconMenu,
+  WiseIconMenuGroup,
+  WiseVerticalSeparator,
+  WiseI18n,
+} from '../../../../src/runtime/wise.js';
 
-const WinJobVacancyEdit = require('./WinJobVacancyEdit');
-const RecruitmentApiRepository = require('../services/RecruitmentApiRepository');
+import WinJobVacancyEdit from './WinJobVacancyEdit';
+import RecruitmentApiRepository from '../services/RecruitmentApiRepository';
 const api = new RecruitmentApiRepository();
 
 // Toolbar icons -- same asset files (and loading convention) as
-// WinEmployeeManagement.js: read once at module load and inlined as markup,
-// since WiseIconMenu renders an `icon` starting with "<svg" directly rather
-// than fetching it as an <img> src.
-const ICONS_DIR = path.join(__dirname, '..', 'assets', 'icons');
-const loadIcon = (fileName) => {
-  const raw = fs.readFileSync(path.join(ICONS_DIR, fileName), 'utf8');
-  return raw
-    .replace(/<\?xml[^?]*\?>/gi, '')   // strip <?xml ... ?>
-    .replace(/<!--[\s\S]*?-->/g, '')    // strip <!-- ... --> comments
-    .trim();
-};
+// WinEmployeeManagement.js: inlined as markup, since WiseIconMenu renders an
+// `icon` starting with "<svg" directly rather than fetching it as an <img>
+// src. Imported with Vite's `?raw` so they're bundled at build time (the
+// browser has no filesystem to read them from).
+const loadIcon = (raw) => raw
+  .replace(/<\?xml[^?]*\?>/gi, '')   // strip <?xml ... ?>
+  .replace(/<!--[\s\S]*?-->/g, '')    // strip <!-- ... --> comments
+  .trim();
 const MENU_ICONS = {
-  displayAll: loadIcon('display-all.svg'),
-  detail: loadIcon('detail.svg'),
-  add: loadIcon('add.svg'),
-  edit: loadIcon('edit.svg'),
-  find: loadIcon('find.svg')
+  displayAll: loadIcon(displayAllSvg),
+  detail: loadIcon(detailSvg),
+  add: loadIcon(addSvg),
+  edit: loadIcon(editSvg),
+  find: loadIcon(findSvg)
 };
 
 class WinJobVacancyList extends WiseWindow {
@@ -275,7 +277,7 @@ class WinJobVacancyList extends WiseWindow {
       this.showInfo(WiseI18n.t('PEMBERITAHUAN'), WiseI18n.t('PILIH_SALAH_SATU_BARIS_LOWONGAN_TERLEBIH_DAHULU'), 'warning');
       return;
     }
-    const WinApplicantList = require('./WinApplicantList');
+    const { default: WinApplicantList } = await import('./WinApplicantList');
     await this.openWindow(WinApplicantList, {
       defaultVacancyId: this.selectedVacancy.id,
       defaultVacancyTitle: this.selectedVacancy.title
@@ -304,11 +306,13 @@ class WinJobVacancyList extends WiseWindow {
     }
   }
 
-  show(param = null) {
+  async show(param = null) {
     this.visible = true;
     this.params = param;
+    // Load data before the window JSON is built so the table is populated on open.
+    await this.loadInitialData();
     return super.show(param);
   }
 }
 
-module.exports = WinJobVacancyList;
+export default WinJobVacancyList;

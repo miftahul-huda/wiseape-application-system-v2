@@ -1,13 +1,15 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseTextBox = require('../../../../system/controls/WiseTextBox');
-const WiseNumericBox = require('../../../../system/controls/WiseNumericBox');
-const WiseTextArea = require('../../../../system/controls/WiseTextArea');
-const WiseComboBox = require('../../../../system/controls/WiseComboBox');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
-const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
-const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseTextBox,
+  WiseNumericBox,
+  WiseTextArea,
+  WiseComboBox,
+  WiseFrame,
+  WiseTableLayout,
+  WiseI18n,
+} from '../../../../src/runtime/wise.js';
 
 class WinJobVacancyStageEdit extends WiseWindow {
   constructor(options = {}) {
@@ -165,4 +167,4 @@ class WinJobVacancyStageEdit extends WiseWindow {
   }
 }
 
-module.exports = WinJobVacancyStageEdit;
+export default WinJobVacancyStageEdit;

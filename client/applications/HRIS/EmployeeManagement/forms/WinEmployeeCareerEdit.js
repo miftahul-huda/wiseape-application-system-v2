@@ -1,14 +1,16 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseTextBox = require('../../../../system/controls/WiseTextBox');
-const WiseComboBox = require('../../../../system/controls/WiseComboBox');
-const WiseNumericBox = require('../../../../system/controls/WiseNumericBox');
-const WiseDate = require('../../../../system/controls/WiseDate');
-const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseTextBox,
+  WiseComboBox,
+  WiseNumericBox,
+  WiseDate,
+  WiseTableLayout,
+  WiseFrame,
+} from '../../../../src/runtime/wise.js';
 
-const HrisApiRepository = require('../services/HrisApiRepository');
+import HrisApiRepository from '../services/HrisApiRepository';
 const api = new HrisApiRepository();
 
 const CAREER_TYPES = ['Promosi', 'Demosi', 'Rotasi', 'Penyesuaian Gaji', 'Penghargaan', 'Surat Peringatan'];
@@ -138,4 +140,4 @@ class WinEmployeeCareerEdit extends WiseWindow {
   }
 }
 
-module.exports = WinEmployeeCareerEdit;
+export default WinEmployeeCareerEdit;

@@ -319,4 +319,4 @@ class RecruitmentApiRepository {
   }
 }
 
-module.exports = RecruitmentApiRepository;
+export default RecruitmentApiRepository;

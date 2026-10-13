@@ -1,6 +1,8 @@
-const WiseApplication = require('../../system/WiseApplication');
-const WinAdmin = require('./forms/WinAdmin');
-const ApiAuthRepository = require('../../system/ApiAuthRepository');
+import {
+  WiseApplication,
+  ApiAuthRepository,
+} from '../../src/runtime/wise.js';
+import WinAdmin from './forms/WinAdmin';
 
 const authRepository = new ApiAuthRepository();
 
@@ -40,5 +42,5 @@ class AppAdmin extends WiseApplication {
   }
 }
 
-module.exports = AppAdmin;
+export default AppAdmin;
 

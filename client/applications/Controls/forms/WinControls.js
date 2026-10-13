@@ -1,22 +1,24 @@
-const WiseWindow = require('../../../system/WiseWindow');
-const WiseLabel = require('../../../system/controls/WiseLabel');
-const WiseTextBox = require('../../../system/controls/WiseTextBox');
-const WiseNumericBox = require('../../../system/controls/WiseNumericBox');
-const WiseComboBox = require('../../../system/controls/WiseComboBox');
-const WiseRadioGroup = require('../../../system/controls/WiseRadioGroup');
-const WiseCheckboxGroup = require('../../../system/controls/WiseCheckboxGroup');
-const WiseDate = require('../../../system/controls/WiseDate');
-const WiseDateRange = require('../../../system/controls/WiseDateRange');
-const WiseTextArea = require('../../../system/controls/WiseTextArea');
-const WiseHtmlEditor = require('../../../system/controls/WiseHtmlEditor');
-const WiseFileUpload = require('../../../system/controls/WiseFileUpload');
-const WiseButton = require('../../../system/controls/WiseButton');
-const WiseTableLayout = require('../../../system/controls/WiseTableLayout');
-const WiseTabControl = require('../../../system/controls/WiseTabControl');
-const WiseDataTable = require('../../../system/controls/WiseDataTable');
-const WiseCardGroup = require('../../../system/controls/WiseCardGroup');
-const WiseFrame = require('../../../system/controls/WiseFrame');
-const ApiEmployeeRepository = require('../repositories/ApiEmployeeRepository');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseTextBox,
+  WiseNumericBox,
+  WiseComboBox,
+  WiseRadioGroup,
+  WiseCheckboxGroup,
+  WiseDate,
+  WiseDateRange,
+  WiseTextArea,
+  WiseHtmlEditor,
+  WiseFileUpload,
+  WiseButton,
+  WiseTableLayout,
+  WiseTabControl,
+  WiseDataTable,
+  WiseCardGroup,
+  WiseFrame,
+} from '../../../src/runtime/wise.js';
+import ApiEmployeeRepository from '../repositories/ApiEmployeeRepository';
 
 const employeeRepository = new ApiEmployeeRepository();
 
@@ -297,4 +299,4 @@ class WinControls extends WiseWindow {
   }
 }
 
-module.exports = WinControls;
+export default WinControls;

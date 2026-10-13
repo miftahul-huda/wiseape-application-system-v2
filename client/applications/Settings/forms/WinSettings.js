@@ -1,11 +1,13 @@
-const WiseWindow = require('../../../system/WiseWindow');
-const WiseLabel = require('../../../system/controls/WiseLabel');
-const WiseComboBox = require('../../../system/controls/WiseComboBox');
-const WiseFileUpload = require('../../../system/controls/WiseFileUpload');
-const WiseCardGroup = require('../../../system/controls/WiseCardGroup');
-const WiseI18n = require('../../../system/WiseI18n');
-const ApiAuthRepository = require('../../../system/ApiAuthRepository');
-const ApiBackgroundImageRepository = require('../repositories/ApiBackgroundImageRepository');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseComboBox,
+  WiseFileUpload,
+  WiseCardGroup,
+  WiseI18n,
+  ApiAuthRepository,
+} from '../../../src/runtime/wise.js';
+import ApiBackgroundImageRepository from '../repositories/ApiBackgroundImageRepository';
 
 const authRepository = new ApiAuthRepository();
 const backgroundImageRepository = new ApiBackgroundImageRepository();
@@ -208,4 +210,4 @@ class WinSettings extends WiseWindow {
   }
 }
 
-module.exports = WinSettings;
+export default WinSettings;

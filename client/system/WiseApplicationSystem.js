@@ -234,6 +234,23 @@ class WiseApplicationSystem {
 
   async runApplication(appId, session = null, appParameter = null) {
     if (!isServer) {
+      // Browser apps (see src/runtime/LocalAppRuntime.js) run right here in
+      // the page -- no server round trip for the app or any of its events.
+      const localRuntime = window.WiseLocalRuntime;
+      const localApp = this.apps.find((item) => item.appID === appId || item.appID === Number(appId));
+      if (localRuntime && localApp && localRuntime.canRun(localApp)) {
+        try {
+          const localResult = await localRuntime.run(localApp, this, appParameter);
+          if (localResult.application && this.desktop) {
+            this.desktop.renderWindow(localResult.application, localResult.startupResult);
+          }
+          return localResult;
+        } catch (err) {
+          console.error('[WAS] local runApplication failed:', err);
+          return { error: err.message };
+        }
+      }
+
       const token = typeof localStorage !== 'undefined' ? localStorage.getItem('was_token') : null;
       const headers = { 'Content-Type': 'application/json' };
       if (token) headers.Authorization = `Bearer ${token}`;

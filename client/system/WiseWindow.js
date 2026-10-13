@@ -262,4 +262,8 @@ class WiseWindow {
   }
 }
 
-module.exports = WiseWindow;
+if (typeof window !== 'undefined') {
+  window.WiseWindow = WiseWindow;
+} else {
+  module.exports = WiseWindow;
+}

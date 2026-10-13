@@ -1,5 +1,7 @@
-const WiseApplication = require('../../system/WiseApplication');
-const WinHRIS = require('./forms/WinHRIS');
+import {
+  WiseApplication,
+} from '../../src/runtime/wise.js';
+import WinHRIS from './forms/WinHRIS';
 
 class AppHRIS extends WiseApplication {
   run(appConfig = {}, appParameter = {}) {
@@ -19,4 +21,4 @@ class AppHRIS extends WiseApplication {
   }
 }
 
-module.exports = AppHRIS;
+export default AppHRIS;

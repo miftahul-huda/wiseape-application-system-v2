@@ -1,17 +1,19 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
-const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
-const WiseIconMenu = require('../../../../system/controls/WiseIconMenu');
-const WiseIconMenuGroup = require('../../../../system/controls/WiseIconMenuGroup');
-const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseFrame,
+  WiseTableLayout,
+  WiseIconMenu,
+  WiseIconMenuGroup,
+  WiseI18n,
+} from '../../../../src/runtime/wise.js';
 
-const WinJobVacancyList = require('./WinJobVacancyList');
-const WinApplicantList = require('./WinApplicantList');
-const WinStageTemplateList = require('./WinStageTemplateList');
-const WinMatrixTemplateList = require('./WinMatrixTemplateList');
-const RecruitmentApiRepository = require('../services/RecruitmentApiRepository');
+import WinJobVacancyList from './WinJobVacancyList';
+import WinApplicantList from './WinApplicantList';
+import WinStageTemplateList from './WinStageTemplateList';
+import WinMatrixTemplateList from './WinMatrixTemplateList';
+import RecruitmentApiRepository from '../services/RecruitmentApiRepository';
 const api = new RecruitmentApiRepository();
 
 class WinRecruitmentPortal extends WiseWindow {
@@ -255,4 +257,4 @@ class WinRecruitmentPortal extends WiseWindow {
   }
 }
 
-module.exports = WinRecruitmentPortal;
+export default WinRecruitmentPortal;

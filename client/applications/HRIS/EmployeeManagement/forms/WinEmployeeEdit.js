@@ -1,26 +1,28 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseTextBox = require('../../../../system/controls/WiseTextBox');
-const WiseNumericBox = require('../../../../system/controls/WiseNumericBox');
-const WiseComboBox = require('../../../../system/controls/WiseComboBox');
-const WiseDate = require('../../../../system/controls/WiseDate');
-const WiseTabControl = require('../../../../system/controls/WiseTabControl');
-const WiseDataTable = require('../../../../system/controls/WiseDataTable');
-const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseTextBox,
+  WiseNumericBox,
+  WiseComboBox,
+  WiseDate,
+  WiseTabControl,
+  WiseDataTable,
+  WiseTableLayout,
+  WiseFrame,
+  WiseI18n,
+} from '../../../../src/runtime/wise.js';
 
-const WinEmployeeDocumentEdit = require('./WinEmployeeDocumentEdit');
-const WinEmployeeExperienceEdit = require('./WinEmployeeExperienceEdit');
-const WinEmployeeEducationEdit = require('./WinEmployeeEducationEdit');
-const WinEmployeeCareerEdit = require('./WinEmployeeCareerEdit');
-const WinEmployeeFamilyEdit = require('./WinEmployeeFamilyEdit');
+import WinEmployeeDocumentEdit from './WinEmployeeDocumentEdit';
+import WinEmployeeExperienceEdit from './WinEmployeeExperienceEdit';
+import WinEmployeeEducationEdit from './WinEmployeeEducationEdit';
+import WinEmployeeCareerEdit from './WinEmployeeCareerEdit';
+import WinEmployeeFamilyEdit from './WinEmployeeFamilyEdit';
 
-const HrisApiRepository = require('../services/HrisApiRepository');
+import HrisApiRepository from '../services/HrisApiRepository';
 const api = new HrisApiRepository();
 
 const RELIGIONS = ['Islam', 'Kristen', 'Katolik', 'Hindu', 'Buddha', 'Konghucu', 'Lainnya'];
-const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
 const EMPLOYMENT_STATUSES = [
   'Tetap (PKWTT)',
   'Kontrak (PKWT)',
@@ -888,4 +890,4 @@ class WinEmployeeEdit extends WiseWindow {
   }
 }
 
-module.exports = WinEmployeeEdit;
+export default WinEmployeeEdit;

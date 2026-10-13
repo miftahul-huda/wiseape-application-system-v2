@@ -1,17 +1,19 @@
-const WiseWindow = require('../../../system/WiseWindow');
-const WiseLabel = require('../../../system/controls/WiseLabel');
-const WiseButton = require('../../../system/controls/WiseButton');
-const WiseTextBox = require('../../../system/controls/WiseTextBox');
-const WiseComboBox = require('../../../system/controls/WiseComboBox');
-const WiseCheckboxGroup = require('../../../system/controls/WiseCheckboxGroup');
-const WiseTabControl = require('../../../system/controls/WiseTabControl');
-const WiseDataTable = require('../../../system/controls/WiseDataTable');
-const WiseCardGroup = require('../../../system/controls/WiseCardGroup');
-const WiseFrame = require('../../../system/controls/WiseFrame');
-const WiseTextArea = require('../../../system/controls/WiseTextArea');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseTextBox,
+  WiseComboBox,
+  WiseCheckboxGroup,
+  WiseTabControl,
+  WiseDataTable,
+  WiseCardGroup,
+  WiseFrame,
+  WiseTextArea,
+  ApiAuthRepository,
+  ApiThemeRepository,
+} from '../../../src/runtime/wise.js';
 
-const ApiAuthRepository = require('../../../system/ApiAuthRepository');
-const ApiThemeRepository = require('../../../system/ApiThemeRepository');
 
 const authRepository = new ApiAuthRepository();
 const themeRepository = new ApiThemeRepository();
@@ -439,4 +441,4 @@ class WinAdmin extends WiseWindow {
   }
 }
 
-module.exports = WinAdmin;
+export default WinAdmin;

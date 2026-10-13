@@ -1,5 +1,7 @@
-const WiseApplication = require('../../../system/WiseApplication');
-const WinOrganizationManagement = require('./forms/WinOrganizationManagement');
+import {
+  WiseApplication,
+} from '../../../src/runtime/wise.js';
+import WinOrganizationManagement from './forms/WinOrganizationManagement';
 
 class AppOrganizationManagement extends WiseApplication {
   async run(appConfig = {}, appParameter = {}) {
@@ -25,4 +27,4 @@ class AppOrganizationManagement extends WiseApplication {
   }
 }
 
-module.exports = AppOrganizationManagement;
+export default AppOrganizationManagement;

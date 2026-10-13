@@ -1,13 +1,16 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseTabControl = require('../../../../system/controls/WiseTabControl');
-const WiseDataTable = require('../../../../system/controls/WiseDataTable');
-const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseTabControl,
+  WiseDataTable,
+  WiseTableLayout,
+  WiseFrame,
+  WiseI18n,
+} from '../../../../src/runtime/wise.js';
 
-const HrisApiRepository = require('../services/HrisApiRepository');
-const WiseI18n = require('../../../../system/WiseI18n');
+import WinEmployeeEdit from './WinEmployeeEdit';
+import HrisApiRepository from '../services/HrisApiRepository';
 const api = new HrisApiRepository();
 
 class WinEmployeeDetail extends WiseWindow {
@@ -443,7 +446,6 @@ class WinEmployeeDetail extends WiseWindow {
   }
 
   async onOpenEditClick() {
-    const WinEmployeeEdit = require('./WinEmployeeEdit');
     await this.openWindow(WinEmployeeEdit, { employeeId: this.selectedEmployeeId });
   }
 
@@ -452,4 +454,4 @@ class WinEmployeeDetail extends WiseWindow {
   }
 }
 
-module.exports = WinEmployeeDetail;
+export default WinEmployeeDetail;

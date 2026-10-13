@@ -1,12 +1,14 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
-const WiseDataTable = require('../../../../system/controls/WiseDataTable');
-const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseFrame,
+  WiseDataTable,
+  WiseI18n,
+} from '../../../../src/runtime/wise.js';
 
-const WinMatrixTemplateEdit = require('./WinMatrixTemplateEdit');
-const RecruitmentApiRepository = require('../services/RecruitmentApiRepository');
+import WinMatrixTemplateEdit from './WinMatrixTemplateEdit';
+import RecruitmentApiRepository from '../services/RecruitmentApiRepository';
 const api = new RecruitmentApiRepository();
 
 class WinMatrixTemplateList extends WiseWindow {
@@ -235,4 +237,4 @@ class WinMatrixTemplateList extends WiseWindow {
   }
 }
 
-module.exports = WinMatrixTemplateList;
+export default WinMatrixTemplateList;

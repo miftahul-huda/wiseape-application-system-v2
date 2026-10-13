@@ -995,6 +995,7 @@ class WiseDesktop {
 
     const win = document.createElement('div');
     win.className = 'window';
+    win.tabIndex = -1;
     win.dataset.appId = application.appID;
     win.dataset.windowId = windowData ? windowData.windowId : '';
     win.style.left = formatDimension(positionXVal, 330);
@@ -1085,6 +1086,7 @@ class WiseDesktop {
         if (typeof win.__wiseAdjust === 'function') {
           win.__wiseAdjust();
         }
+        this.focusWindow(win);
       }
       // appendChild() detaches and reinserts win even when it's already the
       // last child (a no-op reorder) -- and that reattachment resets the
@@ -1109,11 +1111,24 @@ class WiseDesktop {
     // milliseconds after mousedown for an actual person), so it does NOT
     // avoid the cancellation; it only happened to look fixed against
     // Playwright's near-instant synthetic clicks. Listening on 'click'
-    // instead sidesteps the problem entirely: by the time 'click' fires, the
-    // browser has already committed to it (and any control's own click
-    // handler -- sendControlEvent etc. -- has already run, since bubbling
-    // reaches this outer listener last), so reparenting here can no longer
-    // cancel anything.
+    // instead sidesteps that: by the time 'click' fires, the browser has
+    // already committed to it, so reparenting here can no longer cancel
+    // anything.
+    //
+    // This MUST be a capture-phase listener, not bubble-phase: the browser
+    // runs a microtask checkpoint between every listener invocation along
+    // the dispatch path, not just once after the whole event finishes. A
+    // control inside this window (e.g. a WiseButton) kicks off its control
+    // event handler fire-and-forget, with no real `await` in the chain --
+    // so by the time THIS listener would otherwise run in the bubble phase
+    // (after the target's own handler), that whole async chain has already
+    // settled, including any window it opened via openWindow() (see
+    // sendControlEvent's `result.openWindow` branch). A bubble-phase
+    // listener here would then find the just-opened child is now
+    // `lastElementChild` and reorder THIS window back on top of it --
+    // exactly backwards. Capture runs before the target's own handler even
+    // starts, so it always reflects the DOM order from *before* this click
+    // had any side effects.
     win.addEventListener('mousedown', () => {
       setActiveWindow();
     });
@@ -1121,7 +1136,7 @@ class WiseDesktop {
       if (desktop.lastElementChild !== win) {
         desktop.appendChild(win);
       }
-    });
+    }, true);
 
     const activatePreviousWindow = () => {
       const remaining = Array.from(desktop.querySelectorAll('.window')).filter(
@@ -1165,7 +1180,12 @@ class WiseDesktop {
             const appId = win.dataset.appId;
             const windowId = win.dataset.windowId;
             if (appId && windowId) {
-              fetch(`/api/applications/${appId}/windows/${windowId}/close`, { method: 'POST' }).catch(() => { });
+              const localRuntime = window.WiseLocalRuntime;
+              if (localRuntime && localRuntime.isRunning(appId)) {
+                localRuntime.closeWindow(appId, windowId);
+              } else {
+                fetch(`/api/applications/${appId}/windows/${windowId}/close`, { method: 'POST' }).catch(() => { });
+              }
             }
           }
         }
@@ -1297,9 +1317,26 @@ class WiseDesktop {
     void win.offsetWidth;
     win.style.opacity = '1';
     win.style.transform = 'scale(1)';
+    this.focusWindow(win);
 
     if (windowData && windowData.info) {
       this.showInfoDialog(windowData.info);
+    }
+  }
+
+  // Moves keyboard focus into a window that just appeared or was just
+  // brought to the user's attention (newly created, or restored from
+  // minimized) -- prefers the window's first focusable control so typing
+  // can start immediately, falling back to the window container itself
+  // (focusable via tabIndex = -1, see renderWindow) so Tab/Escape still
+  // target the right window even when it has no focusable control.
+  focusWindow(win) {
+    const focusable = win.querySelector(
+      'input:not([type="hidden"]):not([disabled]), textarea:not([disabled]), select:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    const target = focusable || win;
+    if (typeof target.focus === 'function') {
+      target.focus({ preventScroll: true });
     }
   }
 
@@ -1365,27 +1402,38 @@ class WiseDesktop {
     const values = this.gatherControlValues(winEl);
     Object.assign(values, overrideValues);
 
-    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('was_token') : null;
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers.Authorization = `Bearer ${token}`;
-
     let result;
-    try {
-      const response = await fetch(`/api/applications/${appId}/events`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ controlId, event: eventName, windowId, values }),
-      });
-
-      result = await response.json();
-
-      if (!response.ok) {
-        console.error(`[WAS] Control event error (${response.status}):`, result);
+    const localRuntime = window.WiseLocalRuntime;
+    if (localRuntime && localRuntime.isRunning(appId)) {
+      // Browser app: run the handler in-process, no server round trip.
+      try {
+        result = await localRuntime.dispatchControlEvent(appId, controlId, eventName, values, windowId);
+      } catch (err) {
+        console.error('[WAS] local control event failed:', err);
         return;
       }
-    } catch (err) {
-      console.error('[WAS] sendControlEvent fetch failed:', err);
-      return;
+    } else {
+      const token = typeof localStorage !== 'undefined' ? localStorage.getItem('was_token') : null;
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      try {
+        const response = await fetch(`/api/applications/${appId}/events`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ controlId, event: eventName, windowId, values }),
+        });
+
+        result = await response.json();
+
+        if (!response.ok) {
+          console.error(`[WAS] Control event error (${response.status}):`, result);
+          return;
+        }
+      } catch (err) {
+        console.error('[WAS] sendControlEvent fetch failed:', err);
+        return;
+      }
     }
 
     if (result.window) {

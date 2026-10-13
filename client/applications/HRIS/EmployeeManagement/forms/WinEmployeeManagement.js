@@ -1,46 +1,47 @@
-const fs = require('fs');
-const path = require('path');
+import displayAllSvg from '../assets/icons/display-all.svg?raw';
+import selectAllSvg from '../assets/icons/select-all.svg?raw';
+import detailSvg from '../assets/icons/detail.svg?raw';
+import addemployeeSvg from '../assets/icons/addemployee.svg?raw';
+import editSvg from '../assets/icons/edit.svg?raw';
+import duplicateSvg from '../assets/icons/duplicate.svg?raw';
+import deactivateSvg from '../assets/icons/deactivate.svg?raw';
+import findSvg from '../assets/icons/find.svg?raw';
+import reportSvg from '../assets/icons/report.svg?raw';
 
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseDataTable = require('../../../../system/controls/WiseDataTable');
-const WiseIconMenu = require('../../../../system/controls/WiseIconMenu');
-const WiseIconMenuGroup = require('../../../../system/controls/WiseIconMenuGroup');
-const WiseVerticalSeparator = require('../../../../system/controls/WiseVerticalSeparator');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseDataTable,
+  WiseIconMenu,
+  WiseIconMenuGroup,
+  WiseVerticalSeparator,
+} from '../../../../src/runtime/wise.js';
 
-const WinEmployeeDetail = require('./WinEmployeeDetail');
-const WinEmployeeEdit = require('./WinEmployeeEdit');
+import WinEmployeeDetail from './WinEmployeeDetail';
+import WinEmployeeEdit from './WinEmployeeEdit';
 
-const HrisApiRepository = require('../services/HrisApiRepository');
+import HrisApiRepository from '../services/HrisApiRepository';
 const api = new HrisApiRepository();
 
 // Toolbar icons live as their own .svg files (assets/icons/) so a designer
-// can restyle them without touching this file -- read once at module load
+// can restyle them without touching this file -- imported via Vite's `?raw`
 // and inlined as markup, since WiseIconMenu renders an `icon` starting with
 // "<svg" directly rather than fetching it as an <img> src.
-//
-// Strip any XML declaration (<?xml ... ?>) and XML/HTML comments (<!-- ... -->)
-// that tools like VTracer prepend -- WiseIconMenu.renderElement detects SVG
-// markup via `iconSrc.startsWith('<svg')`, so the string MUST open with <svg.
-const ICONS_DIR = path.join(__dirname, '..', 'assets', 'icons');
-const loadIcon = (fileName) => {
-  const raw = fs.readFileSync(path.join(ICONS_DIR, fileName), 'utf8');
-  return raw
-    .replace(/<\?xml[^?]*\?>/gi, '')   // strip <?xml ... ?>
-    .replace(/<!--[\s\S]*?-->/g, '')    // strip <!-- ... --> comments
-    .trim();
-};
-const MENU_ICONS = {
-  displayAll: loadIcon('display-all.svg'),
-  selectAll: loadIcon('select-all.svg'),
-  detail: loadIcon('detail.svg'),
-  add: loadIcon('addemployee.svg'),
-  edit: loadIcon('edit.svg'),
-  duplicate: loadIcon('duplicate.svg'),
+const loadIcon = (raw) => raw
+  .replace(/<\?xml[^?]*\?>/gi, '')   // strip <?xml ... ?>
+  .replace(/<!--[\s\S]*?-->/g, '')    // strip <!-- ... --> comments
+  .trim();
 
-  deactivate: loadIcon('deactivate.svg'),
-  find: loadIcon('find.svg'),
-  report: loadIcon('report.svg')
+const MENU_ICONS = {
+  displayAll: loadIcon(displayAllSvg),
+  selectAll: loadIcon(selectAllSvg),
+  detail: loadIcon(detailSvg),
+  add: loadIcon(addemployeeSvg),
+  edit: loadIcon(editSvg),
+  duplicate: loadIcon(duplicateSvg),
+  deactivate: loadIcon(deactivateSvg),
+  find: loadIcon(findSvg),
+  report: loadIcon(reportSvg)
 };
 
 // Small monochrome (currentColor) glyphs for the row context menu -- kept
@@ -552,4 +553,4 @@ class WinEmployeeManagement extends WiseWindow {
   }
 }
 
-module.exports = WinEmployeeManagement;
+export default WinEmployeeManagement;

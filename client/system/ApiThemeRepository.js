@@ -10,7 +10,7 @@ const fallbackThemes = [
 
 class ApiThemeRepository {
   constructor(config = {}) {
-    this.baseUrl = config.baseUrl || process.env.API_BASE_URL || 'http://localhost:4000';
+    this.baseUrl = config.baseUrl || (typeof process !== 'undefined' && process.env && process.env.API_BASE_URL) || 'http://localhost:4000';
   }
 
   getFallbackThemes() {
@@ -72,4 +72,8 @@ class ApiThemeRepository {
   }
 }
 
-module.exports = ApiThemeRepository;
+if (typeof window !== 'undefined') {
+  window.ApiThemeRepository = ApiThemeRepository;
+} else {
+  module.exports = ApiThemeRepository;
+}

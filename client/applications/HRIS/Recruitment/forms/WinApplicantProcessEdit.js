@@ -1,18 +1,20 @@
-const WiseWindow = require('../../../../system/WiseWindow');
-const WiseLabel = require('../../../../system/controls/WiseLabel');
-const WiseButton = require('../../../../system/controls/WiseButton');
-const WiseTextBox = require('../../../../system/controls/WiseTextBox');
-const WiseNumericBox = require('../../../../system/controls/WiseNumericBox');
-const WiseTextArea = require('../../../../system/controls/WiseTextArea');
-const WiseComboBox = require('../../../../system/controls/WiseComboBox');
-const WiseDate = require('../../../../system/controls/WiseDate');
-const WiseTabControl = require('../../../../system/controls/WiseTabControl');
-const WiseDataTable = require('../../../../system/controls/WiseDataTable');
-const WiseFrame = require('../../../../system/controls/WiseFrame');
-const WiseTableLayout = require('../../../../system/controls/WiseTableLayout');
-const WiseI18n = typeof window !== 'undefined' && window.WiseI18n ? window.WiseI18n : require('../../../../system/WiseI18n');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseButton,
+  WiseTextBox,
+  WiseNumericBox,
+  WiseTextArea,
+  WiseComboBox,
+  WiseDate,
+  WiseTabControl,
+  WiseDataTable,
+  WiseFrame,
+  WiseTableLayout,
+  WiseI18n,
+} from '../../../../src/runtime/wise.js';
 
-const RecruitmentApiRepository = require('../services/RecruitmentApiRepository');
+import RecruitmentApiRepository from '../services/RecruitmentApiRepository';
 const api = new RecruitmentApiRepository();
 
 class WinApplicantProcessEdit extends WiseWindow {
@@ -611,4 +613,4 @@ class WinApplicantProcessEdit extends WiseWindow {
   }
 }
 
-module.exports = WinApplicantProcessEdit;
+export default WinApplicantProcessEdit;

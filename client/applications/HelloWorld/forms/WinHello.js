@@ -1,7 +1,9 @@
-const WiseWindow = require('../../../system/WiseWindow');
-const WiseLabel = require('../../../system/controls/WiseLabel');
-const WiseTextBox = require('../../../system/controls/WiseTextBox');
-const WiseButton = require('../../../system/controls/WiseButton');
+import {
+  WiseWindow,
+  WiseLabel,
+  WiseTextBox,
+  WiseButton,
+} from '../../../src/runtime/wise.js';
 
 class WinHello extends WiseWindow {
   constructor(options = {}) {
@@ -32,4 +34,4 @@ class WinHello extends WiseWindow {
   }
 }
 
-module.exports = WinHello;
+export default WinHello;

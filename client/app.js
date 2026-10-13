@@ -5,6 +5,7 @@ const WiseApplicationSystem = require('./system/WiseApplicationSystem');
 const ApiAuthRepository = require('./system/ApiAuthRepository');
 
 const UPLOAD_DIR = path.join(__dirname, 'public', 'uploads');
+const DIST_DIR = path.join(__dirname, 'dist');
 const ALLOWED_IMAGE_TYPES = {
   'image/png': '.png',
   'image/jpeg': '.jpg',
@@ -53,6 +54,8 @@ async function start() {
     next();
   });
   app.use(express.static(path.join(__dirname, 'public')));
+  // Output of `npm run build` (the ES-module bundle for browser-run apps).
+  app.use(express.static(DIST_DIR));
 
   app.get('/WiseI18n.js', (req, res) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
@@ -220,7 +223,8 @@ async function start() {
   });
 
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    const builtIndex = path.join(DIST_DIR, 'index.html');
+    res.sendFile(fs.existsSync(builtIndex) ? builtIndex : path.join(__dirname, 'index.html'));
   });
 
   app.listen(port, () => {
