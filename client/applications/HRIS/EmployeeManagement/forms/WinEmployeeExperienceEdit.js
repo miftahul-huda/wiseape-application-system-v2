@@ -31,12 +31,12 @@ class WinEmployeeExperienceEdit extends WiseWindow {
 
     const currPrefix = typeof WiseI18n !== 'undefined' && WiseI18n ? WiseI18n.getCurrencyPrefix() : 'Rp ';
 
-    this.txtExpCompany = new WiseTextBox(WiseI18n.t('E_G_PT_TELEKOMUNIKASI_INDONESIA'), { id: 'txtExpCompany', datafield: 'companyName', placeholder: WiseI18n.t('E_G_PT_TELEKOMUNIKASI_INDONESIA') });
-    this.txtExpPosition = new WiseTextBox(WiseI18n.t('E_G_SENIOR_SOFTWARE_ENGINEER'), { id: 'txtExpPosition', datafield: 'position', placeholder: WiseI18n.t('E_G_SENIOR_SOFTWARE_ENGINEER') });
+    this.txtExpCompany = new WiseTextBox('', { id: 'txtExpCompany', datafield: 'companyName', placeholder: WiseI18n.t('E_G_PT_TELEKOMUNIKASI_INDONESIA') });
+    this.txtExpPosition = new WiseTextBox('', { id: 'txtExpPosition', datafield: 'position', placeholder: WiseI18n.t('E_G_SENIOR_SOFTWARE_ENGINEER') });
     this.dtExpStart = new WiseDate('', { id: 'dtExpStart', datafield: 'startDate' });
     this.dtExpEnd = new WiseDate('', { id: 'dtExpEnd', datafield: 'endDate' });
     this.numExpLastSalary = new WiseNumericBox('0', { id: 'numExpLastSalary', datafield: 'lastSalary', value: 0, prefix: currPrefix });
-    this.txtExpDesc = new WiseTextBox(WiseI18n.t('TANGGUNG_JAWAB_UTAMA'), { id: 'txtExpDesc', datafield: 'description', placeholder: WiseI18n.t('TANGGUNG_JAWAB_UTAMA') });
+    this.txtExpDesc = new WiseTextBox('', { id: 'txtExpDesc', datafield: 'description', placeholder: WiseI18n.t('TANGGUNG_JAWAB_UTAMA') });
 
     tblExp.setCell(0, 0, this.formGroup(WiseI18n.t('NAMA_PERUSAHAAN'), this.txtExpCompany));
     tblExp.setCell(0, 1, this.formGroup(WiseI18n.t('POSISI_JABATAN'), this.txtExpPosition));

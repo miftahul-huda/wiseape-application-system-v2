@@ -31,13 +31,13 @@ class WinEmployeeEducationEdit extends WiseWindow {
     // ── Form Content ────────────────────────────────────
     const tblEdu = new WiseTableLayout({ rows: 4, columns: 2, id: 'tblEduEdit', style: { marginBottom: '16px' } });
 
-    this.txtEduInst = new WiseTextBox('e.g. Institut Teknologi Bandung', { id: 'txtEduInst', datafield: 'institutionName', placeholder: 'e.g. Institut Teknologi Bandung' });
+    this.txtEduInst = new WiseTextBox('', { id: 'txtEduInst', datafield: 'institutionName', placeholder: 'e.g. Institut Teknologi Bandung' });
     this.cmbEduDegree = new WiseComboBox(EDU_DEGREES.map(d => ({ value: d, label: d })), { id: 'cmbEduDegree', datafield: 'degree', value: 'S1' });
-    this.txtEduMajor = new WiseTextBox('e.g. Teknik Informatika', { id: 'txtEduMajor', datafield: 'major', placeholder: 'e.g. Teknik Informatika' });
-    this.txtEduGpa = new WiseTextBox('e.g. 3.85', { id: 'txtEduGpa', datafield: 'gpa', placeholder: 'e.g. 3.85' });
+    this.txtEduMajor = new WiseTextBox('', { id: 'txtEduMajor', datafield: 'major', placeholder: 'e.g. Teknik Informatika' });
+    this.txtEduGpa = new WiseTextBox('', { id: 'txtEduGpa', datafield: 'gpa', placeholder: 'e.g. 3.85' });
     this.dtEduStart = new WiseDate('', { id: 'dtEduStart', datafield: 'startDate' });
     this.dtEduGrad = new WiseDate('', { id: 'dtEduGrad', datafield: 'graduationDate' });
-    this.txtEduDesc = new WiseTextBox(WiseI18n.t('CATATAN_PRESTASI_ATAU_PREDIKAT'), { id: 'txtEduDesc', datafield: 'description', placeholder: WiseI18n.t('CATATAN_PRESTASI_ATAU_PREDIKAT') });
+    this.txtEduDesc = new WiseTextBox('', { id: 'txtEduDesc', datafield: 'description', placeholder: WiseI18n.t('CATATAN_PRESTASI_ATAU_PREDIKAT') });
 
     tblEdu.setCell(0, 0, this.formGroup(WiseI18n.t('NAMA_INSTITUSI_UNIVERSITAS_2'), this.txtEduInst));
     tblEdu.setCell(0, 1, this.formGroup(WiseI18n.t('JENJANG_PENDIDIKAN'), this.cmbEduDegree));
@@ -57,7 +57,7 @@ class WinEmployeeEducationEdit extends WiseWindow {
       id: 'frameEduActions',
       style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' }
     });
-    actionFrame.addControl(new WiseButton(WiseI18n.t('SIMPAN'), {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('SIMPAN_3'), {
       id: 'btnSaveEdu',
       onClick: this.onSaveClick.bind(this),
       style: { marginRight: '8px' }

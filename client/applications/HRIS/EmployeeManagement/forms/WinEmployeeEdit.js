@@ -88,16 +88,16 @@ class WinEmployeeEdit extends WiseWindow {
       style: { width: '100%', tableLayout: 'fixed', marginBottom: '8px' }
     });
 
-    this.txtFullName = new WiseTextBox('e.g. Raden Ayu Annisa Putri, S.T.', { id: 'txtFullName', datafield: 'fullName', placeholder: 'e.g. Raden Ayu Annisa Putri, S.T.' });
-    this.txtNickname = new WiseTextBox('e.g. Annisa', { id: 'txtNickname', datafield: 'nickname', placeholder: 'e.g. Annisa' });
-    this.txtBirthPlace = new WiseTextBox('e.g. Yogyakarta', { id: 'txtBirthPlace', datafield: 'birthPlace', placeholder: 'e.g. Yogyakarta' });
+    this.txtFullName = new WiseTextBox('', { id: 'txtFullName', datafield: 'fullName', placeholder: 'e.g. Raden Ayu Annisa Putri, S.T.' });
+    this.txtNickname = new WiseTextBox('', { id: 'txtNickname', datafield: 'nickname', placeholder: 'e.g. Annisa' });
+    this.txtBirthPlace = new WiseTextBox('', { id: 'txtBirthPlace', datafield: 'birthPlace', placeholder: 'e.g. Yogyakarta' });
     this.dtBirthDate = new WiseDate('', { id: 'dtBirthDate', datafield: 'birthDate' });
     this.cmbGender = new WiseComboBox([{ value: 'Laki-laki', label: WiseI18n.t('LAKI_LAKI') }, { value: 'Perempuan', label: WiseI18n.t('PEREMPUAN') }], { id: 'cmbGender', datafield: 'gender', value: 'Laki-laki', style: { width: '100%' } });
     this.cmbReligion = new WiseComboBox(RELIGIONS.map(r => ({ value: r, label: r })), { id: 'cmbReligion', datafield: 'religion', value: 'Islam', style: { width: '100%' } });
-    this.txtPhoneNumber = new WiseTextBox('081234567890', { id: 'txtPhoneNumber', datafield: 'phoneNumber', placeholder: '081234567890' });
-    this.txtPersonalEmail = new WiseTextBox('karyawan@example.com', { id: 'txtPersonalEmail', datafield: 'personalEmail', placeholder: 'karyawan@example.com' });
-    this.txtCurrentAddress = new WiseTextBox(WiseI18n.t('ALAMAT_DOMISILI_SAAT_INI'), { id: 'txtCurrentAddress', datafield: 'currentAddress', placeholder: WiseI18n.t('ALAMAT_DOMISILI_SAAT_INI') });
-    this.txtIdCardAddress = new WiseTextBox(WiseI18n.t('ALAMAT_LENGKAP_SESUAI_KTP'), { id: 'txtIdCardAddress', datafield: 'idCardAddress', placeholder: WiseI18n.t('ALAMAT_LENGKAP_SESUAI_KTP') });
+    this.txtPhoneNumber = new WiseTextBox('', { id: 'txtPhoneNumber', datafield: 'phoneNumber', placeholder: '081234567890' });
+    this.txtPersonalEmail = new WiseTextBox('', { id: 'txtPersonalEmail', datafield: 'personalEmail', placeholder: 'karyawan@example.com' });
+    this.txtCurrentAddress = new WiseTextBox('', { id: 'txtCurrentAddress', datafield: 'currentAddress', placeholder: WiseI18n.t('ALAMAT_DOMISILI_SAAT_INI') });
+    this.txtIdCardAddress = new WiseTextBox('', { id: 'txtIdCardAddress', datafield: 'idCardAddress', placeholder: WiseI18n.t('ALAMAT_LENGKAP_SESUAI_KTP') });
 
     tblPersonal.setCell(0, 0, this.formGroup(WiseI18n.t('NAMA_LENGKAP'), this.txtFullName));
     tblPersonal.setCell(0, 1, this.formGroup(WiseI18n.t('NAMA_PANGGILAN'), this.txtNickname));
@@ -129,9 +129,9 @@ class WinEmployeeEdit extends WiseWindow {
       id: 'tblEmergency',
       style: { width: '100%', tableLayout: 'fixed' }
     });
-    this.txtEmergencyName = new WiseTextBox(WiseI18n.t('NAMA_KONTAK_DARURAT'), { id: 'txtEmergencyName', datafield: 'emergencyContactName', placeholder: WiseI18n.t('NAMA_KONTAK_DARURAT') });
+    this.txtEmergencyName = new WiseTextBox('', { id: 'txtEmergencyName', datafield: 'emergencyContactName', placeholder: WiseI18n.t('NAMA_KONTAK_DARURAT') });
     this.cmbEmergencyRelation = new WiseComboBox(['Orang Tua', 'Suami/Istri', 'Saudara Kandung', 'Anak', 'Teman'].map(h => ({ value: h, label: WiseI18n.t(h) })), { id: 'cmbEmergencyRelation', datafield: 'emergencyContactRelation', value: 'Orang Tua', style: { width: '100%' } });
-    this.txtEmergencyPhone = new WiseTextBox('0812xxxxxxxx', { id: 'txtEmergencyPhone', datafield: 'emergencyContactPhone', placeholder: '0812xxxxxxxx' });
+    this.txtEmergencyPhone = new WiseTextBox('', { id: 'txtEmergencyPhone', datafield: 'emergencyContactPhone', placeholder: '0812xxxxxxxx' });
 
     tblEmergency.setCell(0, 0, this.formGroup(WiseI18n.t('NAMA_KONTAK_DARURAT'), this.txtEmergencyName));
     tblEmergency.setCell(0, 1, this.formGroup(WiseI18n.t('HUBUNGAN'), this.cmbEmergencyRelation));
@@ -153,7 +153,7 @@ class WinEmployeeEdit extends WiseWindow {
     });
     const orgComboStyle = { width: '100%' };
 
-    this.txtNik = new WiseTextBox('EMP-2024-001', { id: 'txtNik', datafield: 'nik', placeholder: 'EMP-2024-001' });
+    this.txtNik = new WiseTextBox('', { id: 'txtNik', datafield: 'nik', placeholder: 'EMP-2024-001' });
     this.cmbDepartment = new WiseComboBox([], {
       id: 'cmbDepartment', datafield: 'department', value: '', style: orgComboStyle,
       onChange: this.onDepartmentChanged.bind(this)
@@ -172,7 +172,7 @@ class WinEmployeeEdit extends WiseWindow {
     this.cmbEmploymentStatus = new WiseComboBox(EMPLOYMENT_STATUSES.map(s => ({ value: s, label: s })), { id: 'cmbEmploymentStatus', datafield: 'employmentStatus', value: 'Tetap (PKWTT)', style: orgComboStyle });
     this.dtJoinDate = new WiseDate('', { id: 'dtJoinDate', datafield: 'joinDate' });
     this.dtEndDate = new WiseDate('', { id: 'dtEndDate', datafield: 'endDate' });
-    this.txtManagerName = new WiseTextBox(WiseI18n.t('NAMA_ATASAN_LANGSUNG'), { id: 'txtManagerName', datafield: 'managerName', placeholder: WiseI18n.t('NAMA_ATASAN_LANGSUNG') });
+    this.txtManagerName = new WiseTextBox('', { id: 'txtManagerName', datafield: 'managerName', placeholder: WiseI18n.t('NAMA_ATASAN_LANGSUNG') });
     this.cmbWorkLocation = new WiseComboBox([
       { value: 'Kantor Pusat', label: WiseI18n.t('KANTOR_PUSAT') },
       { value: 'Kantor Cabang', label: WiseI18n.t('KANTOR_CABANG') },
@@ -206,17 +206,17 @@ class WinEmployeeEdit extends WiseWindow {
 
     const currPrefix = typeof WiseI18n !== 'undefined' && WiseI18n ? WiseI18n.getCurrencyPrefix() : 'Rp ';
     this.cmbBankName = new WiseComboBox(BANKS.map(b => ({ value: b, label: b })), { id: 'cmbBankName', datafield: 'bankName', value: 'BCA', style: { width: '100%' } });
-    this.txtBankAccountNumber = new WiseTextBox(WiseI18n.t('NOMOR_REKENING_UNTUK_TRANSFER_GAJI'), { id: 'txtBankAccountNumber', datafield: 'bankAccountNumber', placeholder: WiseI18n.t('NOMOR_REKENING_UNTUK_TRANSFER_GAJI') });
-    this.txtBankAccountHolder = new WiseTextBox(WiseI18n.t('HARUS_SESUAI_BUKU_TABUNGAN'), { id: 'txtBankAccountHolder', datafield: 'bankAccountHolder', placeholder: WiseI18n.t('HARUS_SESUAI_BUKU_TABUNGAN') });
+    this.txtBankAccountNumber = new WiseTextBox('', { id: 'txtBankAccountNumber', datafield: 'bankAccountNumber', placeholder: WiseI18n.t('NOMOR_REKENING_UNTUK_TRANSFER_GAJI') });
+    this.txtBankAccountHolder = new WiseTextBox('', { id: 'txtBankAccountHolder', datafield: 'bankAccountHolder', placeholder: WiseI18n.t('HARUS_SESUAI_BUKU_TABUNGAN') });
     this.numBasicSalary = new WiseNumericBox('0', { id: 'numBasicSalary', datafield: 'basicSalary', value: 0, prefix: currPrefix });
     this.numAllowancePosition = new WiseNumericBox('0', { id: 'numAllowancePosition', datafield: 'allowancePosition', value: 0, prefix: currPrefix });
     this.numAllowanceTransport = new WiseNumericBox('0', { id: 'numAllowanceTransport', datafield: 'allowanceTransport', value: 0, prefix: currPrefix });
     this.numAllowanceMeal = new WiseNumericBox('0', { id: 'numAllowanceMeal', datafield: 'allowanceMeal', value: 0, prefix: currPrefix });
     this.numAllowanceOther = new WiseNumericBox('0', { id: 'numAllowanceOther', datafield: 'allowanceOther', value: 0, prefix: currPrefix });
     this.cmbTaxStatus = new WiseComboBox(TAX_STATUSES.map(t => ({ value: t, label: t })), { id: 'cmbTaxStatus', datafield: 'taxStatus', value: 'TK/0' });
-    this.txtNpwp = new WiseTextBox('00.000.000.0-000.000', { id: 'txtNpwp', datafield: 'npwp', placeholder: '00.000.000.0-000.000' });
-    this.txtBpjsKesehatan = new WiseTextBox(WiseI18n.t('13_DIGIT_NOMOR_BPJS_KESEHATAN'), { id: 'txtBpjsKesehatan', datafield: 'bpjsKesehatan', placeholder: WiseI18n.t('13_DIGIT_NOMOR_BPJS_KESEHATAN') });
-    this.txtBpjsKetenagakerjaan = new WiseTextBox(WiseI18n.t('NOMOR_KARTU_BPJS_TK'), { id: 'txtBpjsKetenagakerjaan', datafield: 'bpjsKetenagakerjaan', placeholder: WiseI18n.t('NOMOR_KARTU_BPJS_TK') });
+    this.txtNpwp = new WiseTextBox('', { id: 'txtNpwp', datafield: 'npwp', placeholder: '00.000.000.0-000.000' });
+    this.txtBpjsKesehatan = new WiseTextBox('', { id: 'txtBpjsKesehatan', datafield: 'bpjsKesehatan', placeholder: WiseI18n.t('13_DIGIT_NOMOR_BPJS_KESEHATAN') });
+    this.txtBpjsKetenagakerjaan = new WiseTextBox('', { id: 'txtBpjsKetenagakerjaan', datafield: 'bpjsKetenagakerjaan', placeholder: WiseI18n.t('NOMOR_KARTU_BPJS_TK') });
 
     tblPayroll.setCell(0, 0, this.formGroup(WiseI18n.t('NAMA_BANK'), this.cmbBankName));
     tblPayroll.setCell(0, 1, this.formGroup(WiseI18n.t('NOMOR_REKENING_BANK'), this.txtBankAccountNumber));

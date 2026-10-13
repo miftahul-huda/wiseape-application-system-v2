@@ -36,11 +36,11 @@ class WinEmployeeCareerEdit extends WiseWindow {
 
     this.cmbCareerType = new WiseComboBox(CAREER_TYPES.map(c => ({ value: c, label: WiseI18n.t(c) })), { id: 'cmbCareerType', datafield: 'changeType', value: 'Promosi' });
     this.dtCareerDate = new WiseDate(new Date().toISOString().slice(0, 10), { id: 'dtCareerDate', datafield: 'effectiveDate' });
-    this.txtCareerTitle = new WiseTextBox(WiseI18n.t('POSISI_JABATAN_YANG_BARU') || 'Posisi jabatan yang baru', { id: 'txtCareerTitle', datafield: 'newJobTitle', placeholder: WiseI18n.t('POSISI_JABATAN_YANG_BARU') || 'Posisi jabatan yang baru' });
-    this.txtCareerDept = new WiseTextBox(WiseI18n.t('DEPARTEMEN_BARU'), { id: 'txtCareerDept', datafield: 'newDepartment', placeholder: WiseI18n.t('DEPARTEMEN_BARU') });
+    this.txtCareerTitle = new WiseTextBox('', { id: 'txtCareerTitle', datafield: 'newJobTitle', placeholder: WiseI18n.t('POSISI_JABATAN_YANG_BARU') || 'Posisi jabatan yang baru' });
+    this.txtCareerDept = new WiseTextBox('', { id: 'txtCareerDept', datafield: 'newDepartment', placeholder: WiseI18n.t('DEPARTEMEN_BARU') });
     this.numCareerSalary = new WiseNumericBox('0', { id: 'numCareerSalary', datafield: 'newSalary', value: 0, prefix: currPrefix });
-    this.txtCareerRef = new WiseTextBox('SK/DIR/2024/001', { id: 'txtCareerRef', datafield: 'referenceNumber', placeholder: 'SK/DIR/2024/001' });
-    this.txtCareerNotes = new WiseTextBox(WiseI18n.t('KETERANGAN_PRESTASI_ALASAN_PROMOSI') || 'Keterangan prestasi / alasan promosi...', { id: 'txtCareerNotes', datafield: 'notes', placeholder: WiseI18n.t('KETERANGAN_PRESTASI_ALASAN_PROMOSI') || 'Keterangan prestasi / alasan promosi...' });
+    this.txtCareerRef = new WiseTextBox('', { id: 'txtCareerRef', datafield: 'referenceNumber', placeholder: 'SK/DIR/2024/001' });
+    this.txtCareerNotes = new WiseTextBox('', { id: 'txtCareerNotes', datafield: 'notes', placeholder: WiseI18n.t('KETERANGAN_PRESTASI_ALASAN_PROMOSI') || 'Keterangan prestasi / alasan promosi...' });
 
     tblCar.setCell(0, 0, this.formGroup(WiseI18n.t('JENIS_PERUBAHAN_2'), this.cmbCareerType));
     tblCar.setCell(0, 1, this.formGroup(WiseI18n.t('TANGGAL_EFEKTIF'), this.dtCareerDate));
@@ -60,7 +60,7 @@ class WinEmployeeCareerEdit extends WiseWindow {
       id: 'frameCareerActions',
       style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' }
     });
-    actionFrame.addControl(new WiseButton(WiseI18n.t('SIMPAN'), {
+    actionFrame.addControl(new WiseButton(WiseI18n.t('SIMPAN_3'), {
       id: 'btnSaveCareer',
       onClick: this.onSaveClick.bind(this),
       style: { marginRight: '8px' }

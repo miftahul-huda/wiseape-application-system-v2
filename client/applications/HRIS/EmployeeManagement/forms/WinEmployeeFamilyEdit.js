@@ -43,10 +43,10 @@ class WinEmployeeFamilyEdit extends WiseWindow {
     // ── Form Content (4 Fields Only) ────────────────────────────
     const tblFam = new WiseTableLayout({ rows: 2, columns: 2, id: 'tblFamilyEdit', style: { marginBottom: '16px' } });
 
-    this.txtFamName = new WiseTextBox('e.g. Siti Rahmawati', { id: 'txtFamName', datafield: 'name', placeholder: 'e.g. Siti Rahmawati' });
+    this.txtFamName = new WiseTextBox('', { id: 'txtFamName', datafield: 'name', placeholder: 'e.g. Siti Rahmawati' });
     this.cmbFamGender = new WiseComboBox(GENDERS.map(g => ({ value: g.value, label: WiseI18n.t(g.label) })), { id: 'cmbFamGender', datafield: 'gender', value: 'Laki-laki' });
     this.cmbFamRelation = new WiseComboBox(RELATIONSHIPS.map(r => ({ value: r.value, label: WiseI18n.t(r.label) })), { id: 'cmbFamRelation', datafield: 'relationship', value: 'Anak' });
-    this.txtFamPhone = new WiseTextBox('0812xxxxxxxx', { id: 'txtFamPhone', datafield: 'phone', placeholder: '0812xxxxxxxx' });
+    this.txtFamPhone = new WiseTextBox('', { id: 'txtFamPhone', datafield: 'phone', placeholder: '0812xxxxxxxx' });
 
     // Row 0: Nama & Gender
     tblFam.setCell(0, 0, this.formGroup(WiseI18n.t('NAMA_ANGGOTA_KELUARGA_2'), this.txtFamName));

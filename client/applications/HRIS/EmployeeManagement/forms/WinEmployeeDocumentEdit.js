@@ -32,11 +32,11 @@ class WinEmployeeDocumentEdit extends WiseWindow {
     const tblDoc = new WiseTableLayout({ rows: 4, columns: 2, id: 'tblDocEdit', style: { marginBottom: '16px' } });
 
     this.cmbDocType = new WiseComboBox(DOC_TYPES.map(d => ({ value: d, label: WiseI18n.t(d) })), { id: 'cmbDocType', datafield: 'documentType', value: 'KTP' });
-    this.txtDocNumber = new WiseTextBox(WiseI18n.t('NOMOR_KTP_NPWP_NO_KONTRAK'), { id: 'txtDocNumber', datafield: 'documentNumber', placeholder: WiseI18n.t('NOMOR_KTP_NPWP_NO_KONTRAK') });
-    this.txtDocTitle = new WiseTextBox(WiseI18n.t('E_G_SCAN_KTP_ASLI'), { id: 'txtDocTitle', datafield: 'title', placeholder: WiseI18n.t('E_G_SCAN_KTP_ASLI') });
+    this.txtDocNumber = new WiseTextBox('', { id: 'txtDocNumber', datafield: 'documentNumber', placeholder: WiseI18n.t('NOMOR_KTP_NPWP_NO_KONTRAK') });
+    this.txtDocTitle = new WiseTextBox('', { id: 'txtDocTitle', datafield: 'title', placeholder: WiseI18n.t('E_G_SCAN_KTP_ASLI') });
     this.dtDocIssueDate = new WiseDate('', { id: 'dtDocIssueDate', datafield: 'issueDate' });
     this.dtDocExpiryDate = new WiseDate('', { id: 'dtDocExpiryDate', datafield: 'expiryDate' });
-    this.txtDocDesc = new WiseTextBox(WiseI18n.t('KETERANGAN_DOKUMEN_2'), { id: 'txtDocDesc', datafield: 'description', placeholder: WiseI18n.t('KETERANGAN_DOKUMEN_2') });
+    this.txtDocDesc = new WiseTextBox('', { id: 'txtDocDesc', datafield: 'description', placeholder: WiseI18n.t('KETERANGAN_DOKUMEN_2') });
 
     tblDoc.setCell(0, 0, this.formGroup(WiseI18n.t('JENIS_DOKUMEN_2'), this.cmbDocType));
     tblDoc.setCell(0, 1, this.formGroup(WiseI18n.t('NOMOR_DOKUMEN'), this.txtDocNumber));
