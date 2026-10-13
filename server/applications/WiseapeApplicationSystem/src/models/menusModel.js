@@ -11,6 +11,9 @@ const FALLBACK_MENUS = [
   { id: 8, parentId: 5, type: 'item', label: 'Organization Management', icon: '🏛️', appId: 'organizationManagement', sortOrder: 2 },
   { id: 9, parentId: 5, type: 'item', label: 'Master Data Management', icon: '🗂️', appId: 'masterDataManagement', sortOrder: 3 },
   { id: 10, parentId: 5, type: 'item', label: 'Recruitment', icon: '🎯', appId: 'recruitment', sortOrder: 4 },
+  { id: 11, parentId: null, type: 'group', label: 'Report', icon: '📊', appId: null, sortOrder: 4 },
+  { id: 12, parentId: 11, type: 'item', label: 'Report Designer', icon: '📊', appId: 'reportDesigner', sortOrder: 0 },
+  { id: 13, parentId: 11, type: 'item', label: 'Report Viewer', icon: '📈', appId: 'reportViewer', sortOrder: 1 },
 ];
 
 let schemaReady = false;
@@ -145,6 +148,38 @@ async function ensureAdminMenuSeeded() {
        VALUES ($1, 'item', 'Recruitment', '🎯', 'recruitment', 4)`,
       [hrisGroupId]
     );
+  }
+
+  // 'Report' group: Report Designer + Report Viewer
+  let reportGroupId = null;
+  const existingReportGroup = await db.query(
+    "SELECT menu_id FROM wiseape_menus WHERE menu_type = 'group' AND label = 'Report'"
+  );
+  if (existingReportGroup.rowCount > 0) {
+    reportGroupId = existingReportGroup.rows[0].menu_id;
+  } else {
+    const res = await db.query(
+      `INSERT INTO wiseape_menus (parent_id, menu_type, label, icon, app_id, sort_order)
+       VALUES (NULL, 'group', 'Report', '📊', NULL, 4) RETURNING menu_id`
+    );
+    reportGroupId = res.rows[0].menu_id;
+  }
+  const reportItems = [
+    { label: 'Report Designer', icon: '📊', appId: 'reportDesigner', sortOrder: 0 },
+    { label: 'Report Viewer', icon: '📈', appId: 'reportViewer', sortOrder: 1 },
+  ];
+  for (const item of reportItems) {
+    const existingItem = await db.query(
+      'SELECT 1 FROM wiseape_menus WHERE parent_id = $1 AND app_id = $2',
+      [reportGroupId, item.appId]
+    );
+    if (existingItem.rowCount === 0) {
+      await db.query(
+        `INSERT INTO wiseape_menus (parent_id, menu_type, label, icon, app_id, sort_order)
+         VALUES ($1, 'item', $2, $3, $4, $5)`,
+        [reportGroupId, item.label, item.icon, item.appId, item.sortOrder]
+      );
+    }
   }
 
   adminMenuSeeded = true;

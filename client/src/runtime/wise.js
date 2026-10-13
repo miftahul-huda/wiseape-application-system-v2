@@ -12,6 +12,8 @@ import '../../system/WiseWindow.js';
 import '../../system/WiseApplication.js';
 import '../../system/ApiAuthRepository.js';
 import '../../system/ApiThemeRepository.js';
+// ES-module controls (bundled dependencies) register themselves on the registry.
+import '../controls/WiseChart.js';
 
 export const WiseWindow = window.WiseWindow;
 export const WiseApplication = window.WiseApplication;
@@ -24,6 +26,7 @@ export const {
   WiseControl,
   WiseButton,
   WiseCardGroup,
+  WiseChart,
   WiseCheckboxGroup,
   WiseComboBox,
   WiseDataTable,

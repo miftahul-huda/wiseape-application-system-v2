@@ -17,6 +17,7 @@
   "author": "Wiseape",
   "license": "MIT",
   "dependencies": {
+    "chart.js": "^4.5.1",
     "express": "^4.21.2"
   },
   "devDependencies": {

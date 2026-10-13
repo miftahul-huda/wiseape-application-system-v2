@@ -89,6 +89,28 @@ const FALLBACK_APPS = [
     appStartPoint: 'applications/HRIS/Recruitment/AppRecruitment.js:AppRecruitment',
     appParameter: {},
   },
+  {
+    appID: 'reportDesigner',
+    appTitle: 'Report Designer',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '📊',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/ReportDesigner/AppReportDesigner.js:AppReportDesigner',
+    appParameter: {},
+  },
+  {
+    appID: 'reportViewer',
+    appTitle: 'Report Viewer',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '📈',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/ReportDesigner/AppReportViewer.js:AppReportViewer',
+    appParameter: {},
+  },
 ];
 
 function parseJsonField(value, fallback) {
@@ -219,6 +241,22 @@ async function ensureAdminAppSeeded() {
         JSON.stringify({}),
       ]
     );
+  }
+
+  // Report Designer + Report Viewer (backend: server/applications/ReportDesigner)
+  const reportApps = [
+    { id: 'reportDesigner', title: 'Report Designer', icon: '📊', start: 'applications/ReportDesigner/AppReportDesigner.js:AppReportDesigner' },
+    { id: 'reportViewer', title: 'Report Viewer', icon: '📈', start: 'applications/ReportDesigner/AppReportViewer.js:AppReportViewer' },
+  ];
+  for (const app of reportApps) {
+    const existingReportApp = await db.query('SELECT 1 FROM wiseape_apps WHERE app_id = $1', [app.id]);
+    if (existingReportApp.rowCount === 0) {
+      await db.query(
+        `INSERT INTO wiseape_apps (app_id, app_title, app_version, app_developer, app_icon, app_libraries, app_config, app_start_point, app_parameter)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [app.id, app.title, '1.0.0', 'Wiseape', app.icon, JSON.stringify(['Wiseape WAS']), JSON.stringify({}), app.start, JSON.stringify({})]
+      );
+    }
   }
 
   adminAppSeeded = true;

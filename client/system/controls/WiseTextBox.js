@@ -19,6 +19,8 @@
       this.placeholder = ph;
       this.minLength = options.minLength;
       this.maxLength = options.maxLength;
+      // password: true masks the characters (renders <input type="password">).
+      this.password = options.password === true;
       this.onChange = typeof options.onChange === 'function' ? options.onChange : null;
       this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
       this.onHover = typeof options.onHover === 'function' ? options.onHover : null;
@@ -37,6 +39,7 @@
         placeholder: this.placeholder,
         minLength: this.minLength,
         maxLength: this.maxLength,
+        password: this.password,
         hasHandler: !!this.onChange,
         hasClickHandler: !!this.onClick,
         hasHoverHandler: !!this.onHover,
@@ -49,7 +52,8 @@
 
     static renderElement(data, context) {
       const el = document.createElement('input');
-      el.type = 'text';
+      el.type = data.password ? 'password' : 'text';
+      if (data.password) el.autocomplete = 'new-password';
       const rawPh = data.placeholder || '';
       el.dataset.rawPlaceholder = rawPh;
       el.placeholder = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(rawPh) : rawPh;
