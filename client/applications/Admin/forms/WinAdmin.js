@@ -121,19 +121,15 @@ class WinAdmin extends WiseWindow {
       visible: false,
       style: { marginTop: '12px' },
     });
-    frameEditUser.addControl(new WiseLabel('Full Name', { id: 'lblEditUserName' }));
-    frameEditUser.addControl(new WiseTextBox('', { id: 'txtEditUserName', dataField: 'editUserName' }));
-    frameEditUser.addControl(new WiseLabel('Email Address', { id: 'lblEditUserEmail' }));
-    frameEditUser.addControl(new WiseTextBox('', { id: 'txtEditUserEmail', dataField: 'editUserEmail' }));
-    frameEditUser.addControl(new WiseLabel('Role', { id: 'lblEditUserRole' }));
+    frameEditUser.addControl(new WiseTextBox('', { label: 'Full Name', id: 'txtEditUserName', dataField: 'editUserName' }));
+    frameEditUser.addControl(new WiseTextBox('', { label: 'Email Address', id: 'txtEditUserEmail', dataField: 'editUserEmail' }));
     frameEditUser.addControl(new WiseComboBox(
       [{ value: 'admin', label: 'Admin' }, { value: 'user', label: 'User' }],
-      { id: 'cmbEditUserRole', value: 'user', dataField: 'editUserRole' }
+      { label: 'Role', id: 'cmbEditUserRole', value: 'user', dataField: 'editUserRole' }
     ));
-    frameEditUser.addControl(new WiseLabel('Status', { id: 'lblEditUserStatus' }));
     frameEditUser.addControl(new WiseComboBox(
       [{ value: 'active', label: 'Active' }, { value: 'pending', label: 'Pending' }],
-      { id: 'cmbEditUserStatus', value: 'active', dataField: 'editUserStatus' }
+      { label: 'Status', id: 'cmbEditUserStatus', value: 'active', dataField: 'editUserStatus' }
     ));
     frameEditUser.addControl(new WiseButton('Save Changes', {
       id: 'btnSaveUserEdit',
@@ -184,20 +180,13 @@ class WinAdmin extends WiseWindow {
       visible: false,
       style: { marginTop: '12px' },
     });
-    frameThemeEditor.addControl(new WiseLabel('Theme ID', { id: 'lblThemeId' }));
-    frameThemeEditor.addControl(new WiseTextBox('', { id: 'txtThemeId', dataField: 'themeId', placeholder: 'e.g. custom-theme-1' }));
-    frameThemeEditor.addControl(new WiseLabel('Theme Name', { id: 'lblThemeName' }));
-    frameThemeEditor.addControl(new WiseTextBox('', { id: 'txtThemeName', dataField: 'themeName', placeholder: 'e.g. Ocean Blue' }));
-    frameThemeEditor.addControl(new WiseLabel('Background 1 (Hex)', { id: 'lblThemeBg1' }));
-    frameThemeEditor.addControl(new WiseTextBox('', { id: 'txtThemeBg1', dataField: 'themeBg1', placeholder: '#1e293b' }));
-    frameThemeEditor.addControl(new WiseLabel('Background 2 (Hex)', { id: 'lblThemeBg2' }));
-    frameThemeEditor.addControl(new WiseTextBox('', { id: 'txtThemeBg2', dataField: 'themeBg2', placeholder: '#0f172a' }));
-    frameThemeEditor.addControl(new WiseLabel('Accent Color', { id: 'lblThemeAccent' }));
-    frameThemeEditor.addControl(new WiseTextBox('', { id: 'txtThemeAccent', dataField: 'themeAccent', placeholder: '#3b82f6' }));
-    frameThemeEditor.addControl(new WiseLabel('Accent Dark Color', { id: 'lblThemeAccentDark' }));
-    frameThemeEditor.addControl(new WiseTextBox('', { id: 'txtThemeAccentDark', dataField: 'themeAccentDark', placeholder: '#1d4ed8' }));
-    frameThemeEditor.addControl(new WiseLabel('Custom CSS', { id: 'lblThemeCss' }));
-    frameThemeEditor.addControl(new WiseTextArea('', { id: 'txtThemeCss', dataField: 'themeCss', placeholder: '/* Custom CSS rules for theme */', rows: 4 }));
+    frameThemeEditor.addControl(new WiseTextBox('', { label: 'Theme ID', id: 'txtThemeId', dataField: 'themeId', placeholder: 'e.g. custom-theme-1' }));
+    frameThemeEditor.addControl(new WiseTextBox('', { label: 'Theme Name', id: 'txtThemeName', dataField: 'themeName', placeholder: 'e.g. Ocean Blue' }));
+    frameThemeEditor.addControl(new WiseTextBox('', { label: 'Background 1 (Hex)', id: 'txtThemeBg1', dataField: 'themeBg1', placeholder: '#1e293b' }));
+    frameThemeEditor.addControl(new WiseTextBox('', { label: 'Background 2 (Hex)', id: 'txtThemeBg2', dataField: 'themeBg2', placeholder: '#0f172a' }));
+    frameThemeEditor.addControl(new WiseTextBox('', { label: 'Accent Color', id: 'txtThemeAccent', dataField: 'themeAccent', placeholder: '#3b82f6' }));
+    frameThemeEditor.addControl(new WiseTextBox('', { label: 'Accent Dark Color', id: 'txtThemeAccentDark', dataField: 'themeAccentDark', placeholder: '#1d4ed8' }));
+    frameThemeEditor.addControl(new WiseTextArea('', { label: 'Custom CSS', id: 'txtThemeCss', dataField: 'themeCss', placeholder: '/* Custom CSS rules for theme */', rows: 4 }));
     frameThemeEditor.addControl(new WiseButton('Save Theme', {
       id: 'btnSaveTheme',
       style: { marginTop: '8px', marginRight: '6px' },

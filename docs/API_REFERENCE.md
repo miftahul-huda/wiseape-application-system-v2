@@ -553,6 +553,25 @@ Each entry: constructor signature, `render()` payload fields beyond the
 base (`type, id, value, visible`), and any DOM/behavior notes worth
 knowing.
 
+### `label` (all controls)
+
+Every control accepts `label` (and optional `labelStyle`) in its options.
+When `label` is set, a caption is rendered **above** the control — bold, 14px
+by default, translated through `WiseI18n.t`. Prefer it over a separate
+`WiseLabel` placed next to an input.
+
+```js
+new WiseTextBox('', { id: 'txtName', label: WiseI18n.t('NAMA'), style: { width: '100%' } });
+```
+
+- `getLabel()` / `setLabel(text)` — read or change the caption (pass `null`
+  to remove it). Updates reach the DOM for top-level controls; controls nested
+  in containers pick the change up on the next full render.
+- `labelStyle` — CSS overrides for the caption, e.g. `{ color: '#dc2626' }`.
+- The caption is hidden together with its control (`visible = false`).
+- `WiseFileUpload`: its first constructor argument is the text inside the drop
+  zone; the caption above it is `options.label`.
+
 ### `WiseLabel`
 
 `new WiseLabel(value = '', options)`. Options: `icon`, `style`, `onClick`, `onHover`.

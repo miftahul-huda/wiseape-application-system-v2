@@ -36,63 +36,62 @@ class WinJobLevelEdit extends WiseWindow {
     // Form Layout
     const formLayout = new WiseTableLayout({
       rows: 5,
-      columns: 2,
+      columns: 1,
       id: 'tblJobLevelForm',
       style: { width: '100%', marginBottom: '16px' }
     });
 
-    const lblStyle = { fontWeight: 600, color: '#334155', display: 'block', paddingTop: '6px' };
 
     // 1. Kode Jenjang
-    formLayout.setCell(0, 0, new WiseLabel(WiseI18n.t('KODE_JENJANG'), { style: lblStyle }));
     const codeVal = this.initialData ? (this.initialData.code || '') : '';
     const txtCode = new WiseTextBox('', {
       id: 'txtJobLevelCode',
+      label: WiseI18n.t('KODE_JENJANG'),
       datafield: 'code',
       placeholder: 'LVL-01, LVL-06, LVL-09',
       style: { width: '100%' }
     });
-    formLayout.setCell(0, 1, txtCode);
+    formLayout.setCell(0, 0, txtCode);
 
     // 2. Nama Jenjang
-    formLayout.setCell(1, 0, new WiseLabel(WiseI18n.t('NAMA_JENJANG_GRADE_2'), { style: lblStyle }));
     const txtName = new WiseTextBox('', {
       id: 'txtJobLevelName',
+      label: WiseI18n.t('NAMA_JENJANG_GRADE_2'),
       datafield: 'name',
       placeholder: 'Staff, Supervisor, Manager, Director',
       style: { width: '100%' }
     });
-    formLayout.setCell(1, 1, txtName);
+    formLayout.setCell(1, 0, txtName);
 
     // 3. Level Ranking (Level Number)
-    formLayout.setCell(2, 0, new WiseLabel(WiseI18n.t('TINGKAT_LEVEL_1_9'), { style: lblStyle }));
     const numLevel = new WiseNumericBox('1', {
       id: 'numJobLevelRanking',
+      label: WiseI18n.t('TINGKAT_LEVEL_1_9'),
       datafield: 'levelNumber',
       value: 1,
       style: { width: '120px' }
     });
-    formLayout.setCell(2, 1, numLevel);
+    formLayout.setCell(2, 0, numLevel);
 
     // 4. Deskripsi
-    formLayout.setCell(3, 0, new WiseLabel(WiseI18n.t('DESKRIPSI_TANGGUNG_JAWAB'), { style: lblStyle }));
     const txtDesc = new WiseTextBox('', {
       id: 'txtJobLevelDesc',
+      label: WiseI18n.t('DESKRIPSI_TANGGUNG_JAWAB'),
       datafield: 'description',
       placeholder: WiseI18n.t('CAKUPAN_TANGGUNG_JAWAB'),
       style: { width: '100%' }
     });
-    formLayout.setCell(3, 1, txtDesc);
+    formLayout.setCell(3, 0, txtDesc);
 
     // 5. Urutan
-    formLayout.setCell(4, 0, new WiseLabel(WiseI18n.t('URUTAN_TAMPILAN'), { style: lblStyle }));
     const numSort = new WiseNumericBox('0', {
       id: 'numJobLevelSortOrder',
+      label: WiseI18n.t('URUTAN_TAMPILAN'),
       datafield: 'sortOrder',
       value: 0,
       style: { width: '120px' }
     });
-    formLayout.setCell(4, 1, numSort);
+    formLayout.setCell(4, 0, numSort);
 
     this.addControl(formLayout);
 
@@ -119,16 +118,12 @@ class WinJobLevelEdit extends WiseWindow {
       }
     });
 
-    const btnCancel = new WiseButton(WiseI18n.t('BATAL_3'), {
+    const btnCancel = new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnJobLevelCancel',
       onClick: () => this.close(),
       style: {
         background: '#e2e8f0',
-        color: '#334155',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 18px',
-        cursor: 'pointer'
+        color: '#334155'
       }
     });
 
@@ -137,8 +132,8 @@ class WinJobLevelEdit extends WiseWindow {
       onClick: this.onSave.bind(this)
     });
 
-    actionContainer.addControl(btnCancel);
     actionContainer.addControl(btnSave);
+    actionContainer.addControl(btnCancel);
     this.addControl(actionContainer);
   }
 

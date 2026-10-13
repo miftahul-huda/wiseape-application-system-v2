@@ -53,33 +53,28 @@ class WinControls extends WiseWindow {
   onWindowInit() {
     this.controls = [];
 
-    this.addControl(new WiseLabel('Favorite Color', { id: 'lblColor', icon: '🎨', style: HEADING_STYLE }));
     this.addControl(new WiseRadioGroup(
       [
         { value: 'red', label: 'Red' },
         { value: 'green', label: 'Green' },
         { value: 'blue', label: 'Blue' },
       ],
-      { id: 'radioColor', value: 'green', onChange: () => { this.dateBirthday.setDisabled(true) } }
+      { label: 'Favorite Color', id: 'radioColor', value: 'green', onChange: () => { this.dateBirthday.setDisabled(true) } }
     ));
 
-    this.addControl(new WiseLabel('Department', { id: 'lblDepartment', icon: '🏢', style: HEADING_STYLE }));
     this.addControl(new WiseComboBox(
       DEPARTMENTS.map((dept) => ({ value: dept, label: dept })),
-      { id: 'cmbDepartment', value: 'Engineering', onChange: () => { console.log("Department changed"); this.dateBirthday.setDisabled(false); } }
+      { label: 'Department', id: 'cmbDepartment', value: 'Engineering', onChange: () => { console.log("Department changed"); this.dateBirthday.setDisabled(false); } }
     ));
 
-    this.addControl(new WiseLabel('Age', { id: 'lblAge', icon: '🎂', style: HEADING_STYLE }));
-    this.addControl(new WiseNumericBox('Enter age...', { id: 'numAge', value: 25, min: 0, max: 120, step: 1, suffix: 'yrs' }));
+    this.addControl(new WiseNumericBox('Enter age...', { label: 'Age', id: 'numAge', value: 25, min: 0, max: 120, step: 1, suffix: 'yrs' }));
 
     // A number small enough for min/max clamping doesn't reach into the
     // thousands, so it never actually shows the digit-grouping separator --
     // this field is here specifically to demonstrate that (grouping is
     // live as you type; see WiseNumericBox's input handler), plus a prefix.
-    this.addControl(new WiseLabel('Annual Salary', { id: 'lblSalary', icon: '💰', style: HEADING_STYLE }));
-    this.addControl(new WiseNumericBox('Enter salary...', { id: 'numSalary', value: 75000000, min: 0, prefix: 'Rp' }));
+    this.addControl(new WiseNumericBox('Enter salary...', { label: 'Annual Salary', id: 'numSalary', value: 75000000, min: 0, prefix: 'Rp' }));
 
-    this.addControl(new WiseLabel('Interests', { id: 'lblInterests', icon: '⭐', style: HEADING_STYLE }));
     this.addControl(new WiseCheckboxGroup(
       [
         { value: 'music', label: 'Music' },
@@ -87,32 +82,26 @@ class WinControls extends WiseWindow {
         { value: 'reading', label: 'Reading' },
         { value: 'travel', label: 'Travel' },
       ],
-      { id: 'checkInterests', value: ['music', 'travel'] }
+      { label: 'Interests', id: 'checkInterests', value: ['music', 'travel'] }
     ));
 
-    this.addControl(new WiseLabel('Birthday', { id: 'lblBirthday', icon: '📅', style: HEADING_STYLE }));
-    this.addControl(new WiseDate('', { id: 'dateBirthday', disabled: true }));
+    this.addControl(new WiseDate('', { label: 'Birthday', id: 'dateBirthday', disabled: true }));
 
-    this.addControl(new WiseLabel('Vacation Dates', { id: 'lblVacation', icon: '✈️', style: HEADING_STYLE }));
-    this.addControl(new WiseDateRange({}, { id: 'rangeVacation' }));
+    this.addControl(new WiseDateRange({}, { label: 'Vacation Dates', id: 'rangeVacation' }));
 
-    this.addControl(new WiseLabel('Bio', { id: 'lblBio', icon: '📝', style: HEADING_STYLE }));
-    this.addControl(new WiseTextArea('', { id: 'textBio', placeholder: 'Tell us about yourself...', rows: 3 }));
+    this.addControl(new WiseTextArea('', { label: 'Bio', id: 'textBio', placeholder: 'Tell us about yourself...', rows: 3 }));
 
-    this.addControl(new WiseLabel('Notes', { id: 'lblNotes', icon: '📜', style: HEADING_STYLE }));
-    this.addControl(new WiseHtmlEditor('<p>Write something...</p>', { id: 'editorNotes' }));
+    this.addControl(new WiseHtmlEditor('<p>Write something...</p>', { label: 'Notes', id: 'editorNotes' }));
 
-    this.addControl(new WiseLabel('Avatar', { id: 'lblAvatar', icon: '🖼️', style: HEADING_STYLE }));
-    this.addControl(new WiseFileUpload('Choose Image...', { id: 'uploadAvatar', onChange: this.onAvatarChange.bind(this) }));
+    this.addControl(new WiseFileUpload('Choose Image...', { label: 'Avatar', id: 'uploadAvatar', onChange: this.onAvatarChange.bind(this) }));
 
 
 
     // -- Layout containers: WiseTableLayout + WiseTabControl --
     this.addControl(new WiseLabel('Contact (Table Layout)', { id: 'lblContactHeading', style: { ...HEADING_STYLE, marginTop: '16px' } }));
-    const contactTable = new WiseTableLayout({ id: 'tableContact', rows: 2, columns: 2 });
-    contactTable.setCell(0, 0, new WiseLabel('Name', { style: { fontWeight: 600 } }));
-    contactTable.setCell(0, 1, new WiseTextBox('', { id: 'txtContactName', dataField: 'contactName', disabled: true }));
-    contactTable.setCell(1, 0, new WiseLabel('This row spans both columns', {}), { colSpan: 2 });
+    const contactTable = new WiseTableLayout({ id: 'tableContact', rows: 2, columns: 1 });
+    contactTable.setCell(0, 0, new WiseTextBox('', { label: 'Name', id: 'txtContactName', dataField: 'contactName', disabled: true }));
+    contactTable.setCell(1, 0, new WiseLabel('This row spans the full width', {}));
     this.addControl(contactTable);
 
     this.addControl(new WiseLabel('Preferences (Tabs)', { id: 'lblTabsHeading', style: HEADING_STYLE }));
@@ -137,8 +126,8 @@ class WinControls extends WiseWindow {
     // wiseape_employees table via this app's own employeeRepository. Data
     // starts empty here (onWindowInit must stay synchronous) and is filled
     // in by loadInitialData(), awaited from AppControls.run() before show().
-    this.addControl(new WiseLabel('Team Directory (Data Table)', { id: 'lblEmployeesHeading', style: HEADING_STYLE }));
     this.addControl(new WiseDataTable({
+      label: 'Team Directory (Data Table)',
       id: 'dtEmployees',
       pageSize: 5,
       pageSizeOptions: [5, 10, 20],

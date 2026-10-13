@@ -41,6 +41,8 @@
       return {
         type: this.name,
         id: this.id,
+        label: this.label,
+        labelStyle: this.labelStyle,
         dataField: this.dataField,
         value: this.value,
         items: this.items,

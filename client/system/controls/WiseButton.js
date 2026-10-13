@@ -6,11 +6,21 @@
     background: 'var(--accent)',
     color: '#ffffff',
     fontWeight: 600,
-    borderRadius: '5px',
-    padding: '8px 14px',
+    borderRadius: '4px',
+    padding: '8px 16px',
+    height: '36px',
+    minHeight: '36px',
+    minWidth: '160px',
+    fontSize: '14px',
+    lineHeight: '20px',
     border: 'none',
     boxShadow: 'none',
     cursor: 'pointer',
+    boxSizing: 'border-box',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    whiteSpace: 'nowrap',
   };
 
   class WiseButton extends WiseControl {
@@ -26,6 +36,8 @@
       return {
         type: this.name,
         id: this.id,
+        label: this.label,
+        labelStyle: this.labelStyle,
         dataField: this.dataField,
         value: this.value,
         // The onClick function itself can't cross the JSON boundary to the
@@ -44,7 +56,11 @@
       el.type = 'button';
       const labelText = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(data.value) : (data.value ?? '');
       el.textContent = labelText;
-      el.className = 'appearance-none border-0 justify-self-start inline-flex items-center justify-center gap-2 text-sm transition hover:brightness-105 active:brightness-95 cursor-pointer';
+      el.className = 'wise-button appearance-none border-0 justify-self-start inline-flex items-center justify-center gap-2 text-sm transition hover:brightness-105 active:brightness-95 cursor-pointer';
+      el.dataset.controlType = 'WiseButton';
+      if (data.id) {
+        el.dataset.controlId = data.id;
+      }
       // hasHoverHandler wiring comes from applyCommon; hasHandler (click) is
       // this control's own primary event and stays wired here explicitly,
       // unchanged from before.

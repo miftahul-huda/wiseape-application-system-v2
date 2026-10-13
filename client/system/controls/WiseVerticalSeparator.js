@@ -14,6 +14,8 @@
       return {
         type: this.name,
         id: this.id,
+        label: this.label,
+        labelStyle: this.labelStyle,
         height: this.height,
         style: this.style,
         visible: this.visible,

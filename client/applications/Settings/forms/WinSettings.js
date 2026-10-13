@@ -1,6 +1,5 @@
 import {
   WiseWindow,
-  WiseLabel,
   WiseComboBox,
   WiseFileUpload,
   WiseCardGroup,
@@ -36,7 +35,6 @@ class WinSettings extends WiseWindow {
     const activeCurr = sessionUser.currency || (this.system ? this.system.currency : 'IDR') || 'IDR';
 
     // ── Language Selection ──
-    this.addControl(new WiseLabel('Language', { id: 'lblLanguageHeading', icon: '🌐', style: { fontSize: 16, fontWeight: 700, color: '#111827' } }));
     this.addControl(new WiseComboBox(
       [
         { value: 'id', label: 'Bahasa Indonesia' },
@@ -47,6 +45,7 @@ class WinSettings extends WiseWindow {
         { value: 'ar', label: 'العربية (Arabic)' }
       ],
       {
+        label: 'Language',
         id: 'cmbLanguage',
         value: activeLang,
         onChange: this.onLanguageChange.bind(this),
@@ -59,10 +58,10 @@ class WinSettings extends WiseWindow {
       label: `${c.code} — ${c.name} (${c.symbol})`
     }));
 
-    this.addControl(new WiseLabel('Currency', { id: 'lblCurrencyHeading', icon: '💵', style: { fontSize: 16, fontWeight: 700, marginTop: '12px', color: '#111827' } }));
     this.addControl(new WiseComboBox(
       currencyOptions,
       {
+        label: 'Currency',
         id: 'cmbCurrency',
         value: activeCurr,
         onChange: this.onCurrencyChange.bind(this),
@@ -70,10 +69,10 @@ class WinSettings extends WiseWindow {
     ));
 
     // ── Theme / Preset ──
-    this.addControl(new WiseLabel('Desktop Preset', { id: 'lblThemeHeading', icon: '🎨', style: { fontSize: 16, fontWeight: 700, marginTop: '12px', color: '#111827' } }));
     this.addControl(new WiseComboBox(
       this.themes.map((theme) => ({ value: theme.id, label: theme.name })),
       {
+        label: 'Desktop Preset',
         id: 'cmbTheme',
         value: this.system ? this.system.activeThemeId : undefined,
         onChange: this.onThemeChange.bind(this),
@@ -81,15 +80,15 @@ class WinSettings extends WiseWindow {
     ));
 
     // ── Background Image ──
-    this.addControl(new WiseLabel('Background Image', { id: 'lblBackgroundHeading', icon: '🖼️', style: { fontSize: 16, fontWeight: 700, marginTop: '12px', color: '#111827' } }));
     this.addControl(new WiseFileUpload('Choose Image...', {
+      label: 'Background Image',
       id: 'uploadBackground',
       value: this.system ? this.system.backgroundImage : undefined,
       onChange: this.onBackgroundChange.bind(this),
     }));
 
-    this.addControl(new WiseLabel('Previously Uploaded', { id: 'lblGalleryHeading', style: { fontSize: 13, fontWeight: 700, marginTop: '14px', color: '#374151' } }));
     this.addControl(new WiseCardGroup({
+      label: 'Previously Uploaded',
       id: 'cgBackgroundGallery',
       pageSize: 8,
       pageSizeOptions: [8, 16],

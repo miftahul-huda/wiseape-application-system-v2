@@ -36,7 +36,6 @@ class WinStageTemplateEdit extends WiseWindow {
     this.controls = [];
 
     const inputBorderStyle = { border: '1px solid #94a3b8', borderRadius: '6px' };
-    const labelStyle = { fontWeight: 600, color: '#334155', display: 'block', marginBottom: '2px', lineHeight: '1.2' };
 
     // 1. Template Master Fields Layout (2 cols x 2 rows)
     const masterGrid = new WiseTableLayout({
@@ -46,21 +45,18 @@ class WinStageTemplateEdit extends WiseWindow {
       style: { tableLayout: 'fixed', width: '100%', borderSpacing: '8px', marginBottom: '12px' }
     });
 
-    const cellName = new WiseFrame('', { id: 'frmTplName' });
-    cellName.addControl(new WiseLabel(WiseI18n.t('NAMA_TEMPLATE_ALUR'), { id: 'lblTplName', style: labelStyle }));
     this.txtName = new WiseTextBox('', {
       id: 'txtTplName',
+      label: WiseI18n.t('NAMA_TEMPLATE_ALUR'),
       datafield: 'name',
       placeholder: WiseI18n.t('CONTOH_ALUR_SELEKSI_SOFTWARE_ENGINEER_IT'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellName.addControl(this.txtName);
-    masterGrid.setCell(0, 0, cellName);
+    masterGrid.setCell(0, 0, this.txtName);
 
-    const cellActive = new WiseFrame('', { id: 'frmTplActive' });
-    cellActive.addControl(new WiseLabel(WiseI18n.t('STATUS_AKTIF'), { id: 'lblTplActive', style: labelStyle }));
     this.cmbIsActive = new WiseComboBox('true', {
       id: 'cmbTplActive',
+      label: WiseI18n.t('STATUS_AKTIF'),
       datafield: 'isActive',
       items: [
         { value: 'true', label: WiseI18n.t('AKTIF') },
@@ -68,30 +64,25 @@ class WinStageTemplateEdit extends WiseWindow {
       ],
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellActive.addControl(this.cmbIsActive);
-    masterGrid.setCell(0, 1, cellActive);
+    masterGrid.setCell(0, 1, this.cmbIsActive);
 
-    const cellCode = new WiseFrame('', { id: 'frmTplCode' });
-    cellCode.addControl(new WiseLabel(WiseI18n.t('KODE_TEMPLATE_OPSIONAL'), { id: 'lblTplCode', style: labelStyle }));
     this.txtCode = new WiseTextBox('', {
       id: 'txtTplCode',
+      label: WiseI18n.t('KODE_TEMPLATE_OPSIONAL'),
       datafield: 'code',
       placeholder: WiseI18n.t('CONTOH_STG_TECH_01'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellCode.addControl(this.txtCode);
-    masterGrid.setCell(1, 0, cellCode);
+    masterGrid.setCell(1, 0, this.txtCode);
 
-    const cellDesc = new WiseFrame('', { id: 'frmTplDesc' });
-    cellDesc.addControl(new WiseLabel(WiseI18n.t('DESKRIPSI_PERUNTUKAN_TEMPLATE'), { id: 'lblTplDesc', style: labelStyle }));
     this.txtDesc = new WiseTextBox('', {
       id: 'txtTplDesc',
+      label: WiseI18n.t('DESKRIPSI_PERUNTUKAN_TEMPLATE'),
       datafield: 'description',
       placeholder: WiseI18n.t('PENJELASAN_TUJUAN_ATAU_PROFIL_PELAMAR_YANG_COCOK'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellDesc.addControl(this.txtDesc);
-    masterGrid.setCell(1, 1, cellDesc);
+    masterGrid.setCell(1, 1, this.txtDesc);
 
     this.addControl(masterGrid);
 
@@ -116,13 +107,7 @@ class WinStageTemplateEdit extends WiseWindow {
       onClick: this.onEditStageClick.bind(this),
       style: {
         background: 'var(--accent-dark)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '7px 14px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -131,13 +116,7 @@ class WinStageTemplateEdit extends WiseWindow {
       onClick: this.onDeleteStageClick.bind(this),
       style: {
         background: '#ef4444',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '7px 14px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -173,24 +152,18 @@ class WinStageTemplateEdit extends WiseWindow {
       }
     });
 
+    bottomBar.addControl(new WiseButton(WiseI18n.t('SIMPAN_TEMPLATE'), {
+      id: 'btnTplSave',
+      onClick: this.onSaveClick.bind(this)
+    }));
+
     bottomBar.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnTplCancel',
       onClick: () => this.close(),
       style: {
         background: '#e2e8f0',
-        color: '#334155',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 18px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#334155'
       }
-    }));
-
-    bottomBar.addControl(new WiseButton(WiseI18n.t('SIMPAN_TEMPLATE'), {
-      id: 'btnTplSave',
-      onClick: this.onSaveClick.bind(this)
     }));
 
     this.addControl(bottomBar);

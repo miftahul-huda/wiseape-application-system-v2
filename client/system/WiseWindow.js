@@ -61,6 +61,32 @@ class WiseWindow {
     return this.pendingInfo;
   }
 
+  // Displays a modal confirmation popup window (title + message + Cancel/Confirm buttons)
+  // and returns a Promise<boolean> resolving to true if confirmed or false if cancelled.
+  confirm(title, message, options = {}) {
+    let config = {};
+    if (typeof title === 'object' && title !== null) {
+      config = { ...title };
+    } else if (message === undefined) {
+      config = { message: title };
+    } else {
+      config = { title, message, ...options };
+    }
+
+    if (typeof window !== 'undefined') {
+      if (window.WiseDesktopInstance && typeof window.WiseDesktopInstance.showConfirmDialog === 'function') {
+        return window.WiseDesktopInstance.showConfirmDialog(config);
+      }
+      if (typeof window.WiseConfirm === 'function') {
+        return window.WiseConfirm(config);
+      }
+    }
+    if (this.system && this.system.desktop && typeof this.system.desktop.showConfirmDialog === 'function') {
+      return this.system.desktop.showConfirmDialog(config);
+    }
+    return Promise.resolve(true);
+  }
+
   addControl(control) {
     this.controls.push(control);
     this.registerControl(control);

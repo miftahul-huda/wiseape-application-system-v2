@@ -16,7 +16,7 @@ const api = new HrisApiRepository();
 class WinEmployeeDetail extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = 'Detail Karyawan — Wise HRIS';
+    this.title = WiseI18n.t('DETAIL_KARYAWAN_WISE_HRIS');
     this.appIcon = options.appIcon || '📋';
     this.width = options.width || '88%';
     this.height = options.height || '88%';
@@ -43,13 +43,13 @@ class WinEmployeeDetail extends WiseWindow {
     });
 
     const tblHero = new WiseTableLayout({ rows: 1, columns: 2, id: 'tblDetailHeroLayout' });
-    
+
     const heroLeft = new WiseFrame('', { style: { background: 'transparent', border: 'none', padding: '0' } });
-    heroLeft.addControl(new WiseLabel('📋 Detail Informasi Karyawan', {
+    heroLeft.addControl(new WiseLabel('📋 ' + WiseI18n.t('DETAIL_INFORMASI_KARYAWAN'), {
       id: 'lblDetailHeroTitle',
       style: { fontWeight: 700, color: 'rgba(255,255,255,0.85)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '4px' }
     }));
-    heroLeft.addControl(new WiseLabel('Memuat data karyawan...', {
+    heroLeft.addControl(new WiseLabel(WiseI18n.t('MEMUAT_DATA_KARYAWAN'), {
       id: 'lblDetailEmployeeName',
       style: { fontSize: 22, color: '#ffffff', display: 'block', fontWeight: 800, marginBottom: '4px' }
     }));
@@ -59,33 +59,20 @@ class WinEmployeeDetail extends WiseWindow {
     }));
 
     const heroRight = new WiseFrame('', { style: { background: 'transparent', border: 'none', padding: '0', textAlign: 'right' } });
-    heroRight.addControl(new WiseButton('✏️ Edit Data Karyawan', {
+    heroRight.addControl(new WiseButton('✏️ ' + WiseI18n.t('EDIT_DATA_KARYAWAN_MENU'), {
       id: 'btnDetailOpenEdit',
       onClick: this.onOpenEditClick.bind(this),
       style: {
         background: '#ffffff',
-        color: 'var(--accent-dark)',
-        fontWeight: 700,
-        borderRadius: '8px',
-        padding: '8px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        marginRight: '8px',
-        cursor: 'pointer'
+        color: 'var(--accent-dark)'
       }
     }));
-    heroRight.addControl(new WiseButton('✕ Tutup', {
+    heroRight.addControl(new WiseButton('✕ ' + WiseI18n.t('TUTUP_2'), {
       id: 'btnDetailClose',
       onClick: this.onCloseClick.bind(this),
       style: {
         background: 'rgba(255,255,255,0.2)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '8px',
-        padding: '8px 14px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -99,7 +86,7 @@ class WinEmployeeDetail extends WiseWindow {
       id: 'detailTabs',
       layout: 'horizontal',
       activeIndex: 0,
-      onTabChanged: () => {}
+      onTabChanged: () => { }
     });
 
     // ── TAB 1: DATA PRIBADI ─────────────────────────────────────
@@ -112,19 +99,19 @@ class WinEmployeeDetail extends WiseWindow {
       id: 'tblDetailPersonal',
       style: { width: '100%', tableLayout: 'fixed', marginBottom: '8px' }
     });
-    tblPersonal.setCell(0, 0, this.infoField('Nama Lengkap', 'lblValFullName'));
-    tblPersonal.setCell(0, 1, this.infoField('Nama Panggilan', 'lblValNickname'));
-    tblPersonal.setCell(1, 0, this.infoField('Tempat Lahir', 'lblValBirthPlace'));
-    tblPersonal.setCell(1, 1, this.infoField('Tanggal Lahir', 'lblValBirthDate'));
-    tblPersonal.setCell(2, 0, this.infoField('Jenis Kelamin', 'lblValGender'));
-    tblPersonal.setCell(2, 1, this.infoField('Agama', 'lblValReligion'));
-    tblPersonal.setCell(3, 0, this.infoField('Nomor Telepon / WA', 'lblValPhoneNumber'));
-    tblPersonal.setCell(3, 1, this.infoField('Email Pribadi', 'lblValPersonalEmail'));
-    tblPersonal.setCell(4, 0, this.infoField('Alamat Domisili Saat Ini', 'lblValCurrentAddress'));
-    tblPersonal.setCell(4, 1, this.infoField('Alamat Sesuai KTP', 'lblValIdCardAddress'));
+    tblPersonal.setCell(0, 0, this.infoField(WiseI18n.t('NAMA_LENGKAP'), 'lblValFullName'));
+    tblPersonal.setCell(0, 1, this.infoField(WiseI18n.t('NAMA_PANGGILAN'), 'lblValNickname'));
+    tblPersonal.setCell(1, 0, this.infoField(WiseI18n.t('TEMPAT_LAHIR'), 'lblValBirthPlace'));
+    tblPersonal.setCell(1, 1, this.infoField(WiseI18n.t('TANGGAL_LAHIR'), 'lblValBirthDate'));
+    tblPersonal.setCell(2, 0, this.infoField(WiseI18n.t('JENIS_KELAMIN'), 'lblValGender'));
+    tblPersonal.setCell(2, 1, this.infoField(WiseI18n.t('AGAMA'), 'lblValReligion'));
+    tblPersonal.setCell(3, 0, this.infoField(WiseI18n.t('NOMOR_TELEPON_WHATSAPP'), 'lblValPhoneNumber'));
+    tblPersonal.setCell(3, 1, this.infoField(WiseI18n.t('EMAIL_PRIBADI'), 'lblValPersonalEmail'));
+    tblPersonal.setCell(4, 0, this.infoField(WiseI18n.t('ALAMAT_TEMPAT_TINGGAL_SAAT_INI'), 'lblValCurrentAddress'));
+    tblPersonal.setCell(4, 1, this.infoField(WiseI18n.t('ALAMAT_SESUAI_KTP'), 'lblValIdCardAddress'));
     tabPersControls.push(tblPersonal);
 
-    const frameEmergency = new WiseFrame('Kontak Darurat (Emergency Contact)', {
+    const frameEmergency = new WiseFrame(WiseI18n.t('KONTAK_DARURAT_EMERGENCY_CONTACT'), {
       id: 'frameEmergency',
       style: {
         marginTop: '6px',
@@ -142,13 +129,13 @@ class WinEmployeeDetail extends WiseWindow {
       id: 'tblEmergency',
       style: { width: '100%', tableLayout: 'fixed' }
     });
-    tblEmergency.setCell(0, 0, this.infoField('Nama Kontak', 'lblValEmergencyName'));
-    tblEmergency.setCell(0, 1, this.infoField('Hubungan', 'lblValEmergencyRelation'));
-    tblEmergency.setCell(0, 2, this.infoField('Nomor Telepon', 'lblValEmergencyPhone'));
+    tblEmergency.setCell(0, 0, this.infoField(WiseI18n.t('NAMA_KONTAK_DARURAT'), 'lblValEmergencyName'));
+    tblEmergency.setCell(0, 1, this.infoField(WiseI18n.t('HUBUNGAN'), 'lblValEmergencyRelation'));
+    tblEmergency.setCell(0, 2, this.infoField(WiseI18n.t('NOMOR_TELEPON_DARURAT'), 'lblValEmergencyPhone'));
     frameEmergency.addControl(tblEmergency);
     tabPersControls.push(frameEmergency);
 
-    detailTabs.addTab({ label: 'Data Pribadi', icon: '👤', controls: tabPersControls });
+    detailTabs.addTab({ label: WiseI18n.t('DATA_PRIBADI'), icon: '👤', controls: tabPersControls });
 
     // ── TAB 2: DATA PEKERJAAN ───────────────────────────────────
     const tabEmplControls = [];
@@ -160,19 +147,19 @@ class WinEmployeeDetail extends WiseWindow {
       id: 'tblDetailEmployment',
       style: { width: '100%', tableLayout: 'fixed', marginBottom: '8px' }
     });
-    tblEmployment.setCell(0, 0, this.infoField('NIK / ID Karyawan', 'lblValNik'));
-    tblEmployment.setCell(0, 1, this.infoField('Jabatan / Posisi', 'lblValJobTitle'));
-    tblEmployment.setCell(1, 0, this.infoField('Tingkat Jabatan (Job Level)', 'lblValJobLevel'));
-    tblEmployment.setCell(1, 1, this.infoField('Departemen', 'lblValDepartment'));
-    tblEmployment.setCell(2, 0, this.infoField('Divisi / Unit Kerja', 'lblValDivision'));
-    tblEmployment.setCell(2, 1, this.infoField('Status Kepegawaian', 'lblValEmploymentStatus'));
-    tblEmployment.setCell(3, 0, this.infoField('Tanggal Bergabung (Join Date)', 'lblValJoinDate'));
-    tblEmployment.setCell(3, 1, this.infoField('Tanggal Selesai (Kontrak/Magang)', 'lblValEndDate'));
-    tblEmployment.setCell(4, 0, this.infoField('Atasan Langsung (Manager)', 'lblValManagerName'));
-    tblEmployment.setCell(4, 1, this.infoField('Lokasi Penempatan Kerja', 'lblValWorkLocation'));
+    tblEmployment.setCell(0, 0, this.infoField(WiseI18n.t('NIK_ID_KARYAWAN'), 'lblValNik'));
+    tblEmployment.setCell(0, 1, this.infoField(WiseI18n.t('JABATAN_POSISI'), 'lblValJobTitle'));
+    tblEmployment.setCell(1, 0, this.infoField(WiseI18n.t('TINGKAT_JABATAN'), 'lblValJobLevel'));
+    tblEmployment.setCell(1, 1, this.infoField(WiseI18n.t('DEPARTEMEN'), 'lblValDepartment'));
+    tblEmployment.setCell(2, 0, this.infoField(WiseI18n.t('DIVISI_SUB_DEPARTEMEN'), 'lblValDivision'));
+    tblEmployment.setCell(2, 1, this.infoField(WiseI18n.t('STATUS_KEPEGAWAIAN'), 'lblValEmploymentStatus'));
+    tblEmployment.setCell(3, 0, this.infoField(WiseI18n.t('TANGGAL_BERGABUNG'), 'lblValJoinDate'));
+    tblEmployment.setCell(3, 1, this.infoField(WiseI18n.t('TANGGAL_BERAKHIR_KONTRAK_MAGANG'), 'lblValEndDate'));
+    tblEmployment.setCell(4, 0, this.infoField(WiseI18n.t('ATASAN_LANGSUNG'), 'lblValManagerName'));
+    tblEmployment.setCell(4, 1, this.infoField(WiseI18n.t('LOKASI_KERJA'), 'lblValWorkLocation'));
     tabEmplControls.push(tblEmployment);
 
-    const frameTenure = new WiseFrame('Masa Kerja & Status Akun', {
+    const frameTenure = new WiseFrame(WiseI18n.t('MASA_KERJA_DAN_STATUS_AKUN'), {
       id: 'frameTenure',
       style: {
         marginTop: '6px',
@@ -190,12 +177,12 @@ class WinEmployeeDetail extends WiseWindow {
       id: 'tblTenure',
       style: { width: '100%', tableLayout: 'fixed' }
     });
-    tblTenure.setCell(0, 0, this.infoField('Masa Kerja', 'lblValTenure'));
-    tblTenure.setCell(0, 1, this.infoField('Status Keaktifan', 'lblValActiveStatus'));
+    tblTenure.setCell(0, 0, this.infoField(WiseI18n.t('MASA_KERJA'), 'lblValTenure'));
+    tblTenure.setCell(0, 1, this.infoField(WiseI18n.t('STATUS_KEAKTIFAN'), 'lblValActiveStatus'));
     frameTenure.addControl(tblTenure);
     tabEmplControls.push(frameTenure);
 
-    detailTabs.addTab({ label: 'Data Pekerjaan', icon: '💼', controls: tabEmplControls });
+    detailTabs.addTab({ label: WiseI18n.t('DATA_PEKERJAAN'), icon: '💼', controls: tabEmplControls });
 
     // ── TAB 3: KOMPENSASI & PAYROLL ─────────────────────────────
     const tabPayControls = [];
@@ -207,19 +194,19 @@ class WinEmployeeDetail extends WiseWindow {
       id: 'tblDetailPayroll',
       style: { width: '100%', tableLayout: 'fixed', marginBottom: '8px' }
     });
-    tblPayroll.setCell(0, 0, this.infoField('Nama Bank', 'lblValBankName'));
-    tblPayroll.setCell(0, 1, this.infoField('Nomor Rekening', 'lblValBankAccountNumber'));
-    tblPayroll.setCell(1, 0, this.infoField('Nama Pemilik Rekening', 'lblValBankAccountHolder'));
-    tblPayroll.setCell(1, 1, this.infoField('Status PTKP (Pajak)', 'lblValTaxStatus'));
-    tblPayroll.setCell(2, 0, this.infoField('Gaji Pokok', 'lblValBasicSalary'));
-    tblPayroll.setCell(2, 1, this.infoField('Tunjangan Jabatan', 'lblValAllowancePosition'));
-    tblPayroll.setCell(3, 0, this.infoField('Tunjangan Transport', 'lblValAllowanceTransport'));
-    tblPayroll.setCell(3, 1, this.infoField('Tunjangan Makan', 'lblValAllowanceMeal'));
-    tblPayroll.setCell(4, 0, this.infoField('Tunjangan Lainnya', 'lblValAllowanceOther'));
-    tblPayroll.setCell(4, 1, this.infoField('Total Gaji Bruto', 'lblValTotalSalary'));
+    tblPayroll.setCell(0, 0, this.infoField(WiseI18n.t('NAMA_BANK'), 'lblValBankName'));
+    tblPayroll.setCell(0, 1, this.infoField(WiseI18n.t('NOMOR_REKENING_BANK'), 'lblValBankAccountNumber'));
+    tblPayroll.setCell(1, 0, this.infoField(WiseI18n.t('NAMA_PEMILIK_REKENING'), 'lblValBankAccountHolder'));
+    tblPayroll.setCell(1, 1, this.infoField(WiseI18n.t('STATUS_PERPAJAKAN_PTKP'), 'lblValTaxStatus'));
+    tblPayroll.setCell(2, 0, this.infoField(WiseI18n.t('GAJI_POKOK'), 'lblValBasicSalary'));
+    tblPayroll.setCell(2, 1, this.infoField(WiseI18n.t('TUNJANGAN_JABATAN'), 'lblValAllowancePosition'));
+    tblPayroll.setCell(3, 0, this.infoField(WiseI18n.t('TUNJANGAN_TRANSPORT'), 'lblValAllowanceTransport'));
+    tblPayroll.setCell(3, 1, this.infoField(WiseI18n.t('TUNJANGAN_MAKAN'), 'lblValAllowanceMeal'));
+    tblPayroll.setCell(4, 0, this.infoField(WiseI18n.t('TUNJANGAN_LAINNYA'), 'lblValAllowanceOther'));
+    tblPayroll.setCell(4, 1, this.infoField(WiseI18n.t('TOTAL_GAJI_BRUTO'), 'lblValTotalSalary'));
     tabPayControls.push(tblPayroll);
 
-    const frameTax = new WiseFrame('Legalitas Pajak & Jaminan Sosial (BPJS)', {
+    const frameTax = new WiseFrame(WiseI18n.t('LEGALITAS_PAJAK_BPJS'), {
       id: 'frameTax',
       style: {
         marginTop: '6px',
@@ -237,83 +224,83 @@ class WinEmployeeDetail extends WiseWindow {
       id: 'tblTax',
       style: { width: '100%', tableLayout: 'fixed' }
     });
-    tblTax.setCell(0, 0, this.infoField('Nomor NPWP', 'lblValNpwp'));
-    tblTax.setCell(0, 1, this.infoField('Nomor BPJS Kesehatan', 'lblValBpjsKesehatan'));
-    tblTax.setCell(0, 2, this.infoField('Nomor BPJS Ketenagakerjaan', 'lblValBpjsKetenagakerjaan'));
+    tblTax.setCell(0, 0, this.infoField(WiseI18n.t('NOMOR_NPWP'), 'lblValNpwp'));
+    tblTax.setCell(0, 1, this.infoField(WiseI18n.t('NOMOR_BPJS_KESEHATAN'), 'lblValBpjsKesehatan'));
+    tblTax.setCell(0, 2, this.infoField(WiseI18n.t('NOMOR_BPJS_KETENAGAKERJAAN'), 'lblValBpjsKetenagakerjaan'));
     frameTax.addControl(tblTax);
     tabPayControls.push(frameTax);
 
-    detailTabs.addTab({ label: 'Kompensasi & Payroll', icon: '💰', controls: tabPayControls });
+    detailTabs.addTab({ label: WiseI18n.t('KOMPENSASI_PAYROLL'), icon: '💰', controls: tabPayControls });
 
     // ── TAB 4: DOKUMEN & LEGALITAS ──────────────────────────────
     const tabDocControls = [];
     const dtDocuments = new WiseDataTable({ id: 'dtDocuments', pageSize: 6 });
     dtDocuments.setColumns([
-      { dataField: 'documentType', header: 'Jenis Dokumen', width: 140 },
-      { dataField: 'title', header: 'Nama / Judul Dokumen', width: 220 },
-      { dataField: 'documentNumber', header: 'Nomor Dokumen', width: 160 },
-      { dataField: 'issueDate', header: 'Tgl Terbit', width: 110 },
-      { dataField: 'expiryDate', header: 'Tgl Berakhir', width: 110 },
-      { dataField: 'description', header: 'Keterangan', width: 200 }
+      { dataField: 'documentType', header: WiseI18n.t('JENIS_DOKUMEN'), width: 140 },
+      { dataField: 'title', header: WiseI18n.t('NAMA_JUDUL_DOKUMEN'), width: 220 },
+      { dataField: 'documentNumber', header: WiseI18n.t('NOMOR_DOKUMEN'), width: 160 },
+      { dataField: 'issueDate', header: WiseI18n.t('TGL_TERBIT'), width: 110 },
+      { dataField: 'expiryDate', header: WiseI18n.t('TGL_BERAKHIR'), width: 110 },
+      { dataField: 'description', header: WiseI18n.t('KETERANGAN'), width: 200 }
     ]);
     tabDocControls.push(dtDocuments);
-    detailTabs.addTab({ label: 'Dokumen & Legalitas', icon: '📁', controls: tabDocControls });
+    detailTabs.addTab({ label: WiseI18n.t('DOKUMEN_LEGALITAS'), icon: '📁', controls: tabDocControls });
 
     // ── TAB 5: PENGALAMAN KERJA ──────────────────────────────────
     const tabExpControls = [];
     const dtExperiences = new WiseDataTable({ id: 'dtExperiences', pageSize: 6 });
     dtExperiences.setColumns([
-      { dataField: 'companyName', header: 'Perusahaan', width: 200 },
-      { dataField: 'position', header: 'Posisi', width: 180 },
-      { dataField: 'startDate', header: 'Tgl Mulai', width: 110 },
-      { dataField: 'endDate', header: 'Tgl Selesai', width: 110 },
-      { dataField: 'lastSalary', header: 'Gaji Terakhir', width: 130 },
-      { dataField: 'description', header: 'Keterangan', width: 220 }
+      { dataField: 'companyName', header: WiseI18n.t('PERUSAHAAN'), width: 200 },
+      { dataField: 'position', header: WiseI18n.t('POSISI'), width: 180 },
+      { dataField: 'startDate', header: WiseI18n.t('TGL_MULAI'), width: 110 },
+      { dataField: 'endDate', header: WiseI18n.t('TGL_SELESAI'), width: 110 },
+      { dataField: 'lastSalary', header: WiseI18n.t('GAJI_TERAKHIR'), width: 130 },
+      { dataField: 'description', header: WiseI18n.t('KETERANGAN'), width: 220 }
     ]);
     tabExpControls.push(dtExperiences);
-    detailTabs.addTab({ label: 'Pengalaman Kerja', icon: '🏢', controls: tabExpControls });
+    detailTabs.addTab({ label: WiseI18n.t('PENGALAMAN_KERJA'), icon: '🏢', controls: tabExpControls });
 
     // ── TAB 6: RIWAYAT PENDIDIKAN ───────────────────────────────
     const tabEduControls = [];
     const dtEducation = new WiseDataTable({ id: 'dtEducation', pageSize: 6 });
     dtEducation.setColumns([
-      { dataField: 'institutionName', header: 'Institusi Pendidikan', width: 220 },
-      { dataField: 'degree', header: 'Jenjang', width: 100 },
-      { dataField: 'major', header: 'Jurusan', width: 180 },
-      { dataField: 'startDate', header: 'Tgl Mulai', width: 110 },
-      { dataField: 'graduationDate', header: 'Tgl Lulus', width: 110 },
-      { dataField: 'gpa', header: 'IPK', width: 90 },
-      { dataField: 'description', header: 'Keterangan', width: 200 }
+      { dataField: 'institutionName', header: WiseI18n.t('INSTITUSI_PENDIDIKAN'), width: 220 },
+      { dataField: 'degree', header: WiseI18n.t('JENJANG'), width: 100 },
+      { dataField: 'major', header: WiseI18n.t('JURUSAN'), width: 180 },
+      { dataField: 'startDate', header: WiseI18n.t('TGL_MULAI'), width: 110 },
+      { dataField: 'graduationDate', header: WiseI18n.t('TGL_LULUS'), width: 110 },
+      { dataField: 'gpa', header: WiseI18n.t('IPK'), width: 90 },
+      { dataField: 'description', header: WiseI18n.t('KETERANGAN'), width: 200 }
     ]);
     tabEduControls.push(dtEducation);
-    detailTabs.addTab({ label: 'Riwayat Pendidikan', icon: '🎓', controls: tabEduControls });
+    detailTabs.addTab({ label: WiseI18n.t('RIWAYAT_PENDIDIKAN'), icon: '🎓', controls: tabEduControls });
 
     // ── TAB 7: RIWAYAT KARIR INTERNAL ───────────────────────────
     const tabCareerControls = [];
     const dtCareer = new WiseDataTable({ id: 'dtCareer', pageSize: 6 });
     dtCareer.setColumns([
-      { dataField: 'changeType', header: 'Jenis Perubahan', width: 140 },
-      { dataField: 'effectiveDate', header: 'Tgl Efektif', width: 110 },
-      { dataField: 'newJobTitle', header: 'Jabatan Baru', width: 160 },
-      { dataField: 'newDepartment', header: 'Departemen Baru', width: 140 },
-      { dataField: 'newSalary', header: 'Gaji Baru', width: 130 },
-      { dataField: 'referenceNumber', header: 'Nomor SK', width: 140 },
-      { dataField: 'notes', header: 'Catatan', width: 220 }
+      { dataField: 'changeType', header: WiseI18n.t('JENIS_PERUBAHAN'), width: 140 },
+      { dataField: 'effectiveDate', header: WiseI18n.t('TGL_EFEKTIF'), width: 110 },
+      { dataField: 'newJobTitle', header: WiseI18n.t('JABATAN_BARU'), width: 160 },
+      { dataField: 'newDepartment', header: WiseI18n.t('DEPARTEMEN_BARU'), width: 140 },
+      { dataField: 'newSalary', header: WiseI18n.t('GAJI_BARU'), width: 130 },
+      { dataField: 'referenceNumber', header: WiseI18n.t('NOMOR_SK'), width: 140 },
+      { dataField: 'notes', header: WiseI18n.t('CATATAN'), width: 220 }
     ]);
     tabCareerControls.push(dtCareer);
-    detailTabs.addTab({ label: 'Riwayat Karir', icon: '📈', controls: tabCareerControls });
+    detailTabs.addTab({ label: WiseI18n.t('RIWAYAT_KARIR'), icon: '📈', controls: tabCareerControls });
 
     // ── TAB 8: DATA KELUARGA ────────────────────────────────────
     const tabFamilyControls = [];
     const dtFamily = new WiseDataTable({ id: 'dtFamily', pageSize: 6 });
     dtFamily.setColumns([
-      { dataField: 'name', header: 'Nama Anggota Keluarga', width: 240 },
-      { dataField: 'gender', header: 'Gender', width: 140 },
-      { dataField: 'relationship', header: 'Hubungan', width: 180 },
-      { dataField: 'phone', header: 'Nomor Kontak', width: 200 }
+      { dataField: 'name', header: WiseI18n.t('NAMA_ANGGOTA_KELUARGA'), width: 240 },
+      { dataField: 'gender', header: WiseI18n.t('JENIS_KELAMIN'), width: 140 },
+      { dataField: 'relationship', header: WiseI18n.t('HUBUNGAN'), width: 180 },
+      { dataField: 'phone', header: WiseI18n.t('NOMOR_KONTAK'), width: 200 }
     ]);
     tabFamilyControls.push(dtFamily);
-    detailTabs.addTab({ label: 'Data Keluarga', icon: '👨‍👩‍👧‍👦', controls: tabFamilyControls });
+    detailTabs.addTab({ label: WiseI18n.t('DATA_KELUARGA'), icon: '👨‍👩‍👧‍👦', controls: tabFamilyControls });
 
     this.addControl(detailTabs);
     return this;
@@ -329,7 +316,8 @@ class WinEmployeeDetail extends WiseWindow {
         marginBottom: '6px'
       }
     });
-    frame.addControl(new WiseLabel(label, {
+    const labelText = typeof WiseI18n !== 'undefined' ? WiseI18n.t(label) : label;
+    frame.addControl(new WiseLabel(labelText, {
       style: {
         fontWeight: 600,
         color: '#64748b',
@@ -374,10 +362,10 @@ class WinEmployeeDetail extends WiseWindow {
     try {
       const emp = await api.getEmployeeById(employeeId);
       this.currentEmployeeData = emp;
-      this.title = `Detail Karyawan — ${emp.fullName || emp.nik}`;
+      this.title = `${WiseI18n.t('DETAIL_KARYAWAN')} — ${emp.fullName || emp.nik}`;
       this.populateForm(emp);
     } catch (err) {
-      this.showInfo('Gagal Memuat Data', err.message, 'error');
+      this.showInfo(WiseI18n.t('ERROR'), `${WiseI18n.t('GAGAL_MEMUAT_DATA')}: ${err.message}`, 'error');
     }
   }
 
@@ -389,7 +377,7 @@ class WinEmployeeDetail extends WiseWindow {
       this.lblDetailEmployeeName.text(`${emp.fullName || '—'}  (${emp.nik || '—'})`);
     }
     if (this.lblDetailEmployeeInfo) {
-      const statusText = emp.isActive ? '🟢 Aktif' : '🔴 Nonaktif';
+      const statusText = emp.isActive ? ('🟢 ' + WiseI18n.t('AKTIF_2')) : ('🔴 ' + WiseI18n.t('NONAKTIF_2'));
       this.lblDetailEmployeeInfo.text(`${emp.jobTitle || '—'}  •  ${emp.department || '—'}  •  ${emp.employmentStatus || '—'}  •  ${statusText}`);
     }
 
@@ -420,7 +408,7 @@ class WinEmployeeDetail extends WiseWindow {
     if (this.lblValManagerName) this.lblValManagerName.text(emp.managerName || (emp.manager ? emp.manager.fullName : '—'));
     if (this.lblValWorkLocation) this.lblValWorkLocation.text(emp.workLocation || '—');
     if (this.lblValTenure) this.lblValTenure.text(emp.tenure?.formatted || '—');
-    if (this.lblValActiveStatus) this.lblValActiveStatus.text(emp.isActive ? '🟢 Aktif' : '🔴 Nonaktif');
+    if (this.lblValActiveStatus) this.lblValActiveStatus.text(emp.isActive ? ('🟢 ' + WiseI18n.t('AKTIF_2')) : ('🔴 ' + WiseI18n.t('NONAKTIF_2')));
 
     // Tab 3: Payroll
     if (this.lblValBankName) this.lblValBankName.text(emp.bankName || '—');

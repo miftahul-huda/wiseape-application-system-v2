@@ -2,6 +2,9 @@ class WiseDesktop {
   constructor(root = null) {
     this.root = root;
     this.menus = [];
+    if (typeof window !== 'undefined') {
+      window.WiseDesktopInstance = this;
+    }
 
     let displayName = 'User';
     let userLang = 'id';
@@ -778,16 +781,19 @@ class WiseDesktop {
       if (event.key === 'Escape') closeDialog();
     };
 
+    const okText = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('OK') : 'OK';
     card.innerHTML = `
       <div class="info-dialog-icon ${icon.className}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon.glyph}</svg>
       </div>
       <div class="info-dialog-title"></div>
       <div class="info-dialog-message"></div>
-      <button type="button" class="info-dialog-ok">OK</button>
+      <button type="button" class="info-dialog-ok">${okText}</button>
     `;
-    card.querySelector('.info-dialog-title').textContent = info.title || '';
-    card.querySelector('.info-dialog-message').textContent = info.message || '';
+    const resolvedTitle = (typeof window !== 'undefined' && window.WiseI18n && info.title) ? window.WiseI18n.t(info.title) : (info.title || '');
+    const resolvedMessage = (typeof window !== 'undefined' && window.WiseI18n && info.message) ? window.WiseI18n.t(info.message) : (info.message || '');
+    card.querySelector('.info-dialog-title').textContent = resolvedTitle;
+    card.querySelector('.info-dialog-message').textContent = resolvedMessage;
     card.querySelector('.info-dialog-ok').addEventListener('click', closeDialog);
 
     overlay.addEventListener('click', (event) => {
@@ -801,6 +807,141 @@ class WiseDesktop {
     void overlay.offsetWidth;
     overlay.style.opacity = '1';
     card.style.transform = 'scale(1)';
+  }
+
+  // Modal confirmation dialog that pops up a custom window with header,
+  // icon, message, Cancel and Confirm buttons. Returns a Promise<boolean>.
+  showConfirmDialog(config = {}) {
+    return new Promise((resolve) => {
+      const desktop = (this.root && this.root.querySelector('.desktop')) || (typeof document !== 'undefined' ? (document.querySelector('.desktop') || document.body) : null);
+      if (!desktop) {
+        resolve(false);
+        return;
+      }
+
+      let title = '';
+      let message = '';
+      let type = 'warning';
+      let confirmText = '';
+      let cancelText = '';
+
+      if (typeof config === 'string') {
+        message = config;
+      } else if (typeof config === 'object' && config !== null) {
+        title = config.title || '';
+        message = config.message || '';
+        type = config.type || 'warning';
+        confirmText = config.confirmText || '';
+        cancelText = config.cancelText || '';
+      }
+
+      const t = (k) => (typeof window !== 'undefined' && window.WiseI18n && k) ? window.WiseI18n.t(k) : k;
+
+      const windowTitle = title ? t(title) : t('KONFIRMASI');
+      const resolvedMessage = message ? t(message) : t('APAKAH_ANDA_YAKIN');
+      const resolvedConfirmText = confirmText ? t(confirmText) : (type === 'danger' ? (t('HAPUS_3') || 'Hapus') : (t('YA') || 'OK'));
+      const resolvedCancelText = cancelText ? t(cancelText) : (t('BATAL') || 'Batal');
+
+      const icons = {
+        warning: {
+          glyph: '<path d="M12 3.5 2.5 20h19L12 3.5z"></path><line x1="12" y1="9.5" x2="12" y2="14"></line><circle cx="12" cy="17" r="0.5" fill="currentColor" stroke="none"></circle>',
+          className: 'info-dialog-icon-warning'
+        },
+        danger: {
+          glyph: '<circle cx="12" cy="12" r="9"></circle><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line>',
+          className: 'info-dialog-icon-error'
+        },
+        information: {
+          glyph: '<circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="16"></line><circle cx="12" cy="8" r="0.5" fill="currentColor" stroke="none"></circle>',
+          className: 'info-dialog-icon-information'
+        },
+        question: {
+          glyph: '<circle cx="12" cy="12" r="9"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line>',
+          className: 'info-dialog-icon-information'
+        }
+      };
+      const icon = icons[type] || icons.warning;
+
+      const overlay = document.createElement('div');
+      overlay.className = 'confirm-dialog-overlay';
+
+      const winEl = document.createElement('div');
+      winEl.className = 'confirm-dialog-window';
+
+      let settled = false;
+      const finish = (result) => {
+        if (settled) return;
+        settled = true;
+        overlay.style.opacity = '0';
+        winEl.style.transform = 'scale(0.94)';
+        let removed = false;
+        const doRemove = () => {
+          if (!removed) {
+            removed = true;
+            overlay.remove();
+          }
+        };
+        overlay.addEventListener('transitionend', doRemove, { once: true });
+        setTimeout(doRemove, 350);
+        document.removeEventListener('keydown', onKeydown);
+        resolve(result);
+      };
+
+      const onKeydown = (event) => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          finish(false);
+        } else if (event.key === 'Enter') {
+          event.preventDefault();
+          finish(true);
+        }
+      };
+
+      const isDanger = type === 'danger';
+      winEl.innerHTML = `
+        <div class="confirm-dialog-header">
+          <div class="confirm-dialog-header-title">
+            <span>❓</span>
+            <span>${windowTitle}</span>
+          </div>
+          <button type="button" class="confirm-dialog-close-btn" title="${t('BATAL')}">✕</button>
+        </div>
+        <div class="confirm-dialog-body">
+          <div class="confirm-dialog-icon ${icon.className}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon.glyph}</svg>
+          </div>
+          <div class="confirm-dialog-content">
+            <div class="confirm-dialog-title">${windowTitle}</div>
+            <div class="confirm-dialog-message"></div>
+          </div>
+        </div>
+        <div class="confirm-dialog-footer">
+          <button type="button" class="confirm-dialog-btn-confirm ${isDanger ? 'is-danger' : ''}">${resolvedConfirmText}</button>
+          <button type="button" class="confirm-dialog-btn-cancel">${resolvedCancelText}</button>
+        </div>
+      `;
+
+      winEl.querySelector('.confirm-dialog-message').textContent = resolvedMessage;
+
+      winEl.querySelector('.confirm-dialog-close-btn').addEventListener('click', () => finish(false));
+      winEl.querySelector('.confirm-dialog-btn-cancel').addEventListener('click', () => finish(false));
+      winEl.querySelector('.confirm-dialog-btn-confirm').addEventListener('click', () => finish(true));
+
+      overlay.addEventListener('click', (event) => {
+        if (event.target === overlay) finish(false);
+      });
+
+      overlay.appendChild(winEl);
+      desktop.appendChild(overlay);
+      document.addEventListener('keydown', onKeydown);
+
+      const confirmBtn = winEl.querySelector('.confirm-dialog-btn-confirm');
+      if (confirmBtn) confirmBtn.focus();
+
+      void overlay.offsetWidth;
+      overlay.style.opacity = '1';
+      winEl.style.transform = 'scale(1)';
+    });
   }
 
   setupWindowResizeListener() {
@@ -1351,7 +1492,42 @@ class WiseDesktop {
   renderControl(control, appId, windowId) {
     const registry = window.WiseControlRegistry;
     const ControlClass = registry[control.type] || registry.WiseControl;
-    return ControlClass.renderElement(control, { appId, windowId, desktop: this });
+    const el = ControlClass.renderElement(control, { appId, windowId, desktop: this });
+    if (!control.label) return el;
+
+    // A control with `label` set is wrapped so the caption sits above it. The
+    // control keeps its own data-control-id, so patch/gather logic is unchanged.
+    const wrapper = document.createElement('div');
+    wrapper.className = 'wise-labeled';
+    wrapper.appendChild(registry.WiseControl.buildLabel(control));
+    wrapper.appendChild(el);
+    return wrapper;
+  }
+
+  // Keeps the caption in sync when a control's label is set/changed/cleared
+  // by app code after the first render (top-level controls only -- nested
+  // ones are patched by their container's own patchElement).
+  patchControlLabel(winEl, control) {
+    const el = winEl.querySelector(`[data-control-id="${control.id}"]`);
+    if (!el || !el.parentElement) return;
+    const parent = el.parentElement;
+    const labeled = parent.classList.contains('wise-labeled') ? parent : null;
+    const WiseControl = window.WiseControlRegistry.WiseControl;
+
+    if (control.label) {
+      if (labeled) {
+        const label = labeled.querySelector(':scope > .wise-control-label');
+        if (label) label.replaceWith(WiseControl.buildLabel(control));
+      } else {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'wise-labeled';
+        parent.insertBefore(wrapper, el);
+        wrapper.appendChild(WiseControl.buildLabel(control));
+        wrapper.appendChild(el);
+      }
+    } else if (labeled) {
+      labeled.replaceWith(el);
+    }
   }
 
   // Wraps a control's own markup in a container keyed by control id. The
@@ -1523,6 +1699,7 @@ class WiseDesktop {
           // back into renderControl() via context.desktop. Existing
           // patchElement(winEl, data) overrides just ignore the extra arg.
           ControlClass.patchElement(winEl, control, { appId, windowId, desktop: this });
+          this.patchControlLabel(winEl, control);
 
           const el = winEl.querySelector(`[data-control-id="${control.id}"]`);
           if (el) {
@@ -1555,6 +1732,24 @@ class WiseDesktop {
       }
     });
   }
+}
+
+if (typeof window !== 'undefined') {
+  window.WiseDesktop = WiseDesktop;
+  window.WiseConfirm = (titleOrConfig, message, options) => {
+    if (window.WiseDesktopInstance && typeof window.WiseDesktopInstance.showConfirmDialog === 'function') {
+      let config = {};
+      if (typeof titleOrConfig === 'object' && titleOrConfig !== null) {
+        config = { ...titleOrConfig };
+      } else if (message === undefined) {
+        config = { message: titleOrConfig };
+      } else {
+        config = { title: titleOrConfig, message, ...options };
+      }
+      return window.WiseDesktopInstance.showConfirmDialog(config);
+    }
+    return Promise.resolve(true);
+  };
 }
 
 if (typeof module !== 'undefined' && module.exports) {

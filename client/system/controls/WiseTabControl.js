@@ -3,7 +3,7 @@
   const WiseControl = isBrowser ? window.WiseControlRegistry.WiseControl : require('./WiseControl');
 
   // Horizontal layout button styles
-  const TAB_BUTTON_BASE = 'appearance-none relative overflow-hidden flex items-center justify-center rounded-t-lg px-5 py-2.5 text-sm font-medium cursor-pointer transition-all duration-150 border border-transparent select-none';
+  const TAB_BUTTON_BASE = 'appearance-none relative overflow-hidden flex flex-none whitespace-nowrap items-center justify-center rounded-t-lg px-5 py-2.5 text-sm font-medium cursor-pointer transition-all duration-150 border border-transparent select-none';
   const TAB_BUTTON_ACTIVE = `${TAB_BUTTON_BASE} bg-white text-slate-900 font-semibold border-slate-200/80 border-b-white shadow-2xs -mb-px z-10`;
   const TAB_BUTTON_INACTIVE = `${TAB_BUTTON_BASE} bg-slate-100/60 text-slate-600 hover:bg-slate-200/50 hover:text-slate-900`;
 
@@ -54,7 +54,7 @@
     const transLabel = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(label) : label;
     return `
       ${activeLine}
-      <span class="inline-flex items-center gap-2 relative z-10">
+      <span class="inline-flex items-center gap-2 relative z-10 whitespace-nowrap">
         ${iconHtml}
         <span class="wise-tab-text" data-raw-label="${label}">${transLabel}</span>
       </span>
@@ -65,6 +65,82 @@
     return layout === 'vertical'
       ? { active: SIDEBAR_BUTTON_ACTIVE, inactive: SIDEBAR_BUTTON_INACTIVE }
       : { active: TAB_BUTTON_ACTIVE, inactive: TAB_BUTTON_INACTIVE };
+  }
+
+  // The horizontal tab bar is [header row = prev button | scroller | next
+  // button]. The scroller (data-tab-bar) holds only the tab buttons, so the
+  // per-button index logic below is the same for both layouts. Selectors are
+  // :scope-anchored because tab panels can contain nested tab controls.
+  function getTabParts(wrapper) {
+    return {
+      tabBar: wrapper.querySelector(':scope > [data-tab-bar], :scope > [data-tab-header] > [data-tab-bar]'),
+      panels: wrapper.querySelector(':scope > [data-tab-panels]'),
+    };
+  }
+
+  const TAB_ARROW_CLASS = 'flex-none appearance-none cursor-pointer select-none border-0 bg-transparent flex items-center justify-center px-3 text-slate-600 shadow-none transition-colors hover:bg-slate-200/50 hover:text-slate-900';
+
+  // Wraps the scroller with < and > buttons that appear only while the tabs
+  // overflow, and are disabled at the respective scroll end.
+  function buildScrollableTabHeader(tabBar) {
+    const header = document.createElement('div');
+    header.dataset.tabHeader = '';
+    header.className = 'flex items-stretch gap-1 border-b border-slate-200/80 pl-1 z-10 min-w-0 w-full';
+    // The tabs must not feed ancestors' intrinsic (min-content) width, or an
+    // auto-sized parent (table cell, shrink-to-fit window) grows to fit them
+    // all on one line instead of letting the scroller overflow.
+    header.style.contain = 'inline-size';
+
+    const makeArrow = (glyph, dir) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = TAB_ARROW_CLASS;
+      btn.setAttribute('aria-label', dir < 0 ? 'Scroll tabs left' : 'Scroll tabs right');
+      btn.innerHTML = `<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="${glyph}"/></svg>`;
+      btn.style.display = 'none';
+      btn.addEventListener('click', () => {
+        tabBar.scrollBy({ left: dir * Math.max(120, tabBar.clientWidth * 0.6), behavior: 'smooth' });
+      });
+      return btn;
+    };
+    const prev = makeArrow('15 18 9 12 15 6', -1);
+    const next = makeArrow('9 18 15 12 9 6', 1);
+
+    const update = () => {
+      const overflow = tabBar.scrollWidth - tabBar.clientWidth > 1;
+      prev.style.display = overflow ? '' : 'none';
+      next.style.display = overflow ? '' : 'none';
+      prev.disabled = tabBar.scrollLeft <= 0;
+      next.disabled = tabBar.scrollLeft >= tabBar.scrollWidth - tabBar.clientWidth - 1;
+      prev.style.opacity = prev.disabled ? '0.3' : '';
+      next.style.opacity = next.disabled ? '0.3' : '';
+    };
+    tabBar.addEventListener('scroll', update, { passive: true });
+    tabBar.addEventListener('wheel', (e) => {
+      if (tabBar.scrollWidth <= tabBar.clientWidth || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      tabBar.scrollLeft += e.deltaY;
+      e.preventDefault();
+    }, { passive: false });
+    if (typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(update).observe(tabBar);
+    }
+    // Buttons are re-labelled (language switch, active change) without
+    // resizing the scroller, so re-check when its children change too.
+    new MutationObserver(update).observe(tabBar, { childList: true, subtree: true, characterData: true });
+    requestAnimationFrame(update);
+
+    header.appendChild(prev);
+    header.appendChild(tabBar);
+    header.appendChild(next);
+    return header;
+  }
+
+  function revealTab(tabBar, button) {
+    if (!tabBar || !button || tabBar.scrollWidth <= tabBar.clientWidth) return;
+    const left = button.offsetLeft;
+    const right = left + button.offsetWidth;
+    if (left < tabBar.scrollLeft) tabBar.scrollTo({ left: Math.max(0, left - 8), behavior: 'smooth' });
+    else if (right > tabBar.scrollLeft + tabBar.clientWidth) tabBar.scrollTo({ left: right - tabBar.clientWidth + 8, behavior: 'smooth' });
   }
 
   class WiseTabControl extends WiseControl {
@@ -140,6 +216,8 @@
       return {
         type: this.name,
         id: this.id,
+        label: this.label,
+        labelStyle: this.labelStyle,
         dataField: this.dataField,
         value: this.value,
         tabs: this.tabs.map((tab) => ({
@@ -164,15 +242,27 @@
       const wrapper = document.createElement('div');
       wrapper.className = isVertical ? 'flex items-stretch gap-2' : 'flex flex-col';
       WiseControl.applyCommon(wrapper, data, context);
+      if (!isVertical) {
+        wrapper.style.width = wrapper.style.width || '100%';
+        wrapper.style.minWidth = '0';
+        wrapper.style.maxWidth = '100%';
+      }
 
       const activeIndex = Number(data.value) || 0;
 
       const tabBar = document.createElement('div');
       tabBar.className = isVertical
         ? 'flex w-52 flex-none flex-col gap-1.5 rounded-lg border border-slate-200/80 bg-slate-50/70 p-2 shadow-2xs backdrop-blur-xs'
-        : 'flex items-center gap-1.5 border-b border-slate-200/80 pl-1 z-10';
+        : 'flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto pb-px -mb-px';
+
+      tabBar.dataset.tabBar = '';
+      if (!isVertical) {
+        // Hidden scrollbar: the < > buttons (and wheel / touch) scroll instead.
+        tabBar.style.scrollbarWidth = 'none';
+      }
 
       const panels = document.createElement('div');
+      panels.dataset.tabPanels = '';
       panels.className = isVertical
         ? 'min-w-0 flex-1 rounded-lg border border-slate-200/80 bg-white p-5 shadow-xs'
         : 'rounded-b-lg rounded-tr-lg border border-slate-200/80 bg-white p-5 shadow-xs';
@@ -211,14 +301,16 @@
           if (data.hasTabChangeHandler) {
             context.desktop.sendControlEvent(context.appId, data.id, tabButton, 'tabchange', { [data.id]: index });
           }
+          if (!isVertical) revealTab(tabBar, tabBar.children[index]);
         });
 
         tabBar.appendChild(tabButton);
         panels.appendChild(panel);
       });
 
-      wrapper.appendChild(tabBar);
+      wrapper.appendChild(isVertical ? tabBar : buildScrollableTabHeader(tabBar));
       wrapper.appendChild(panels);
+      if (!isVertical) requestAnimationFrame(() => revealTab(tabBar, tabBar.children[activeIndex]));
       return wrapper;
     }
 
@@ -228,7 +320,7 @@
         const activeIndex = Number(data.value) || 0;
         const isVertical = data.layout === 'vertical';
         const buttonClasses = tabButtonClasses(data.layout);
-        const [tabBar, panels] = wrapper.children;
+        const { tabBar, panels } = getTabParts(wrapper);
         if (tabBar && panels) {
           Array.from(tabBar.children).forEach((btn, index) => {
             const isActive = index === activeIndex;
@@ -243,6 +335,7 @@
           panels.querySelectorAll('[data-tab-panel]').forEach((panel) => {
             panel.style.display = panel.dataset.tabPanel === String(activeIndex) ? '' : 'none';
           });
+          if (!isVertical) revealTab(tabBar, tabBar.children[activeIndex]);
         }
       }
 

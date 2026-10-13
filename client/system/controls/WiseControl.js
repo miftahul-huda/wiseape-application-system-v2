@@ -10,6 +10,10 @@
       // defaults to id so most controls never need to set it explicitly.
       this.dataField = options.dataField || options.datafield || options.id || null;
       this.datafield = this.dataField;
+      // Optional caption rendered above the control (bold by default); see
+      // WiseDesktop.renderControl. labelStyle overrides individual CSS props.
+      this.label = options.label !== undefined ? options.label : null;
+      this.labelStyle = options.labelStyle || {};
       this.visible = options.visible !== undefined ? options.visible : true;
       this.disabled = options.disabled !== undefined ? options.disabled : false;
     }
@@ -32,6 +36,15 @@
 
     setValue(value) {
       this.value = value;
+      return this;
+    }
+
+    getLabel() {
+      return this.label;
+    }
+
+    setLabel(label) {
+      this.label = label;
       return this;
     }
 
@@ -78,6 +91,8 @@
         dataField: this.dataField,
         datafield: this.dataField,
         value: this.value,
+        label: this.label,
+        labelStyle: this.labelStyle,
         visible: this.visible,
         disabled: this.disabled,
       };
@@ -86,6 +101,20 @@
     // ---- Browser-only: DOM rendering. Every subclass owns its own
     // renderElement/gatherValue/patchElement; these are the generic
     // fallbacks used when a subclass doesn't need to override them. ----
+
+    // Caption element shown above a control whose `label` is set. Translated
+    // through WiseI18n like every other piece of UI text.
+    static buildLabel(data) {
+      const label = document.createElement('label');
+      label.className = 'wise-control-label';
+      label.dataset.labelFor = data.id || '';
+      label.dataset.rawLabel = data.label;
+      label.textContent = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t(data.label) : data.label;
+      Object.entries(data.labelStyle || {}).forEach(([key, value]) => {
+        label.style[key] = typeof value === 'number' ? `${value}px` : value;
+      });
+      return label;
+    }
 
     static applyCommon(el, data, context) {
       if (data.id) {

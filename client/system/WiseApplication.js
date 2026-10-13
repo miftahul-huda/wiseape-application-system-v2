@@ -78,6 +78,16 @@ class WiseApplication {
     return this.window.showInfo(title, message, type);
   }
 
+  confirm(title, message, options = {}) {
+    if (this.window && typeof this.window.confirm === 'function') {
+      return this.window.confirm(title, message, options);
+    }
+    if (typeof window !== 'undefined' && typeof window.WiseConfirm === 'function') {
+      return window.WiseConfirm(title, message, options);
+    }
+    return Promise.resolve(true);
+  }
+
   toJSON() {
     return {
       appID: this.appID,

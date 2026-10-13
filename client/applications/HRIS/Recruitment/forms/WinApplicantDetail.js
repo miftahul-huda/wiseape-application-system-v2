@@ -132,13 +132,7 @@ class WinApplicantDetail extends WiseWindow {
       onClick: this.onAddProcessClick.bind(this),
       style: {
         background: 'var(--accent-dark)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -147,13 +141,7 @@ class WinApplicantDetail extends WiseWindow {
       onClick: this.onDeleteProcessClick.bind(this),
       style: {
         background: '#ef4444',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -162,13 +150,7 @@ class WinApplicantDetail extends WiseWindow {
       onClick: () => this.loadData(),
       style: {
         background: 'color-mix(in srgb, var(--accent) 15%, white)',
-        color: 'var(--accent-dark)',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: 'var(--accent-dark)'
       }
     }));
 

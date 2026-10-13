@@ -1,6 +1,5 @@
 import {
   WiseWindow,
-  WiseLabel,
   WiseButton,
   WiseTextBox,
   WiseNumericBox,
@@ -37,7 +36,7 @@ const BANKS = ['BCA', 'Bank Mandiri', 'BNI', 'BRI', 'CIMB Niaga', 'Bank Danamon'
 class WinEmployeeEdit extends WiseWindow {
   constructor(options = {}) {
     super(options);
-    this.title = 'Edit Data Karyawan — Wise HRIS';
+    this.title = WiseI18n.t('EDIT_KARYAWAN_WISE_HRIS');
     this.appIcon = options.appIcon || '✏️';
     this.width = options.width || '88%';
     this.height = options.height || '88%';
@@ -93,12 +92,12 @@ class WinEmployeeEdit extends WiseWindow {
     this.txtNickname = new WiseTextBox('e.g. Annisa', { id: 'txtNickname', datafield: 'nickname', placeholder: 'e.g. Annisa' });
     this.txtBirthPlace = new WiseTextBox('e.g. Yogyakarta', { id: 'txtBirthPlace', datafield: 'birthPlace', placeholder: 'e.g. Yogyakarta' });
     this.dtBirthDate = new WiseDate('', { id: 'dtBirthDate', datafield: 'birthDate' });
-    this.cmbGender = new WiseComboBox([{ value: 'Laki-laki', label: 'Laki-laki' }, { value: 'Perempuan', label: 'Perempuan' }], { id: 'cmbGender', datafield: 'gender', value: 'Laki-laki', style: { width: '100%' } });
+    this.cmbGender = new WiseComboBox([{ value: 'Laki-laki', label: WiseI18n.t('LAKI_LAKI') }, { value: 'Perempuan', label: WiseI18n.t('PEREMPUAN') }], { id: 'cmbGender', datafield: 'gender', value: 'Laki-laki', style: { width: '100%' } });
     this.cmbReligion = new WiseComboBox(RELIGIONS.map(r => ({ value: r, label: r })), { id: 'cmbReligion', datafield: 'religion', value: 'Islam', style: { width: '100%' } });
     this.txtPhoneNumber = new WiseTextBox('081234567890', { id: 'txtPhoneNumber', datafield: 'phoneNumber', placeholder: '081234567890' });
     this.txtPersonalEmail = new WiseTextBox('karyawan@example.com', { id: 'txtPersonalEmail', datafield: 'personalEmail', placeholder: 'karyawan@example.com' });
-    this.txtCurrentAddress = new WiseTextBox('Alamat domisili saat ini', { id: 'txtCurrentAddress', datafield: 'currentAddress', placeholder: 'Alamat domisili saat ini' });
-    this.txtIdCardAddress = new WiseTextBox('Alamat lengkap sesuai KTP', { id: 'txtIdCardAddress', datafield: 'idCardAddress', placeholder: 'Alamat lengkap sesuai KTP' });
+    this.txtCurrentAddress = new WiseTextBox(WiseI18n.t('ALAMAT_DOMISILI_SAAT_INI'), { id: 'txtCurrentAddress', datafield: 'currentAddress', placeholder: WiseI18n.t('ALAMAT_DOMISILI_SAAT_INI') });
+    this.txtIdCardAddress = new WiseTextBox(WiseI18n.t('ALAMAT_LENGKAP_SESUAI_KTP'), { id: 'txtIdCardAddress', datafield: 'idCardAddress', placeholder: WiseI18n.t('ALAMAT_LENGKAP_SESUAI_KTP') });
 
     tblPersonal.setCell(0, 0, this.formGroup(WiseI18n.t('NAMA_LENGKAP'), this.txtFullName));
     tblPersonal.setCell(0, 1, this.formGroup(WiseI18n.t('NAMA_PANGGILAN'), this.txtNickname));
@@ -130,7 +129,7 @@ class WinEmployeeEdit extends WiseWindow {
       id: 'tblEmergency',
       style: { width: '100%', tableLayout: 'fixed' }
     });
-    this.txtEmergencyName = new WiseTextBox('Nama kontak darurat', { id: 'txtEmergencyName', datafield: 'emergencyContactName', placeholder: 'Nama kontak darurat' });
+    this.txtEmergencyName = new WiseTextBox(WiseI18n.t('NAMA_KONTAK_DARURAT'), { id: 'txtEmergencyName', datafield: 'emergencyContactName', placeholder: WiseI18n.t('NAMA_KONTAK_DARURAT') });
     this.cmbEmergencyRelation = new WiseComboBox(['Orang Tua', 'Suami/Istri', 'Saudara Kandung', 'Anak', 'Teman'].map(h => ({ value: h, label: WiseI18n.t(h) })), { id: 'cmbEmergencyRelation', datafield: 'emergencyContactRelation', value: 'Orang Tua', style: { width: '100%' } });
     this.txtEmergencyPhone = new WiseTextBox('0812xxxxxxxx', { id: 'txtEmergencyPhone', datafield: 'emergencyContactPhone', placeholder: '0812xxxxxxxx' });
 
@@ -173,8 +172,13 @@ class WinEmployeeEdit extends WiseWindow {
     this.cmbEmploymentStatus = new WiseComboBox(EMPLOYMENT_STATUSES.map(s => ({ value: s, label: s })), { id: 'cmbEmploymentStatus', datafield: 'employmentStatus', value: 'Tetap (PKWTT)', style: orgComboStyle });
     this.dtJoinDate = new WiseDate('', { id: 'dtJoinDate', datafield: 'joinDate' });
     this.dtEndDate = new WiseDate('', { id: 'dtEndDate', datafield: 'endDate' });
-    this.txtManagerName = new WiseTextBox('Nama Atasan Langsung', { id: 'txtManagerName', datafield: 'managerName', placeholder: 'Nama Atasan Langsung' });
-    this.cmbWorkLocation = new WiseComboBox(['Kantor Pusat', 'Kantor Cabang', 'Remote', 'Hybrid'].map(l => ({ value: l, label: l })), { id: 'cmbWorkLocation', datafield: 'workLocation', value: 'Kantor Pusat', style: orgComboStyle });
+    this.txtManagerName = new WiseTextBox(WiseI18n.t('NAMA_ATASAN_LANGSUNG'), { id: 'txtManagerName', datafield: 'managerName', placeholder: WiseI18n.t('NAMA_ATASAN_LANGSUNG') });
+    this.cmbWorkLocation = new WiseComboBox([
+      { value: 'Kantor Pusat', label: WiseI18n.t('KANTOR_PUSAT') },
+      { value: 'Kantor Cabang', label: WiseI18n.t('KANTOR_CABANG') },
+      { value: 'Remote', label: WiseI18n.t('REMOTE') },
+      { value: 'Hybrid', label: WiseI18n.t('HYBRID') }
+    ], { id: 'cmbWorkLocation', datafield: 'workLocation', value: 'Kantor Pusat', style: orgComboStyle });
 
     tblEmployment.setCell(0, 0, this.formGroup(WiseI18n.t('NIK_ID_KARYAWAN'), this.txtNik));
     tblEmployment.setCell(0, 1, this.formGroup(WiseI18n.t('DEPARTEMEN'), this.cmbDepartment));
@@ -202,8 +206,8 @@ class WinEmployeeEdit extends WiseWindow {
 
     const currPrefix = typeof WiseI18n !== 'undefined' && WiseI18n ? WiseI18n.getCurrencyPrefix() : 'Rp ';
     this.cmbBankName = new WiseComboBox(BANKS.map(b => ({ value: b, label: b })), { id: 'cmbBankName', datafield: 'bankName', value: 'BCA', style: { width: '100%' } });
-    this.txtBankAccountNumber = new WiseTextBox('Nomor rekening untuk transfer gaji', { id: 'txtBankAccountNumber', datafield: 'bankAccountNumber', placeholder: 'Nomor rekening untuk transfer gaji' });
-    this.txtBankAccountHolder = new WiseTextBox('Harus sesuai buku tabungan', { id: 'txtBankAccountHolder', datafield: 'bankAccountHolder', placeholder: 'Harus sesuai buku tabungan' });
+    this.txtBankAccountNumber = new WiseTextBox(WiseI18n.t('NOMOR_REKENING_UNTUK_TRANSFER_GAJI'), { id: 'txtBankAccountNumber', datafield: 'bankAccountNumber', placeholder: WiseI18n.t('NOMOR_REKENING_UNTUK_TRANSFER_GAJI') });
+    this.txtBankAccountHolder = new WiseTextBox(WiseI18n.t('HARUS_SESUAI_BUKU_TABUNGAN'), { id: 'txtBankAccountHolder', datafield: 'bankAccountHolder', placeholder: WiseI18n.t('HARUS_SESUAI_BUKU_TABUNGAN') });
     this.numBasicSalary = new WiseNumericBox('0', { id: 'numBasicSalary', datafield: 'basicSalary', value: 0, prefix: currPrefix });
     this.numAllowancePosition = new WiseNumericBox('0', { id: 'numAllowancePosition', datafield: 'allowancePosition', value: 0, prefix: currPrefix });
     this.numAllowanceTransport = new WiseNumericBox('0', { id: 'numAllowanceTransport', datafield: 'allowanceTransport', value: 0, prefix: currPrefix });
@@ -211,8 +215,8 @@ class WinEmployeeEdit extends WiseWindow {
     this.numAllowanceOther = new WiseNumericBox('0', { id: 'numAllowanceOther', datafield: 'allowanceOther', value: 0, prefix: currPrefix });
     this.cmbTaxStatus = new WiseComboBox(TAX_STATUSES.map(t => ({ value: t, label: t })), { id: 'cmbTaxStatus', datafield: 'taxStatus', value: 'TK/0' });
     this.txtNpwp = new WiseTextBox('00.000.000.0-000.000', { id: 'txtNpwp', datafield: 'npwp', placeholder: '00.000.000.0-000.000' });
-    this.txtBpjsKesehatan = new WiseTextBox('13 digit nomor BPJS Kesehatan', { id: 'txtBpjsKesehatan', datafield: 'bpjsKesehatan', placeholder: '13 digit nomor BPJS Kesehatan' });
-    this.txtBpjsKetenagakerjaan = new WiseTextBox('Nomor kartu BPJS TK', { id: 'txtBpjsKetenagakerjaan', datafield: 'bpjsKetenagakerjaan', placeholder: 'Nomor kartu BPJS TK' });
+    this.txtBpjsKesehatan = new WiseTextBox(WiseI18n.t('13_DIGIT_NOMOR_BPJS_KESEHATAN'), { id: 'txtBpjsKesehatan', datafield: 'bpjsKesehatan', placeholder: WiseI18n.t('13_DIGIT_NOMOR_BPJS_KESEHATAN') });
+    this.txtBpjsKetenagakerjaan = new WiseTextBox(WiseI18n.t('NOMOR_KARTU_BPJS_TK'), { id: 'txtBpjsKetenagakerjaan', datafield: 'bpjsKetenagakerjaan', placeholder: WiseI18n.t('NOMOR_KARTU_BPJS_TK') });
 
     tblPayroll.setCell(0, 0, this.formGroup(WiseI18n.t('NAMA_BANK'), this.cmbBankName));
     tblPayroll.setCell(0, 1, this.formGroup(WiseI18n.t('NOMOR_REKENING_BANK'), this.txtBankAccountNumber));
@@ -243,23 +247,23 @@ class WinEmployeeEdit extends WiseWindow {
     docToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_DOKUMEN'), {
       id: 'btnOpenEditDoc',
       onClick: this.onOpenEditDocClick.bind(this),
-      style: { background: '#f1f5f9', color: '#334155', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+      style: { background: '#f1f5f9', color: '#334155' }
     }));
     docToolbar.addControl(new WiseButton(WiseI18n.t('HAPUS_DOKUMEN'), {
       id: 'btnDeleteDoc',
       onClick: this.onDeleteDocClick.bind(this),
-      style: { background: '#fee2e2', color: '#dc2626', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+      style: { background: '#fee2e2', color: '#dc2626' }
     }));
     tabDocControls.push(docToolbar);
 
     const dtDocuments = new WiseDataTable({ id: 'dtDocuments', pageSize: 6 });
     dtDocuments.setColumns([
-      { dataField: 'documentType', header: 'Jenis Dokumen', width: 140 },
-      { dataField: 'title', header: 'Nama / Judul Dokumen', width: 220 },
-      { dataField: 'documentNumber', header: 'Nomor Dokumen', width: 160 },
-      { dataField: 'issueDate', header: 'Tgl Terbit', width: 110 },
-      { dataField: 'expiryDate', header: 'Tgl Berakhir', width: 110 },
-      { dataField: 'description', header: 'Keterangan', width: 200 }
+      { dataField: 'documentType', header: WiseI18n.t('JENIS_DOKUMEN'), width: 140 },
+      { dataField: 'title', header: WiseI18n.t('NAMA_JUDUL_DOKUMEN'), width: 220 },
+      { dataField: 'documentNumber', header: WiseI18n.t('NOMOR_DOKUMEN'), width: 160 },
+      { dataField: 'issueDate', header: WiseI18n.t('TGL_TERBIT'), width: 110 },
+      { dataField: 'expiryDate', header: WiseI18n.t('TGL_BERAKHIR'), width: 110 },
+      { dataField: 'description', header: WiseI18n.t('KETERANGAN'), width: 200 }
     ]);
     dtDocuments.addContextMenu([
       { id: 'edit', label: WiseI18n.t('EDIT_DOKUMEN_MENU'), onClick: (row) => this.onOpenEditDocClick(row) },
@@ -282,23 +286,23 @@ class WinEmployeeEdit extends WiseWindow {
     expToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_PENGALAMAN'), {
       id: 'btnOpenEditExp',
       onClick: this.onOpenEditExpClick.bind(this),
-      style: { background: '#f1f5f9', color: '#334155', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+      style: { background: '#f1f5f9', color: '#334155' }
     }));
     expToolbar.addControl(new WiseButton(WiseI18n.t('HAPUS_PENGALAMAN'), {
       id: 'btnDeleteExp',
       onClick: this.onDeleteExpClick.bind(this),
-      style: { background: '#fee2e2', color: '#dc2626', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+      style: { background: '#fee2e2', color: '#dc2626' }
     }));
     tabExpControls.push(expToolbar);
 
     const dtExperiences = new WiseDataTable({ id: 'dtExperiences', pageSize: 6 });
     dtExperiences.setColumns([
-      { dataField: 'companyName', header: 'Perusahaan', width: 200 },
-      { dataField: 'position', header: 'Posisi', width: 180 },
-      { dataField: 'startDate', header: 'Tgl Mulai', width: 110 },
-      { dataField: 'endDate', header: 'Tgl Selesai', width: 110 },
-      { dataField: 'lastSalary', header: 'Gaji Terakhir', width: 130 },
-      { dataField: 'description', header: 'Keterangan', width: 220 }
+      { dataField: 'companyName', header: WiseI18n.t('PERUSAHAAN'), width: 200 },
+      { dataField: 'position', header: WiseI18n.t('POSISI'), width: 180 },
+      { dataField: 'startDate', header: WiseI18n.t('TGL_MULAI'), width: 110 },
+      { dataField: 'endDate', header: WiseI18n.t('TGL_SELESAI'), width: 110 },
+      { dataField: 'lastSalary', header: WiseI18n.t('GAJI_TERAKHIR'), width: 130 },
+      { dataField: 'description', header: WiseI18n.t('KETERANGAN'), width: 220 }
     ]);
     dtExperiences.addContextMenu([
       { id: 'edit', label: WiseI18n.t('EDIT_PENGALAMAN_MENU'), onClick: (row) => this.onOpenEditExpClick(row) },
@@ -321,24 +325,24 @@ class WinEmployeeEdit extends WiseWindow {
     eduToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_PENDIDIKAN'), {
       id: 'btnOpenEditEdu',
       onClick: this.onOpenEditEduClick.bind(this),
-      style: { background: '#f1f5f9', color: '#334155', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+      style: { background: '#f1f5f9', color: '#334155' }
     }));
     eduToolbar.addControl(new WiseButton(WiseI18n.t('HAPUS_PENDIDIKAN'), {
       id: 'btnDeleteEdu',
       onClick: this.onDeleteEduClick.bind(this),
-      style: { background: '#fee2e2', color: '#dc2626', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+      style: { background: '#fee2e2', color: '#dc2626' }
     }));
     tabEduControls.push(eduToolbar);
 
     const dtEducation = new WiseDataTable({ id: 'dtEducation', pageSize: 6 });
     dtEducation.setColumns([
-      { dataField: 'institutionName', header: 'Institusi Pendidikan', width: 220 },
-      { dataField: 'degree', header: 'Jenjang', width: 100 },
-      { dataField: 'major', header: 'Jurusan', width: 180 },
-      { dataField: 'startDate', header: 'Tgl Mulai', width: 110 },
-      { dataField: 'graduationDate', header: 'Tgl Lulus', width: 110 },
-      { dataField: 'gpa', header: 'IPK', width: 90 },
-      { dataField: 'description', header: 'Keterangan', width: 200 }
+      { dataField: 'institutionName', header: WiseI18n.t('INSTITUSI_PENDIDIKAN'), width: 220 },
+      { dataField: 'degree', header: WiseI18n.t('JENJANG'), width: 100 },
+      { dataField: 'major', header: WiseI18n.t('JURUSAN'), width: 180 },
+      { dataField: 'startDate', header: WiseI18n.t('TGL_MULAI'), width: 110 },
+      { dataField: 'graduationDate', header: WiseI18n.t('TGL_LULUS'), width: 110 },
+      { dataField: 'gpa', header: WiseI18n.t('IPK'), width: 90 },
+      { dataField: 'description', header: WiseI18n.t('KETERANGAN'), width: 200 }
     ]);
     dtEducation.addContextMenu([
       { id: 'edit', label: WiseI18n.t('EDIT_PENDIDIKAN_MENU'), onClick: (row) => this.onOpenEditEduClick(row) },
@@ -361,24 +365,24 @@ class WinEmployeeEdit extends WiseWindow {
     careerToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_RIWAYAT_KARIR'), {
       id: 'btnOpenEditCareer',
       onClick: this.onOpenEditCareerClick.bind(this),
-      style: { background: '#f1f5f9', color: '#334155', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+      style: { background: '#f1f5f9', color: '#334155' }
     }));
     careerToolbar.addControl(new WiseButton(WiseI18n.t('HAPUS_RIWAYAT_KARIR'), {
       id: 'btnDeleteCareer',
       onClick: this.onDeleteCareerClick.bind(this),
-      style: { background: '#fee2e2', color: '#dc2626', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+      style: { background: '#fee2e2', color: '#dc2626' }
     }));
     tabCareerControls.push(careerToolbar);
 
     const dtCareer = new WiseDataTable({ id: 'dtCareer', pageSize: 6 });
     dtCareer.setColumns([
-      { dataField: 'changeType', header: 'Jenis Perubahan', width: 140 },
-      { dataField: 'effectiveDate', header: 'Tgl Efektif', width: 110 },
-      { dataField: 'newJobTitle', header: 'Jabatan Baru', width: 160 },
-      { dataField: 'newDepartment', header: 'Departemen Baru', width: 140 },
-      { dataField: 'newSalary', header: 'Gaji Baru', width: 130 },
-      { dataField: 'referenceNumber', header: 'Nomor SK', width: 140 },
-      { dataField: 'notes', header: 'Catatan', width: 220 }
+      { dataField: 'changeType', header: WiseI18n.t('JENIS_PERUBAHAN'), width: 140 },
+      { dataField: 'effectiveDate', header: WiseI18n.t('TGL_EFEKTIF'), width: 110 },
+      { dataField: 'newJobTitle', header: WiseI18n.t('JABATAN_BARU'), width: 160 },
+      { dataField: 'newDepartment', header: WiseI18n.t('DEPARTEMEN_BARU'), width: 140 },
+      { dataField: 'newSalary', header: WiseI18n.t('GAJI_BARU'), width: 130 },
+      { dataField: 'referenceNumber', header: WiseI18n.t('NOMOR_SK'), width: 140 },
+      { dataField: 'notes', header: WiseI18n.t('CATATAN'), width: 220 }
     ]);
     dtCareer.addContextMenu([
       { id: 'edit', label: WiseI18n.t('EDIT_RIWAYAT_KARIR_MENU'), onClick: (row) => this.onOpenEditCareerClick(row) },
@@ -401,21 +405,21 @@ class WinEmployeeEdit extends WiseWindow {
     familyToolbar.addControl(new WiseButton(WiseI18n.t('EDIT_ANGGOTA_KELUARGA'), {
       id: 'btnOpenEditFamily',
       onClick: this.onOpenEditFamilyClick.bind(this),
-      style: { background: '#f1f5f9', color: '#334155', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+      style: { background: '#f1f5f9', color: '#334155' }
     }));
     familyToolbar.addControl(new WiseButton(WiseI18n.t('HAPUS_ANGGOTA_KELUARGA'), {
       id: 'btnDeleteFamily',
       onClick: this.onDeleteFamilyClick.bind(this),
-      style: { background: '#fee2e2', color: '#dc2626', fontWeight: 600, borderRadius: '8px', padding: '8px 14px', border: 'none', boxShadow: 'none', cursor: 'pointer' }
+      style: { background: '#fee2e2', color: '#dc2626' }
     }));
     tabFamilyControls.push(familyToolbar);
 
     const dtFamily = new WiseDataTable({ id: 'dtFamily', pageSize: 6 });
     dtFamily.setColumns([
-      { dataField: 'name', header: 'Nama Anggota Keluarga', width: 240 },
-      { dataField: 'gender', header: 'Gender', width: 140 },
-      { dataField: 'relationship', header: 'Hubungan', width: 180 },
-      { dataField: 'phone', header: 'Nomor Kontak', width: 200 }
+      { dataField: 'name', header: WiseI18n.t('NAMA_ANGGOTA_KELUARGA'), width: 240 },
+      { dataField: 'gender', header: WiseI18n.t('GENDER'), width: 140 },
+      { dataField: 'relationship', header: WiseI18n.t('HUBUNGAN'), width: 180 },
+      { dataField: 'phone', header: WiseI18n.t('NOMOR_KONTAK'), width: 200 }
     ]);
     dtFamily.addContextMenu([
       { id: 'edit', label: WiseI18n.t('EDIT_ANGGOTA_KELUARGA_MENU'), onClick: (row) => this.onOpenEditFamilyClick(row) },
@@ -431,7 +435,7 @@ class WinEmployeeEdit extends WiseWindow {
   formGroup(label, control) {
     const frame = new WiseFrame('', { style: { padding: '4px 6px', border: 'none', background: 'transparent', width: '100%', boxSizing: 'border-box' } });
     const labelText = typeof WiseI18n !== 'undefined' ? WiseI18n.t(label) : label;
-    frame.addControl(new WiseLabel(labelText, { style: { fontWeight: 600, color: '#475569', marginBottom: '2px', lineHeight: '1.2', display: 'block' } }));
+    if (control && typeof control.setLabel === 'function') control.setLabel(labelText);
     frame.addControl(control);
     return frame;
   }
@@ -471,7 +475,7 @@ class WinEmployeeEdit extends WiseWindow {
       this.orgs = [];
       this.jobLevels = [];
       this.positions = [];
-      this.showInfo('Gagal Memuat Master Data', err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MEMUAT_MASTER_DATA'), err.message, 'error');
     }
   }
 
@@ -615,10 +619,10 @@ class WinEmployeeEdit extends WiseWindow {
     try {
       const emp = await api.getEmployeeById(employeeId);
       this.currentEmployeeData = emp;
-      this.title = `Edit Data Karyawan — ${emp.fullName || emp.nik}`;
+      this.title = `${WiseI18n.t('EDIT_KARYAWAN')} — ${emp.fullName || emp.nik}`;
       this.populateForm(emp);
     } catch (err) {
-      this.showInfo('Gagal Memuat Data', err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MEMUAT_DATA'), err.message, 'error');
     }
   }
 
@@ -700,144 +704,144 @@ class WinEmployeeEdit extends WiseWindow {
         bpjsKetenagakerjaan: values.bpjsKetenagakerjaan || '',
       };
 
-      if (!payload.fullName) return this.showInfo('Validasi', 'Nama lengkap karyawan wajib diisi.', 'warning');
-      if (!payload.nik) return this.showInfo('Validasi', 'NIK / ID Karyawan wajib diisi.', 'warning');
+      if (!payload.fullName) return this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('NAMA_LENGKAP_KARYAWAN_WAJIB_DIISI'), 'warning');
+      if (!payload.nik) return this.showInfo(WiseI18n.t('VALIDASI'), WiseI18n.t('NIK_KARYAWAN_WAJIB_DIISI'), 'warning');
 
       if (this.selectedEmployeeId) {
         const updated = await api.updateEmployee(this.selectedEmployeeId, payload);
-        this.showInfo('Berhasil', `Data karyawan ${updated.fullName} berhasil diperbarui.`, 'success');
+        this.showInfo(WiseI18n.t('BERHASIL'), `${WiseI18n.t('DATA_KARYAWAN')} ${updated.fullName} ${WiseI18n.t('BERHASIL_DIPERBARUI')}.`, 'success');
         await this.loadEmployee(this.selectedEmployeeId);
       } else {
         const created = await api.createEmployee(payload);
         this.selectedEmployeeId = created.id;
-        this.showInfo('Berhasil', `Karyawan baru ${created.fullName} (${created.nik}) berhasil didaftarkan.`, 'success');
+        this.showInfo(WiseI18n.t('BERHASIL'), `${WiseI18n.t('KARYAWAN_BARU')} ${created.fullName} (${created.nik}) ${WiseI18n.t('BERHASIL_DIDAFTARKAN')}.`, 'success');
         await this.loadEmployee(this.selectedEmployeeId);
       }
       if (this.parentWindow && typeof this.parentWindow.loadInitialData === 'function') {
         await this.parentWindow.loadInitialData();
       }
     } catch (err) {
-      this.showInfo('Gagal Menyimpan', err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MENYIMPAN'), err.message, 'error');
     }
   }
 
   // ── Document Handlers ─────────────────────────────────────────
   async onOpenAddDocClick() {
-    if (!this.selectedEmployeeId) return this.showInfo('Peringatan', 'Simpan data karyawan terlebih dahulu sebelum menambahkan dokumen.', 'warning');
+    if (!this.selectedEmployeeId) return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('SIMPAN_DATA_KARYAWAN_TERLEBIH_DAHULU_DOKUMEN'), 'warning');
     await this.openWindow(WinEmployeeDocumentEdit, { employeeId: this.selectedEmployeeId, data: null });
   }
 
   async onOpenEditDocClick(row) {
     const targetRow = row || (this.dtDocuments ? this.dtDocuments.getSelectedRow() : null);
-    if (!targetRow) return this.showInfo('Pilih Dokumen', 'Pilih dokumen dari tabel yang ingin diedit.', 'warning');
+    if (!targetRow) return this.showInfo(WiseI18n.t('PILIH_DOKUMEN'), WiseI18n.t('PILIH_DOKUMEN_YANG_INGIN_DIEDIT'), 'warning');
     await this.openWindow(WinEmployeeDocumentEdit, { employeeId: this.selectedEmployeeId, data: targetRow });
   }
 
   async onDeleteDocClick(row) {
     const targetRow = row || (this.dtDocuments ? this.dtDocuments.getSelectedRow() : null);
-    if (!targetRow) return this.showInfo('Pilih Dokumen', 'Pilih dokumen dari tabel yang ingin dihapus.', 'warning');
+    if (!targetRow) return this.showInfo(WiseI18n.t('PILIH_DOKUMEN'), WiseI18n.t('PILIH_DOKUMEN_YANG_INGIN_DIHAPUS'), 'warning');
     try {
       await api.deleteDocument(targetRow.id);
-      this.showInfo('Berhasil', `Dokumen "${targetRow.title}" berhasil dihapus.`, 'success');
+      this.showInfo(WiseI18n.t('BERHASIL'), `"${targetRow.title}" ${WiseI18n.t('BERHASIL_DIHAPUS')}.`, 'success');
       await this.loadEmployee(this.selectedEmployeeId);
     } catch (err) {
-      this.showInfo('Gagal Menghapus', err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MENGHAPUS'), err.message, 'error');
     }
   }
 
   // ── Experience Handlers ───────────────────────────────────────
   async onOpenAddExpClick() {
-    if (!this.selectedEmployeeId) return this.showInfo('Peringatan', 'Simpan data karyawan terlebih dahulu sebelum menambahkan pengalaman.', 'warning');
+    if (!this.selectedEmployeeId) return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('SIMPAN_DATA_KARYAWAN_TERLEBIH_DAHULU_PENGALAMAN'), 'warning');
     await this.openWindow(WinEmployeeExperienceEdit, { employeeId: this.selectedEmployeeId, data: null });
   }
 
   async onOpenEditExpClick(row) {
     const targetRow = row || (this.dtExperiences ? this.dtExperiences.getSelectedRow() : null);
-    if (!targetRow) return this.showInfo('Pilih Pengalaman', 'Pilih riwayat pengalaman kerja dari tabel yang ingin diedit.', 'warning');
+    if (!targetRow) return this.showInfo(WiseI18n.t('PILIH_PENGALAMAN'), WiseI18n.t('PILIH_PENGALAMAN_KERJA_YANG_INGIN_DIEDIT'), 'warning');
     await this.openWindow(WinEmployeeExperienceEdit, { employeeId: this.selectedEmployeeId, data: targetRow });
   }
 
   async onDeleteExpClick(row) {
     const targetRow = row || (this.dtExperiences ? this.dtExperiences.getSelectedRow() : null);
-    if (!targetRow) return this.showInfo('Pilih Pengalaman', 'Pilih riwayat pengalaman kerja dari tabel yang ingin dihapus.', 'warning');
+    if (!targetRow) return this.showInfo(WiseI18n.t('PILIH_PENGALAMAN'), WiseI18n.t('PILIH_PENGALAMAN_KERJA_YANG_INGIN_DIHAPUS'), 'warning');
     try {
       await api.deleteWorkExperience(targetRow.id);
-      this.showInfo('Berhasil', `Pengalaman kerja di "${targetRow.companyName}" berhasil dihapus.`, 'success');
+      this.showInfo(WiseI18n.t('BERHASIL'), `"${targetRow.companyName}" ${WiseI18n.t('BERHASIL_DIHAPUS')}.`, 'success');
       await this.loadEmployee(this.selectedEmployeeId);
     } catch (err) {
-      this.showInfo('Gagal Menghapus', err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MENGHAPUS'), err.message, 'error');
     }
   }
 
   // ── Education Handlers ────────────────────────────────────────
   async onOpenAddEduClick() {
-    if (!this.selectedEmployeeId) return this.showInfo('Peringatan', 'Simpan data karyawan terlebih dahulu sebelum menambahkan pendidikan.', 'warning');
+    if (!this.selectedEmployeeId) return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('SIMPAN_DATA_KARYAWAN_TERLEBIH_DAHULU_PENDIDIKAN'), 'warning');
     await this.openWindow(WinEmployeeEducationEdit, { employeeId: this.selectedEmployeeId, data: null });
   }
 
   async onOpenEditEduClick(row) {
     const targetRow = row || (this.dtEducation ? this.dtEducation.getSelectedRow() : null);
-    if (!targetRow) return this.showInfo('Pilih Pendidikan', 'Pilih riwayat pendidikan dari tabel yang ingin diedit.', 'warning');
+    if (!targetRow) return this.showInfo(WiseI18n.t('PILIH_PENDIDIKAN'), WiseI18n.t('PILIH_RIWAYAT_PENDIDIKAN_YANG_INGIN_DIEDIT'), 'warning');
     await this.openWindow(WinEmployeeEducationEdit, { employeeId: this.selectedEmployeeId, data: targetRow });
   }
 
   async onDeleteEduClick(row) {
     const targetRow = row || (this.dtEducation ? this.dtEducation.getSelectedRow() : null);
-    if (!targetRow) return this.showInfo('Pilih Pendidikan', 'Pilih riwayat pendidikan dari tabel yang ingin dihapus.', 'warning');
+    if (!targetRow) return this.showInfo(WiseI18n.t('PILIH_PENDIDIKAN'), WiseI18n.t('PILIH_RIWAYAT_PENDIDIKAN_YANG_INGIN_DIHAPUS'), 'warning');
     try {
       await api.deleteEducationHistory(targetRow.id);
-      this.showInfo('Berhasil', `Pendidikan di "${targetRow.institutionName}" berhasil dihapus.`, 'success');
+      this.showInfo(WiseI18n.t('BERHASIL'), `"${targetRow.institutionName}" ${WiseI18n.t('BERHASIL_DIHAPUS')}.`, 'success');
       await this.loadEmployee(this.selectedEmployeeId);
     } catch (err) {
-      this.showInfo('Gagal Menghapus', err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MENGHAPUS'), err.message, 'error');
     }
   }
 
   // ── Career Handlers ───────────────────────────────────────────
   async onOpenAddCareerClick() {
-    if (!this.selectedEmployeeId) return this.showInfo('Peringatan', 'Simpan data karyawan terlebih dahulu sebelum mencatat mutasi/promosi.', 'warning');
+    if (!this.selectedEmployeeId) return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('SIMPAN_DATA_KARYAWAN_TERLEBIH_DAHULU_MUTASI'), 'warning');
     await this.openWindow(WinEmployeeCareerEdit, { employeeId: this.selectedEmployeeId, data: null });
   }
 
   async onOpenEditCareerClick(row) {
     const targetRow = row || (this.dtCareer ? this.dtCareer.getSelectedRow() : null);
-    if (!targetRow) return this.showInfo('Pilih Riwayat Karir', 'Pilih riwayat karir dari tabel yang ingin diedit.', 'warning');
+    if (!targetRow) return this.showInfo(WiseI18n.t('PILIH_RIWAYAT_KARIR'), WiseI18n.t('PILIH_RIWAYAT_KARIR_YANG_INGIN_DIEDIT'), 'warning');
     await this.openWindow(WinEmployeeCareerEdit, { employeeId: this.selectedEmployeeId, data: targetRow });
   }
 
   async onDeleteCareerClick(row) {
     const targetRow = row || (this.dtCareer ? this.dtCareer.getSelectedRow() : null);
-    if (!targetRow) return this.showInfo('Pilih Riwayat Karir', 'Pilih riwayat karir dari tabel yang ingin dihapus.', 'warning');
+    if (!targetRow) return this.showInfo(WiseI18n.t('PILIH_RIWAYAT_KARIR'), WiseI18n.t('PILIH_RIWAYAT_KARIR_YANG_INGIN_DIHAPUS'), 'warning');
     try {
       await api.deleteCareerHistory(targetRow.id);
-      this.showInfo('Berhasil', 'Riwayat karir berhasil dihapus.', 'success');
+      this.showInfo(WiseI18n.t('BERHASIL'), WiseI18n.t('RIWAYAT_KARIR_BERHASIL_DIHAPUS'), 'success');
       await this.loadEmployee(this.selectedEmployeeId);
     } catch (err) {
-      this.showInfo('Gagal Menghapus', err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MENGHAPUS'), err.message, 'error');
     }
   }
 
   // ── Family Handlers ───────────────────────────────────────────
   async onOpenAddFamilyClick() {
-    if (!this.selectedEmployeeId) return this.showInfo('Peringatan', 'Simpan data karyawan terlebih dahulu sebelum menambahkan data keluarga.', 'warning');
+    if (!this.selectedEmployeeId) return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('SIMPAN_DATA_KARYAWAN_TERLEBIH_DAHULU_KELUARGA'), 'warning');
     await this.openWindow(WinEmployeeFamilyEdit, { employeeId: this.selectedEmployeeId, data: null });
   }
 
   async onOpenEditFamilyClick(row) {
     const targetRow = row || (this.dtFamily ? this.dtFamily.getSelectedRow() : null);
-    if (!targetRow) return this.showInfo('Pilih Anggota Keluarga', 'Pilih anggota keluarga dari tabel yang ingin diedit.', 'warning');
+    if (!targetRow) return this.showInfo(WiseI18n.t('PILIH_ANGGOTA_KELUARGA'), WiseI18n.t('PILIH_ANGGOTA_KELUARGA_YANG_INGIN_DIEDIT'), 'warning');
     await this.openWindow(WinEmployeeFamilyEdit, { employeeId: this.selectedEmployeeId, data: targetRow });
   }
 
   async onDeleteFamilyClick(row) {
     const targetRow = row || (this.dtFamily ? this.dtFamily.getSelectedRow() : null);
-    if (!targetRow) return this.showInfo('Pilih Anggota Keluarga', 'Pilih anggota keluarga dari tabel yang ingin dihapus.', 'warning');
+    if (!targetRow) return this.showInfo(WiseI18n.t('PILIH_ANGGOTA_KELUARGA'), WiseI18n.t('PILIH_ANGGOTA_KELUARGA_YANG_INGIN_DIHAPUS'), 'warning');
     try {
       await api.deleteFamilyMember(targetRow.id);
-      this.showInfo('Berhasil', `Data anggota keluarga "${targetRow.name}" berhasil dihapus.`, 'success');
+      this.showInfo(WiseI18n.t('BERHASIL'), `"${targetRow.name}" ${WiseI18n.t('BERHASIL_DIHAPUS')}.`, 'success');
       await this.loadEmployee(this.selectedEmployeeId);
     } catch (err) {
-      this.showInfo('Gagal Menghapus', err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MENGHAPUS'), err.message, 'error');
     }
   }
 

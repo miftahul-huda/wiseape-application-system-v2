@@ -207,11 +207,11 @@ class WinJobVacancyList extends WiseWindow {
       this.dtVacancies.pageSize = limit;
 
       if (this.lblStatus) {
-        this.lblStatus.setText(`Menampilkan ${rows.length} dari total ${res.total || rows.length} lowongan pekerjaan.`);
+        this.lblStatus.setText(`${WiseI18n.t('MENAMPILKAN')} ${rows.length} ${WiseI18n.t('DARI_TOTAL')} ${res.total || rows.length} ${WiseI18n.t('LOWONGAN_PEKERJAAN_2')}`);
       }
     } catch (err) {
-      if (this.lblStatus) this.lblStatus.setText(`Gagal memuat lowongan: ${err.message}`);
-      this.showInfo('Error', err.message, 'error');
+      if (this.lblStatus) this.lblStatus.setText(`${WiseI18n.t('GAGAL_MEMUAT_DATA_LOWONGAN')} ${err.message}`);
+      this.showInfo(WiseI18n.t('ERROR'), err.message, 'error');
     }
   }
 

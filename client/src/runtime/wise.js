@@ -16,6 +16,7 @@ import '../../system/ApiThemeRepository.js';
 export const WiseWindow = window.WiseWindow;
 export const WiseApplication = window.WiseApplication;
 export const WiseI18n = window.WiseI18n;
+export const WiseConfirm = window.WiseConfirm;
 export const ApiAuthRepository = window.ApiAuthRepository;
 export const ApiThemeRepository = window.ApiThemeRepository;
 

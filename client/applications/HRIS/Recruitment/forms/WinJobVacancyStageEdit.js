@@ -1,6 +1,5 @@
 import {
   WiseWindow,
-  WiseLabel,
   WiseButton,
   WiseTextBox,
   WiseNumericBox,
@@ -29,7 +28,6 @@ class WinJobVacancyStageEdit extends WiseWindow {
     this.controls = [];
 
     const inputBorderStyle = { border: '1px solid #94a3b8', borderRadius: '6px' };
-    const labelStyle = { fontWeight: 600, color: '#334155', display: 'block', marginBottom: '2px', lineHeight: '1.2' };
 
     // Form layout (4 rows)
     const formLayout = new WiseTableLayout({
@@ -40,58 +38,50 @@ class WinJobVacancyStageEdit extends WiseWindow {
     });
 
     // 1. Nama Tahapan
-    const cellName = new WiseFrame('', { id: 'frmStageName', style: { marginBottom: '8px' } });
-    cellName.addControl(new WiseLabel(WiseI18n.t('NAMA_TAHAPAN_PROSES'), { id: 'lblStageName', style: labelStyle }));
     this.txtStageName = new WiseTextBox('', {
       id: 'txtStageName',
+      label: WiseI18n.t('NAMA_TAHAPAN_PROSES'),
       datafield: 'name',
       placeholder: WiseI18n.t('CONTOH_INTERVIEW_USER_INTERVIEW_HRD_CODING_TEST_DLL'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellName.addControl(this.txtStageName);
-    formLayout.setCell(0, 0, cellName);
+    formLayout.setCell(0, 0, this.txtStageName);
 
     // 2. Urutan Tahapan
-    const cellOrder = new WiseFrame('', { id: 'frmStageOrder', style: { marginBottom: '8px' } });
-    cellOrder.addControl(new WiseLabel(WiseI18n.t('URUTAN_TAHAPAN'), { id: 'lblStageOrder', style: labelStyle }));
     this.numStageOrder = new WiseNumericBox(1, {
       id: 'numStageOrder',
+      label: WiseI18n.t('URUTAN_TAHAPAN'),
       datafield: 'order',
       min: 1,
       max: 99,
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellOrder.addControl(this.numStageOrder);
-    formLayout.setCell(1, 0, cellOrder);
+    formLayout.setCell(1, 0, this.numStageOrder);
 
     // 3. Template Matriks Penilaian
-    const cellMatrix = new WiseFrame('', { id: 'frmStageMatrix', style: { marginBottom: '8px' } });
-    cellMatrix.addControl(new WiseLabel(WiseI18n.t('TEMPLATE_MATRIKS_PENILAIAN_OPSIONAL'), { id: 'lblStageMatrix', style: labelStyle }));
     const matrixItems = [
       { value: '', label: WiseI18n.t('TANPA_MATRIKS_PENILAIAN_KHUSUS') },
       ...this.matrixTemplates.map((m) => ({ value: String(m.id), label: `${m.name} (${(m.criteria || []).length} kriteria)` }))
     ];
     this.cmbMatrixTemplate = new WiseComboBox('', {
       id: 'cmbMatrixTemplate',
+      label: WiseI18n.t('TEMPLATE_MATRIKS_PENILAIAN_OPSIONAL'),
       datafield: 'matrixTemplateId',
       items: matrixItems,
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellMatrix.addControl(this.cmbMatrixTemplate);
-    formLayout.setCell(2, 0, cellMatrix);
+    formLayout.setCell(2, 0, this.cmbMatrixTemplate);
 
     // 4. Deskripsi
-    const cellDesc = new WiseFrame('', { id: 'frmStageDesc', style: { marginBottom: '8px' } });
-    cellDesc.addControl(new WiseLabel(WiseI18n.t('DESKRIPSI_PANDUAN_TAHAPAN'), { id: 'lblStageDesc', style: labelStyle }));
     this.txtStageDesc = new WiseTextArea('', {
       id: 'txtStageDesc',
+      label: WiseI18n.t('DESKRIPSI_PANDUAN_TAHAPAN'),
       datafield: 'description',
       rows: 3,
       placeholder: WiseI18n.t('TULISKAN_PANDUAN_ATAU_RUANG_LINGKUP_TAHAPAN_INI'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellDesc.addControl(this.txtStageDesc);
-    formLayout.setCell(3, 0, cellDesc);
+    formLayout.setCell(3, 0, this.txtStageDesc);
 
     this.addControl(formLayout);
 
@@ -105,24 +95,18 @@ class WinJobVacancyStageEdit extends WiseWindow {
       style: { display: 'flex', justifyContent: 'flex-end', gap: '8px' }
     });
 
+    btnContainer.addControl(new WiseButton(WiseI18n.t('SIMPAN_TAHAPAN'), {
+      id: 'btnStageSave',
+      onClick: this.onSaveClick.bind(this)
+    }));
+
     btnContainer.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnStageCancel',
       onClick: () => this.close(),
       style: {
         background: '#e2e8f0',
-        color: '#334155',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#334155'
       }
-    }));
-
-    btnContainer.addControl(new WiseButton(WiseI18n.t('SIMPAN_TAHAPAN'), {
-      id: 'btnStageSave',
-      onClick: this.onSaveClick.bind(this)
     }));
 
     this.addControl(btnContainer);

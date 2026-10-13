@@ -40,77 +40,76 @@ class WinOrganizationEdit extends WiseWindow {
     // Form Layout
     const formLayout = new WiseTableLayout({
       rows: 6,
-      columns: 2,
+      columns: 1,
       id: 'tblOrgForm',
       style: { width: '100%', marginBottom: '16px' }
     });
 
-    const lblStyle = { fontWeight: 600, color: '#334155', display: 'block', paddingTop: '6px' };
 
     // 1. Tipe Organisasi (Type)
-    formLayout.setCell(0, 0, new WiseLabel(WiseI18n.t('TIPE_STRUKTUR'), { style: lblStyle }));
     const typeItems = ORG_TYPES.map((t) => ({ value: t, label: t }));
     const cmbType = new WiseComboBox(typeItems, {
       id: 'cmbOrgType',
+      label: WiseI18n.t('TIPE_STRUKTUR'),
       datafield: 'type',
       value: 'Department',
       style: { width: '100%' }
     });
-    formLayout.setCell(0, 1, cmbType);
+    formLayout.setCell(0, 0, cmbType);
 
     // 2. Kode Organisasi
-    formLayout.setCell(1, 0, new WiseLabel(WiseI18n.t('KODE_ORGANISASI'), { style: lblStyle }));
     const txtCode = new WiseTextBox('', {
       id: 'txtOrgCode',
+      label: WiseI18n.t('KODE_ORGANISASI'),
       datafield: 'code',
       placeholder: 'DIV-TECH, DEPT-ENG, DEPT-HR',
       style: { width: '100%' }
     });
-    formLayout.setCell(1, 1, txtCode);
+    formLayout.setCell(1, 0, txtCode);
 
     // 3. Nama Organisasi
-    formLayout.setCell(2, 0, new WiseLabel(WiseI18n.t('NAMA_ORGANISASI'), { style: lblStyle }));
     const txtName = new WiseTextBox('', {
       id: 'txtOrgName',
+      label: WiseI18n.t('NAMA_ORGANISASI'),
       datafield: 'name',
       placeholder: 'Software Engineering, Human Resources',
       style: { width: '100%' }
     });
-    formLayout.setCell(2, 1, txtName);
+    formLayout.setCell(2, 0, txtName);
 
     // 4. Induk Organisasi (Parent)
-    formLayout.setCell(3, 0, new WiseLabel(WiseI18n.t('INDUK_ORGANISASI'), { style: lblStyle }));
     const parentItems = [
       { value: '', label: WiseI18n.t('TIDAK_ADA_UNIT_TINGKAT_ATAS') },
       ...this.parentOptions.map((p) => ({ value: String(p.id), label: `[${p.code}] ${p.name}` }))
     ];
     const cmbParent = new WiseComboBox(parentItems, {
       id: 'cmbOrgParent',
+      label: WiseI18n.t('INDUK_ORGANISASI'),
       datafield: 'parentId',
       value: '',
       style: { width: '100%' }
     });
-    formLayout.setCell(3, 1, cmbParent);
+    formLayout.setCell(3, 0, cmbParent);
 
     // 5. Deskripsi
-    formLayout.setCell(4, 0, new WiseLabel(WiseI18n.t('DESKRIPSI_FUNGSI'), { style: lblStyle }));
     const txtDesc = new WiseTextBox('', {
       id: 'txtOrgDesc',
+      label: WiseI18n.t('DESKRIPSI_FUNGSI'),
       datafield: 'description',
       placeholder: WiseI18n.t('DESKRIPSI_FUNGSI'),
       style: { width: '100%' }
     });
-    formLayout.setCell(4, 1, txtDesc);
+    formLayout.setCell(4, 0, txtDesc);
 
     // 6. Urutan (Sort Order)
-    formLayout.setCell(5, 0, new WiseLabel(WiseI18n.t('URUTAN_TAMPILAN'), { style: lblStyle }));
     const numSort = new WiseNumericBox('0', {
       id: 'numOrgSortOrder',
+      label: WiseI18n.t('URUTAN_TAMPILAN'),
       datafield: 'sortOrder',
       value: 0,
       style: { width: '120px' }
     });
-    formLayout.setCell(5, 1, numSort);
+    formLayout.setCell(5, 0, numSort);
 
     this.addControl(formLayout);
 
@@ -137,16 +136,12 @@ class WinOrganizationEdit extends WiseWindow {
       }
     });
 
-    const btnCancel = new WiseButton(WiseI18n.t('BATAL_3'), {
+    const btnCancel = new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnOrgCancel',
       onClick: () => this.close(),
       style: {
         background: '#e2e8f0',
-        color: '#334155',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 18px',
-        cursor: 'pointer'
+        color: '#334155'
       }
     });
 
@@ -155,8 +150,8 @@ class WinOrganizationEdit extends WiseWindow {
       onClick: this.onSave.bind(this)
     });
 
-    actionContainer.addControl(btnCancel);
     actionContainer.addControl(btnSave);
+    actionContainer.addControl(btnCancel);
     this.addControl(actionContainer);
   }
 

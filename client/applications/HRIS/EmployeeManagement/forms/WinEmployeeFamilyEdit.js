@@ -1,6 +1,5 @@
 import {
   WiseWindow,
-  WiseLabel,
   WiseButton,
   WiseTextBox,
   WiseComboBox,
@@ -87,7 +86,7 @@ class WinEmployeeFamilyEdit extends WiseWindow {
   formGroup(labelText, control) {
     const frame = new WiseFrame('', { style: { background: 'transparent', border: 'none', padding: '0 6px 8px 6px' } });
     const resolvedLabel = typeof WiseI18n !== 'undefined' ? WiseI18n.t(labelText) : labelText;
-    frame.addControl(new WiseLabel(resolvedLabel, { style: { display: 'block', marginBottom: '2px', lineHeight: '1.2', fontWeight: '500', color: 'var(--dark-text)' } }));
+    if (control && typeof control.setLabel === 'function') control.setLabel(resolvedLabel);
     frame.addControl(control);
     return frame;
   }

@@ -41,7 +41,6 @@ class WinApplicantProcessEdit extends WiseWindow {
     this.controls = [];
 
     const inputBorderStyle = { border: '1px solid #94a3b8', borderRadius: '6px' };
-    const labelStyle = { fontWeight: 600, color: '#334155', display: 'block', marginBottom: '0px', lineHeight: '1.2' };
 
     // 1. Process Master Status & Info (3 cols x 2 rows)
     const masterGrid = new WiseTableLayout({
@@ -52,22 +51,19 @@ class WinApplicantProcessEdit extends WiseWindow {
     });
 
     // Col 0, Row 0: Nama Tahapan
-    const cellName = new WiseFrame('', { id: 'frmProcName' });
-    cellName.addControl(new WiseLabel(WiseI18n.t('NAMA_TAHAPAN_PROSES'), { id: 'lblProcName', style: labelStyle }));
     this.txtStageName = new WiseTextBox('', {
       id: 'txtProcStageName',
+      label: WiseI18n.t('NAMA_TAHAPAN_PROSES'),
       datafield: 'stageName',
       placeholder: WiseI18n.t('CONTOH_INTERVIEW_USER_INTERVIEW_HRD_CODING_TEST'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellName.addControl(this.txtStageName);
-    masterGrid.setCell(0, 0, cellName);
+    masterGrid.setCell(0, 0, this.txtStageName);
 
     // Col 1, Row 0: Status Proses (Not Starting, Ongoing, Done, Canceled)
-    const cellStatus = new WiseFrame('', { id: 'frmProcStatus' });
-    cellStatus.addControl(new WiseLabel(WiseI18n.t('STATUS_PROSES_2'), { id: 'lblProcStatus', style: labelStyle }));
     this.cmbStatus = new WiseComboBox('Not Starting', {
       id: 'cmbProcStatus',
+      label: WiseI18n.t('STATUS_PROSES_2'),
       datafield: 'status',
       items: [
         { value: 'Not Starting', label: WiseI18n.t('NOT_STARTING_BELUM_DIMULAI') },
@@ -77,14 +73,12 @@ class WinApplicantProcessEdit extends WiseWindow {
       ],
       style: { ...inputBorderStyle, width: '100%' }
     });
-    cellStatus.addControl(this.cmbStatus);
-    masterGrid.setCell(0, 1, cellStatus);
+    masterGrid.setCell(0, 1, this.cmbStatus);
 
     // Col 2, Row 0: Hasil Keputusan
-    const cellResult = new WiseFrame('', { id: 'frmProcResult' });
-    cellResult.addControl(new WiseLabel(WiseI18n.t('HASIL_KEPUTUSAN_2'), { id: 'lblProcResult', style: labelStyle }));
     this.cmbResult = new WiseComboBox('PENDING', {
       id: 'cmbProcResult',
+      label: WiseI18n.t('HASIL_KEPUTUSAN_2'),
       datafield: 'result',
       items: [
         { value: 'PENDING', label: WiseI18n.t('PENDING_MENUNGGU') },
@@ -94,44 +88,37 @@ class WinApplicantProcessEdit extends WiseWindow {
       ],
       style: { ...inputBorderStyle, width: '100%' }
     });
-    cellResult.addControl(this.cmbResult);
-    masterGrid.setCell(0, 2, cellResult);
+    masterGrid.setCell(0, 2, this.cmbResult);
 
     // Col 0, Row 1: Tanggal Jadwal
-    const cellDate = new WiseFrame('', { id: 'frmProcDate' });
-    cellDate.addControl(new WiseLabel(WiseI18n.t('TANGGAL_JADWAL_PELAKSANAAN'), { id: 'lblProcDate', style: labelStyle }));
     this.dtScheduledDate = new WiseDate(new Date().toISOString().slice(0, 10), {
       id: 'dtProcScheduledDate',
+      label: WiseI18n.t('TANGGAL_JADWAL_PELAKSANAAN'),
       datafield: 'scheduledDate',
       style: { ...inputBorderStyle, width: '100%' }
     });
-    cellDate.addControl(this.dtScheduledDate);
-    masterGrid.setCell(1, 0, cellDate);
+    masterGrid.setCell(1, 0, this.dtScheduledDate);
 
     // Col 1, Row 1: Pewawancara / Evaluator
-    const cellInterviewer = new WiseFrame('', { id: 'frmProcInterviewer' });
-    cellInterviewer.addControl(new WiseLabel(WiseI18n.t('PEWAWANCARA_EVALUATOR'), { id: 'lblProcInterviewer', style: labelStyle }));
     this.txtInterviewer = new WiseTextBox('', {
       id: 'txtProcInterviewer',
+      label: WiseI18n.t('PEWAWANCARA_EVALUATOR'),
       datafield: 'interviewerName',
       placeholder: WiseI18n.t('NAMA_EVALUATOR_ATAU_TIM_PENGUJI'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellInterviewer.addControl(this.txtInterviewer);
-    masterGrid.setCell(1, 1, cellInterviewer);
+    masterGrid.setCell(1, 1, this.txtInterviewer);
 
     // Col 2, Row 1: Skor Akhir
-    const cellScore = new WiseFrame('', { id: 'frmProcScore' });
-    cellScore.addControl(new WiseLabel(WiseI18n.t('SKOR_AKHIR_EVALUASI_0_100'), { id: 'lblProcScore', style: labelStyle }));
     this.numScore = new WiseNumericBox(0, {
       id: 'numProcOverallScore',
+      label: WiseI18n.t('SKOR_AKHIR_EVALUASI_0_100'),
       datafield: 'overallScore',
       min: 0,
       max: 100,
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellScore.addControl(this.numScore);
-    masterGrid.setCell(1, 2, cellScore);
+    masterGrid.setCell(1, 2, this.numScore);
 
     this.addControl(masterGrid);
 
@@ -155,7 +142,7 @@ class WinApplicantProcessEdit extends WiseWindow {
       id: 'frmProcMatrixTplBar',
       style: {
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-end',
         gap: '8px',
         marginBottom: '10px',
         background: '#f8fafc',
@@ -165,13 +152,9 @@ class WinApplicantProcessEdit extends WiseWindow {
       }
     });
 
-    matrixToolbar.addControl(new WiseLabel(WiseI18n.t('TERAPKAN_TEMPLATE_MATRIKS'), {
-      id: 'lblProcTplSelect',
-      style: { fontWeight: 600, color: '#334155' }
-    }));
-
     this.cmbMatrixSelector = new WiseComboBox('', {
       id: 'cmbProcMatrixTemplateSelector',
+      label: WiseI18n.t('TERAPKAN_TEMPLATE_MATRIKS'),
       items: [{ value: '', label: WiseI18n.t('PILIH_TEMPLATE_MATRIKS') }],
       style: { ...inputBorderStyle, minWidth: '280px' }
     });
@@ -187,13 +170,7 @@ class WinApplicantProcessEdit extends WiseWindow {
       onClick: this.onCalculateScoreClick.bind(this),
       style: {
         background: 'var(--accent-dark)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '7px 14px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -264,9 +241,9 @@ class WinApplicantProcessEdit extends WiseWindow {
 
     // --- TAB 2: Komentar & Catatan Evaluator ---
     const panelComments = new WiseFrame('', { id: 'pnlProcComments', style: { padding: '8px 0' } });
-    panelComments.addControl(new WiseLabel(WiseI18n.t('KOMENTAR_CATATAN_PENILAI_KESELURUHAN'), { id: 'lblProcComments', style: labelStyle }));
     this.txtComments = new WiseTextArea('', {
       id: 'txtProcComments',
+      label: WiseI18n.t('KOMENTAR_CATATAN_PENILAI_KESELURUHAN'),
       datafield: 'comments',
       rows: 8,
       placeholder: WiseI18n.t('TULISKAN_CATATAN_MENYELURUH_MENGENAI_PERFORMA_KANDIDAT'),
@@ -283,7 +260,7 @@ class WinApplicantProcessEdit extends WiseWindow {
       id: 'frmProcUploadBar',
       style: {
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-end',
         gap: '8px',
         marginBottom: '12px',
         background: '#f8fafc',
@@ -293,13 +270,9 @@ class WinApplicantProcessEdit extends WiseWindow {
       }
     });
 
-    uploadBar.addControl(new WiseLabel(WiseI18n.t('NAMA_DOKUMEN'), {
-      id: 'lblDocUploadTitle',
-      style: { fontWeight: 600, color: '#334155' }
-    }));
-
     this.txtDocName = new WiseTextBox('', {
       id: 'txtProcDocName',
+      label: WiseI18n.t('NAMA_DOKUMEN'),
       placeholder: WiseI18n.t('CONTOH_LEMBAR_EVALUASI_WAWANCARA_HASIL_TES_CODING'),
       style: { ...inputBorderStyle, width: '280px', padding: '6px 10px' }
     });
@@ -352,24 +325,18 @@ class WinApplicantProcessEdit extends WiseWindow {
       }
     });
 
+    bottomBar.addControl(new WiseButton(WiseI18n.t('SIMPAN_HASIL_PROSES'), {
+      id: 'btnProcSave',
+      onClick: this.onSaveClick.bind(this)
+    }));
+
     bottomBar.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnProcCancel',
       onClick: () => this.close(),
       style: {
         background: '#e2e8f0',
-        color: '#334155',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 18px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#334155'
       }
-    }));
-
-    bottomBar.addControl(new WiseButton(WiseI18n.t('SIMPAN_HASIL_PROSES'), {
-      id: 'btnProcSave',
-      onClick: this.onSaveClick.bind(this)
     }));
 
     this.addControl(bottomBar);

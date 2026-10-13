@@ -81,11 +81,7 @@ class WinOrganizationManagement extends WiseWindow {
       onClick: this.onEditClick.bind(this),
       style: {
         background: 'var(--accent-dark)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -94,11 +90,7 @@ class WinOrganizationManagement extends WiseWindow {
       onClick: this.onToggleActiveClick.bind(this),
       style: {
         background: '#f59e0b',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -107,11 +99,7 @@ class WinOrganizationManagement extends WiseWindow {
       onClick: this.onDeleteClick.bind(this),
       style: {
         background: '#ef4444',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -120,11 +108,7 @@ class WinOrganizationManagement extends WiseWindow {
       onClick: () => this.fetchCurrentTabData(1, 15, this._currentFilters),
       style: {
         background: '#64748b',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -372,8 +356,7 @@ class WinOrganizationManagement extends WiseWindow {
   onEditClick(targetRow = null) {
     const item = targetRow || this.selectedItem;
     if (!item) {
-      alert(WiseI18n.t('PILIH_SALAH_SATU_BARIS_DATA_YANG_INGIN_DIEDIT_TERLEBIH'));
-      return;
+      return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('PILIH_SALAH_SATU_BARIS_DATA_YANG_INGIN_DIEDIT_TERLEBIH'), 'warning');
     }
 
     if (this.activeTab === 'org') {
@@ -414,8 +397,7 @@ class WinOrganizationManagement extends WiseWindow {
   async onToggleActiveClick(targetRow = null) {
     const item = targetRow || this.selectedItem;
     if (!item) {
-      alert(WiseI18n.t('PILIH_SALAH_SATU_BARIS_DATA_TERLEBIH_DAHULU'));
-      return;
+      return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('PILIH_SALAH_SATU_BARIS_DATA_TERLEBIH_DAHULU'), 'warning');
     }
 
     try {
@@ -431,19 +413,22 @@ class WinOrganizationManagement extends WiseWindow {
       }
       await this.fetchCurrentTabData(1, 15, this._currentFilters || {});
     } catch (err) {
-      alert(`${err.message}`);
+      this.showInfo(WiseI18n.t('ERROR'), err.message, 'error');
     }
   }
 
   async onDeleteClick(targetRow = null) {
     const item = targetRow || this.selectedItem;
     if (!item) {
-      alert(WiseI18n.t('PILIH_BARIS_DATA_YANG_INGIN_DIHAPUS_TERLEBIH_DAHULU'));
-      return;
+      return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('PILIH_BARIS_DATA_YANG_INGIN_DIHAPUS_TERLEBIH_DAHULU'), 'warning');
     }
 
     const name = item.name || item.title || item.code;
-    const confirmed = window.confirm(`${name}`);
+    const confirmed = await this.confirm(
+      WiseI18n.t('KONFIRMASI_HAPUS'),
+      `${WiseI18n.t('APAKAH_ANDA_YAKIN_INGIN_MENGHAPUS')} "${name}"? ${WiseI18n.t('TINDAKAN_INI_TIDAK_DAPAT_DIBATALKAN')}`,
+      { type: 'danger', confirmText: WiseI18n.t('HAPUS_3') }
+    );
     if (!confirmed) return;
 
     try {
@@ -458,7 +443,7 @@ class WinOrganizationManagement extends WiseWindow {
       await this.fetchOptions();
       await this.fetchCurrentTabData(1, 15, this._currentFilters || {});
     } catch (err) {
-      alert(`${err.message}`);
+      this.showInfo(WiseI18n.t('ERROR'), err.message, 'error');
     }
   }
 }

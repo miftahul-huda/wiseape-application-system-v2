@@ -852,7 +852,7 @@ body.dark-theme .wise-dt-context-menu-item:hover {
   max-width: calc(100vw - 90px);
   background: #ffffff;
   border: 1px solid rgba(15, 23, 42, 0.12);
-  border-radius: 14px;
+  border-radius: 9px;
   box-shadow: 0 25px 60px -10px rgba(15, 23, 42, 0.38), 0 12px 28px -6px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.5) inset;
   overflow: hidden;
   transition: opacity 0.22s var(--spring), transform 0.22s var(--spring), box-shadow 0.22s ease, filter 0.22s ease;
@@ -1042,6 +1042,53 @@ body.dark-theme .wise-datatable-scroll {
   scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
 }
 
+/* WiseDataTable: cells never wrap; long values extend the table horizontally
+   (the scroll container provides the horizontal scrollbar). */
+.wise-datatable-scroll th,
+.wise-datatable-scroll td {
+  white-space: nowrap;
+}
+
+/* Once a column has been resized the table switches to fixed layout, so
+   overflowing values are clipped with an ellipsis instead. */
+.wise-datatable-scroll table.wise-dt-resized th,
+.wise-datatable-scroll table.wise-dt-resized td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Set once the user resizes a column: width is pinned inline, and the
+   container's content no longer feeds ancestors' intrinsic sizing. */
+.wise-datatable-scroll.wise-dt-scroll-locked {
+  contain: inline-size;
+  max-width: 100%;
+}
+
+.wise-dt-th {
+  position: relative;
+}
+
+.wise-dt-col-resizer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  user-select: none;
+  z-index: 1;
+}
+
+.wise-dt-col-resizer:hover,
+body.wise-dt-resizing .wise-dt-col-resizer:active {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+body.wise-dt-resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
 /* WiseDataTable header: subtle depth instead of a flat fill */
 .wise-dt-thead {
   background: linear-gradient(180deg, color-mix(in srgb, var(--accent-dark) 92%, white 8%), var(--accent-dark));
@@ -1069,10 +1116,8 @@ body.dark-theme .wise-datatable-scroll {
 
 tr.wise-dt-row-alt,
 .wise-dt-row-alt {
-  /* accent-dark rather than accent: some themes (e.g. Amber) set --accent to
-     a very pale color that a light tint would make invisible, while every
-     theme's accent-dark stays reasonably saturated. */
-  background-color: color-mix(in srgb, var(--accent-dark) 12%, white 88%) !important;
+  /* Neutral light grey, independent of the active theme accent. */
+  background-color: #e5eaef !important;
 }
 
 tr.wise-dt-row-alt td,
@@ -1189,17 +1234,17 @@ body.dark-theme .wise-dt-empty {
   gap: 8px;
 }
 
-/* WiseWindow.showInfo() / WiseApplication.showInfo() modal alert -- see
-   WiseDesktop.showInfoDialog(). z-index 60 puts it above literally
-   everything else (windows: 3, taskbar: 5, launchpad: 50) since an alert
-   should be able to interrupt any of them. */
-.info-dialog-overlay {
+/* WiseWindow.showInfo() / WiseApplication.showInfo() modal alert & custom confirm window --
+   z-index 60 puts it above windows and taskbar. Background dimming is subtle without heavy blur
+   so open windows and desktop stay visible. */
+.info-dialog-overlay,
+.confirm-dialog-overlay {
   position: fixed;
   inset: 0;
   z-index: 60;
-  background: rgba(15, 17, 23, 0.45);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  background: rgba(15, 23, 42, 0.28);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1208,16 +1253,198 @@ body.dark-theme .wise-dt-empty {
 }
 
 .info-dialog-card {
-  width: min(88vw, 340px);
-  padding: 28px 26px 22px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(24px) saturate(1.5);
-  -webkit-backdrop-filter: blur(24px) saturate(1.5);
-  box-shadow: 0 30px 60px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+  width: min(88vw, 360px);
+  padding: 26px 24px 22px;
+  border-radius: 3px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.4) inset;
   text-align: center;
   transform: scale(0.94);
   transition: transform 0.2s var(--spring);
+}
+
+.confirm-dialog-window {
+  width: min(90vw, 440px);
+  border-radius: 3px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  box-shadow: 0 25px 60px -10px rgba(15, 23, 42, 0.38), 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+  overflow: hidden;
+  transform: scale(0.94);
+  transition: transform 0.2s var(--spring);
+  display: flex;
+  flex-direction: column;
+}
+
+.confirm-dialog-header {
+  height: 40px;
+  flex: 0 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  background: var(--accent-dark);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.confirm-dialog-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+}
+
+.confirm-dialog-close-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.confirm-dialog-close-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.confirm-dialog-body {
+  padding: 22px 24px 18px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.confirm-dialog-icon {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.confirm-dialog-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.confirm-dialog-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.confirm-dialog-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dark-text);
+  margin-bottom: 6px;
+}
+
+.confirm-dialog-message {
+  font-size: 14px;
+  color: rgba(17, 24, 39, 0.75);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.confirm-dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px 16px;
+  background: #f8fafc;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.confirm-dialog-btn-cancel {
+  appearance: none;
+  border: 0;
+  border-radius: 4px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  height: 36px;
+  min-height: 36px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.confirm-dialog-btn-cancel:hover {
+  background: #cbd5e1;
+}
+
+.confirm-dialog-btn-confirm {
+  appearance: none;
+  border: 0;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  height: 36px;
+  min-height: 36px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.confirm-dialog-btn-confirm:hover {
+  background: var(--accent-dark);
+}
+
+.confirm-dialog-btn-confirm.is-danger {
+  background: #ef4444;
+}
+
+.confirm-dialog-btn-confirm.is-danger:hover {
+  background: #dc2626;
+}
+
+/* ==========================================================================
+   Standard Button Sizing Across All Windows (36px height, 8px 16px padding, 14px font)
+   ========================================================================== */
+.wise-button,
+[data-control-type="WiseButton"],
+.confirm-dialog-btn-confirm,
+.confirm-dialog-btn-cancel,
+.info-dialog-ok,
+button[id$="-filter-btn-display"] {
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  padding: 8px 16px !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 600 !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
 }
 
 .info-dialog-icon {
@@ -1262,7 +1489,7 @@ body.dark-theme .wise-dt-empty {
 }
 
 .info-dialog-message {
-  font-size: 13px;
+  font-size: 14px;
   color: rgba(17, 24, 39, 0.72);
   line-height: 1.5;
   margin-bottom: 18px;
@@ -1271,18 +1498,62 @@ body.dark-theme .wise-dt-empty {
 .info-dialog-ok {
   appearance: none;
   border: 0;
-  border-radius: 10px;
+  border-radius: 4px;
   background: var(--accent);
   color: white;
   font-size: 14px;
   font-weight: 600;
-  padding: 9px 30px;
+  padding: 8px 16px;
+  height: 36px;
+  min-height: 36px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
 .info-dialog-ok:hover {
   background: var(--accent-dark);
+}
+
+/* Dark theme overrides */
+body.dark-theme .info-dialog-overlay,
+body.dark-theme .confirm-dialog-overlay {
+  background: rgba(0, 0, 0, 0.38);
+}
+
+body.dark-theme .info-dialog-card,
+body.dark-theme .confirm-dialog-window {
+  background: #1e293b;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+body.dark-theme .info-dialog-title,
+body.dark-theme .confirm-dialog-title {
+  color: #f8fafc;
+}
+
+body.dark-theme .info-dialog-message,
+body.dark-theme .confirm-dialog-message {
+  color: #94a3b8;
+}
+
+body.dark-theme .confirm-dialog-footer {
+  background: #0f172a;
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-theme .confirm-dialog-btn-cancel {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+body.dark-theme .confirm-dialog-btn-cancel:hover {
+  background: #475569;
 }
 
 /* Controls (labels, inputs, buttons, ...) are styled with Tailwind utility
@@ -1695,4 +1966,22 @@ body.dark-theme .wise-icon-menu:hover {
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
+}
+/* Control caption (WiseControl `label`): bold, above the control. */
+.wise-labeled {
+  display: block;
+}
+
+.wise-control-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--dark-text, #334155);
+}
+
+/* Hide the caption together with its control (display:none is set on the
+   control element itself by applyCommon / patchWindowControls). */
+.wise-labeled:has(> [data-control-id][style*="display: none"]) {
+  display: none;
 }

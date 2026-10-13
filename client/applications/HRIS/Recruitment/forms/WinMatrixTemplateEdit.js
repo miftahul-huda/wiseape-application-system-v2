@@ -36,7 +36,6 @@ class WinMatrixTemplateEdit extends WiseWindow {
     this.controls = [];
 
     const inputBorderStyle = { border: '1px solid #94a3b8', borderRadius: '6px' };
-    const labelStyle = { fontWeight: 600, color: '#334155', display: 'block', marginBottom: '2px', lineHeight: '1.2' };
 
     // 1. Template Master Fields Layout (3 cols x 2 rows)
     const masterGrid = new WiseTableLayout({
@@ -46,33 +45,28 @@ class WinMatrixTemplateEdit extends WiseWindow {
       style: { tableLayout: 'fixed', width: '100%', borderSpacing: '8px', marginBottom: '12px' }
     });
 
-    const cellName = new WiseFrame('', { id: 'frmMatrixName' });
-    cellName.addControl(new WiseLabel(WiseI18n.t('NAMA_TEMPLATE_MATRIKS'), { id: 'lblMatrixName', style: labelStyle }));
     this.txtName = new WiseTextBox('', {
       id: 'txtMatrixName',
+      label: WiseI18n.t('NAMA_TEMPLATE_MATRIKS'),
       datafield: 'name',
       placeholder: WiseI18n.t('CONTOH_MATRIKS_WAWANCARA_HRD_BEHAVIORAL_CULTURE_FIT'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellName.addControl(this.txtName);
-    masterGrid.setCell(0, 0, cellName);
+    masterGrid.setCell(0, 0, this.txtName);
 
-    const cellPass = new WiseFrame('', { id: 'frmMatrixPass' });
-    cellPass.addControl(new WiseLabel(WiseI18n.t('PASSING_SCORE_AMBANG_LOLOS'), { id: 'lblMatrixPass', style: labelStyle }));
     this.numPassScore = new WiseNumericBox(75, {
       id: 'numMatrixPassScore',
+      label: WiseI18n.t('PASSING_SCORE_AMBANG_LOLOS'),
       datafield: 'passScore',
       min: 1,
       max: 100,
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellPass.addControl(this.numPassScore);
-    masterGrid.setCell(0, 1, cellPass);
+    masterGrid.setCell(0, 1, this.numPassScore);
 
-    const cellActive = new WiseFrame('', { id: 'frmMatrixActive' });
-    cellActive.addControl(new WiseLabel(WiseI18n.t('STATUS_AKTIF'), { id: 'lblMatrixActive', style: labelStyle }));
     this.cmbIsActive = new WiseComboBox('true', {
       id: 'cmbMatrixActive',
+      label: WiseI18n.t('STATUS_AKTIF'),
       datafield: 'isActive',
       items: [
         { value: 'true', label: WiseI18n.t('AKTIF') },
@@ -80,30 +74,25 @@ class WinMatrixTemplateEdit extends WiseWindow {
       ],
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellActive.addControl(this.cmbIsActive);
-    masterGrid.setCell(0, 2, cellActive);
+    masterGrid.setCell(0, 2, this.cmbIsActive);
 
-    const cellCode = new WiseFrame('', { id: 'frmMatrixCode' });
-    cellCode.addControl(new WiseLabel(WiseI18n.t('KODE_MATRIKS_OPSIONAL'), { id: 'lblMatrixCode', style: labelStyle }));
     this.txtCode = new WiseTextBox('', {
       id: 'txtMatrixCode',
+      label: WiseI18n.t('KODE_MATRIKS_OPSIONAL'),
       datafield: 'code',
       placeholder: WiseI18n.t('CONTOH_MTX_HRD_01'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellCode.addControl(this.txtCode);
-    masterGrid.setCell(1, 0, cellCode);
+    masterGrid.setCell(1, 0, this.txtCode);
 
-    const cellDesc = new WiseFrame('', { id: 'frmMatrixDesc' });
-    cellDesc.addControl(new WiseLabel(WiseI18n.t('DESKRIPSI_PANDUAN_UMUM_MATRIKS'), { id: 'lblMatrixDesc', style: labelStyle }));
     this.txtDesc = new WiseTextBox('', {
       id: 'txtMatrixDesc',
+      label: WiseI18n.t('DESKRIPSI_PANDUAN_UMUM_MATRIKS'),
       datafield: 'description',
       placeholder: WiseI18n.t('TUJUAN_MATRIKS_DAN_KELOMPOK_PERAN_SASARAN'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellDesc.addControl(this.txtDesc);
-    masterGrid.setCell(1, 1, cellDesc);
+    masterGrid.setCell(1, 1, this.txtDesc);
 
     this.addControl(masterGrid);
 
@@ -128,13 +117,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
       onClick: this.onEditCriterionClick.bind(this),
       style: {
         background: 'var(--accent-dark)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '7px 14px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -143,13 +126,7 @@ class WinMatrixTemplateEdit extends WiseWindow {
       onClick: this.onDeleteCriterionClick.bind(this),
       style: {
         background: '#ef4444',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '7px 14px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -186,24 +163,18 @@ class WinMatrixTemplateEdit extends WiseWindow {
       }
     });
 
+    bottomBar.addControl(new WiseButton(WiseI18n.t('SIMPAN_TEMPLATE_MATRIKS'), {
+      id: 'btnMatrixSave',
+      onClick: this.onSaveClick.bind(this)
+    }));
+
     bottomBar.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnMatrixCancel',
       onClick: () => this.close(),
       style: {
         background: '#e2e8f0',
-        color: '#334155',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 18px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#334155'
       }
-    }));
-
-    bottomBar.addControl(new WiseButton(WiseI18n.t('SIMPAN_TEMPLATE_MATRIKS'), {
-      id: 'btnMatrixSave',
-      onClick: this.onSaveClick.bind(this)
     }));
 
     this.addControl(bottomBar);

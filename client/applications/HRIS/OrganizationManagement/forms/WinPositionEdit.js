@@ -39,80 +39,79 @@ class WinPositionEdit extends WiseWindow {
     // Form Layout
     const formLayout = new WiseTableLayout({
       rows: 6,
-      columns: 2,
+      columns: 1,
       id: 'tblPosForm',
       style: { width: '100%', marginBottom: '16px' }
     });
 
-    const lblStyle = { fontWeight: 600, color: '#334155', display: 'block', paddingTop: '6px' };
 
     // 1. Kode Jabatan
-    formLayout.setCell(0, 0, new WiseLabel(WiseI18n.t('KODE_POSISI_JABATAN'), { style: lblStyle }));
     const txtCode = new WiseTextBox('', {
       id: 'txtPosCode',
+      label: WiseI18n.t('KODE_POSISI_JABATAN'),
       datafield: 'code',
       placeholder: 'POS-SWE, POS-MGR-HR',
       style: { width: '100%' }
     });
-    formLayout.setCell(0, 1, txtCode);
+    formLayout.setCell(0, 0, txtCode);
 
     // 2. Judul / Nama Jabatan
-    formLayout.setCell(1, 0, new WiseLabel(WiseI18n.t('JUDUL_NAMA_JABATAN_2'), { style: lblStyle }));
     const txtTitle = new WiseTextBox('', {
       id: 'txtPosTitle',
+      label: WiseI18n.t('JUDUL_NAMA_JABATAN_2'),
       datafield: 'title',
       placeholder: 'Software Engineer, HR Manager',
       style: { width: '100%' }
     });
-    formLayout.setCell(1, 1, txtTitle);
+    formLayout.setCell(1, 0, txtTitle);
 
     // 3. Unit Organisasi / Departemen
-    formLayout.setCell(2, 0, new WiseLabel(WiseI18n.t('UNIT_ORGANISASI_DEPT'), { style: lblStyle }));
     const orgItems = [
       { value: '', label: WiseI18n.t('TIDAK_TERIKAT_ORGANISASI_SPESIFIK') },
       ...this.orgOptions.map((o) => ({ value: String(o.id), label: `[${o.type}] ${o.name}` }))
     ];
     const cmbOrg = new WiseComboBox(orgItems, {
       id: 'cmbPosOrg',
+      label: WiseI18n.t('UNIT_ORGANISASI_DEPT'),
       datafield: 'organizationId',
       value: '',
       style: { width: '100%' }
     });
-    formLayout.setCell(2, 1, cmbOrg);
+    formLayout.setCell(2, 0, cmbOrg);
 
     // 4. Jenjang Jabatan (Job Level)
-    formLayout.setCell(3, 0, new WiseLabel(WiseI18n.t('JENJANG_JABATAN_GRADE'), { style: lblStyle }));
     const levelItems = [
       { value: '', label: WiseI18n.t('PILIH_JENJANG_JABATAN') },
       ...this.levelOptions.map((l) => ({ value: String(l.id), label: `[Level ${l.levelNumber}] ${l.name}` }))
     ];
     const cmbLevel = new WiseComboBox(levelItems, {
       id: 'cmbPosLevel',
+      label: WiseI18n.t('JENJANG_JABATAN_GRADE'),
       datafield: 'jobLevelId',
       value: '',
       style: { width: '100%' }
     });
-    formLayout.setCell(3, 1, cmbLevel);
+    formLayout.setCell(3, 0, cmbLevel);
 
     // 5. Deskripsi & Kualifikasi
-    formLayout.setCell(4, 0, new WiseLabel(WiseI18n.t('URAIAN_TUGAS_SINGKAT'), { style: lblStyle }));
     const txtDesc = new WiseTextBox('', {
       id: 'txtPosDesc',
+      label: WiseI18n.t('URAIAN_TUGAS_SINGKAT'),
       datafield: 'description',
       placeholder: WiseI18n.t('URAIAN_TUGAS_SINGKAT'),
       style: { width: '100%' }
     });
-    formLayout.setCell(4, 1, txtDesc);
+    formLayout.setCell(4, 0, txtDesc);
 
     // 6. Urutan (Sort Order)
-    formLayout.setCell(5, 0, new WiseLabel(WiseI18n.t('URUTAN_TAMPILAN'), { style: lblStyle }));
     const numSort = new WiseNumericBox('0', {
       id: 'numPosSortOrder',
+      label: WiseI18n.t('URUTAN_TAMPILAN'),
       datafield: 'sortOrder',
       value: 0,
       style: { width: '120px' }
     });
-    formLayout.setCell(5, 1, numSort);
+    formLayout.setCell(5, 0, numSort);
 
     this.addControl(formLayout);
 
@@ -139,16 +138,12 @@ class WinPositionEdit extends WiseWindow {
       }
     });
 
-    const btnCancel = new WiseButton(WiseI18n.t('BATAL_3'), {
+    const btnCancel = new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnPosCancel',
       onClick: () => this.close(),
       style: {
         background: '#e2e8f0',
-        color: '#334155',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 18px',
-        cursor: 'pointer'
+        color: '#334155'
       }
     });
 
@@ -157,8 +152,8 @@ class WinPositionEdit extends WiseWindow {
       onClick: this.onSave.bind(this)
     });
 
-    actionContainer.addControl(btnCancel);
     actionContainer.addControl(btnSave);
+    actionContainer.addControl(btnCancel);
     this.addControl(actionContainer);
   }
 

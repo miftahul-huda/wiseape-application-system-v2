@@ -38,6 +38,8 @@
       return {
         type: this.name,
         id: this.id,
+        label: this.label,
+        labelStyle: this.labelStyle,
         dataField: this.dataField,
         rows: this.rows,
         columns: this.columns,

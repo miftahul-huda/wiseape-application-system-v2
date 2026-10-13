@@ -261,7 +261,7 @@ class WinEmployeeManagement extends WiseWindow {
       ]);
       await this.loadEmployeesTable();
     } catch (err) {
-      this.showInfo('Error Koneksi Backend', err.message, 'error');
+      this.showInfo(WiseI18n.t('ERROR_KONEKSI_BACKEND'), err.message, 'error');
     }
   }
 
@@ -275,7 +275,7 @@ class WinEmployeeManagement extends WiseWindow {
       const filter = this.dtEmployees && (this.dtEmployees.filterControls || []).find((f) => f.id === 'department');
       if (filter) {
         filter.items = [
-          { value: '', label: 'Semua Departemen' },
+          { value: '', label: WiseI18n.t('SEMUA_DEPARTEMEN') },
           ...roots.map((o) => ({ value: o.name, label: o.name }))
         ];
       }
@@ -297,7 +297,7 @@ class WinEmployeeManagement extends WiseWindow {
       const filter = this.dtEmployees && (this.dtEmployees.filterControls || []).find((f) => f.id === 'employmentStatus');
       if (filter && rows.length > 0) {
         filter.items = [
-          { value: '', label: 'Semua Status' },
+          { value: '', label: WiseI18n.t('SEMUA_STATUS') },
           ...rows.map((item) => ({ value: item.name, label: item.name }))
         ];
       }
@@ -332,7 +332,7 @@ class WinEmployeeManagement extends WiseWindow {
 
       const formattedRows = filtered.map(emp => ({
         ...emp,
-        statusBadge: emp.isActive ? '🟢 Aktif' : '🔴 Nonaktif',
+        statusBadge: emp.isActive ? WiseI18n.t('AKTIF') : WiseI18n.t('NONAKTIF'),
         tenureText: emp.tenure?.formatted || '-'
       }));
 
@@ -343,7 +343,7 @@ class WinEmployeeManagement extends WiseWindow {
       // Persist current filters so pager navigation keeps them
       this._currentFilters = filters;
     } catch (err) {
-      this.showInfo('Gagal Memuat Karyawan', err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MEMUAT_KARYAWAN'), err.message, 'error');
     }
   }
 
@@ -365,7 +365,7 @@ class WinEmployeeManagement extends WiseWindow {
       this.selectedEmployeeId = null;
       this.currentEmployeeData = null;
       if (this.lblSelectedInfo) {
-        this.lblSelectedInfo.text('Tidak ada karyawan yang dipilih.');
+        this.lblSelectedInfo.text(WiseI18n.t('TIDAK_ADA_KARYAWAN_YANG_DIPILIH'));
       }
       return;
     }
@@ -376,11 +376,11 @@ class WinEmployeeManagement extends WiseWindow {
 
     if (this.lblSelectedInfo) {
       if (rows.length === (this.cachedEmployees ? this.cachedEmployees.length : 0) && rows.length > 1) {
-        this.lblSelectedInfo.text(`Semua karyawan terpilih (${rows.length} karyawan)`);
+        this.lblSelectedInfo.text(`${WiseI18n.t('SEMUA_KARYAWAN_TERPILIH_COUNT_INFO')} (${rows.length})`);
       } else if (rows.length > 1) {
-        this.lblSelectedInfo.text(`${rows.length} karyawan terpilih (Aktif: ${primaryRow.fullName})`);
+        this.lblSelectedInfo.text(`${rows.length} ${WiseI18n.t('KARYAWAN_TERPILIH_COUNT_INFO')} (${WiseI18n.t('AKTIF_TITIK_DUA')} ${primaryRow.fullName})`);
       } else {
-        this.lblSelectedInfo.text(`Karyawan Terpilih: ${primaryRow.fullName} (${primaryRow.nik}) — ${primaryRow.jobTitle}`);
+        this.lblSelectedInfo.text(`${WiseI18n.t('KARYAWAN_TERPILIH_TITIK_DUA')} ${primaryRow.fullName} (${primaryRow.nik}) — ${primaryRow.jobTitle}`);
       }
     }
   }
@@ -388,7 +388,7 @@ class WinEmployeeManagement extends WiseWindow {
   async onEditEmployeeClick(row) {
     const targetRow = (row && (row.id || row.nik) ? row : null) || (this.dtEmployees ? this.dtEmployees.getSelectedRow() : null) || this.currentEmployeeData || (this.selectedEmployeeId ? { id: this.selectedEmployeeId } : null);
     if (!targetRow || (!targetRow.id && !targetRow.nik)) {
-      return this.showInfo('Pilih Karyawan', 'Silakan pilih karyawan dari daftar terlebih dahulu untuk mengedit.', 'warning');
+      return this.showInfo(WiseI18n.t('PILIH_KARYAWAN'), WiseI18n.t('PILIH_KARYAWAN_EDIT_MSG'), 'warning');
     }
     const empId = targetRow.id || targetRow.nik;
     this.selectedEmployeeId = empId;
@@ -418,12 +418,12 @@ class WinEmployeeManagement extends WiseWindow {
     if (!targetRow) return;
     const { id, nik, tenure, totalSalary, statusBadge, tenureText, createdAt, updatedAt, ...copyable } = targetRow;
     this.copiedEmployee = copyable;
-    this.showInfo('Disalin', `Data karyawan "${targetRow.fullName}" disalin. Pilih Paste pada baris mana pun untuk menduplikasinya sebagai karyawan baru.`, 'information');
+    this.showInfo(WiseI18n.t('DISALIN_TITLE'), `${WiseI18n.t('DATA_KARYAWAN')} "${targetRow.fullName}" ${WiseI18n.t('DISALIN_PASTE_INFO')}`, 'information');
   }
 
   async onPasteEmployeeRow() {
     if (!this.copiedEmployee) {
-      return this.showInfo('Belum Ada Salinan', 'Gunakan menu Copy pada sebuah baris terlebih dahulu sebelum Paste.', 'warning');
+      return this.showInfo(WiseI18n.t('BELUM_ADA_SALINAN'), WiseI18n.t('SALINAN_PASTE_WARNING'), 'warning');
     }
     try {
       const suffix = Date.now().toString().slice(-6);
@@ -434,9 +434,9 @@ class WinEmployeeManagement extends WiseWindow {
       };
       await api.createEmployee(newEmployee);
       await this.loadEmployeesTable(this.dtEmployees.currentPage, this.dtEmployees.pageSize, this._currentFilters || {});
-      this.showInfo('Berhasil Ditempel', `Karyawan baru "${newEmployee.fullName}" (${newEmployee.nik}) berhasil dibuat dari data yang disalin.`, 'success');
+      this.showInfo(WiseI18n.t('BERHASIL_DITEMPEL'), `${WiseI18n.t('KARYAWAN_BARU')} "${newEmployee.fullName}" (${newEmployee.nik}) ${WiseI18n.t('BERHASIL_DIBUAT_DARI_SALINAN')}`, 'success');
     } catch (err) {
-      this.showInfo('Gagal Paste', err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_PASTE'), err.message, 'error');
     }
   }
 
@@ -457,7 +457,7 @@ class WinEmployeeManagement extends WiseWindow {
       this.selectedEmployeeId = null;
       this.currentEmployeeData = null;
       if (this.lblSelectedInfo) {
-        this.lblSelectedInfo.text('Pilihan karyawan telah dibatalkan.');
+        this.lblSelectedInfo.text(WiseI18n.t('PILIHAN_KARYAWAN_DIBATALKAN'));
       }
     } else {
       this.dtEmployees.selectAll();
@@ -466,7 +466,7 @@ class WinEmployeeManagement extends WiseWindow {
         this.selectedEmployeeId = selectedRows[0].id;
         this.currentEmployeeData = selectedRows[0];
         if (this.lblSelectedInfo) {
-          this.lblSelectedInfo.text(`Semua karyawan terpilih (${selectedRows.length} karyawan)`);
+          this.lblSelectedInfo.text(`${WiseI18n.t('SEMUA_KARYAWAN_TERPILIH_COUNT_INFO')} (${selectedRows.length})`);
         }
       }
     }
@@ -479,7 +479,7 @@ class WinEmployeeManagement extends WiseWindow {
     const empId = (emp ? (emp.id || emp.nik) : null) || this.selectedEmployeeId;
 
     if (!empId) {
-      return this.showInfo('Pilih Karyawan', 'Silakan pilih karyawan dari daftar terlebih dahulu untuk melihat detail.', 'warning');
+      return this.showInfo(WiseI18n.t('PILIH_KARYAWAN'), WiseI18n.t('PILIH_KARYAWAN_DETAIL_MSG'), 'warning');
     }
     await this.openWindow(WinEmployeeDetail, { employeeId: empId });
   }
@@ -493,7 +493,7 @@ class WinEmployeeManagement extends WiseWindow {
     const empId = this.selectedEmployeeId || (selectedRow ? selectedRow.id : null);
 
     if (!empId) {
-      return this.showInfo('Peringatan', 'Pilih karyawan terlebih dahulu.', 'warning');
+      return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('PILIH_KARYAWAN_TERLEBIH_DAHULU'), 'warning');
     }
     try {
       const emp = await api.getEmployeeById(empId);
@@ -503,47 +503,47 @@ class WinEmployeeManagement extends WiseWindow {
           status: 'Nonaktif',
           reason: 'Status dinonaktifkan oleh administrator melalui Employee Management'
         });
-        this.showInfo('Karyawan Dinonaktifkan', `${emp.fullName} berhasil dinonaktifkan.`, 'warning');
+        this.showInfo(WiseI18n.t('KARYAWAN_DINONAKTIFKAN'), `${emp.fullName} ${WiseI18n.t('BERHASIL_DINONAKTIFKAN')}.`, 'warning');
       } else {
         await api.activateEmployee(this.selectedEmployeeId);
-        this.showInfo('Karyawan Diaktifkan', `${emp.fullName} berhasil diaktifkan kembali.`, 'success');
+        this.showInfo(WiseI18n.t('KARYAWAN_DIAKTIFKAN'), `${emp.fullName} ${WiseI18n.t('BERHASIL_DIAKTIFKAN')}.`, 'success');
       }
       await this.loadEmployeesTable(this.dtEmployees.currentPage, this.dtEmployees.pageSize, this._currentFilters || {});
     } catch (err) {
-      this.showInfo('Gagal Ubah Status', err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MENGUBAH_STATUS'), err.message, 'error');
     }
   }
 
   async onFindEmployeeMenuClick() {
     await this.loadEmployeesTable(1, this.dtEmployees ? this.dtEmployees.pageSize : 12);
-    this.showInfo('Refresh', 'Data karyawan telah disegarkan.', 'information');
+    this.showInfo(WiseI18n.t('REFRESH'), WiseI18n.t('DATA_KARYAWAN_TELAH_DISEGARKAN'), 'information');
   }
 
   async onReportClick() {
     try {
       const stats = await api.getStatistics();
-      if (!stats) return this.showInfo('Laporan Ringkasan', 'Data statistik belum tersedia.', 'warning');
+      if (!stats) return this.showInfo(WiseI18n.t('LAPORAN_RINGKASAN'), WiseI18n.t('DATA_STATISTIK_BELUM_TERSEDIA'), 'warning');
 
       const deptBreakdown = Object.entries(stats.byDepartment || {})
-        .map(([dept, count]) => `• ${dept}: ${count} orang`).join('\n');
+        .map(([dept, count]) => `• ${dept}: ${count} ${WiseI18n.t('ORANG')}`).join('\n');
       const statusBreakdown = Object.entries(stats.byStatus || {})
-        .map(([status, count]) => `• ${status}: ${count} orang`).join('\n');
+        .map(([status, count]) => `• ${status}: ${count} ${WiseI18n.t('ORANG')}`).join('\n');
 
       const message = [
-        `📊 TOTAL KARYAWAN: ${stats.totalEmployees || 0} orang`,
-        `🟢 Status Aktif: ${stats.activeEmployees || 0} orang`,
-        `🔴 Status Nonaktif: ${stats.inactiveEmployees || 0} orang`,
+        `📊 ${WiseI18n.t('TOTAL_KARYAWAN_LABEL')}: ${stats.totalEmployees || 0} ${WiseI18n.t('ORANG')}`,
+        `🟢 ${WiseI18n.t('STATUS_AKTIF_LABEL')}: ${stats.activeEmployees || 0} ${WiseI18n.t('ORANG')}`,
+        `🔴 ${WiseI18n.t('STATUS_NONAKTIF_LABEL')}: ${stats.inactiveEmployees || 0} ${WiseI18n.t('ORANG')}`,
         '',
-        '🏢 JUMLAH PER DEPARTEMEN:',
-        deptBreakdown || 'Belum ada data',
+        `🏢 ${WiseI18n.t('JUMLAH_PER_DEPARTEMEN_LABEL')}:`,
+        deptBreakdown || WiseI18n.t('BELUM_ADA_DATA'),
         '',
-        '💼 STATUS KEPEGAWAIAN:',
-        statusBreakdown || 'Belum ada data'
+        `💼 ${WiseI18n.t('STATUS_KEPEGAWAIAN_LABEL')}:`,
+        statusBreakdown || WiseI18n.t('BELUM_ADA_DATA')
       ].join('\n');
 
-      this.showInfo('Laporan Ringkasan Karyawan', message, 'information');
+      this.showInfo(WiseI18n.t('LAPORAN_RINGKASAN_KARYAWAN'), message, 'information');
     } catch (err) {
-      this.showInfo('Gagal Memuat Laporan', err.message, 'error');
+      this.showInfo(WiseI18n.t('GAGAL_MEMUAT_LAPORAN'), err.message, 'error');
     }
   }
 

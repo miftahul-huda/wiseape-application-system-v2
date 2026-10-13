@@ -14,19 +14,16 @@ import HrisApiRepository from '../../services/HrisApiRepository';
 const api = new HrisApiRepository();
 
 
-const CATEGORY_OPTIONS = () => {
-  const t = (k) => WiseI18n.t(k);
-  return [
-    { value: 'RELATIONSHIP', label: t('HUBUNGAN_KELUARGA_RELATIONSHIP') },
-    { value: 'RELIGION', label: t('AGAMA_RELIGION') },
-    { value: 'EMPLOYMENT_STATUS', label: t('STATUS_KEPEGAWAIAN_EMPLOYMENT_STATUS') },
-    { value: 'WORK_LOCATION', label: t('LOKASI_KERJA_WORK_LOCATION') },
-    { value: 'BANK', label: t('BANK_PAYROLL_BANK') },
-    { value: 'DOCUMENT_TYPE', label: t('JENIS_DOKUMEN_DOCUMENT_TYPE') },
-    { value: 'DEGREE_LEVEL', label: t('JENJANG_PENDIDIKAN_DEGREE_LEVEL') },
-    { value: 'GENDER', label: t('JENIS_KELAMIN_GENDER') }
-  ];
-};
+const CATEGORY_OPTIONS = () => [
+  { value: 'RELATIONSHIP', label: WiseI18n.t('HUBUNGAN_KELUARGA_RELATIONSHIP') },
+  { value: 'RELIGION', label: WiseI18n.t('AGAMA_RELIGION') },
+  { value: 'EMPLOYMENT_STATUS', label: WiseI18n.t('STATUS_KEPEGAWAIAN_EMPLOYMENT_STATUS') },
+  { value: 'WORK_LOCATION', label: WiseI18n.t('LOKASI_KERJA_WORK_LOCATION') },
+  { value: 'BANK', label: WiseI18n.t('BANK_PAYROLL_BANK') },
+  { value: 'DOCUMENT_TYPE', label: WiseI18n.t('JENIS_DOKUMEN_DOCUMENT_TYPE') },
+  { value: 'DEGREE_LEVEL', label: WiseI18n.t('JENJANG_PENDIDIKAN_DEGREE_LEVEL') },
+  { value: 'GENDER', label: WiseI18n.t('JENIS_KELAMIN_GENDER') }
+];
 
 class WinMasterDataEdit extends WiseWindow {
   constructor(options = {}) {
@@ -52,79 +49,78 @@ class WinMasterDataEdit extends WiseWindow {
     // Form Layout
     const formLayout = new WiseTableLayout({
       rows: 6,
-      columns: 2,
+      columns: 1,
       id: 'tblMasterForm',
       style: { width: '100%', marginBottom: '16px' }
     });
 
-    const lblStyle = { fontWeight: 600, color: '#334155', display: 'block', paddingTop: '6px' };
 
     // 1. Kategori (Category / DataType)
-    formLayout.setCell(0, 0, new WiseLabel(WiseI18n.t('KATEGORI_MASTER_2'), { style: lblStyle }));
     const activeDataType = (this.initialData && this.initialData.dataType) ? this.initialData.dataType : this.initialDataType;
     const cmbCategory = new WiseComboBox(
       CATEGORY_OPTIONS(),
       {
         id: 'cmbCategory',
+        label: WiseI18n.t('KATEGORI_MASTER_2'),
         datafield: 'dataType',
         value: activeDataType || 'RELATIONSHIP',
         style: { width: '100%' }
       }
     );
-    formLayout.setCell(0, 1, cmbCategory);
+    formLayout.setCell(0, 0, cmbCategory);
 
     // 2. Kode (Code)
-    formLayout.setCell(1, 0, new WiseLabel(WiseI18n.t('KODE_UNIK'), { style: lblStyle }));
     const txtCode = new WiseTextBox('', {
       id: 'txtCode',
+      label: WiseI18n.t('KODE_UNIK'),
       datafield: 'code',
       placeholder: 'HO_JKT, BCA, PERMANENT',
       style: { width: '100%' }
     });
-    formLayout.setCell(1, 1, txtCode);
+    formLayout.setCell(1, 0, txtCode);
 
     // 3. Nama / Label (Name)
-    formLayout.setCell(2, 0, new WiseLabel(WiseI18n.t('NAMA_DESKRIPSI_TAMPILAN'), { style: lblStyle }));
     const txtName = new WiseTextBox('', {
       id: 'txtName',
+      label: WiseI18n.t('NAMA_DESKRIPSI_TAMPILAN'),
       datafield: 'name',
       placeholder: WiseI18n.t('NAMA_DESKRIPSI_TAMPILAN'),
       style: { width: '100%' }
     });
-    formLayout.setCell(2, 1, txtName);
+    formLayout.setCell(2, 0, txtName);
 
     // 4. Keterangan (Description)
-    formLayout.setCell(3, 0, new WiseLabel(WiseI18n.t('KETERANGAN_TAMBAHAN'), { style: lblStyle }));
     const txtDescription = new WiseTextBox('', {
       id: 'txtDescription',
+      label: WiseI18n.t('KETERANGAN_TAMBAHAN'),
       datafield: 'description',
       placeholder: WiseI18n.t('KETERANGAN_TAMBAHAN'),
       style: { width: '100%' }
     });
-    formLayout.setCell(3, 1, txtDescription);
+    formLayout.setCell(3, 0, txtDescription);
 
     // 5. Urutan (Sort Order)
-    formLayout.setCell(4, 0, new WiseLabel(WiseI18n.t('URUTAN_TAMPILAN'), { style: lblStyle }));
     const numSortOrder = new WiseNumericBox('0', {
       id: 'numSortOrder',
+      label: WiseI18n.t('URUTAN_TAMPILAN'),
       datafield: 'sortOrder',
       value: 0,
       style: { width: '120px' }
     });
-    formLayout.setCell(4, 1, numSortOrder);
+    formLayout.setCell(4, 0, numSortOrder);
 
     // 6. Status Aktif
-    formLayout.setCell(5, 0, new WiseLabel(WiseI18n.t('STATUS'), { style: lblStyle }));
     const cmbStatus = new WiseComboBox([
       { value: 'true', label: WiseI18n.t('AKTIF_BISA_DIPILIH') },
       { value: 'false', label: '🔴 ' + WiseI18n.t('NONAKTIF_2') }
     ], {
       id: 'cmbStatus',
+      label: WiseI18n.t('STATUS'),
       datafield: 'isActive',
       value: (this.initialData && this.initialData.isActive === false) ? 'false' : 'true',
       style: { width: '100%' }
     });
-    formLayout.setCell(5, 1, cmbStatus);
+    formLayout.setCell(5, 0, cmbStatus);
 
     this.addControl(formLayout);
 
@@ -151,7 +147,7 @@ class WinMasterDataEdit extends WiseWindow {
       }
     });
 
-    const btnCancel = new WiseButton(WiseI18n.t('BATAL_3'), {
+    const btnCancel = new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnMasterCancel',
       onClick: () => this.close(),
       style: {
@@ -165,8 +161,8 @@ class WinMasterDataEdit extends WiseWindow {
       onClick: this.onSave.bind(this)
     });
 
-    actionContainer.addControl(btnCancel);
     actionContainer.addControl(btnSave);
+    actionContainer.addControl(btnCancel);
     this.addControl(actionContainer);
   }
 

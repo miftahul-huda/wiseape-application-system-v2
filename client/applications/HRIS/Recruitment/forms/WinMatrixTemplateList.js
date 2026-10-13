@@ -43,13 +43,7 @@ class WinMatrixTemplateList extends WiseWindow {
       onClick: this.onEditClick.bind(this),
       style: {
         background: 'var(--accent-dark)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -58,13 +52,7 @@ class WinMatrixTemplateList extends WiseWindow {
       onClick: this.onDeleteClick.bind(this),
       style: {
         background: '#ef4444',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -73,13 +61,7 @@ class WinMatrixTemplateList extends WiseWindow {
       onClick: () => this.loadTable(),
       style: {
         background: 'color-mix(in srgb, var(--accent) 15%, white)',
-        color: 'var(--accent-dark)',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: 'var(--accent-dark)'
       }
     }));
 

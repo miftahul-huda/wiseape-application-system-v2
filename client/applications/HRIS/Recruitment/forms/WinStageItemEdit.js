@@ -1,6 +1,5 @@
 import {
   WiseWindow,
-  WiseLabel,
   WiseButton,
   WiseTextBox,
   WiseNumericBox,
@@ -29,7 +28,6 @@ class WinStageItemEdit extends WiseWindow {
     this.controls = [];
 
     const inputBorderStyle = { border: '1px solid #94a3b8', borderRadius: '6px' };
-    const labelStyle = { fontWeight: 600, color: '#334155', display: 'block', marginBottom: '2px', lineHeight: '1.2' };
 
     const formLayout = new WiseTableLayout({
       rows: 4,
@@ -39,58 +37,50 @@ class WinStageItemEdit extends WiseWindow {
     });
 
     // 1. Nama Tahapan
-    const cellName = new WiseFrame('', { id: 'frmStageItemName' });
-    cellName.addControl(new WiseLabel(WiseI18n.t('NAMA_TAHAPAN_PROSES'), { id: 'lblItemName', style: labelStyle }));
     this.txtStageName = new WiseTextBox('', {
       id: 'txtItemStageName',
+      label: WiseI18n.t('NAMA_TAHAPAN_PROSES'),
       datafield: 'name',
       placeholder: WiseI18n.t('CONTOH_INTERVIEW_USER_INTERVIEW_HRD_TES_PRAKTIK_CV'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellName.addControl(this.txtStageName);
-    formLayout.setCell(0, 0, cellName);
+    formLayout.setCell(0, 0, this.txtStageName);
 
     // 2. Urutan
-    const cellOrder = new WiseFrame('', { id: 'frmStageItemOrder' });
-    cellOrder.addControl(new WiseLabel(WiseI18n.t('URUTAN_TAHAPAN'), { id: 'lblItemOrder', style: labelStyle }));
     this.numOrder = new WiseNumericBox(1, {
       id: 'numItemOrder',
+      label: WiseI18n.t('URUTAN_TAHAPAN'),
       datafield: 'order',
       min: 1,
       max: 99,
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellOrder.addControl(this.numOrder);
-    formLayout.setCell(1, 0, cellOrder);
+    formLayout.setCell(1, 0, this.numOrder);
 
     // 3. Matriks Penilaian
-    const cellMatrix = new WiseFrame('', { id: 'frmStageItemMatrix' });
-    cellMatrix.addControl(new WiseLabel(WiseI18n.t('TEMPLATE_MATRIKS_PENILAIAN_OPSIONAL'), { id: 'lblItemMatrix', style: labelStyle }));
     const matrixItems = [
       { value: '', label: WiseI18n.t('TANPA_MATRIKS_PENILAIAN_KHUSUS') },
       ...this.matrixTemplates.map((m) => ({ value: String(m.id), label: `${m.name} (${(m.criteria || []).length} kriteria)` }))
     ];
     this.cmbMatrix = new WiseComboBox('', {
       id: 'cmbItemMatrix',
+      label: WiseI18n.t('TEMPLATE_MATRIKS_PENILAIAN_OPSIONAL'),
       datafield: 'matrixTemplateId',
       items: matrixItems,
       style: { ...inputBorderStyle, width: '100%' }
     });
-    cellMatrix.addControl(this.cmbMatrix);
-    formLayout.setCell(2, 0, cellMatrix);
+    formLayout.setCell(2, 0, this.cmbMatrix);
 
     // 4. Deskripsi
-    const cellDesc = new WiseFrame('', { id: 'frmStageItemDesc' });
-    cellDesc.addControl(new WiseLabel(WiseI18n.t('DESKRIPSI_PANDUAN_TAHAPAN'), { id: 'lblItemDesc', style: labelStyle }));
     this.txtDesc = new WiseTextArea('', {
       id: 'txtItemDesc',
+      label: WiseI18n.t('DESKRIPSI_PANDUAN_TAHAPAN'),
       datafield: 'description',
       rows: 3,
       placeholder: WiseI18n.t('PENJELASAN_RUANG_LINGKUP_DAN_SASARAN_TAHAPAN_INI'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellDesc.addControl(this.txtDesc);
-    formLayout.setCell(3, 0, cellDesc);
+    formLayout.setCell(3, 0, this.txtDesc);
 
     this.addControl(formLayout);
 
@@ -104,24 +94,18 @@ class WinStageItemEdit extends WiseWindow {
       style: { display: 'flex', justifyContent: 'flex-end', gap: '8px' }
     });
 
+    btnContainer.addControl(new WiseButton(WiseI18n.t('SIMPAN_3'), {
+      id: 'btnItemSave',
+      onClick: this.onSaveClick.bind(this)
+    }));
+
     btnContainer.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnItemCancel',
       onClick: () => this.close(),
       style: {
         background: '#e2e8f0',
-        color: '#334155',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#334155'
       }
-    }));
-
-    btnContainer.addControl(new WiseButton(WiseI18n.t('SIMPAN_3'), {
-      id: 'btnItemSave',
-      onClick: this.onSaveClick.bind(this)
     }));
 
     this.addControl(btnContainer);

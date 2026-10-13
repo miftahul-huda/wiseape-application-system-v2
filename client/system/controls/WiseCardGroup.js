@@ -71,6 +71,8 @@
       return {
         type: this.name,
         id: this.id,
+        label: this.label,
+        labelStyle: this.labelStyle,
         dataField: this.dataField,
         titleField: this.titleField,
         imageField: this.imageField,

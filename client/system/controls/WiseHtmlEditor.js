@@ -17,6 +17,8 @@
       return {
         type: this.name,
         id: this.id,
+        label: this.label,
+        labelStyle: this.labelStyle,
         dataField: this.dataField,
         value: this.value,
         hasHandler: !!this.onChange,

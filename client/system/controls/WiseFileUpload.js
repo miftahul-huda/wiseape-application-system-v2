@@ -6,7 +6,9 @@
     constructor(label = 'Choose file', options = {}) {
       super(options.value || '', options);
       this.name = 'WiseFileUpload';
-      this.label = label;
+      // Text shown inside the drop zone (not the caption above the control --
+      // that is WiseControl's `label` option).
+      this.promptText = label;
       this.accept = options.accept || 'image/*';
       this.onChange = typeof options.onChange === 'function' ? options.onChange : null;
       this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
@@ -18,9 +20,11 @@
       return {
         type: this.name,
         id: this.id,
+        label: this.label,
+        labelStyle: this.labelStyle,
         dataField: this.dataField,
         value: this.value,
-        label: this.label,
+        promptText: this.promptText,
         accept: this.accept,
         hasHandler: !!this.onChange,
         hasClickHandler: !!this.onClick,
@@ -69,7 +73,7 @@
 
       const text = document.createElement('div');
       text.className = 'flex flex-col';
-      text.innerHTML = `<strong class="text-sm text-slate-800">${data.label || 'Choose a file'}</strong><span class="text-[10px] text-slate-500">Click to browse or drop an image</span>`;
+      text.innerHTML = `<strong class="text-sm text-slate-800">${data.promptText || 'Choose a file'}</strong><span class="text-[10px] text-slate-500">Click to browse or drop an image</span>`;
 
       label.appendChild(preview);
       label.appendChild(text);

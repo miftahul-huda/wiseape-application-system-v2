@@ -12,34 +12,28 @@ import HrisApiRepository from '../../services/HrisApiRepository';
 const api = new HrisApiRepository();
 
 
-const CATEGORIES = () => {
-  const t = (k) => WiseI18n.t(k);
-  return [
-    { value: 'ALL', label: t('SEMUA_KATEGORI') },
-    { value: 'RELATIONSHIP', label: t('HUBUNGAN_KELUARGA_RELATIONSHIP') },
-    { value: 'RELIGION', label: t('AGAMA_RELIGION') },
-    { value: 'EMPLOYMENT_STATUS', label: t('STATUS_KEPEGAWAIAN_EMPLOYMENT_STATUS') },
-    { value: 'WORK_LOCATION', label: t('LOKASI_KERJA_WORK_LOCATION') },
-    { value: 'BANK', label: t('BANK_PAYROLL_BANK') },
-    { value: 'DOCUMENT_TYPE', label: t('JENIS_DOKUMEN_DOCUMENT_TYPE') },
-    { value: 'DEGREE_LEVEL', label: t('JENJANG_PENDIDIKAN_DEGREE_LEVEL') },
-    { value: 'GENDER', label: t('JENIS_KELAMIN_GENDER') }
-  ];
-};
+const CATEGORIES = () => [
+  { value: 'ALL', label: WiseI18n.t('SEMUA_KATEGORI') },
+  { value: 'RELATIONSHIP', label: WiseI18n.t('HUBUNGAN_KELUARGA_RELATIONSHIP') },
+  { value: 'RELIGION', label: WiseI18n.t('AGAMA_RELIGION') },
+  { value: 'EMPLOYMENT_STATUS', label: WiseI18n.t('STATUS_KEPEGAWAIAN_EMPLOYMENT_STATUS') },
+  { value: 'WORK_LOCATION', label: WiseI18n.t('LOKASI_KERJA_WORK_LOCATION') },
+  { value: 'BANK', label: WiseI18n.t('BANK_PAYROLL_BANK') },
+  { value: 'DOCUMENT_TYPE', label: WiseI18n.t('JENIS_DOKUMEN_DOCUMENT_TYPE') },
+  { value: 'DEGREE_LEVEL', label: WiseI18n.t('JENJANG_PENDIDIKAN_DEGREE_LEVEL') },
+  { value: 'GENDER', label: WiseI18n.t('JENIS_KELAMIN_GENDER') }
+];
 
-const CAT_MAP = () => {
-  const t = (k) => WiseI18n.t(k);
-  return {
-    RELATIONSHIP: t('HUBUNGAN_KELUARGA_RELATIONSHIP'),
-    RELIGION: t('AGAMA_RELIGION'),
-    EMPLOYMENT_STATUS: t('STATUS_KEPEGAWAIAN_EMPLOYMENT_STATUS'),
-    WORK_LOCATION: t('LOKASI_KERJA_WORK_LOCATION'),
-    BANK: t('BANK_PAYROLL_BANK'),
-    DOCUMENT_TYPE: t('JENIS_DOKUMEN_DOCUMENT_TYPE'),
-    DEGREE_LEVEL: t('JENJANG_PENDIDIKAN_DEGREE_LEVEL'),
-    GENDER: t('JENIS_KELAMIN_GENDER')
-  };
-};
+const CAT_MAP = () => ({
+  RELATIONSHIP: WiseI18n.t('HUBUNGAN_KELUARGA_RELATIONSHIP'),
+  RELIGION: WiseI18n.t('AGAMA_RELIGION'),
+  EMPLOYMENT_STATUS: WiseI18n.t('STATUS_KEPEGAWAIAN_EMPLOYMENT_STATUS'),
+  WORK_LOCATION: WiseI18n.t('LOKASI_KERJA_WORK_LOCATION'),
+  BANK: WiseI18n.t('BANK_PAYROLL_BANK'),
+  DOCUMENT_TYPE: WiseI18n.t('JENIS_DOKUMEN_DOCUMENT_TYPE'),
+  DEGREE_LEVEL: WiseI18n.t('JENJANG_PENDIDIKAN_DEGREE_LEVEL'),
+  GENDER: WiseI18n.t('JENIS_KELAMIN_GENDER')
+});
 
 class WinMasterDataManagement extends WiseWindow {
   constructor(options = {}) {
@@ -81,11 +75,7 @@ class WinMasterDataManagement extends WiseWindow {
       onClick: this.onEditClick.bind(this),
       style: {
         background: 'var(--accent-dark)',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -94,11 +84,7 @@ class WinMasterDataManagement extends WiseWindow {
       onClick: this.onToggleActiveClick.bind(this),
       style: {
         background: '#f59e0b',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -108,10 +94,6 @@ class WinMasterDataManagement extends WiseWindow {
       style: {
         background: '#ef4444',
         color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        cursor: 'pointer'
       }
     }));
 
@@ -120,11 +102,7 @@ class WinMasterDataManagement extends WiseWindow {
       onClick: () => this.loadMasterTable(1, 15, this._currentFilters),
       style: {
         background: '#64748b',
-        color: '#ffffff',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        cursor: 'pointer'
+        color: '#ffffff'
       }
     }));
 
@@ -283,8 +261,7 @@ class WinMasterDataManagement extends WiseWindow {
   onEditClick(targetRow = null) {
     const item = targetRow || this.selectedItem;
     if (!item) {
-      alert(WiseI18n.t('PILIH_SALAH_SATU_BARIS_MASTER_DATA_YANG_INGIN_DIEDIT'));
-      return;
+      return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('PILIH_SALAH_SATU_BARIS_MASTER_DATA_YANG_INGIN_DIEDIT'), 'warning');
     }
 
     this.openWindow(WinMasterDataEdit, {
@@ -301,8 +278,7 @@ class WinMasterDataManagement extends WiseWindow {
   async onToggleActiveClick(targetRow = null) {
     const item = targetRow || this.selectedItem;
     if (!item) {
-      alert(WiseI18n.t('PILIH_SALAH_SATU_BARIS_MASTER_DATA_TERLEBIH_DAHULU'));
-      return;
+      return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('PILIH_SALAH_SATU_BARIS_MASTER_DATA_TERLEBIH_DAHULU'), 'warning');
     }
 
     try {
@@ -313,26 +289,30 @@ class WinMasterDataManagement extends WiseWindow {
       }
       await this.loadMasterTable(1, this.dtMaster ? this.dtMaster.pageSize : 15, this._currentFilters || {});
     } catch (err) {
-      alert(`${err.message}`);
+      this.showInfo(WiseI18n.t('ERROR'), err.message, 'error');
     }
   }
 
   async onDeleteClick(targetRow = null) {
     const item = targetRow || this.selectedItem;
     if (!item) {
-      alert(WiseI18n.t('PILIH_BARIS_MASTER_DATA_YANG_INGIN_DIHAPUS_TERLEBIH_DAHULU'));
-      return;
+      return this.showInfo(WiseI18n.t('PERINGATAN'), WiseI18n.t('PILIH_BARIS_MASTER_DATA_YANG_INGIN_DIHAPUS_TERLEBIH_DAHULU'), 'warning');
     }
 
-    const confirmed = window.confirm(`${item.name} (${item.code})`);
+    const confirmed = await this.confirm(
+      WiseI18n.t('KONFIRMASI_HAPUS'),
+      `${WiseI18n.t('APAKAH_ANDA_YAKIN_INGIN_MENGHAPUS')} "${item.name}" (${item.code})? ${WiseI18n.t('TINDAKAN_INI_TIDAK_DAPAT_DIBATALKAN')}`,
+      { type: 'danger', confirmText: WiseI18n.t('HAPUS_3') }
+    );
     if (!confirmed) return;
 
     try {
       await api.deleteMasterData(item.id);
       this.selectedItem = null;
       await this.loadMasterTable(1, this.dtMaster ? this.dtMaster.pageSize : 15, this._currentFilters || {});
+      this.showInfo(WiseI18n.t('BERHASIL'), `"${item.name}" ${WiseI18n.t('BERHASIL_DIHAPUS')}.`, 'success');
     } catch (err) {
-      alert(`${err.message}`);
+      this.showInfo(WiseI18n.t('ERROR'), err.message, 'error');
     }
   }
 }

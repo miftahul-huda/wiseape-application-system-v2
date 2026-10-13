@@ -32,6 +32,8 @@
       return {
         type: this.name,
         id: this.id,
+        label: this.label,
+        labelStyle: this.labelStyle,
         dataField: this.dataField,
         title: this.title,
         layout: this.layout,

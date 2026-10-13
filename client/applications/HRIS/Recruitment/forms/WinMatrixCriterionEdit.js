@@ -1,6 +1,5 @@
 import {
   WiseWindow,
-  WiseLabel,
   WiseButton,
   WiseTextBox,
   WiseNumericBox,
@@ -28,7 +27,6 @@ class WinMatrixCriterionEdit extends WiseWindow {
     this.controls = [];
 
     const inputBorderStyle = { border: '1px solid #94a3b8', borderRadius: '6px' };
-    const labelStyle = { fontWeight: 600, color: '#334155', display: 'block', marginBottom: '2px', lineHeight: '1.2' };
 
     const formLayout = new WiseTableLayout({
       rows: 4,
@@ -38,35 +36,30 @@ class WinMatrixCriterionEdit extends WiseWindow {
     });
 
     // 1. Nama Kriteria
-    const cellName = new WiseFrame('', { id: 'frmCritName' });
-    cellName.addControl(new WiseLabel(WiseI18n.t('KRITERIA_PENILAIAN_KOMPETENSI_2'), { id: 'lblCritName', style: labelStyle }));
     this.txtCriterion = new WiseTextBox('', {
       id: 'txtCriterionName',
+      label: WiseI18n.t('KRITERIA_PENILAIAN_KOMPETENSI_2'),
       datafield: 'criterion',
       placeholder: WiseI18n.t('CONTOH_KEMAMPUAN_ANALISIS_PROBLEM_SOLVING_COMMUNICATION'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellName.addControl(this.txtCriterion);
-    formLayout.setCell(0, 0, cellName);
+    formLayout.setCell(0, 0, this.txtCriterion);
 
     // 2. Bobot Persentase
-    const cellWeight = new WiseFrame('', { id: 'frmCritWeight' });
-    cellWeight.addControl(new WiseLabel(WiseI18n.t('BOBOT_PENILAIAN'), { id: 'lblCritWeight', style: labelStyle }));
     this.numWeight = new WiseNumericBox(20, {
       id: 'numCritWeight',
+      label: WiseI18n.t('BOBOT_PENILAIAN'),
       datafield: 'weight',
       min: 1,
       max: 100,
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellWeight.addControl(this.numWeight);
-    formLayout.setCell(1, 0, cellWeight);
+    formLayout.setCell(1, 0, this.numWeight);
 
     // 3. Skala Penilaian
-    const cellScale = new WiseFrame('', { id: 'frmCritScale' });
-    cellScale.addControl(new WiseLabel(WiseI18n.t('SKALA_NILAI'), { id: 'lblCritScale', style: labelStyle }));
     this.cmbScale = new WiseComboBox('1-100', {
       id: 'cmbCritScale',
+      label: WiseI18n.t('SKALA_NILAI'),
       datafield: 'scaleType',
       items: [
         { value: '1-100', label: WiseI18n.t('SKALA_1_100_PERSENTIL_POIN_STANDAR') },
@@ -75,21 +68,18 @@ class WinMatrixCriterionEdit extends WiseWindow {
       ],
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellScale.addControl(this.cmbScale);
-    formLayout.setCell(2, 0, cellScale);
+    formLayout.setCell(2, 0, this.cmbScale);
 
     // 4. Panduan Penilaian / Deskripsi
-    const cellDesc = new WiseFrame('', { id: 'frmCritDesc' });
-    cellDesc.addControl(new WiseLabel(WiseI18n.t('PANDUAN_PENILAIAN_EVALUATOR'), { id: 'lblCritDesc', style: labelStyle }));
     this.txtDesc = new WiseTextArea('', {
       id: 'txtCritDesc',
+      label: WiseI18n.t('PANDUAN_PENILAIAN_EVALUATOR'),
       datafield: 'description',
       rows: 3,
       placeholder: WiseI18n.t('TULISKAN_INDIKATOR_PERILAKU_ATAU_TOLOK_UKUR_NILAI_YANG'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellDesc.addControl(this.txtDesc);
-    formLayout.setCell(3, 0, cellDesc);
+    formLayout.setCell(3, 0, this.txtDesc);
 
     this.addControl(formLayout);
 
@@ -103,24 +93,18 @@ class WinMatrixCriterionEdit extends WiseWindow {
       style: { display: 'flex', justifyContent: 'flex-end', gap: '8px' }
     });
 
+    btnContainer.addControl(new WiseButton(WiseI18n.t('SIMPAN_KRITERIA'), {
+      id: 'btnCritSave',
+      onClick: this.onSaveClick.bind(this)
+    }));
+
     btnContainer.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnCritCancel',
       onClick: () => this.close(),
       style: {
         background: '#e2e8f0',
-        color: '#334155',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 16px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#334155'
       }
-    }));
-
-    btnContainer.addControl(new WiseButton(WiseI18n.t('SIMPAN_KRITERIA'), {
-      id: 'btnCritSave',
-      onClick: this.onSaveClick.bind(this)
     }));
 
     this.addControl(btnContainer);

@@ -1,6 +1,5 @@
 import {
   WiseWindow,
-  WiseLabel,
   WiseButton,
   WiseTextBox,
   WiseNumericBox,
@@ -36,7 +35,6 @@ class WinApplicantEdit extends WiseWindow {
     this.controls = [];
 
     const inputBorderStyle = { border: '1px solid #94a3b8', borderRadius: '6px' };
-    const labelStyle = { fontWeight: 600, color: '#334155', display: 'block', marginBottom: '2px', lineHeight: '1.2' };
 
     // Form layout: 6 rows, 2 columns
     const formGrid = new WiseTableLayout({
@@ -47,21 +45,18 @@ class WinApplicantEdit extends WiseWindow {
     });
 
     // Row 0: Lowongan Pekerjaan Target & Status Pelamar
-    const cellVac = new WiseFrame('', { id: 'frmAppVac' });
-    cellVac.addControl(new WiseLabel(WiseI18n.t('LOWONGAN_PEKERJAAN_TARGET'), { id: 'lblAppVac', style: labelStyle }));
     this.cmbVacancy = new WiseComboBox(this.defaultVacancyId ? String(this.defaultVacancyId) : '', {
       id: 'cmbAppVacancy',
+      label: WiseI18n.t('LOWONGAN_PEKERJAAN_TARGET'),
       datafield: 'jobVacancyId',
       items: [{ value: '', label: WiseI18n.t('PILIH_LOWONGAN_PEKERJAAN') }],
       style: { ...inputBorderStyle, width: '100%' }
     });
-    cellVac.addControl(this.cmbVacancy);
-    formGrid.setCell(0, 0, cellVac);
+    formGrid.setCell(0, 0, this.cmbVacancy);
 
-    const cellStatus = new WiseFrame('', { id: 'frmAppStatus' });
-    cellStatus.addControl(new WiseLabel(WiseI18n.t('STATUS_PELAMAR_2'), { id: 'lblAppStatus', style: labelStyle }));
     this.cmbStatus = new WiseComboBox('APPLIED', {
       id: 'cmbAppStatus',
+      label: WiseI18n.t('STATUS_PELAMAR_2'),
       datafield: 'status',
       items: [
         { value: 'APPLIED', label: WiseI18n.t('APPLIED_BARU_MELAMAR') },
@@ -73,48 +68,40 @@ class WinApplicantEdit extends WiseWindow {
       ],
       style: { ...inputBorderStyle, width: '100%' }
     });
-    cellStatus.addControl(this.cmbStatus);
-    formGrid.setCell(0, 1, cellStatus);
+    formGrid.setCell(0, 1, this.cmbStatus);
 
     // Row 1: Nama Lengkap & Email
-    const cellName = new WiseFrame('', { id: 'frmAppName' });
-    cellName.addControl(new WiseLabel(WiseI18n.t('NAMA_LENGKAP_PELAMAR'), { id: 'lblAppName', style: labelStyle }));
     this.txtName = new WiseTextBox('', {
       id: 'txtAppFullName',
+      label: WiseI18n.t('NAMA_LENGKAP_PELAMAR'),
       datafield: 'fullName',
       placeholder: WiseI18n.t('NAMA_LENGKAP_BESERTA_GELAR_JIKA_ADA'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellName.addControl(this.txtName);
-    formGrid.setCell(1, 0, cellName);
+    formGrid.setCell(1, 0, this.txtName);
 
-    const cellEmail = new WiseFrame('', { id: 'frmAppEmail' });
-    cellEmail.addControl(new WiseLabel(WiseI18n.t('ALAMAT_EMAIL'), { id: 'lblAppEmail', style: labelStyle }));
     this.txtEmail = new WiseTextBox('', {
       id: 'txtAppEmail',
+      label: WiseI18n.t('ALAMAT_EMAIL'),
       datafield: 'email',
       placeholder: WiseI18n.t('NAMA_EMAIL_COM'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellEmail.addControl(this.txtEmail);
-    formGrid.setCell(1, 1, cellEmail);
+    formGrid.setCell(1, 1, this.txtEmail);
 
     // Row 2: Nomor Telepon & Jenis Kelamin
-    const cellPhone = new WiseFrame('', { id: 'frmAppPhone' });
-    cellPhone.addControl(new WiseLabel(WiseI18n.t('NOMOR_TELEPON_WHATSAPP_2'), { id: 'lblAppPhone', style: labelStyle }));
     this.txtPhone = new WiseTextBox('', {
       id: 'txtAppPhone',
+      label: WiseI18n.t('NOMOR_TELEPON_WHATSAPP_2'),
       datafield: 'phone',
       placeholder: WiseI18n.t('0812XXXXXXXX'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellPhone.addControl(this.txtPhone);
-    formGrid.setCell(2, 0, cellPhone);
+    formGrid.setCell(2, 0, this.txtPhone);
 
-    const cellGender = new WiseFrame('', { id: 'frmAppGender' });
-    cellGender.addControl(new WiseLabel(WiseI18n.t('JENIS_KELAMIN'), { id: 'lblAppGender', style: labelStyle }));
     this.cmbGender = new WiseComboBox('Laki-laki', {
       id: 'cmbAppGender',
+      label: WiseI18n.t('JENIS_KELAMIN'),
       datafield: 'gender',
       items: [
         { value: 'Laki-laki', label: WiseI18n.t('LAKI_LAKI') },
@@ -122,14 +109,12 @@ class WinApplicantEdit extends WiseWindow {
       ],
       style: { ...inputBorderStyle, width: '100%' }
     });
-    cellGender.addControl(this.cmbGender);
-    formGrid.setCell(2, 1, cellGender);
+    formGrid.setCell(2, 1, this.cmbGender);
 
     // Row 3: Pendidikan Terakhir & Jurusan
-    const cellEdu = new WiseFrame('', { id: 'frmAppEdu' });
-    cellEdu.addControl(new WiseLabel(WiseI18n.t('PENDIDIKAN_TERAKHIR'), { id: 'lblAppEdu', style: labelStyle }));
     this.cmbEducation = new WiseComboBox('S1', {
       id: 'cmbAppEducation',
+      label: WiseI18n.t('PENDIDIKAN_TERAKHIR'),
       datafield: 'lastEducation',
       items: [
         { value: 'S1', label: WiseI18n.t('S1_SARJANA') },
@@ -142,73 +127,62 @@ class WinApplicantEdit extends WiseWindow {
       ],
       style: { ...inputBorderStyle, width: '100%' }
     });
-    cellEdu.addControl(this.cmbEducation);
-    formGrid.setCell(3, 0, cellEdu);
+    formGrid.setCell(3, 0, this.cmbEducation);
 
-    const cellMajor = new WiseFrame('', { id: 'frmAppMajor' });
-    cellMajor.addControl(new WiseLabel(WiseI18n.t('JURUSAN_BIDANG_STUDI'), { id: 'lblAppMajor', style: labelStyle }));
     this.txtMajor = new WiseTextBox('', {
       id: 'txtAppMajor',
+      label: WiseI18n.t('JURUSAN_BIDANG_STUDI'),
       datafield: 'major',
       placeholder: WiseI18n.t('CONTOH_TEKNIK_INFORMATIKA_MANAJEMEN_PSIKOLOGI'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellMajor.addControl(this.txtMajor);
-    formGrid.setCell(3, 1, cellMajor);
+    formGrid.setCell(3, 1, this.txtMajor);
 
     // Row 4: Perusahaan Saat Ini & Posisi Saat Ini
-    const cellComp = new WiseFrame('', { id: 'frmAppCompany' });
-    cellComp.addControl(new WiseLabel(WiseI18n.t('PERUSAHAAN_TERAKHIR_SAAT_INI'), { id: 'lblAppCompany', style: labelStyle }));
     this.txtCompany = new WiseTextBox('', {
       id: 'txtAppCompany',
+      label: WiseI18n.t('PERUSAHAAN_TERAKHIR_SAAT_INI'),
       datafield: 'currentCompany',
       placeholder: WiseI18n.t('NAMA_PERUSAHAAN_TEMPAT_BEKERJA_SEBELUMNYA'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellComp.addControl(this.txtCompany);
-    formGrid.setCell(4, 0, cellComp);
+    formGrid.setCell(4, 0, this.txtCompany);
 
-    const cellPos = new WiseFrame('', { id: 'frmAppPosition' });
-    cellPos.addControl(new WiseLabel(WiseI18n.t('POSISI_JABATAN_TERAKHIR'), { id: 'lblAppPosition', style: labelStyle }));
     this.txtPosition = new WiseTextBox('', {
       id: 'txtAppPosition',
+      label: WiseI18n.t('POSISI_JABATAN_TERAKHIR'),
       datafield: 'currentPosition',
       placeholder: WiseI18n.t('CONTOH_FRONTEND_DEVELOPER_HR_OFFICER'),
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellPos.addControl(this.txtPosition);
-    formGrid.setCell(4, 1, cellPos);
+    formGrid.setCell(4, 1, this.txtPosition);
 
     // Row 5: Ekspektasi Gaji & Tanggal Lamar
-    const cellSalary = new WiseFrame('', { id: 'frmAppSalary' });
-    cellSalary.addControl(new WiseLabel(WiseI18n.t('EKSPEKTASI_GAJI_IDR'), { id: 'lblAppSalary', style: labelStyle }));
     this.numSalary = new WiseNumericBox(10000000, {
       id: 'numAppExpectedSalary',
+      label: WiseI18n.t('EKSPEKTASI_GAJI_IDR'),
       datafield: 'expectedSalary',
       min: 0,
       max: 1000000000,
       style: { ...inputBorderStyle, width: '100%', padding: '7px 10px' }
     });
-    cellSalary.addControl(this.numSalary);
-    formGrid.setCell(5, 0, cellSalary);
+    formGrid.setCell(5, 0, this.numSalary);
 
-    const cellDate = new WiseFrame('', { id: 'frmAppDate' });
-    cellDate.addControl(new WiseLabel(WiseI18n.t('TANGGAL_MELAMAR'), { id: 'lblAppDate', style: labelStyle }));
     this.dtAppliedDate = new WiseDate(new Date().toISOString().slice(0, 10), {
       id: 'dtAppAppliedDate',
+      label: WiseI18n.t('TANGGAL_MELAMAR'),
       datafield: 'appliedDate',
       style: { ...inputBorderStyle, width: '100%' }
     });
-    cellDate.addControl(this.dtAppliedDate);
-    formGrid.setCell(5, 1, cellDate);
+    formGrid.setCell(5, 1, this.dtAppliedDate);
 
     this.addControl(formGrid);
 
     // Notes field
     const cellNotes = new WiseFrame('', { id: 'frmAppNotes', style: { marginBottom: '14px' } });
-    cellNotes.addControl(new WiseLabel(WiseI18n.t('CATATAN_TAMBAHAN_PELAMAR'), { id: 'lblAppNotes', style: labelStyle }));
     this.txtNotes = new WiseTextArea('', {
       id: 'txtAppNotes',
+      label: WiseI18n.t('CATATAN_TAMBAHAN_PELAMAR'),
       datafield: 'notes',
       rows: 3,
       placeholder: WiseI18n.t('KETERANGAN_SUMBER_PELAMAR_LINKEDIN_JOB_PORTAL_REFERRAL_ATAU'),
@@ -229,24 +203,18 @@ class WinApplicantEdit extends WiseWindow {
       }
     });
 
+    btnContainer.addControl(new WiseButton(WiseI18n.t('SIMPAN_PELAMAR'), {
+      id: 'btnAppSave',
+      onClick: this.onSaveClick.bind(this)
+    }));
+
     btnContainer.addControl(new WiseButton(WiseI18n.t('BATAL'), {
       id: 'btnAppCancel',
       onClick: () => this.close(),
       style: {
         background: '#e2e8f0',
-        color: '#334155',
-        fontWeight: 600,
-        borderRadius: '6px',
-        padding: '8px 18px',
-        border: 'none',
-        boxShadow: 'none',
-        cursor: 'pointer'
+        color: '#334155'
       }
-    }));
-
-    btnContainer.addControl(new WiseButton(WiseI18n.t('SIMPAN_PELAMAR'), {
-      id: 'btnAppSave',
-      onClick: this.onSaveClick.bind(this)
     }));
 
     this.addControl(btnContainer);

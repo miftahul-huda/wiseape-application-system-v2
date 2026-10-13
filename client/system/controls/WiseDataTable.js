@@ -309,6 +309,8 @@
       const out = {
         type: this.name,
         id: this.id,
+        label: this.label,
+        labelStyle: this.labelStyle,
         dataField: this.dataField,
         columns: this.columns,
         data: this.data,
@@ -390,7 +392,7 @@
     // always has the full picture without having to merge state itself.
     static renderFilterBar(data, context) {
       const bar = document.createElement('div');
-      bar.className = 'wise-dt-filter-bar flex flex-wrap items-end gap-3 rounded-lg border border-slate-900/8 bg-transparent px-4 py-3 shadow-sm';
+      bar.className = 'wise-dt-filter-bar flex flex-wrap items-end gap-3 rounded-[6px] border border-slate-900/8 bg-transparent px-4 py-3 shadow-none';
 
       // Collect all current input elements so we can snapshot all values
       // whenever any one of them changes.
@@ -506,7 +508,7 @@
       const displayBtn = document.createElement('button');
       displayBtn.type = 'button';
       displayBtn.id = `${data.id}-filter-btn-display`;
-      displayBtn.className = 'inline-flex items-center justify-center gap-1.5 rounded-md border-0 bg-[var(--accent,#2563eb)] px-3.5 py-1.5 text-sm font-medium text-white shadow-none transition-all duration-150 ease-out hover:opacity-90 active:scale-95 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-[var(--accent,#2563eb)] focus:ring-offset-1 h-[34px]';
+      displayBtn.className = 'inline-flex items-center justify-center gap-1.5 rounded-md border-0 bg-[var(--accent,#2563eb)] px-4 py-2 text-sm font-semibold text-white shadow-none transition-all duration-150 ease-out hover:opacity-90 active:scale-95 cursor-pointer select-none focus:outline-none focus:ring-2 focus:ring-[var(--accent,#2563eb)] focus:ring-offset-1 h-[36px]';
 
       const filterIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       filterIcon.setAttribute('viewBox', '0 0 24 24');
@@ -532,9 +534,99 @@
       return bar;
     }
 
+    // User-resized column widths, keyed "windowId:tableId" -> { widths: { columnKey: px }, containerWidth }.
+    // The table DOM is rebuilt on every server round trip (row select, sort,
+    // paging...), so widths must live outside it to survive a re-render.
+    static columnWidths = new Map();
+
+    static applyColumnWidths(ths, colKeys, table, widths) {
+      let total = 0;
+      ths.forEach((th, i) => {
+        const w = widths[colKeys[i]] || Math.round(th.getBoundingClientRect().width);
+        th.style.width = `${w}px`;
+        th.style.minWidth = `${w}px`;
+        th.style.maxWidth = `${w}px`;
+        total += w;
+      });
+      table.classList.add('wise-dt-resized');
+      table.style.tableLayout = 'fixed';
+      // Every real column keeps its exact width. Any leftover room goes to the
+      // trailing filler column below, so shrinking a column never stretches
+      // (and thereby shifts) its neighbours; once the columns outgrow the
+      // container, min-width takes over and the scroll div scrolls.
+      table.style.width = '100%';
+      table.style.minWidth = `${total}px`;
+
+      if (!table.querySelector('.wise-dt-filler')) {
+        const headRow = table.querySelector('thead tr');
+        if (headRow) {
+          const fth = document.createElement('th');
+          fth.className = 'wise-dt-th wise-dt-filler';
+          fth.style.position = 'sticky';
+          fth.style.top = '0';
+          fth.style.zIndex = '10';
+          headRow.appendChild(fth);
+        }
+        table.querySelectorAll('tbody tr').forEach((tr) => {
+          if (tr.querySelector('.wise-dt-empty')) return;
+          const ftd = document.createElement('td');
+          ftd.className = 'wise-dt-td wise-dt-filler border-b border-slate-900/5';
+          tr.appendChild(ftd);
+        });
+      }
+    }
+
+    // Pins the scroll container to a fixed width and removes its content from
+    // intrinsic-size calculations. Without this, a table whose columns have
+    // grown wider than the container reports a bigger min-content width, and
+    // any auto-sized ancestor (table-layout cell, shrink-to-fit window)
+    // stretches to fit it instead of letting the scroll div scroll.
+    static lockContainerWidth(scrollDiv, px) {
+      scrollDiv.classList.add('wise-dt-scroll-locked');
+      scrollDiv.style.width = `${px}px`;
+    }
+
+    static startColumnResize(e, th, ths, colKeys, table, resizeKey) {
+      e.preventDefault();
+      e.stopPropagation();
+      const MIN_WIDTH = 40;
+
+      // Freeze every column at its current rendered width first, so only the
+      // dragged column changes and the table grows/shrinks (scrolling
+      // horizontally) instead of redistributing space between columns.
+      const widths = {};
+      ths.forEach((t, i) => { widths[colKeys[i]] = Math.round(t.getBoundingClientRect().width); });
+      const scrollDiv = table.closest('.wise-datatable-scroll');
+      const containerWidth = Math.round(scrollDiv.getBoundingClientRect().width);
+      WiseDataTable.lockContainerWidth(scrollDiv, containerWidth);
+      WiseDataTable.applyColumnWidths(ths, colKeys, table, widths);
+
+      const key = colKeys[ths.indexOf(th)];
+      const startX = e.clientX;
+      const startW = widths[key];
+      document.body.classList.add('wise-dt-resizing');
+
+      const onMove = (ev) => {
+        widths[key] = Math.max(MIN_WIDTH, Math.round(startW + ev.clientX - startX));
+        WiseDataTable.applyColumnWidths(ths, colKeys, table, widths);
+      };
+      const onUp = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.body.classList.remove('wise-dt-resizing');
+        WiseDataTable.columnWidths.set(resizeKey, { widths, containerWidth });
+        // The click that follows mouseup would otherwise toggle sorting.
+        const swallow = (ev) => ev.stopPropagation();
+        window.addEventListener('click', swallow, { capture: true, once: true });
+        setTimeout(() => window.removeEventListener('click', swallow, true), 0);
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    }
+
     static renderTable(data, context, fireFilterChange) {
       const box = document.createElement('div');
-      box.className = 'wise-dt-box overflow-hidden rounded-lg border border-slate-900/10 bg-white shadow-md';
+      box.className = 'wise-dt-box overflow-hidden rounded-[6px] border border-slate-900/10 bg-white shadow-none';
 
       // Scrollable div wrapping the table and rows
       const scrollDiv = document.createElement('div');
@@ -558,8 +650,14 @@
       thead.style.zIndex = '10';
       const headRow = document.createElement('tr');
 
-      (data.columns || []).forEach((col) => {
+      const resizeKey = `${context.windowId || ''}:${data.id}`;
+      const ths = [];
+      const colKeys = [];
+
+      (data.columns || []).forEach((col, colIndex) => {
         const th = document.createElement('th');
+        ths.push(th);
+        colKeys.push(col.dataField || col.key || col.field || col.name || String(colIndex));
         th.className = 'wise-dt-th px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-white/95';
         th.style.position = 'sticky';
         th.style.top = '0';
@@ -597,6 +695,15 @@
         }
 
         th.appendChild(label);
+
+        const handle = document.createElement('span');
+        handle.className = 'wise-dt-col-resizer';
+        handle.addEventListener('click', (e) => e.stopPropagation());
+        handle.addEventListener('mousedown', (e) => {
+          WiseDataTable.startColumnResize(e, th, ths, colKeys, table, resizeKey);
+        });
+        th.appendChild(handle);
+
         headRow.appendChild(th);
       });
 
@@ -713,6 +820,13 @@
       });
 
       table.appendChild(tbody);
+
+      const saved = WiseDataTable.columnWidths.get(resizeKey);
+      if (saved) {
+        WiseDataTable.applyColumnWidths(ths, colKeys, table, saved.widths);
+        WiseDataTable.lockContainerWidth(scrollDiv, saved.containerWidth);
+      }
+
       scrollDiv.appendChild(table);
       box.appendChild(scrollDiv);
       return box;
@@ -813,7 +927,7 @@
 
     static renderCell(data, context, col, row, rowIndex) {
       const td = document.createElement('td');
-      td.className = 'wise-dt-td border-b border-slate-900/5 px-3 py-2.5';
+      td.className = 'wise-dt-td border-b border-slate-900/5 px-3 py-1.5';
       if (col.width) {
         const w = typeof col.width === 'number' ? `${col.width}px` : col.width;
         td.style.width = w;
