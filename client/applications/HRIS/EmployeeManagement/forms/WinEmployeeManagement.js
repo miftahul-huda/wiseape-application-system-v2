@@ -122,12 +122,6 @@ class WinEmployeeManagement extends WiseWindow {
         description: WiseI18n.t('MENU_EMPLOYEE_DEACTIVATE_DESC'),
         onClick: this.onToggleDeactivate.bind(this)
       }),
-      new WiseIconMenu(WiseI18n.t('MENU_EMPLOYEE_FIND'), {
-        id: 'btnMenuFind',
-        icon: MENU_ICONS.find,
-        description: WiseI18n.t('MENU_EMPLOYEE_FIND_DESC'),
-        onClick: this.onFindEmployeeMenuClick.bind(this)
-      }),
       new WiseVerticalSeparator({ height: 26 }),
       new WiseIconMenu(WiseI18n.t('MENU_REPORT'), {
         id: 'btnMenuReport',

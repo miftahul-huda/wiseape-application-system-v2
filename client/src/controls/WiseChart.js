@@ -4,6 +4,7 @@
 // registers itself on window.WiseControlRegistry when imported -- see
 // src/runtime/wise.js, which every browser-run application already imports.
 import Chart from 'chart.js/auto';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 const WiseControl = window.WiseControlRegistry.WiseControl;
 
@@ -12,6 +13,15 @@ const PALETTE = [
   '#ec4899', '#84cc16', '#f97316', '#64748b', '#14b8a6', '#a855f7',
 ];
 const SLICE_TYPES = new Set(['pie', 'doughnut', 'polarArea']);
+
+// Slice charts: value + percentage of the dataset total, e.g. "42 (35.0%)".
+function sliceTotal(ctx) {
+  return (ctx.dataset.data || []).reduce((sum, v) => sum + (Number(v) || 0), 0);
+}
+function slicePercent(value, ctx) {
+  const total = sliceTotal(ctx);
+  return total ? ((Number(value) / total) * 100).toFixed(1) : '0.0';
+}
 
 const t = (key) => (window.WiseI18n ? window.WiseI18n.t(key) : key);
 
@@ -91,17 +101,39 @@ class WiseChart extends WiseControl {
       return { ...base, backgroundColor: color };
     });
 
+    const plugins = {
+      title: { display: !!data.title, text: data.title || '' },
+      legend: { display: isSlice || datasets.length > 1 },
+    };
+    if (isSlice) {
+      // Label on every slice: the value and its share of the total. Slices under
+      // 3% are left unlabeled (they'd overlap); the tooltip still shows them.
+      plugins.datalabels = {
+        color: '#ffffff',
+        font: { weight: 'bold', size: 13 },
+        textStrokeColor: 'rgba(15, 23, 42, 0.55)',
+        textStrokeWidth: 3,
+        textAlign: 'center',
+        display: (ctx) => Number(ctx.dataset.data[ctx.dataIndex]) > 0 && Number(slicePercent(ctx.dataset.data[ctx.dataIndex], ctx)) >= 3,
+        formatter: (value, ctx) => `${Number(value).toLocaleString()}\n${slicePercent(value, ctx)}%`,
+      };
+      plugins.tooltip = {
+        callbacks: {
+          label: (ctx) => `${ctx.label}: ${Number(ctx.parsed).toLocaleString()} (${slicePercent(ctx.parsed, ctx)}%)`,
+        },
+      };
+    }
+
     return {
       type,
       data: { labels: data.labels || [], datasets },
+      // The datalabels plugin is opt-in per chart, so bar/line charts are untouched.
+      plugins: isSlice ? [ChartDataLabels] : [],
       options: {
         responsive: true,
         maintainAspectRatio: false,
         indexAxis: chartType === 'horizontalBar' ? 'y' : 'x',
-        plugins: {
-          title: { display: !!data.title, text: data.title || '' },
-          legend: { display: isSlice || datasets.length > 1 },
-        },
+        plugins,
       },
     };
   }
