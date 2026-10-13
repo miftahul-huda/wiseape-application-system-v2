@@ -1,3 +1,17 @@
+// Remembered across logouts (unlike was_token/was_user, which logout clears) so
+// the login form can come back pre-filled with the last user's email. The
+// password is deliberately never stored here -- the browser's own password
+// manager fills it, via the autocomplete hints on the inputs below.
+const LAST_EMAIL_KEY = 'was_last_email';
+
+function readLastEmail() {
+  try {
+    return localStorage.getItem(LAST_EMAIL_KEY) || '';
+  } catch (error) {
+    return '';
+  }
+}
+
 function renderAuthScreen(root, { onAuthenticated }) {
   let mode = 'login';
 
@@ -12,7 +26,7 @@ function renderAuthScreen(root, { onAuthenticated }) {
     input.type = type;
     input.name = name;
     input.required = true;
-    input.autocomplete = type === 'password' ? 'current-password' : 'off';
+    input.autocomplete = type === 'password' ? 'current-password' : (type === 'email' ? 'username' : 'off');
 
     wrap.appendChild(span);
     wrap.appendChild(input);
@@ -47,8 +61,16 @@ function renderAuthScreen(root, { onAuthenticated }) {
     if (mode === 'register') {
       form.appendChild(field('Nama', 'text', 'name'));
     }
-    form.appendChild(field('Email', 'email', 'email'));
-    form.appendChild(field('Password', 'password', 'password'));
+    const emailField = field('Email', 'email', 'email');
+    const passwordField = field('Password', 'password', 'password');
+    form.appendChild(emailField);
+    form.appendChild(passwordField);
+
+    // Login: pre-fill the last user's email and jump straight to the password.
+    const lastEmail = mode === 'login' ? readLastEmail() : '';
+    if (lastEmail) {
+      emailField.querySelector('input').value = lastEmail;
+    }
     if (mode === 'register') {
       form.appendChild(field('Konfirmasi Password', 'password', 'confirmPassword'));
     }
@@ -83,6 +105,7 @@ function renderAuthScreen(root, { onAuthenticated }) {
         if (result.token) {
           localStorage.setItem('was_token', result.token);
           localStorage.setItem('was_user', JSON.stringify(result.user));
+          if (payload.email) localStorage.setItem(LAST_EMAIL_KEY, payload.email);
           onAuthenticated(result.user);
           return;
         }
@@ -121,6 +144,10 @@ function renderAuthScreen(root, { onAuthenticated }) {
 
     screen.appendChild(card);
     root.appendChild(screen);
+
+    // Must run after the form is in the DOM for focus() to take effect.
+    const focusTarget = lastEmail ? passwordField : emailField;
+    focusTarget.querySelector('input').focus();
   }
 
   render();

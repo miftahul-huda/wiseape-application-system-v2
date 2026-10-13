@@ -753,195 +753,171 @@ class WiseDesktop {
     const desktop = this.root.querySelector('.desktop');
     if (!desktop) return;
 
+    const t = (k) => (typeof window !== 'undefined' && window.WiseI18n && k) ? window.WiseI18n.t(k) : k;
+    const dialog = this.buildDialogWindow(desktop, {
+      title: info.title ? t(info.title) : t('INFORMASI'),
+      type: info.type || 'information',
+      message: info.message ? t(info.message) : '',
+      buttons: [{ text: t('OK'), className: 'confirm-dialog-btn-confirm', primary: true, result: true }],
+    });
+    dialog.promise.then(() => {});
+  }
+
+  // Modal confirmation dialog, rendered as a real window (same chrome as app
+  // windows: close dot + centered title bar, draggable). Returns a
+  // Promise<boolean>.
+  showConfirmDialog(config = {}) {
+    const desktop = (this.root && this.root.querySelector('.desktop')) || (typeof document !== 'undefined' ? (document.querySelector('.desktop') || document.body) : null);
+    if (!desktop) return Promise.resolve(false);
+
+    let title = '';
+    let message = '';
+    let type = 'warning';
+    let confirmText = '';
+    let cancelText = '';
+
+    if (typeof config === 'string') {
+      message = config;
+    } else if (typeof config === 'object' && config !== null) {
+      title = config.title || '';
+      message = config.message || '';
+      type = config.type || 'warning';
+      confirmText = config.confirmText || '';
+      cancelText = config.cancelText || '';
+    }
+
+    const t = (k) => (typeof window !== 'undefined' && window.WiseI18n && k) ? window.WiseI18n.t(k) : k;
+    const isDanger = type === 'danger';
+
+    return this.buildDialogWindow(desktop, {
+      title: title ? t(title) : t('KONFIRMASI'),
+      type,
+      message: message ? t(message) : t('APAKAH_ANDA_YAKIN'),
+      // Save/confirm on the left, cancel on the right (project rule).
+      buttons: [
+        { text: confirmText ? t(confirmText) : (isDanger ? (t('HAPUS_3') || 'Hapus') : (t('YA') || 'OK')), className: `confirm-dialog-btn-confirm ${isDanger ? 'is-danger' : ''}`, primary: true, result: true },
+        { text: cancelText ? t(cancelText) : (t('BATAL') || 'Batal'), className: 'confirm-dialog-btn-cancel', result: false },
+      ],
+      cancelResult: false,
+      enterResult: true,
+    }).promise;
+  }
+
+  // Shared builder for showInfoDialog / showConfirmDialog: a modal overlay
+  // holding a `.window` (header with close dot + title, body with icon and
+  // message, footer buttons). The header drags the dialog around.
+  // Resolves `promise` with the clicked button's `result` (Escape/close dot
+  // -> cancelResult, Enter -> enterResult when set).
+  buildDialogWindow(desktop, { title, type = 'information', message = '', buttons = [], cancelResult, enterResult }) {
     const icons = {
       information: { glyph: '<circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="16"></line><circle cx="12" cy="8" r="0.5" fill="currentColor" stroke="none"></circle>', className: 'info-dialog-icon-information' },
       success: { glyph: '<circle cx="12" cy="12" r="9"></circle><polyline points="8 12.5 10.5 15 16 9"></polyline>', className: 'info-dialog-icon-success' },
       warning: { glyph: '<path d="M12 3.5 2.5 20h19L12 3.5z"></path><line x1="12" y1="9.5" x2="12" y2="14"></line><circle cx="12" cy="17" r="0.5" fill="currentColor" stroke="none"></circle>', className: 'info-dialog-icon-warning' },
       error: { glyph: '<circle cx="12" cy="12" r="9"></circle><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line>', className: 'info-dialog-icon-error' },
+      danger: { glyph: '<circle cx="12" cy="12" r="9"></circle><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line>', className: 'info-dialog-icon-error' },
+      question: { glyph: '<circle cx="12" cy="12" r="9"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line>', className: 'info-dialog-icon-information' },
     };
-    const icon = icons[info.type] || icons.information;
+    const icon = icons[type] || icons.information;
 
     const overlay = document.createElement('div');
-    overlay.className = 'info-dialog-overlay';
+    overlay.className = 'info-dialog-overlay confirm-dialog-overlay';
 
-    const card = document.createElement('div');
-    card.className = 'info-dialog-card';
-
-    const closeDialog = () => {
-      overlay.style.opacity = '0';
-      card.style.transform = 'scale(0.94)';
-      let dialogRemoved = false;
-      const doRemoveDialog = () => { if (!dialogRemoved) { dialogRemoved = true; overlay.remove(); } };
-      overlay.addEventListener('transitionend', doRemoveDialog, { once: true });
-      setTimeout(doRemoveDialog, 350);
-      document.removeEventListener('keydown', onKeydown);
-    };
-
-    const onKeydown = (event) => {
-      if (event.key === 'Escape') closeDialog();
-    };
-
-    const okText = (typeof window !== 'undefined' && window.WiseI18n) ? window.WiseI18n.t('OK') : 'OK';
-    card.innerHTML = `
-      <div class="info-dialog-icon ${icon.className}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon.glyph}</svg>
+    const winEl = document.createElement('div');
+    winEl.className = 'window dialog-window';
+    winEl.innerHTML = `
+      <div class="window-header">
+        <div class="window-controls">
+          <button type="button" class="window-action close" aria-label="Close">&times;</button>
+        </div>
+        <div class="window-title"><span class="dialog-window-title"></span></div>
+        <div></div>
       </div>
-      <div class="info-dialog-title"></div>
-      <div class="info-dialog-message"></div>
-      <button type="button" class="info-dialog-ok">${okText}</button>
+      <div class="window-body dialog-window-body">
+        <div class="confirm-dialog-icon ${icon.className}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon.glyph}</svg>
+        </div>
+        <div class="confirm-dialog-message"></div>
+      </div>
+      <div class="dialog-window-footer"></div>
     `;
-    const resolvedTitle = (typeof window !== 'undefined' && window.WiseI18n && info.title) ? window.WiseI18n.t(info.title) : (info.title || '');
-    const resolvedMessage = (typeof window !== 'undefined' && window.WiseI18n && info.message) ? window.WiseI18n.t(info.message) : (info.message || '');
-    card.querySelector('.info-dialog-title').textContent = resolvedTitle;
-    card.querySelector('.info-dialog-message').textContent = resolvedMessage;
-    card.querySelector('.info-dialog-ok').addEventListener('click', closeDialog);
+    winEl.querySelector('.dialog-window-title').textContent = title;
+    winEl.querySelector('.confirm-dialog-message').textContent = message;
 
-    overlay.addEventListener('click', (event) => {
-      if (event.target === overlay) closeDialog();
-    });
-
-    overlay.appendChild(card);
-    desktop.appendChild(overlay);
-    document.addEventListener('keydown', onKeydown);
-
-    void overlay.offsetWidth;
-    overlay.style.opacity = '1';
-    card.style.transform = 'scale(1)';
-  }
-
-  // Modal confirmation dialog that pops up a custom window with header,
-  // icon, message, Cancel and Confirm buttons. Returns a Promise<boolean>.
-  showConfirmDialog(config = {}) {
-    return new Promise((resolve) => {
-      const desktop = (this.root && this.root.querySelector('.desktop')) || (typeof document !== 'undefined' ? (document.querySelector('.desktop') || document.body) : null);
-      if (!desktop) {
-        resolve(false);
-        return;
-      }
-
-      let title = '';
-      let message = '';
-      let type = 'warning';
-      let confirmText = '';
-      let cancelText = '';
-
-      if (typeof config === 'string') {
-        message = config;
-      } else if (typeof config === 'object' && config !== null) {
-        title = config.title || '';
-        message = config.message || '';
-        type = config.type || 'warning';
-        confirmText = config.confirmText || '';
-        cancelText = config.cancelText || '';
-      }
-
-      const t = (k) => (typeof window !== 'undefined' && window.WiseI18n && k) ? window.WiseI18n.t(k) : k;
-
-      const windowTitle = title ? t(title) : t('KONFIRMASI');
-      const resolvedMessage = message ? t(message) : t('APAKAH_ANDA_YAKIN');
-      const resolvedConfirmText = confirmText ? t(confirmText) : (type === 'danger' ? (t('HAPUS_3') || 'Hapus') : (t('YA') || 'OK'));
-      const resolvedCancelText = cancelText ? t(cancelText) : (t('BATAL') || 'Batal');
-
-      const icons = {
-        warning: {
-          glyph: '<path d="M12 3.5 2.5 20h19L12 3.5z"></path><line x1="12" y1="9.5" x2="12" y2="14"></line><circle cx="12" cy="17" r="0.5" fill="currentColor" stroke="none"></circle>',
-          className: 'info-dialog-icon-warning'
-        },
-        danger: {
-          glyph: '<circle cx="12" cy="12" r="9"></circle><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line>',
-          className: 'info-dialog-icon-error'
-        },
-        information: {
-          glyph: '<circle cx="12" cy="12" r="9"></circle><line x1="12" y1="11" x2="12" y2="16"></line><circle cx="12" cy="8" r="0.5" fill="currentColor" stroke="none"></circle>',
-          className: 'info-dialog-icon-information'
-        },
-        question: {
-          glyph: '<circle cx="12" cy="12" r="9"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line>',
-          className: 'info-dialog-icon-information'
-        }
-      };
-      const icon = icons[type] || icons.warning;
-
-      const overlay = document.createElement('div');
-      overlay.className = 'confirm-dialog-overlay';
-
-      const winEl = document.createElement('div');
-      winEl.className = 'confirm-dialog-window';
-
+    let finish;
+    const promise = new Promise((resolve) => {
       let settled = false;
-      const finish = (result) => {
+      finish = (result) => {
         if (settled) return;
         settled = true;
         overlay.style.opacity = '0';
         winEl.style.transform = 'scale(0.94)';
         let removed = false;
-        const doRemove = () => {
-          if (!removed) {
-            removed = true;
-            overlay.remove();
-          }
-        };
+        const doRemove = () => { if (!removed) { removed = true; overlay.remove(); } };
         overlay.addEventListener('transitionend', doRemove, { once: true });
         setTimeout(doRemove, 350);
         document.removeEventListener('keydown', onKeydown);
         resolve(result);
       };
-
-      const onKeydown = (event) => {
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          finish(false);
-        } else if (event.key === 'Enter') {
-          event.preventDefault();
-          finish(true);
-        }
-      };
-
-      const isDanger = type === 'danger';
-      winEl.innerHTML = `
-        <div class="confirm-dialog-header">
-          <div class="confirm-dialog-header-title">
-            <span>❓</span>
-            <span>${windowTitle}</span>
-          </div>
-          <button type="button" class="confirm-dialog-close-btn" title="${t('BATAL')}">✕</button>
-        </div>
-        <div class="confirm-dialog-body">
-          <div class="confirm-dialog-icon ${icon.className}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon.glyph}</svg>
-          </div>
-          <div class="confirm-dialog-content">
-            <div class="confirm-dialog-title">${windowTitle}</div>
-            <div class="confirm-dialog-message"></div>
-          </div>
-        </div>
-        <div class="confirm-dialog-footer">
-          <button type="button" class="confirm-dialog-btn-confirm ${isDanger ? 'is-danger' : ''}">${resolvedConfirmText}</button>
-          <button type="button" class="confirm-dialog-btn-cancel">${resolvedCancelText}</button>
-        </div>
-      `;
-
-      winEl.querySelector('.confirm-dialog-message').textContent = resolvedMessage;
-
-      winEl.querySelector('.confirm-dialog-close-btn').addEventListener('click', () => finish(false));
-      winEl.querySelector('.confirm-dialog-btn-cancel').addEventListener('click', () => finish(false));
-      winEl.querySelector('.confirm-dialog-btn-confirm').addEventListener('click', () => finish(true));
-
-      overlay.addEventListener('click', (event) => {
-        if (event.target === overlay) finish(false);
-      });
-
-      overlay.appendChild(winEl);
-      desktop.appendChild(overlay);
-      document.addEventListener('keydown', onKeydown);
-
-      const confirmBtn = winEl.querySelector('.confirm-dialog-btn-confirm');
-      if (confirmBtn) confirmBtn.focus();
-
-      void overlay.offsetWidth;
-      overlay.style.opacity = '1';
-      winEl.style.transform = 'scale(1)';
     });
+
+    const onKeydown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        finish(cancelResult);
+      } else if (event.key === 'Enter' && enterResult !== undefined) {
+        event.preventDefault();
+        finish(enterResult);
+      }
+    };
+
+    const footer = winEl.querySelector('.dialog-window-footer');
+    let primaryBtn = null;
+    buttons.forEach((def) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = def.className || '';
+      btn.textContent = def.text;
+      btn.addEventListener('click', () => finish(def.result));
+      footer.appendChild(btn);
+      if (def.primary && !primaryBtn) primaryBtn = btn;
+    });
+
+    winEl.querySelector('.window-action.close').addEventListener('click', () => finish(cancelResult));
+    overlay.addEventListener('click', (event) => {
+      if (event.target === overlay) finish(cancelResult);
+    });
+
+    // Drag by the header (not by the close dot).
+    const header = winEl.querySelector('.window-header');
+    header.addEventListener('mousedown', (event) => {
+      if (event.target.closest('.window-action')) return;
+      event.preventDefault();
+      const startX = event.clientX;
+      const startY = event.clientY;
+      const baseLeft = parseFloat(winEl.style.left) || 0;
+      const baseTop = parseFloat(winEl.style.top) || 0;
+      const onMove = (ev) => {
+        winEl.style.left = `${baseLeft + ev.clientX - startX}px`;
+        winEl.style.top = `${baseTop + ev.clientY - startY}px`;
+      };
+      const onUp = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+
+    overlay.appendChild(winEl);
+    desktop.appendChild(overlay);
+    document.addEventListener('keydown', onKeydown);
+    if (primaryBtn) primaryBtn.focus();
+
+    void overlay.offsetWidth;
+    overlay.style.opacity = '1';
+    winEl.style.transform = 'scale(1)';
+
+    return { promise, close: finish };
   }
 
   setupWindowResizeListener() {

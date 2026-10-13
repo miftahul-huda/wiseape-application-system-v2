@@ -79,60 +79,60 @@ class WinEmployeeManagement extends WiseWindow {
 
     // ── Icon Menu Group Toolbar ─────────────────────────────────
     const iconMenuGroup = new WiseIconMenuGroup('', [
-      new WiseIconMenu('Display All', {
+      new WiseIconMenu(WiseI18n.t('MENU_DISPLAY_ALL'), {
         id: 'btnMenuDisplayAll',
         icon: MENU_ICONS.displayAll,
-        description: 'Tampilkan Semua',
+        description: WiseI18n.t('MENU_DISPLAY_ALL_DESC'),
         onClick: this.onDisplayAllClick.bind(this)
       }),
-      new WiseIconMenu('Select/Deselect All', {
+      new WiseIconMenu(WiseI18n.t('MENU_SELECT_ALL'), {
         id: 'btnMenuSelectAll',
         icon: MENU_ICONS.selectAll,
-        description: 'Pilih / Batal',
+        description: WiseI18n.t('MENU_SELECT_ALL_DESC'),
         onClick: this.onToggleSelectAllClick.bind(this)
       }),
       new WiseVerticalSeparator({ height: 26 }),
-      new WiseIconMenu('Detail Employee', {
+      new WiseIconMenu(WiseI18n.t('MENU_EMPLOYEE_DETAIL'), {
         id: 'btnMenuDetail',
         icon: MENU_ICONS.detail,
-        description: 'Lihat Detail',
+        description: WiseI18n.t('MENU_EMPLOYEE_DETAIL_DESC'),
         onClick: this.onDetailEmployeeClick.bind(this)
       }),
-      new WiseIconMenu('Add Employee', {
+      new WiseIconMenu(WiseI18n.t('MENU_EMPLOYEE_ADD'), {
         id: 'btnMenuAdd',
         icon: MENU_ICONS.add,
-        description: 'Karyawan Baru',
+        description: WiseI18n.t('MENU_EMPLOYEE_ADD_DESC'),
         onClick: this.onNewEmployeeClick.bind(this)
       }),
-      new WiseIconMenu('Edit Employee', {
+      new WiseIconMenu(WiseI18n.t('MENU_EMPLOYEE_EDIT'), {
         id: 'btnMenuEdit',
         icon: MENU_ICONS.edit,
-        description: 'Edit Employee Information',
+        description: WiseI18n.t('MENU_EMPLOYEE_EDIT_DESC'),
         onClick: this.onEditEmployeeClick.bind(this)
       }),
-      new WiseIconMenu('Duplicate Employee', {
+      new WiseIconMenu(WiseI18n.t('MENU_EMPLOYEE_DUPLICATE'), {
         id: 'btnMenuDuplicate',
         icon: MENU_ICONS.duplicate,
-        description: 'Duplikat Data Karyawan',
+        description: WiseI18n.t('MENU_EMPLOYEE_DUPLICATE_DESC'),
         onClick: this.onDuplicateEmployeeClick.bind(this)
       }),
-      new WiseIconMenu('Deactivate Employee', {
+      new WiseIconMenu(WiseI18n.t('MENU_EMPLOYEE_DEACTIVATE'), {
         id: 'btnMenuDeactivate',
         icon: MENU_ICONS.deactivate,
-        description: 'Status Aktif',
+        description: WiseI18n.t('MENU_EMPLOYEE_DEACTIVATE_DESC'),
         onClick: this.onToggleDeactivate.bind(this)
       }),
-      new WiseIconMenu('Find Employee', {
+      new WiseIconMenu(WiseI18n.t('MENU_EMPLOYEE_FIND'), {
         id: 'btnMenuFind',
         icon: MENU_ICONS.find,
-        description: 'Cari Karyawan',
+        description: WiseI18n.t('MENU_EMPLOYEE_FIND_DESC'),
         onClick: this.onFindEmployeeMenuClick.bind(this)
       }),
       new WiseVerticalSeparator({ height: 26 }),
-      new WiseIconMenu('Report', {
+      new WiseIconMenu(WiseI18n.t('MENU_REPORT'), {
         id: 'btnMenuReport',
         icon: MENU_ICONS.report,
-        description: 'Laporan Ringkasan',
+        description: WiseI18n.t('MENU_REPORT_DESC'),
         onClick: this.onReportClick.bind(this)
       })
     ], {
@@ -238,8 +238,7 @@ class WinEmployeeManagement extends WiseWindow {
     dtEmployees.addContextMenu([
       { id: 'detail', label: WiseI18n.t('DETAIL'), icon: CONTEXT_MENU_ICONS.detail, onClick: (row) => this.onDetailEmployeeClick(row) },
       { id: 'edit', label: WiseI18n.t('EDIT'), icon: CONTEXT_MENU_ICONS.edit, onClick: (row) => this.onEditEmployeeClick(row) },
-      { id: 'copy', label: WiseI18n.t('COPY'), icon: CONTEXT_MENU_ICONS.copy, onClick: (row) => this.onCopyEmployeeRow(row) },
-      { id: 'paste', label: WiseI18n.t('PASTE'), icon: CONTEXT_MENU_ICONS.paste, onClick: () => this.onPasteEmployeeRow() }
+      { id: 'duplicate', label: WiseI18n.t('MENU_EMPLOYEE_DUPLICATE'), icon: CONTEXT_MENU_ICONS.copy, onClick: this.onDuplicateEmployeeClick.bind(this) },
     ]);
 
     this.addControl(dtEmployees);

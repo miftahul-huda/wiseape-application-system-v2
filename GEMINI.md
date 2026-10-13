@@ -60,6 +60,10 @@
   - **DILARANG KERAS men-hardcode string literal** pada context menu seperti `label: 'Edit Dokumen'`, `label: 'Hapus Dokumen'`, `label: 'Edit Pengalaman'`, `label: 'Hapus Riwayat Karir'`, dsb.
 - **WAJIB Mendaftarkan Lengkap ke 6 Bahasa di `WiseI18n.js`**:
   - Setiap kali menambahkan key baru di `WiseI18n.t('KEY_NAME')`, key tersebut **WAJIB LANGSUNG DIDAFTARKAN** ke kamus terjemahan `WiseI18n.js` untuk **SELURUH 6 BAHASA**: Indonesian (`id`), English (`en`), German (`de`), Spanish (`es`), French (`fr`), dan Arabic (`ar`). Jangan hanya mendaftarkan sebagian bahasa.
+- **WiseIconMenu (Icon Menu / Toolbar Icon) WAJIB Internationalization**:
+  - Setiap `new WiseIconMenu(...)` **WAJIB** membungkus **label (argumen pertama)** dan **`description`** dengan `WiseI18n.t('KEY_SIMBOLIK')`, contoh: `new WiseIconMenu(WiseI18n.t('MENU_EMPLOYEE_ADD'), { id: 'btnMenuAdd', icon: ..., description: WiseI18n.t('MENU_EMPLOYEE_ADD_DESC'), onClick: ... })`.
+  - **DILARANG KERAS** menulis teks literal (misalnya `'Add Employee'`, `'Karyawan Baru'`) langsung di `WiseIconMenu`. Label dan description tidak boleh dicampur bahasa (satu Inggris, satu Indonesia); keduanya harus berupa key i18n.
+  - Semua key (label dan `_DESC`) wajib terdaftar lengkap di kamus `WiseI18n.js` untuk seluruh bahasa yang didukung (`id`, `en`, `de`, `es`, `fr`, `ar`).
 - **DILARANG MEMBUAT FUNGSI `t(key)` LOKAL/SENDIRI DI DALAM FORM/WINDOW**: Dilarang keras membuat method atau helper `t(key)` / `this.t(key)` sendiri di dalam class window atau form. Selalu gunakan fungsi `WiseI18n.t(key)` secara langsung dari `WiseI18n.js` (`const WiseI18n = ...` lalu panggil `WiseI18n.t(...)`). Seluruh kode form/window yang masih memiliki fungsi `t(key)` sendiri harus dibersihkan.
 
 ## 4. Dialog & Notification Rules (showInfo & this.confirm)
