@@ -58,5 +58,18 @@ services:
       retries: 10
     restart: unless-stopped
 
+  # One-shot helper that loads kong.yml into Kong (decK). Not started by `up`:
+  #   docker compose --profile tools run --rm deck
+  deck:
+    image: kong/deck:v1.68.0
+    profiles: ["tools"]
+    command: gateway sync /config/kong.yml --kong-addr http://kong:8001
+    volumes:
+      - ./kong.yml:/config/kong.yml:ro
+    depends_on:
+      kong:
+        condition: service_healthy
+    restart: "no"
+
 volumes:
   kong_data:

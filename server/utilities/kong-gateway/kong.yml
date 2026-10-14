@@ -1,0 +1,48 @@
+# Kong declarative configuration for the Wiseape stack (Kong 3.x, DB mode).
+#
+# Apply to a running Kong (idempotent; creates, updates AND deletes so that Kong
+# matches this file exactly):
+#   docker compose --profile tools run --rm deck
+# See README.md for the other ways to load it.
+#
+# Upstreams use host.docker.internal because Kong runs in a container: "localhost"
+# there would be the Kong container itself, not the machine running the services.
+_format_version: "3.0"
+
+services:
+  - name: WASAPI              # Wiseape Application System API  (server/applications/WiseapeApplicationSystem)
+    protocol: http
+    host: host.docker.internal
+    port: 4000
+    tags: [wiseape-service]
+    routes:
+      - name: WASAPI
+        paths: [/was]
+        strip_path: true      # /was/api/apps -> /api/apps
+
+  - name: HRISAPI             # HRIS API                        (server/applications/HRIS)
+    protocol: http
+    host: host.docker.internal
+    port: 4001
+    routes:
+      - name: hris-api-route
+        paths: [/hris]
+        strip_path: true
+
+  - name: REPORTAPI           # Report Designer API             (server/applications/ReportDesigner)
+    protocol: http
+    host: host.docker.internal
+    port: 4002
+    routes:
+      - name: report-api-route
+        paths: [/report]
+        strip_path: true
+
+  - name: WISEDESKTOPAPI      # Client Express server (desktop shell, :3000); used by the Vite dev proxy
+    protocol: http
+    host: host.docker.internal
+    port: 3000
+    routes:
+      - name: wise-desktop-route
+        paths: [/desktop]
+        strip_path: true
