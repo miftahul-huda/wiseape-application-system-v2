@@ -97,3 +97,38 @@ Dalam seluruh form, window, frame, button, label, table, dan komponen UI di apli
     );
     if (!confirmed) return;
     ```
+
+## 5. Checklist Wajib Saat Membuat Service / Aplikasi Baru
+Membuat service backend, aplikasi client, tabel/database, atau infrastruktur Docker baru **BELUM SELESAI** sebelum
+semua poin yang relevan di bawah dikerjakan dan **diverifikasi sungguhan** (jalankan, `curl`, restore) — bukan hanya "kode sudah ditulis".
+Daftar layanan, port, dan URL ada di `server/README.md` (sumber kebenaran; selalu perbarui).
+
+### 5.1 Service backend baru (`server/applications/<Nama>`)
+- [ ] **Port**: pakai port kosong berikutnya, jangan bentrok (terpakai: client 3000, WAS 4000, HRIS 4001, Report 4002, Utilities 4003, EventMessaging 4004, Vite 5173, Kong 8000/8001/8002/8443, Kafka 9092, Kafka UI 8085). Hindari "bad ports" fetch (mis. 5060, 6000, 6665-6669, 10080).
+- [ ] **Konvensi**: Express + cors + morgan + dotenv; `npm run dev` = `node --watch --env-file=.env app.js` dan `npm start`; respons `{success, data}` / `{success:false, message}`; `GET /` mengembalikan JSON info server (service, name, description, version, status, environment, port, startedAt, uptimeSeconds, timestamp, endpoints) dan `GET /api` indeks endpoint; graceful shutdown. Contoh: `server/applications/Utilities`.
+- [ ] **Rahasia**: kredensial hanya di `.env` (di-ignore git) + `.env.example` berisi placeholder. **Dilarang** password default di kode, mencetak/menampilkan password, atau meng-commit `.env`.
+- [ ] **Kong**: tambahkan service + route di `server/utilities/kong-gateway/kong.yml` (upstream `host.docker.internal:<port>`, `strip_path: true`, path `/<awalan>`), lalu `cd server/utilities/kong-gateway && docker compose --profile tools run --rm deck gateway diff /config/kong.yml --kong-addr http://kong:8001` (periksa: hanya penambahan), lalu jalankan tanpa `gateway diff` untuk menerapkan. Uji `curl http://localhost:8000/<awalan>`. Perbarui tabel di `server/utilities/kong-gateway/README.md`. Jangan mengubah/menghapus route lain; menghapus `X-Frame-Options` atau membuka port Kong ke jaringan butuh persetujuan eksplisit user.
+- [ ] **`start.sh` dan `stop.sh`** (root): tambahkan target (`run` + `wait_port` + teks usage + daftar port di `stop.sh`).
+- [ ] **Database**: tabel dibuat otomatis saat start (idempotent, aman dijalankan berulang). Jika memakai **database baru atau tabel baru**, lihat 5.3.
+- [ ] **Dokumentasi**: `README.md` di folder service (endpoint, variabel env tanpa nilai rahasia, cara menjalankan) dan perbarui `server/README.md` (tabel layanan, peta Kong, tabel database, variabel client, urutan start).
+- [ ] **Uji sungguhan lalu bersihkan**: jalankan service, uji tiap endpoint dengan `curl` termasuk kasus error, hapus data uji yang dibuat (baris DB, topic Kafka, dll.). **Hentikan hanya proses yang Anda mulai sendiri** (pakai PID/port) — **DILARANG `pkill -f app.js`** atau pola serupa, karena mematikan server user yang sedang berjalan. Setelah selesai, pastikan server user masih hidup (`lsof -i :<port>`).
+
+### 5.2 Aplikasi client baru (`client/applications/<Grup>/App<Nama>.js`)
+- [ ] **Registrasi di WAS** (otomatis saat WAS API start, jangan minta user menjalankan SQL): tambah aplikasi di `server/applications/WiseapeApplicationSystem/src/models/appsModel.js` (daftar seed di `ensureAdminAppSeeded` **dan** `FALLBACK_APPS`) serta menu di `menusModel.js` (seed di `ensureAdminMenuSeeded` **dan** `FALLBACK_MENUS`). Tentukan `show_in_taskbar` (aplikasi pendukung/utilitas = `false`, tetap muncul di Launchpad). Memuat ulang menu butuh restart server client (Express menyimpan menu di memori).
+- [ ] **Repository API**: base URL default lewat Kong (`http://localhost:8000/<awalan>/api`), bisa ditimpa env (`<NAMA>_API_URL`); tambahkan ke `client/.env.example` dan tabel variabel di `server/README.md`. Jangan menulis URL `localhost:<port>` langsung ke service.
+- [ ] **Kontrol/komponen baru** di `client/system/controls/`: daftarkan di `client/index.html` (tag script), `client/src/runtime/wise.js` (export), dan dokumentasikan di `docs/API_REFERENCE.md`.
+- [ ] **Aturan UI/i18n** pada Bagian 1-4 (semua teks `WiseI18n.t`, 6 bahasa, `label:` pada input, header DataTable grey di form input, dst.) dan `README.md` aplikasi.
+- [ ] `cd client && npx vite build` harus lolos; jelaskan ke user bahwa UI belum diuji visual jika Anda tidak bisa membuka browser.
+
+### 5.3 Database / tabel baru
+- [ ] **Backup**: database baru → tambahkan ke `server/databases/backup.sh` (fungsi `dump_app <label> <folder>` + baris `case`) dan `restore.sh`, serta tabel di `server/databases/README.md`. Tabel baru di database yang sudah ada → jalankan ulang `./backup.sh <label>`.
+- [ ] **Verifikasi restore** ke container PostgreSQL sementara dengan versi **sama dengan server (15)** (`docker run -d --name pg15-restore-test -e POSTGRES_PASSWORD=test postgres:15`), `psql --set ON_ERROR_STOP=1 --single-transaction -f <dump>.sql`, bandingkan jumlah baris, lalu hapus container uji.
+- [ ] **`*.sql` TIDAK BOLEH di-commit** (repo publik; dump berisi PII, hash password, kredensial terenkripsi). `server/databases/.gitignore` sudah mengabaikannya. Kecualikan data kredensial hidup (mis. `--exclude-table-data=wiseape_sessions`).
+
+### 5.4 Infrastruktur Docker baru (`server/utilities/<nama>`)
+- [ ] `restart: unless-stopped`; port dipublikasikan hanya ke `127.0.0.1` jika tanpa autentikasi; image di-pin versinya; volume bernama untuk data.
+- [ ] README (alamat, start/stop, uji cepat), tambahkan ke `server/README.md`, dan jika punya UI web yang perlu tampil di aplikasi: route Kong berbasis host (lihat 5.1) dengan persetujuan user.
+
+### 5.5 Sebelum commit / push
+- [ ] Periksa `git diff --cached --name-only`: tidak ada `.env`, `*.sql`, `node_modules`, atau password. Tidak push langsung ke `main` kecuali user memintanya; jika diminta, push ke `main`.
+- [ ] Laporkan jujur: apa yang sudah diuji, apa yang belum (mis. UI tidak dilihat di browser, driver tanpa instance uji), dan efek samping (restart yang dibutuhkan).

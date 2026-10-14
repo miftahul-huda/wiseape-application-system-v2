@@ -17,6 +17,7 @@ const FALLBACK_MENUS = [
   { id: 14, parentId: null, type: 'group', label: 'Utilities', icon: '🧰', appId: null, sortOrder: 5 },
   { id: 15, parentId: 14, type: 'item', label: 'Kong Manager', icon: '🦍', appId: 'kongManager', sortOrder: 0, showInTaskbar: false },
   { id: 16, parentId: 14, type: 'item', label: 'Kafka Manager', icon: '📨', appId: 'kafkaManager', sortOrder: 1, showInTaskbar: false },
+  { id: 17, parentId: 14, type: 'item', label: 'Event Message Manager', icon: '📬', appId: 'eventMessageManager', sortOrder: 2, showInTaskbar: false },
 ];
 
 let schemaReady = false;
@@ -216,6 +217,7 @@ async function ensureAdminMenuSeeded() {
   const utilityItems = [
     { label: 'Kong Manager', icon: '🦍', appId: 'kongManager', sortOrder: 0 },
     { label: 'Kafka Manager', icon: '📨', appId: 'kafkaManager', sortOrder: 1 },
+    { label: 'Event Message Manager', icon: '📬', appId: 'eventMessageManager', sortOrder: 2 },
   ];
   for (const item of utilityItems) {
     const existingItem = await db.query(

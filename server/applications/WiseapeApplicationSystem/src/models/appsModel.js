@@ -133,6 +133,17 @@ const FALLBACK_APPS = [
     appStartPoint: 'applications/Utilities/AppKafkaManager.js:AppKafkaManager',
     appParameter: {},
   },
+  {
+    appID: 'eventMessageManager',
+    appTitle: 'Event Message Manager',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '📬',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/Utilities/AppEventMessageManager.js:AppEventMessageManager',
+    appParameter: {},
+  },
 ];
 
 function parseJsonField(value, fallback) {
@@ -272,6 +283,7 @@ async function ensureAdminAppSeeded() {
     // Utilities (backend: server/applications/Utilities)
     { id: 'kongManager', title: 'Kong Manager', icon: '🦍', start: 'applications/Utilities/AppKongManager.js:AppKongManager' },
     { id: 'kafkaManager', title: 'Kafka Manager', icon: '📨', start: 'applications/Utilities/AppKafkaManager.js:AppKafkaManager' },
+    { id: 'eventMessageManager', title: 'Event Message Manager', icon: '📬', start: 'applications/Utilities/AppEventMessageManager.js:AppEventMessageManager' },
   ];
   for (const app of reportApps) {
     const existingReportApp = await db.query('SELECT 1 FROM wiseape_apps WHERE app_id = $1', [app.id]);

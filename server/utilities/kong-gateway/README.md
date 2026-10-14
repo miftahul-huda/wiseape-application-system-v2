@@ -8,6 +8,7 @@ Kong (3.9, PostgreSQL mode) in front of the Wiseape services.
 | `/hris`    | `HRISAPI`        | HRIS API `:4001` |
 | `/report`  | `REPORTAPI`      | Report Designer API `:4002` |
 | `/utilities` | `UTILITIESAPI`  | Utilities API `:4003` |
+| `/event-messaging` | `EVENTMESSAGINGAPI` | Event Messaging API `:4004` |
 | `/desktop` | `WISEDESKTOPAPI` | client Express server `:3000` |
 
 Two more routes are **host-based** and exist only so the web UIs can be embedded in the app:

@@ -34,3 +34,41 @@ them: `http://kong-manager.localhost:8000` and `http://kafka-ui.localhost:8000` 
 approach for any other tool you want to embed: add a host-based route + `response-transformer` in
 `kong.yml`, then save the new URL as a link here. Note Kong Manager now only works at the
 `kong-manager.localhost:8000` address (its Admin API CORS origin moved there).
+
+# AppEventMessageManager (Event Messaging)
+
+Manages the mapping **Kafka topic -> webhook URL** of the Event Messaging API
+(`server/applications/EventMessagingApi`, port 4004). The API consumes the configured
+topics and POSTs each event to the webhooks registered for that topic.
+
+Files: `AppEventMessageManager.js`, `forms/WinEventMessageManager.js` (the main window),
+`forms/WinTopicWebhookEdit.js` (add/edit dialog), `services/EventMessagingApiRepository.js`.
+
+## API base URL
+
+Default `http://localhost:8000/event-messaging/api` (through Kong); override with the
+`EVENT_MESSAGING_API_URL` environment variable (e.g. `http://localhost:4004/api` to bypass Kong,
+adjust the path to the server's routes).
+
+## Tabs
+
+- **Webhooks** — Add / Edit / Delete / Test / Refresh, a topic filter (topics present in the
+  webhooks, plus All), a table (topic, URL, description, active, has-secret) and a context menu.
+  Test sends a test event to the selected webhook and reports the HTTP status and duration, or the error.
+  In the add/edit dialog the topic is free text (an optional combobox of existing Kafka topics fills it),
+  the URL must be http(s), the secret is optional (leaving it empty when editing keeps the stored one;
+  "remove the stored secret" clears it).
+- **Delivery log** — the latest 100 deliveries (time, topic, webhook URL, status, HTTP status,
+  attempts, duration, error) with a status filter (All / Success / Failed).
+- **Send message** — publishes a test message (topic, optional key, payload as JSON or plain text) and
+  shows the resulting partition/offset. A status line shows the API health (database, Kafka producer,
+  consumer); it is refreshed with the Refresh button.
+
+## What a webhook receives
+
+An HTTP `POST` with a JSON body (the event) and these headers:
+
+- `X-Event-Id` — unique id of the event
+- `X-Event-Topic` — the Kafka topic it came from
+- `X-Event-Signature` — `sha256=<hex HMAC-SHA256 of the raw body>` using the webhook's secret
+  (only sent when the webhook has a secret; verify it over the raw request body)

@@ -5,7 +5,7 @@
 SIG="TERM"; [ "${1:-}" = "-f" ] && SIG="KILL"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-PORTS=(3000 4000 4001 4002 4003 5173)   # client, WAS API, HRIS API, Report Designer API, Utilities API, Vite
+PORTS=(3000 4000 4001 4002 4003 4004 5173)   # client, WAS, HRIS, Report Designer, Utilities, Event Messaging, Vite
 
 # 1) Hentikan start.sh yang masih berjalan (agar trap-nya ikut membersihkan child)
 for pid in $(pgrep -f "$ROOT/start.sh|[ /]start.sh" 2>/dev/null); do

@@ -8,7 +8,7 @@ membuat dan memulihkannya.
 | `wiseape-application-system.sql` | `wiseape-application-system` | server `34.101.207.44` | WAS API (user, menu, aplikasi, tema, background) |
 | `wiseape-hris.sql` | `wiseape-hris` | server `34.101.207.44` | HRIS (karyawan, organisasi, rekrutmen, ...) |
 | `wiseape-report-designer.sql` | `wiseape-report-designer` | server `34.101.207.44` | Report Designer (connection, report group, report) |
-| `wise-utilities.sql` | `wise-utilities` | server `34.101.207.44` | Utilities (link Kong Manager / Kafka UI) |
+| `wise-utilities.sql` | `wise-utilities` | server `34.101.207.44` | Utilities (link Kong Manager / Kafka UI) dan Event Messaging (webhook per topic + riwayat pengiriman) |
 | `kong.sql` | `kong` | container Docker `kong-db` | konfigurasi Kong (juga tersimpan di `../utilities/kong-gateway/kong.yml`) |
 
 > **PENTING - file `.sql` berisi data sensitif dan tidak boleh masuk git.** Dump berisi email, hash dan

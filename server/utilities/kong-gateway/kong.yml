@@ -38,6 +38,15 @@ services:
         paths: [/report]
         strip_path: true
 
+  - name: EVENTMESSAGINGAPI   # Event Messaging API (Kafka producer/consumer + webhooks)  (server/applications/EventMessagingApi)
+    protocol: http
+    host: host.docker.internal
+    port: 4004
+    routes:
+      - name: event-messaging-api-route
+        paths: [/event-messaging]
+        strip_path: true
+
   - name: WISEDESKTOPAPI      # Client Express server (desktop shell, :3000); used by the Vite dev proxy
     protocol: http
     host: host.docker.internal

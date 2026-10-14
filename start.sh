@@ -2,15 +2,16 @@
 # Menjalankan semua aplikasi Wiseape (server + client).
 #
 # Pemakaian:
-#   ./start.sh [semua|server|client|was|hris|report|utilities|vite] [--prod]
+#   ./start.sh [semua|server|client|was|hris|report|utilities|events|vite] [--prod]
 #
-#   semua   (default) WAS API + HRIS API + Report Designer API + Utilities API + client Express + Vite dev
+#   semua   (default) WAS API + HRIS API + Report Designer API + Utilities API + Event Messaging API + client Express + Vite dev
 #   server  WAS API + HRIS API + Report Designer API
 #   client  client Express + Vite dev
 #   was     hanya WiseapeApplicationSystem API   (port 4000)
 #   hris    hanya HRIS API                       (port 4001)
 #   report  hanya Report Designer API            (port 4002)
 #   utilities hanya Utilities API                (port 4003)
+#   events  hanya Event Messaging API            (port 4004)
 #   vite    hanya Vite dev server                (port 5173)
 #   --prod  pakai "npm start" (tanpa watch) dan tanpa Vite
 #
@@ -26,7 +27,7 @@ MODE="dev"
 for arg in "$@"; do
   case "$arg" in
     --prod) MODE="start" ;;
-    semua|all|server|client|was|hris|report|utilities|vite) TARGET="$arg" ;;
+    semua|all|server|client|was|hris|report|utilities|events|vite) TARGET="$arg" ;;
     -h|--help) sed -n '2,15p' "$0"; exit 0 ;;
     *) echo "Argumen tidak dikenal: $arg"; exit 1 ;;
   esac
@@ -68,6 +69,7 @@ WAS="$ROOT/server/applications/WiseapeApplicationSystem"
 HRIS="$ROOT/server/applications/HRIS"
 REPORT="$ROOT/server/applications/ReportDesigner"
 UTILITIES="$ROOT/server/applications/Utilities"
+EVENTS="$ROOT/server/applications/EventMessagingApi"
 CLIENT="$ROOT/client"
 
 case "$TARGET" in
@@ -82,6 +84,9 @@ esac
 case "$TARGET" in
   semua|all|server|utilities) run utilities "$UTILITIES" npm run "$MODE" ;;
 esac
+case "$TARGET" in
+  semua|all|server|events) run events "$EVENTS" npm run "$MODE" ;;
+esac
 # Client membutuhkan WAS API (4000) saat startup; tunggu dulu agar tidak ECONNREFUSED.
 case "$TARGET" in
   semua|all|server|was) wait_port was 4000 ;;
@@ -94,6 +99,9 @@ case "$TARGET" in
 esac
 case "$TARGET" in
   semua|all|server|utilities) wait_port utilities 4003 ;;
+esac
+case "$TARGET" in
+  semua|all|server|events) wait_port events 4004 ;;
 esac
 case "$TARGET" in
   semua|all|client) run client "$CLIENT" npm run "$MODE" ;;
@@ -116,6 +124,7 @@ Berjalan:
   HRIS API  http://localhost:4001
   Report API http://localhost:4002
   Utilities API http://localhost:4003
+  Event Messaging API http://localhost:4004
   Client    http://localhost:3000
   Vite      http://localhost:5173
 Log: $LOG_DIR/*.log   |   Ctrl+C untuk berhenti
