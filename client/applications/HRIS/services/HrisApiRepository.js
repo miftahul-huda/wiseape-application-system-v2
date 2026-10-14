@@ -5,7 +5,7 @@
 
 class HrisApiRepository {
   constructor(baseUrl) {
-    this.baseUrl = baseUrl || (typeof process !== 'undefined' && process.env && process.env.HRIS_API_URL) || 'http://localhost:4001/api';
+    this.baseUrl = baseUrl || (typeof process !== 'undefined' && process.env && process.env.HRIS_API_URL) || 'http://localhost:8000/hris/api';
   }
 
   async request(endpoint, options = {}) {

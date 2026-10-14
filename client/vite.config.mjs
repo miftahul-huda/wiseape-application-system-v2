@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 // WiseI18n, controls) and app icon assets. Vite only adds the ES-module layer
 // (src/main.js and the browser-run applications) and, in dev, serves
 // index.html + public/ itself.
-const EXPRESS = process.env.WAS_SERVER_URL || 'http://localhost:3000';
+const EXPRESS = process.env.WAS_SERVER_URL || 'http://localhost:8000/desktop';
 
 const proxied = ['/api', '/controls', '/WiseI18n.js', '/WiseDesktop.js', '/WiseApplicationSystem.js', '/app-assets'];
 

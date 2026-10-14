@@ -1,6 +1,6 @@
 class ApiAppRepository {
   constructor(config = {}) {
-    this.baseUrl = config.baseUrl || process.env.API_BASE_URL || 'http://localhost:4000';
+    this.baseUrl = config.baseUrl || process.env.API_BASE_URL || 'http://localhost:8000/was';
   }
 
   async listApplications() {

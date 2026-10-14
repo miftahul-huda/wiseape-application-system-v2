@@ -11,6 +11,25 @@ const { UPLOAD_ROOT } = require('./src/middleware/upload');
 
 const port = process.env.PORT || 4001;
 
+// GET / -> basic information about this API server (handy as a gateway/health probe).
+const pkg = require('./package.json');
+const startedAt = new Date();
+function serverInfo(req, res) {
+  res.json({
+    service: 'Wiseape HRIS API',
+    name: pkg.name,
+    description: pkg.description,
+    version: pkg.version,
+    status: 'running',
+    environment: process.env.NODE_ENV || 'development',
+    port: Number(port),
+    startedAt: startedAt.toISOString(),
+    uptimeSeconds: Math.round(process.uptime()),
+    timestamp: new Date().toISOString(),
+    endpoints: '/api',
+  });
+}
+
 const app = express();
 
 // Middlewares
@@ -24,10 +43,8 @@ app.use('/uploads', express.static(UPLOAD_ROOT));
 
 // Mount REST API routes
 app.use('/api', routes);
-// Root redirect to API info
-app.get('/', (req, res) => {
-  res.redirect('/api');
-});
+// Root: server information (the endpoint index is at /api)
+app.get('/', serverInfo);
 
 // 404 Route handler
 app.use((req, res, next) => {

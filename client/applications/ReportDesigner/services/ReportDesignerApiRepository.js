@@ -13,7 +13,7 @@ const t = (key, fallback) => {
 
 class ReportDesignerApiRepository {
   constructor(baseUrl) {
-    this.baseUrl = baseUrl || (typeof process !== 'undefined' && process.env && process.env.REPORT_DESIGNER_API_URL) || 'http://localhost:4002/api';
+    this.baseUrl = baseUrl || (typeof process !== 'undefined' && process.env && process.env.REPORT_DESIGNER_API_URL) || 'http://localhost:8000/report/api';
   }
 
   async request(endpoint, options = {}) {

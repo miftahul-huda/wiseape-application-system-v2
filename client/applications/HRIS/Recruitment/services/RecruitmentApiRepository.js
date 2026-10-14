@@ -1,12 +1,12 @@
 /**
  * RecruitmentApiRepository
  * Unified Client API Service to communicate with HRIS Microservice Recruitment REST endpoints
- * Running on http://localhost:4001/api/recruitment
+ * Running on http://localhost:8000/hris/api/recruitment
  */
 
 class RecruitmentApiRepository {
   constructor(baseUrl) {
-    this.baseUrl = baseUrl || (typeof process !== 'undefined' && process.env && process.env.HRIS_API_URL) || 'http://localhost:4001/api';
+    this.baseUrl = baseUrl || (typeof process !== 'undefined' && process.env && process.env.HRIS_API_URL) || 'http://localhost:8000/hris/api';
   }
 
   async request(endpoint, options = {}) {
