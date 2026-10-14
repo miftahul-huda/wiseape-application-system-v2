@@ -1,0 +1,65 @@
+# Apache Kafka (single broker, KRaft mode -- no ZooKeeper) + Kafka UI.
+#
+#   docker compose up -d        # start (also what runs again after a reboot, see README)
+#   Kafka UI:                   http://localhost:8085
+#   Bootstrap server (host):    localhost:9092
+#   Bootstrap server (docker):  kafka:29092   (other containers on the "kafka-net" network)
+name: kafka
+
+services:
+  kafka:
+    image: apache/kafka:3.9.0
+    container_name: kafka
+    hostname: kafka
+    restart: unless-stopped            # comes back after a Docker/laptop restart
+    ports:
+      - "127.0.0.1:9092:9092"          # local only: the broker has no authentication
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://:29092,CONTROLLER://:9093,EXTERNAL://:9092
+      # What clients are told to connect to: containers use kafka:29092, the host uses localhost:9092.
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      # Single broker: internal topics cannot be replicated.
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_LOG_RETENTION_HOURS: 168
+    volumes:
+      - kafka_data:/var/lib/kafka/data  # topics survive restarts and `docker compose down`
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+    networks: [kafka-net]
+
+  kafka-ui:
+    image: ghcr.io/kafbat/kafka-ui:latest   # maintained fork of provectus/kafka-ui
+    container_name: kafka-ui
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8085:8080"          # local only: the UI has no login by default
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      DYNAMIC_CONFIG_ENABLED: "true"   # lets you add/edit clusters from the UI
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks: [kafka-net]
+
+networks:
+  kafka-net:
+    name: kafka-net
+
+volumes:
+  kafka_data:

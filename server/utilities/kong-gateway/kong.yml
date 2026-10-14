@@ -46,3 +46,48 @@ services:
       - name: wise-desktop-route
         paths: [/desktop]
         strip_path: true
+
+  - name: UTILITIESAPI        # Utilities API (Kong/Kafka manager links)  (server/applications/Utilities)
+    protocol: http
+    host: host.docker.internal
+    port: 4003
+    routes:
+      - name: utilities-api-route
+        paths: [/utilities]
+        strip_path: true
+
+  # ---- Web UIs shown inside the app (WiseWebView) ------------------------------------------
+  # These tools send X-Frame-Options (DENY / sameorigin), which makes browsers refuse to embed
+  # them. They are reached through Kong on their own host names (*.localhost resolves to
+  # 127.0.0.1 in browsers, so each UI keeps its own origin and root-relative asset paths work)
+  # and the header is removed on the way out. The Kong proxy port is bound to 127.0.0.1 in
+  # docker-compose.yml so these UIs are not exposed to the network.
+  - name: KONGMANAGER         # Kong Manager (admin GUI listener inside the Kong container)
+    protocol: http
+    host: localhost
+    port: 8002
+    routes:
+      - name: kong-manager-ui
+        hosts: [kong-manager.localhost]
+        paths: [/]
+        strip_path: false
+    plugins:
+      - name: response-transformer
+        config:
+          remove:
+            headers: [X-Frame-Options]
+
+  - name: KAFKAUI             # Kafka UI (server/utilities/kafka, published on 127.0.0.1:8085)
+    protocol: http
+    host: host.docker.internal
+    port: 8085
+    routes:
+      - name: kafka-ui
+        hosts: [kafka-ui.localhost]
+        paths: [/]
+        strip_path: false
+    plugins:
+      - name: response-transformer
+        config:
+          remove:
+            headers: [X-Frame-Options]

@@ -45,4 +45,5 @@ export const {
   WiseTextArea,
   WiseTextBox,
   WiseVerticalSeparator,
+  WiseWebView,
 } = window.WiseControlRegistry;

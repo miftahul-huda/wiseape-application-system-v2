@@ -14,6 +14,9 @@ const FALLBACK_MENUS = [
   { id: 11, parentId: null, type: 'group', label: 'Report', icon: '📊', appId: null, sortOrder: 4 },
   { id: 12, parentId: 11, type: 'item', label: 'Report Designer', icon: '📊', appId: 'reportDesigner', sortOrder: 0 },
   { id: 13, parentId: 11, type: 'item', label: 'Report Viewer', icon: '📈', appId: 'reportViewer', sortOrder: 1 },
+  { id: 14, parentId: null, type: 'group', label: 'Utilities', icon: '🧰', appId: null, sortOrder: 5 },
+  { id: 15, parentId: 14, type: 'item', label: 'Kong Manager', icon: '🦍', appId: 'kongManager', sortOrder: 0 },
+  { id: 16, parentId: 14, type: 'item', label: 'Kafka Manager', icon: '📨', appId: 'kafkaManager', sortOrder: 1 },
 ];
 
 let schemaReady = false;
@@ -178,6 +181,38 @@ async function ensureAdminMenuSeeded() {
         `INSERT INTO wiseape_menus (parent_id, menu_type, label, icon, app_id, sort_order)
          VALUES ($1, 'item', $2, $3, $4, $5)`,
         [reportGroupId, item.label, item.icon, item.appId, item.sortOrder]
+      );
+    }
+  }
+
+  // 'Utilities' group: Kong Manager + Kafka Manager
+  let utilitiesGroupId = null;
+  const existingUtilitiesGroup = await db.query(
+    "SELECT menu_id FROM wiseape_menus WHERE menu_type = 'group' AND label = 'Utilities'"
+  );
+  if (existingUtilitiesGroup.rowCount > 0) {
+    utilitiesGroupId = existingUtilitiesGroup.rows[0].menu_id;
+  } else {
+    const res = await db.query(
+      `INSERT INTO wiseape_menus (parent_id, menu_type, label, icon, app_id, sort_order)
+       VALUES (NULL, 'group', 'Utilities', '🧰', NULL, 5) RETURNING menu_id`
+    );
+    utilitiesGroupId = res.rows[0].menu_id;
+  }
+  const utilityItems = [
+    { label: 'Kong Manager', icon: '🦍', appId: 'kongManager', sortOrder: 0 },
+    { label: 'Kafka Manager', icon: '📨', appId: 'kafkaManager', sortOrder: 1 },
+  ];
+  for (const item of utilityItems) {
+    const existingItem = await db.query(
+      'SELECT 1 FROM wiseape_menus WHERE parent_id = $1 AND app_id = $2',
+      [utilitiesGroupId, item.appId]
+    );
+    if (existingItem.rowCount === 0) {
+      await db.query(
+        `INSERT INTO wiseape_menus (parent_id, menu_type, label, icon, app_id, sort_order)
+         VALUES ($1, 'item', $2, $3, $4, $5)`,
+        [utilitiesGroupId, item.label, item.icon, item.appId, item.sortOrder]
       );
     }
   }

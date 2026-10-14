@@ -37,15 +37,17 @@ services:
       KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
       KONG_ADMIN_LISTEN: 0.0.0.0:8001
       KONG_ADMIN_GUI_LISTEN: 0.0.0.0:8002
-      KONG_ADMIN_GUI_URL: http://localhost:8002
+      # Kong Manager is opened (embedded) through the proxy at kong-manager.localhost:8000 (see
+      # kong.yml); the Admin API only accepts CORS calls from this origin, so it must match.
+      KONG_ADMIN_GUI_URL: http://kong-manager.localhost:8000
       KONG_ADMIN_GUI_API_URL: http://localhost:8001
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
     ports:
-      - "8000:8000"             # Proxy HTTP
-      - "8443:8443"             # Proxy HTTPS
+      - "127.0.0.1:8000:8000"   # Proxy HTTP  (local only: it also serves Kong Manager / Kafka UI)
+      - "127.0.0.1:8443:8443"   # Proxy HTTPS (local only)
       - "127.0.0.1:8001:8001"   # Admin API (hanya lokal)
       - "127.0.0.1:8002:8002"   # Kong Manager (hanya lokal)
     depends_on:

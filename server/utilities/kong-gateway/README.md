@@ -7,9 +7,29 @@ Kong (3.9, PostgreSQL mode) in front of the Wiseape services.
 | `/was`     | `WASAPI`         | WAS API `:4000` |
 | `/hris`    | `HRISAPI`        | HRIS API `:4001` |
 | `/report`  | `REPORTAPI`      | Report Designer API `:4002` |
+| `/utilities` | `UTILITIESAPI`  | Utilities API `:4003` |
 | `/desktop` | `WISEDESKTOPAPI` | client Express server `:3000` |
 
-All routes use `strip_path: true` (`/hris/api/employees` reaches HRIS as `/api/employees`).
+Two more routes are **host-based** and exist only so the web UIs can be embedded in the app:
+
+| Host (via `http://<host>:8000`) | Service | Upstream |
+|---|---|---|
+| `kong-manager.localhost` | `KONGMANAGER` | Kong Manager (`localhost:8002` inside the Kong container) |
+| `kafka-ui.localhost`     | `KAFKAUI`     | Kafka UI (`host.docker.internal:8085`) |
+
+Both UIs send `X-Frame-Options` (`sameorigin` / `DENY`), so browsers refuse to show them in an
+iframe (WiseWebView). These routes remove that header (`response-transformer`). `*.localhost`
+resolves to 127.0.0.1 in browsers, so each UI keeps its own origin.
+
+Consequences to know about:
+- Kong's proxy ports (8000/8443) are bound to `127.0.0.1` in `docker-compose.yml`, so these UIs
+  (Kafka UI has no login) are not reachable from the network. Do not widen that without adding auth.
+- `KONG_ADMIN_GUI_URL` is `http://kong-manager.localhost:8000`: the Admin API only accepts CORS calls
+  from that one origin, so Kong Manager must be opened at **http://kong-manager.localhost:8000**.
+  `http://localhost:8002` still serves the page but it can no longer reach the Admin API.
+- The Admin API itself stays on `127.0.0.1:8001` and is NOT routed through the proxy.
+
+All path routes use `strip_path: true` (`/hris/api/employees` reaches HRIS as `/api/employees`).
 Upstream hosts are `host.docker.internal`, because Kong runs in a container.
 
 Files: `docker-compose.yml` (Kong + its database + a one-shot decK helper),

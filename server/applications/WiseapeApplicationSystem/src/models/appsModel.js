@@ -111,6 +111,28 @@ const FALLBACK_APPS = [
     appStartPoint: 'applications/ReportDesigner/AppReportViewer.js:AppReportViewer',
     appParameter: {},
   },
+  {
+    appID: 'kongManager',
+    appTitle: 'Kong Manager',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '🦍',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/Utilities/AppKongManager.js:AppKongManager',
+    appParameter: {},
+  },
+  {
+    appID: 'kafkaManager',
+    appTitle: 'Kafka Manager',
+    appVersion: '1.0.0',
+    appDeveloper: 'Wiseape',
+    appIcon: '📨',
+    appLibraries: ['Wiseape WAS'],
+    appConfig: {},
+    appStartPoint: 'applications/Utilities/AppKafkaManager.js:AppKafkaManager',
+    appParameter: {},
+  },
 ];
 
 function parseJsonField(value, fallback) {
@@ -243,10 +265,13 @@ async function ensureAdminAppSeeded() {
     );
   }
 
-  // Report Designer + Report Viewer (backend: server/applications/ReportDesigner)
+  // Report Designer + Report Viewer (backend: server/applications/ReportDesigner) and the Utilities apps
   const reportApps = [
     { id: 'reportDesigner', title: 'Report Designer', icon: '📊', start: 'applications/ReportDesigner/AppReportDesigner.js:AppReportDesigner' },
     { id: 'reportViewer', title: 'Report Viewer', icon: '📈', start: 'applications/ReportDesigner/AppReportViewer.js:AppReportViewer' },
+    // Utilities (backend: server/applications/Utilities)
+    { id: 'kongManager', title: 'Kong Manager', icon: '🦍', start: 'applications/Utilities/AppKongManager.js:AppKongManager' },
+    { id: 'kafkaManager', title: 'Kafka Manager', icon: '📨', start: 'applications/Utilities/AppKafkaManager.js:AppKafkaManager' },
   ];
   for (const app of reportApps) {
     const existingReportApp = await db.query('SELECT 1 FROM wiseape_apps WHERE app_id = $1', [app.id]);
