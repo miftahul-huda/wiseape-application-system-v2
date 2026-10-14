@@ -234,7 +234,7 @@ class WiseDesktop {
   }
 
   buildSnapshot(menus = []) {
-    const leafItems = this.flattenMenuItems(menus);
+    const leafItems = this.flattenMenuItems(menus).filter((item) => item.showInTaskbar !== false);
     return {
       theme: this.theme,
       menus,
@@ -589,7 +589,8 @@ class WiseDesktop {
     // data-app-id lets openMenuOverlay's own click handler find the
     // matching dock icon to bounce, since a Launchpad item disappears
     // (the overlay closes) the instant it's clicked.
-    this.flattenMenuItems(this.menus).forEach((item) => {
+    // Items with showInTaskbar === false stay in the Launchpad but get no dock icon.
+    this.flattenMenuItems(this.menus).filter((item) => item.showInTaskbar !== false).forEach((item) => {
       const handleClick = () => {
         this.onApplicationIconClick(item);
         this.launchApp(item, dockItem);

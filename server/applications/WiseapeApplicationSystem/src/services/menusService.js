@@ -20,6 +20,7 @@ function buildTree(rows, apps) {
       icon: resolveIcon(row, apps),
       appId: row.appId,
       sortOrder: row.sortOrder,
+      showInTaskbar: row.showInTaskbar !== false,
       children: [],
     });
   });

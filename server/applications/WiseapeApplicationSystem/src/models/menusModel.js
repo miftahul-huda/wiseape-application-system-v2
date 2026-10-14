@@ -12,11 +12,11 @@ const FALLBACK_MENUS = [
   { id: 9, parentId: 5, type: 'item', label: 'Master Data Management', icon: '🗂️', appId: 'masterDataManagement', sortOrder: 3 },
   { id: 10, parentId: 5, type: 'item', label: 'Recruitment', icon: '🎯', appId: 'recruitment', sortOrder: 4 },
   { id: 11, parentId: null, type: 'group', label: 'Report', icon: '📊', appId: null, sortOrder: 4 },
-  { id: 12, parentId: 11, type: 'item', label: 'Report Designer', icon: '📊', appId: 'reportDesigner', sortOrder: 0 },
-  { id: 13, parentId: 11, type: 'item', label: 'Report Viewer', icon: '📈', appId: 'reportViewer', sortOrder: 1 },
+  { id: 12, parentId: 11, type: 'item', label: 'Report Designer', icon: '📊', appId: 'reportDesigner', sortOrder: 0, showInTaskbar: false },
+  { id: 13, parentId: 11, type: 'item', label: 'Report Viewer', icon: '📈', appId: 'reportViewer', sortOrder: 1, showInTaskbar: false },
   { id: 14, parentId: null, type: 'group', label: 'Utilities', icon: '🧰', appId: null, sortOrder: 5 },
-  { id: 15, parentId: 14, type: 'item', label: 'Kong Manager', icon: '🦍', appId: 'kongManager', sortOrder: 0 },
-  { id: 16, parentId: 14, type: 'item', label: 'Kafka Manager', icon: '📨', appId: 'kafkaManager', sortOrder: 1 },
+  { id: 15, parentId: 14, type: 'item', label: 'Kong Manager', icon: '🦍', appId: 'kongManager', sortOrder: 0, showInTaskbar: false },
+  { id: 16, parentId: 14, type: 'item', label: 'Kafka Manager', icon: '📨', appId: 'kafkaManager', sortOrder: 1, showInTaskbar: false },
 ];
 
 let schemaReady = false;
@@ -32,9 +32,23 @@ async function ensureSchema() {
       label TEXT NOT NULL,
       icon TEXT,
       app_id TEXT,
-      sort_order INTEGER NOT NULL DEFAULT 0
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      show_in_taskbar BOOLEAN NOT NULL DEFAULT TRUE
     );
   `);
+
+  // show_in_taskbar was added later: migrate existing tables once. Only on that first run are the
+  // helper apps hidden from the desktop taskbar (they stay reachable from the Launchpad); after that
+  // the flag is whatever is stored, so later manual changes are never overwritten.
+  const taskbarColumn = await db.query(
+    "SELECT 1 FROM information_schema.columns WHERE table_name = 'wiseape_menus' AND column_name = 'show_in_taskbar'"
+  );
+  if (taskbarColumn.rowCount === 0) {
+    await db.query('ALTER TABLE wiseape_menus ADD COLUMN show_in_taskbar BOOLEAN NOT NULL DEFAULT TRUE');
+    await db.query(
+      "UPDATE wiseape_menus SET show_in_taskbar = FALSE WHERE app_id IN ('reportViewer', 'reportDesigner', 'kongManager', 'kafkaManager')"
+    );
+  }
 
   const countResult = await db.query('SELECT COUNT(*)::int AS count FROM wiseape_menus');
   if (countResult.rows[0].count === 0) {
@@ -178,8 +192,8 @@ async function ensureAdminMenuSeeded() {
     );
     if (existingItem.rowCount === 0) {
       await db.query(
-        `INSERT INTO wiseape_menus (parent_id, menu_type, label, icon, app_id, sort_order)
-         VALUES ($1, 'item', $2, $3, $4, $5)`,
+        `INSERT INTO wiseape_menus (parent_id, menu_type, label, icon, app_id, sort_order, show_in_taskbar)
+         VALUES ($1, 'item', $2, $3, $4, $5, FALSE)`,
         [reportGroupId, item.label, item.icon, item.appId, item.sortOrder]
       );
     }
@@ -210,8 +224,8 @@ async function ensureAdminMenuSeeded() {
     );
     if (existingItem.rowCount === 0) {
       await db.query(
-        `INSERT INTO wiseape_menus (parent_id, menu_type, label, icon, app_id, sort_order)
-         VALUES ($1, 'item', $2, $3, $4, $5)`,
+        `INSERT INTO wiseape_menus (parent_id, menu_type, label, icon, app_id, sort_order, show_in_taskbar)
+         VALUES ($1, 'item', $2, $3, $4, $5, FALSE)`,
         [utilitiesGroupId, item.label, item.icon, item.appId, item.sortOrder]
       );
     }
@@ -225,7 +239,7 @@ async function listMenus() {
     await ensureSchema();
     await ensureAdminMenuSeeded();
     const result = await db.query(
-      `SELECT menu_id AS id, parent_id AS "parentId", menu_type AS type, label, icon, app_id AS "appId", sort_order AS "sortOrder"
+      `SELECT menu_id AS id, parent_id AS "parentId", menu_type AS type, label, icon, app_id AS "appId", sort_order AS "sortOrder", show_in_taskbar AS "showInTaskbar"
        FROM wiseape_menus
        ORDER BY parent_id NULLS FIRST, sort_order ASC, label ASC`
     );

@@ -1,0 +1,3 @@
+# Database dumps contain personal data, password hashes and encrypted credentials, and this repo is public.
+# Keep them out of git. To publish one on purpose (e.g. to a private repo): git add -f <file>
+*.sql
